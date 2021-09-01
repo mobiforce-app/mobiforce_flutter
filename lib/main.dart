@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/common/app_colors.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
+import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 //import 'package:mobiforce_flutter/locator_service.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasksearch_bloc/tasksearch_bloc.dart';
+import 'package:mobiforce_flutter/presentation/pages/login_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,11 +19,16 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  //final SharedPreferences sharedPreferences;
+  //late SharedPreferences sharedPref;
   @override
   Widget build(BuildContext context) {
+    final w=0;
+    //bool isAuthorizate=sharedPreferences.getBool("isAuthorizate")??false;
     return MultiBlocProvider(
       providers: [
         BlocProvider<TaskSearchBloc>(create: (context) => di.sl<TaskSearchBloc>()),
+        BlocProvider<LoginBloc>(create: (context) => di.sl<LoginBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
 
       ], child: MaterialApp(
@@ -28,7 +36,7 @@ class MyApp extends StatelessWidget {
         backgroundColor: AppColors.mainBackground,
         scaffoldBackgroundColor: AppColors.mainBackground
       ),
-      home: HomePage(),
+      home: w!=0?HomePage():LoginPage(),
     ),
 
 

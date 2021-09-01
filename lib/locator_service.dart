@@ -1,9 +1,14 @@
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
+import 'package:mobiforce_flutter/data/datasources/authorization_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
+import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
+import 'package:mobiforce_flutter/domain/repositories/authorization_repository_impl.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
+import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasksearch_bloc/tasksearch_bloc.dart';
@@ -20,9 +25,12 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl()));
+  sl.registerFactory(() => LoginBloc(auth: sl()));
   //usecases
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
+  sl.registerLazySingleton(() => Authorization(sl()));
+  //sl.registerLazySingleton(() => LoginTasks(sl()));
   //repository
   sl.registerLazySingleton<TaskRepository>(
       () => TaskRepositoryImpl(
@@ -31,6 +39,14 @@ Future<void>init() async
       )
   );
   sl.registerLazySingleton<TaskRemoteDataSources>(() => TaskRemoteDataSourcesImpl(client: http.Client()));
+
+  sl.registerLazySingleton<AuthorizationRepository>(
+      () => AuthorizationRepositoryImpl(
+          remoteDataSources: sl(),
+          networkInfo: sl()
+      )
+  );
+  sl.registerLazySingleton<AuthorizationRemoteDataSources>(() => AuthorizationRemoteDataSourcesImpl(client: http.Client()));
   //core
 
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));

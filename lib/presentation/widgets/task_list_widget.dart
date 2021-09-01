@@ -6,9 +6,11 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_result.dart';
+import 'dart:core';
 
 class TasksList extends StatelessWidget {
   final scrollController = ScrollController();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
   void setupScrollController(BuildContext context) {
     scrollController.addListener(() {
@@ -20,6 +22,9 @@ class TasksList extends StatelessWidget {
       }
     });
   }
+  /*Future<void> _refreshTaskList(BuildContext context) async{
+
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +33,16 @@ class TasksList extends StatelessWidget {
         builder: (context, state) {
           List<TaskEntity> tasks = [];
           bool isLoading = false;
-
+          print ('rebuild');
           if (state is TaskListLoading && state.isFirstFetch) {
+            //_refreshIndicatorKey.currentState?.show();
             return _loadingIndicator();
+
           }
           else if (state is TaskListLoading) {
             tasks = state.oldPersonList;
             isLoading = true;
+            //_refreshIndicatorKey.currentState?.show();
           }
           else if (state is TaskListLoaded) {
             tasks = state.tasksList;
@@ -49,12 +57,21 @@ class TasksList extends StatelessWidget {
           }
           return
             RefreshIndicator(
+                  key: _refreshIndicatorKey,
                   onRefresh: () async {
-                await Future.delayed(Duration(seconds: 2));
-                BlocProvider.of<TaskListBloc>(context)..add(RefreshListTasks());
-                return null;
+                    //return null;
+                    final bloc = BlocProvider.of<TaskListBloc>(context)..add(RefreshListTasks());
+                    //return await bloc.first;
+                    await bloc.stream.firstWhere((e) => e is! TaskListLoading);
+                    return null;
+                  },
+                  //_refreshTaskList(context),
+                  //{
+                //await Future.delayed(Duration(seconds: 2));
+
+                //return null;
                 //di.sl<TaskListBloc>()..add(ListTasks());
-              },
+              //},
               child: Scrollbar(
                 child: ListView.separated(
                     //physics: BouncingScrollPhysics (),
@@ -101,3 +118,4 @@ Widget _showErrorText(String errorMessage) {
   );
 }
 }
+
