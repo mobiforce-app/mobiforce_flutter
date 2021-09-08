@@ -10,6 +10,12 @@ abstract class TaskListState extends Equatable{
 }
 class TaskListEmpty extends TaskListState{}
 
+class GoToFullSync extends TaskListState{
+  //final int lastSyncTime;
+  //final int lastUpdateCount;
+  GoToFullSync();
+}
+
 class TaskListLoading extends TaskListState{
   final List<TaskEntity> oldPersonList;
   final bool isFirstFetch;

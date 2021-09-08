@@ -5,6 +5,8 @@ import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
@@ -13,7 +15,8 @@ abstract class TaskRemoteDataSources{
 class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
 {
   final http.Client client;
-  TaskRemoteDataSourcesImpl({required this.client});
+  final SharedPreferences sharedPreferences;
+  TaskRemoteDataSourcesImpl({required this.client,required this.sharedPreferences});
   @override
   Future<List<TaskModel>> searchTask(String query) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:0);
 
@@ -22,6 +25,8 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
 
 
   Future<List<TaskModel>> _getTaskFromUrl({required String url,required int page}) async{
+    final token=sharedPreferences.getString("access_token");
+    print(token);
     try{
       Map data = {
         'filters': '{"groupOp":"AND","rules":[]}',
@@ -34,7 +39,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
         'updateCounter': 0,
         '_search': true
       };
-      final response = await client.post(Uri.parse(url),headers:{'Content-Type':"application/json"},body: json.encode(data));
+      final response = await client.post(Uri.parse(url),headers:{'Content-Type':"application/json","AUTHORIZATION":"key=$token"},body: json.encode(data));
       if(response.statusCode == 200){
         final tasks = json.decode(response.body);
         return (tasks['results'] as List).map((task)=> TaskModel.fromJson(task)).toList();

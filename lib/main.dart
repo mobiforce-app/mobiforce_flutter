@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/common/app_colors.dart';
+import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 //import 'package:mobiforce_flutter/locator_service.dart';
@@ -21,23 +23,25 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   //final SharedPreferences sharedPreferences;
   //late SharedPreferences sharedPref;
+  final AuthorizationManager am = di.sl<AuthorizationManager>();
   @override
   Widget build(BuildContext context) {
     final w=0;
+    //final AuthorizationDataSource a;
     //bool isAuthorizate=sharedPreferences.getBool("isAuthorizate")??false;
     return MultiBlocProvider(
       providers: [
         BlocProvider<TaskSearchBloc>(create: (context) => di.sl<TaskSearchBloc>()),
         BlocProvider<LoginBloc>(create: (context) => di.sl<LoginBloc>()),
+        BlocProvider<SyncBloc>(create: (context) => di.sl<SyncBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
-
       ], child: MaterialApp(
-      theme: ThemeData.light().copyWith(
-        backgroundColor: AppColors.mainBackground,
-        scaffoldBackgroundColor: AppColors.mainBackground
-      ),
-      home: w!=0?HomePage():LoginPage(),
-    ),
+            theme: ThemeData.light().copyWith(
+              backgroundColor: AppColors.mainBackground,
+              scaffoldBackgroundColor: AppColors.mainBackground
+            ),
+            home:  am.check()?HomePage():LoginPage(),
+          ),
 
 
     );
