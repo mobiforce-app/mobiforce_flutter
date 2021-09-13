@@ -28,7 +28,7 @@ class TaskDetailPage extends StatelessWidget {
                 ),
             ),
             SizedBox(height: 24,),
-            Text(
+            /*Text(
               task.client,
               style: TextStyle(
                   fontSize: 18,
@@ -44,7 +44,7 @@ class TaskDetailPage extends StatelessWidget {
                   color: Colors.black,
                   fontWeight: FontWeight.w600
               ),
-            ),
+            ),*/
 
           ],
 

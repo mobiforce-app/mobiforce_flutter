@@ -18,7 +18,7 @@ class TryToSync extends SyncEvent
 
 class FullSyncingInProgress extends SyncEvent
 {
-  final int progress;
+  final double progress;
   FullSyncingInProgress(this.progress);
 }
 class FullSyncingComplete extends SyncEvent

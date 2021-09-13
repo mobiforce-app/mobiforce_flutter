@@ -7,7 +7,7 @@ abstract class SyncState extends Equatable{
   List<Object> get props => [];
 
 }
-class SyncReady extends SyncState{}
+class FullSyncReadyToStart extends SyncState{}
 
 class SyncOK extends SyncState{}
 

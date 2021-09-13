@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/usecases/usecase.dart';
 import 'package:mobiforce_flutter/data/models/sync_status_model.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_object_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
@@ -13,25 +15,53 @@ import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
 class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
   final FullSyncRepository fullSyncRepository;
+  final DBProvider db;
   //int syncId
-  FullSyncFromServer(this.fullSyncRepository);
+  FullSyncFromServer({required this.fullSyncRepository,required  this.db});
   Future<Either<Failure, SyncStatusEntity>> call(FullSyncParams params) async {
     final dataFromWeb = await fullSyncRepository.getNext(params.syncId);
     return dataFromWeb.fold(
             (failure) {
               return Left(failure);
               },
-            (sync) {
-              if(sync.dataList.isEmpty)
-                return Right(SyncStatusModel(progress: sync.lastUpdateCount,complete:true,dataLength: 0,fullSync: true));
+            (sync) async {
+              if(sync.dataList.isEmpty) {
+                print ("empty");
+                //await sharedPreferences.getBool("full_sync")??false;
+                if(await fullSyncRepository.setComplete())
+                  return Right(SyncStatusModel(progress: 0,
+                      complete: true,
+                      dataLength: 0,
+                      syncPhase: SyncPhase.fullSyncStart));
+                else
+                  return Right(SyncStatusModel(progress: 0,
+                      complete: false,
+                      dataLength: 0,
+                      syncPhase: SyncPhase.fullSyncStart));
+              }
               else {
                 int id=0;
-                for(SyncObjectEntity element in sync.dataList)
-                  id=element.id;
-                return Right(SyncStatusModel(progress: id,
+//                if(sync.objectType=="task")
+                print("sync.dataList ${sync.dataList}");
+                  for(dynamic object in sync.dataList) {
+                    //id = task.serverId;
+                    print("ObjectModel.externalId = ${object.serverId}");
+                    await object.insertToDB(db);
+                  }
+                  await fullSyncRepository.commit();
+
+                /*else if(sync.objectType=="resolution")
+                  for(ResolutionModel task in sync.dataList) {
+                    //id = task.serverId;
+                    print("ResolutionModel.externalId = ${task.serverId}");
+                    db.insertTask(task);
+                  }*/
+                //fullSyncRepository.saveProgress(sync.dataProgress+sync.dataList.length,id);
+                //await sharedPreferences.getBool("full_sync")??false;
+                return Right(SyncStatusModel(progress: sync.dataProgress,
                     complete: false,
-                    dataLength: 0,
-                    fullSync: true));
+                    dataLength: sync.dataLength,
+                    syncPhase: SyncPhase.fullSyncStart));
               }
             });
     //return Left(ServerFailure());

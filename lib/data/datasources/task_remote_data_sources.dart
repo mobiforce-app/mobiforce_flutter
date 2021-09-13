@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +17,8 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
 {
   final http.Client client;
   final SharedPreferences sharedPreferences;
-  TaskRemoteDataSourcesImpl({required this.client,required this.sharedPreferences});
+  final DBProvider db;
+  TaskRemoteDataSourcesImpl({required this.client,required this.sharedPreferences, required this.db});
   @override
   Future<List<TaskModel>> searchTask(String query) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:0);
 
@@ -25,7 +27,8 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
 
 
   Future<List<TaskModel>> _getTaskFromUrl({required String url,required int page}) async{
-    final token=sharedPreferences.getString("access_token");
+    return await db.getTasks(page);
+    /*final token=sharedPreferences.getString("access_token");
     print(token);
     try{
       Map data = {
@@ -52,7 +55,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     catch (error) {
       print("error!!! $error");
       throw ServerException();
-    }
+    }*/
   }
   
 }

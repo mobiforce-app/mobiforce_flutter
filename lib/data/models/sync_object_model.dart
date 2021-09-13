@@ -1,9 +1,9 @@
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_object_entity.dart';
 
-class SyncObjectModel extends SyncObjectEntity
+class SyncObjectModel1 extends SyncObjectEntity1
 {
-  SyncObjectModel({
+  SyncObjectModel1({
     required id,
     required type,
     required body,
@@ -12,10 +12,10 @@ class SyncObjectModel extends SyncObjectEntity
     type:type,
     body:body,
   );
-  factory SyncObjectModel.fromJson(Map<String, dynamic> json)
+  factory SyncObjectModel1.fromJson(Map<String, dynamic> json)
   {
     //print('jsonjson ${json[0]} ');
-    return SyncObjectModel(
+    return SyncObjectModel1(
         id: json["id"]??0,
         type: json["type"]??"unknown",
         body: json["body"]??null);

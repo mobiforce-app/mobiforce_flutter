@@ -36,12 +36,12 @@ class RefreshListTasks extends TaskListEvent
   RefreshListTasks();
 }
 
-class FullSyncTasks extends TaskListEvent
+class StartFullSync extends TaskListEvent
 {
   //final int lastSyncTime;
   //final int lastUpdateCount;
 
-  FullSyncTasks();
+  StartFullSync();
 }
 
 class BadListTasks extends TaskListEvent

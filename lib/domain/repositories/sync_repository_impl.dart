@@ -9,11 +9,13 @@ import 'package:mobiforce_flutter/data/datasources/authorization_remote_data_sou
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/datasources/updates_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/models/authorization_model.dart';
+import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_status_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
@@ -24,9 +26,13 @@ class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
+  final List<String> objectsType=["task","resolution"];
+  final List<int> objectsTypeLastUpdateId=[];
+  int syncObjectsTypeId=0;
+
   //final AuthorizationDataSource authorizationDataSource;
   int lastSyncTime=0;
-  int lastUpdateCount=0;
+///  int lastUpdateCount=0;
   String domain="";
   String accessToken="";
   bool fullSync=false;
@@ -34,34 +40,88 @@ class SyncRepositoryImpl implements SyncRepository{
   SyncRepositoryImpl({required this.networkInfo, required this.updatesRemoteDataSources, required this.sharedPreferences})
   {
     lastSyncTime = sharedPreferences.getInt("last_sync_time")??0;
-    lastUpdateCount = sharedPreferences.getInt("last_update_count")??0;
+    //lastUpdateCount = sharedPreferences.getInt("last_update_count")??0;
+    for(int i=0; i<objectsType.length;i++ ){
+      objectsTypeLastUpdateId.add(sharedPreferences.getInt("last_update_count_${objectsType[i]}")??0);
+    }
     domain=sharedPreferences.getString("domain")??"";
     accessToken=sharedPreferences.getString("access_token")??"";
     fullSync=sharedPreferences.getBool("full_sync")??false;
   }
+  @override
+  Future<bool>commit() async {
+    await sharedPreferences.setInt("last_update_count_${objectsType[syncObjectsTypeId]}", objectsTypeLastUpdateId[syncObjectsTypeId]);
+    return true;
+  }
+  @override
+  Future<bool>setComplete() async {
+    print("complete fullSyncObjectsTypeId = $syncObjectsTypeId");
+    syncObjectsTypeId++;
+    //fullSyncUpdateId=0;
+    //await sharedPreferences.setInt("full_sync_objects_type_id", fullSyncObjectsTypeId);
+    //await sharedPreferences.setInt("full_sync_update_id", fullSyncUpdateId);
+    if(syncObjectsTypeId>=objectsType.length) {
+      return true;
+    }
+    else
+      return false;
+
+  }
 
   @override
-  Future<Either<Failure, SyncStatusModel>> getUpdates() async {
-    return await _getUpdates(()=> updatesRemoteDataSources.getDataList(domain: domain, accessToken:accessToken, lastSyncTime:lastSyncTime, lastUpdateCount:lastUpdateCount));
+  bool isFullSyncStarted()
+  {
+    return sharedPreferences.getBool("full_sync")??false;
+  }
+  @override
+  Future<Either<Failure, SyncModel>> getUpdates() async {
+
+    List<dynamic> mapObject(json) {
+      //dynamic t=TaskModel;
+      if(objectsType[syncObjectsTypeId]=="task") {
+        print ("type = task");
+        return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
+      }
+      if(objectsType[syncObjectsTypeId]=="resolution"){
+        print ("type = resolution");
+        return ((json as List).map((obj) => ResolutionModel.fromJson(obj)).toList());
+      }
+
+      return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
+    }
+
+    return await _getUpdates(()=> updatesRemoteDataSources.getDataList(
+        domain: domain,
+        accessToken:accessToken,
+        objectType:objectsType[syncObjectsTypeId],
+        lastSyncTime:lastSyncTime,
+        lastUpdateCount:objectsTypeLastUpdateId[syncObjectsTypeId],
+        mapObjects: mapObject
+    ));
     //return Right(_r);
     //throw UnimplementedError();
   }
-  Future<Either<Failure,SyncStatusModel>> _getUpdates(Future<SyncModel> Function() getData) async {
-    if(fullSync){
-      return Right(SyncStatusModel(fullSync: true,progress: 0,complete: false,dataLength: 0));
-    }
-    else{
+  Future<Either<Failure,SyncModel>> _getUpdates(Future<SyncModel> Function() getData) async {
       if(await networkInfo.isConnected){
         try{
-          final remoteAuth = await getData();//remoteDataSources.searchTask(query);
-          if(remoteAuth.fullSync) {
-            await sharedPreferences.setBool("full_sync", true);
-            await sharedPreferences.setInt("last_sync_time", remoteAuth.lastSyncTime);
-            await sharedPreferences.setInt("last_update_count", remoteAuth.lastUpdateCount);
-            return Right(SyncStatusModel(fullSync: true,progress: 0,complete: false,dataLength: 0));
+          final remoteData = await getData();//remoteDataSources.searchTask(query);
+          //if(remoteAuth.fullSync) {
+            // await sharedPreferences.setBool("full_sync", true);
+            // await sharedPreferences.setInt("last_sync_time", remoteAuth.lastSyncTime);
+            // await sharedPreferences.setInt("last_update_count", remoteAuth.lastUpdateCount);
+            // await sharedPreferences.setInt("full_sync_update_id", 0);
+            // await sharedPreferences.setInt("full_sync_objects_type_id", 0);
+          if(remoteData.dataList.isNotEmpty){
+            print("new fullSyncUpdateId = ${remoteData.dataList.last.usn}");
+            objectsTypeLastUpdateId[syncObjectsTypeId]=remoteData.dataList.last.usn;
+            //fullSyncUpdateId=remoteData.dataList.last.usn;
+            //syncDataProgress=syncDataProgress+remoteData.dataList.length;
           }
-          else
-            return Right(SyncStatusModel(fullSync: false,progress: 0,complete: false,dataLength: 0));
+          print("remoteAuth = ${remoteData.toString()}");
+            return Right(remoteData);//SyncStatusModel(syncPhase: SyncPhase.fullSyncStart,progress: 0,complete: false,dataLength: 0));
+          //}
+          //else
+          //  return Right(remoteAuth);//SyncStatusModel(syncPhase: SyncPhase.normalfullSyncComplete,progress: 0,complete: false,dataLength: 0));
         }
         on ServerException{
           await Future.delayed(const Duration(seconds: 2), (){});
@@ -71,7 +131,6 @@ class SyncRepositoryImpl implements SyncRepository{
       else
         return Left(ServerFailure());
     }
-  }
  /* @override
   Future <void> saveAuthorization(String token) async {
    //return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass));

@@ -1,14 +1,15 @@
 import 'dart:async';
 
+import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 class SyncStatus
 {
-  int progress;
-  int max;
+  //int progress;
+  //int max;
   //int lastUpdateCount;
   //int lastSyncTime;
-  bool isFirstSync;
-  SyncStatus({required this.max,required this.progress,required this.isFirstSync});
+  SyncPhase syncPhase;
+  SyncStatus({required this.syncPhase});
 }
 abstract class Model{
   Stream<dynamic> get counterUpdates;
@@ -22,7 +23,7 @@ class ModelImpl implements Model{
   final SyncFromServer syncFromServer;
   ModelImpl({required this.syncFromServer});
 
-  SyncStatus s = SyncStatus(max: 0,progress: 0,isFirstSync:false);
+  SyncStatus s = SyncStatus(syncPhase:SyncPhase.normal);
   //var controller = new StreamController<String>();
   StreamController _streamController = new StreamController<SyncStatus>();
 
@@ -30,19 +31,29 @@ class ModelImpl implements Model{
 
   Future<void> startUpdate() async {
 
-    final faiureOrLoading = await syncFromServer(ListSyncParams(lastSyncTime: 0, lastUpdateCount: 0,));
-    faiureOrLoading.fold((failure)=> {
-      print ("*")
-    }, (sync) {
+    while(true)
+    {
 
-      // open full sync page
-      print("fullSync ${sync.fullSync}");
-      if(sync.fullSync)
-      {
-        _streamController.add(SyncStatus(max:0,progress: 0,isFirstSync: true));
-      }
-      //print("**");
-    });
+      final faiureOrLoading = await syncFromServer(ListSyncParams(lastSyncTime: 0, lastUpdateCount: 0,));
+      bool complete=faiureOrLoading.fold((failure) {
+        print ("*");
+        return false;
+      }, (sync) {
+
+        // open full sync page
+        print("fullSync ${sync.syncPhase}");
+        if(sync.syncPhase != SyncPhase.normal)
+        {
+          _streamController.add(SyncStatus(syncPhase:sync.syncPhase));
+          return true;
+        }
+        return sync.complete;
+        //print("**");
+      });
+      if(complete)
+        break;
+    }
+
     /*Future.delayed(Duration(seconds: 10),() {
         _counter++;
         s.progress++;

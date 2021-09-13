@@ -21,7 +21,7 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
   //int lastUpdateCount;
   //int lastSyncTime;
 
-  SyncBloc({required this.m}) : super(SyncInProgress())
+  SyncBloc({required this.m}) : super(FullSyncReadyToStart())
   {
       m.counterUpdates.listen((item){
         print(item.progress);

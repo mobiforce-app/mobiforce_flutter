@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/authorization_data_sources.dart';
 import 'package:mobiforce_flutter/data/datasources/authorization_remote_data_sources.dart';
@@ -48,8 +49,8 @@ Future<void>init() async
   //usecases
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
-  sl.registerLazySingleton(() => SyncFromServer(sl()));
-  sl.registerLazySingleton(() => FullSyncFromServer(sl()));
+  sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
+  sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));
   //sl.registerLazySingleton(() => Model());
   sl.registerLazySingleton(() => Authorization(sl()));
@@ -91,7 +92,7 @@ Future<void>init() async
       )
   );
    //sl.registerLazySingleton<Model>();
-  sl.registerLazySingleton<TaskRemoteDataSources>(() => TaskRemoteDataSourcesImpl(client: http.Client(),sharedPreferences: sl()));
+  sl.registerLazySingleton<TaskRemoteDataSources>(() => TaskRemoteDataSourcesImpl(client: http.Client(),sharedPreferences: sl(),db:sl()));
 
   sl.registerLazySingleton<AuthorizationRepository>(
       () => AuthorizationRepositoryImpl(
@@ -115,6 +116,7 @@ Future<void>init() async
   //core
 
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+  sl.registerLazySingleton(() => DBProvider());
   //external
   final sharedPrefernces = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPrefernces);

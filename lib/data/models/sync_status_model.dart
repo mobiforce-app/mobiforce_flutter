@@ -8,10 +8,10 @@ class SyncStatusModel extends SyncStatusEntity
     required complete,
     required progress,
     required dataLength,
-    required fullSync,
+    required syncPhase,
   }) : super(
       complete:complete,
-      fullSync:fullSync,
+      syncPhase:syncPhase,
       progress:progress,
       dataLength:dataLength,
   );

@@ -5,7 +5,7 @@ import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_event.dart';
 class FullSyncStatus
 {
-  int progress;
+  double progress;
   //int max;
   bool complete;
   //int lastUpdateCount;
@@ -37,14 +37,18 @@ class FullSyncImpl implements FullSync{
         print ("*x")
       }, (sync) {
         syncId=sync.progress;
+        print("progress ${sync.progress} ${sync.dataLength}");
         // open full sync page
+        double progress=0.0;
+        if(sync.dataLength>0)
+          progress=(10000.0*sync.progress/sync.dataLength).roundToDouble()/100;
         print("fullSync progress ${sync.progress}");
         if(sync.complete){
           complete=false;
-          _streamController.add(FullSyncStatus(complete: true, progress: sync.progress));
+          _streamController.add(FullSyncStatus(complete: true, progress: progress));
         }
         else{
-          _streamController.add(FullSyncStatus(complete: false, progress: sync.progress));
+          _streamController.add(FullSyncStatus(complete: false, progress: progress));
         }
         //_streamController.add(FullSyncStatus(max:0,progress: 0,complete: true));
         //if(sync.fullSync)

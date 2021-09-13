@@ -36,8 +36,10 @@ class TaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
               children:[
                 Text(task.name, style: TextStyle(color: Colors.black),),
-                Text('${task.client} ${task.subdivision}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),
-                Text(task.address,overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
+                //Text(task.name, style: TextStyle(color: Colors.black),),
+                //Text(task.name, style: TextStyle(color: Colors.black),),
+                Text('${task.client}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),
+                Text('${task.address}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
               ]
           ),
         )

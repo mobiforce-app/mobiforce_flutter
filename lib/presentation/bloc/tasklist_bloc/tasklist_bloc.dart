@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
+import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
@@ -22,12 +23,12 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
 // expose data from stream
 //  Stream<int> get stream_counter => _counterStreamController.stream;
 
-  int page = 1;
+  int page = 0;
   TaskListBloc({required this.listTask,required this.m}) : super(TaskListEmpty())
   {
     m.counterUpdates.listen((item){
-      print(item.progress);
-      this.add(FullSyncTasks());
+      //print(item.progress);
+      this.add(StartFullSync());
     });
     m.startUpdate();
     print("start");
@@ -43,7 +44,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   @override
   Stream<TaskListState> mapEventToState(TaskListEvent event) async* {
     print("tasklist bloc map event "+event.toString());
-    if(event is FullSyncTasks){
+    if(event is StartFullSync){
       print("start sync");
       yield GoToFullSync();
       //print("start sync1");
@@ -67,7 +68,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   }
   Stream<TaskListState> _mapRefreshTaskToState() async*{
     final currentState = state;
-    page = 1;
+    page = 0;
     var oldTasks = <TaskEntity>[];
     //m.incrementCounter();
     /*if(currentState is TaskListLoaded)
@@ -76,7 +77,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     }
 */
 
-    yield TaskListLoading(oldTasks,isFirstFetch: page==1);
+    yield TaskListLoading(oldTasks,isFirstFetch: page==0);
     final faiureOrLoading = await listTask(ListTaskParams(page: page));
 
     yield faiureOrLoading.fold((failure)=>TaskListError(message:_mapFailureToMessage(failure)), (task) {
@@ -99,7 +100,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       oldTasks = currentState.tasksList;
     }
 
-    yield TaskListLoading(oldTasks,isFirstFetch: page==1);
+    yield TaskListLoading(oldTasks,isFirstFetch: page==0);
     print("page: $page");
     final faiureOrLoading = await listTask(ListTaskParams(page: page));
 

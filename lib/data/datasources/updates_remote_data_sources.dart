@@ -7,10 +7,11 @@ import 'dart:convert';
 
 import 'package:mobiforce_flutter/data/models/authorization_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_model.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 
 abstract class UpdatesRemoteDataSources{
   //Future<LoginModel>searchTask(String query);
-  Future<SyncModel>getDataList({required String domain, required String accessToken, required int lastSyncTime, required int lastUpdateCount});
+  Future<SyncModel>getDataList({required String domain, required String accessToken, required int lastSyncTime, required int lastUpdateCount,required String objectType,required List<dynamic> Function(dynamic) mapObjects });
 }
 
 class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
@@ -25,15 +26,22 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
 
 
   Future<SyncModel> getDataList({
-    required String domain,required  String accessToken,required int lastSyncTime,required  int lastUpdateCount}) async{
-    await Future.delayed(const Duration(seconds: 5), (){});
+    required String domain,
+    required  String accessToken,
+    required int lastSyncTime,
+    required  int lastUpdateCount,
+    required String objectType,
+    required List<dynamic> Function(dynamic) mapObjects
+  }) async{
+    //await Future.delayed(const Duration(seconds: 5), (){});
     try{
       Map data = {
         'lastUpdateCount': lastUpdateCount,
         'lastSyncTime': lastSyncTime,
-       // 'pass': pass
+        'objectType':objectType,
+        // 'pass': pass
       };
-      print("domain=$domain, access_token=$accessToken");
+      print("domain=$domain, access_token=$accessToken, lastUpdateCount = $lastUpdateCount, objectType = $objectType, lastSyncTime = $lastSyncTime");
       final response = await client.post(Uri.parse("https://$domain/api2.0/get-updates.php"),
 
           headers:{
@@ -43,7 +51,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
       if(response.statusCode == 200){
         final auth = json.decode(response.body);
         print(response.body);
-        return SyncModel.fromJson(auth['results']);
+        return SyncModel.fromJson(auth['results'],mapObjects);
       }
       else{
         print("My exception");
