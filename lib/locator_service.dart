@@ -18,10 +18,12 @@ import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/fullSyncSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
@@ -30,6 +32,7 @@ import 'package:mobiforce_flutter/presentation/pages/syncscreen_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'domain/repositories/task_repository_impl.dart';
+import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
@@ -44,11 +47,14 @@ Future<void>init() async
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => LoginBloc(auth: sl()));
   sl.registerFactory(() => SyncBloc(m:sl()));
+  sl.registerFactory(() => TaskBloc(task:sl(),nextTaskStatuses: sl()));
 
 
   //usecases
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
+  sl.registerLazySingleton(() => GetTask(sl()));
+  sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
   sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));

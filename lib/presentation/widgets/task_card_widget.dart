@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskEntity task;
@@ -12,9 +15,12 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        BlocProvider.of<TaskBloc>(context).add(
+          ReloadTask(task.id),
+        );
         Navigator.push(context,
             PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => TaskDetailPage(task: task,),
+              pageBuilder: (context, animation1, animation2) => TaskDetailPage(),
               transitionDuration: Duration(seconds: 0),
             ));
             //MaterialPageRoute(

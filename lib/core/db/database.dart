@@ -69,6 +69,24 @@ class DBProvider {
   }
 
 //READ
+  Future<TaskModel> getTask(int id) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
+    final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
+    return TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first);
+  }
+  Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
+    Database db = await this.database;
+    final List<TaskStatusModel> taskStatusesList = [];
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t2.* FROM $taskLifeCycleTable as t1 LEFT JOIN $taskStatusesTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ?",[id]);
+    //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
+    tasksMapList.forEach((element) {
+      print("element = ${element.toString()}");
+      taskStatusesList.add(TaskStatusModel.fromMap(element));
+    });
+    //final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
+    return taskStatusesList;//TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first);
+  }
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
     print("limit $limit, offset $page");
@@ -142,6 +160,7 @@ class DBProvider {
     final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(tasksMapList.first):null;
   }
+
 
   Future<TaskStatusModel> insertTaskStatus(TaskStatusModel taskStatus) async {
     Database db = await this.database;

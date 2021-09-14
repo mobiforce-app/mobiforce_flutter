@@ -4,6 +4,7 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
+  Future<TaskModel>getTask(int id);
+  Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
+
 }
 
 class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
@@ -19,11 +23,23 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   final SharedPreferences sharedPreferences;
   final DBProvider db;
   TaskRemoteDataSourcesImpl({required this.client,required this.sharedPreferences, required this.db});
+
+
   @override
   Future<List<TaskModel>> searchTask(String query) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:0);
 
   @override
   Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
+
+  @override
+  Future<List<TaskStatusModel>> getTaskStatusGraph(int ?id) async
+  {
+    return await db.getNextStatuses(id);
+  }
+  @override
+  Future<TaskModel> getTask(int id) async{
+    return await db.getTask(id);
+  }
 
 
   Future<List<TaskModel>> _getTaskFromUrl({required String url,required int page}) async{

@@ -7,6 +7,7 @@ import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
 class TaskRepositoryImpl implements TaskRepository{
@@ -16,6 +17,11 @@ class TaskRepositoryImpl implements TaskRepository{
   TaskRepositoryImpl({required this.remoteDataSources,required this.networkInfo});
 
   @override
+  Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id) async {
+    return Right(await remoteDataSources.getTaskStatusGraph(id));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
   Future<Either<Failure, List<TaskEntity>>> searchTask(String query) async {
    return await _getTasks(()=> remoteDataSources.searchTask(query));
     //return Right(_r);
@@ -27,6 +33,14 @@ class TaskRepositoryImpl implements TaskRepository{
    return await _getTasks(()=> remoteDataSources.getAllTask(page));
     //return Right(_r);
     //throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, TaskEntity>> getTask(int id) async {
+   return Right(await remoteDataSources.getTask(id));
+   // return Right(_r);
+    //throw UnimplementedError();
+    //return ;
   }
 
   Future<Either<Failure,List<TaskModel>>> _getTasks(Future<List<TaskModel>> Function() getTasks) async {
