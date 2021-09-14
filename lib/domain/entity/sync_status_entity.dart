@@ -3,7 +3,8 @@ enum SyncPhase{
   normal,
   fullSyncStart,
   fullSyncResume,
-  normalfullSyncComplete
+  normalfullSyncComplete,
+  normalSyncComplete
 }
 
 class SyncStatusEntity{

@@ -12,7 +12,9 @@ import 'package:mobiforce_flutter/data/models/authorization_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_status_model.dart';
+import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
+import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
@@ -26,7 +28,7 @@ class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["task","resolution"];
+  final List<String> objectsType=["taskstatus","tasklifecycle","task","resolution"];
   final List<int> objectsTypeLastUpdateId=[];
   int syncObjectsTypeId=0;
 
@@ -61,6 +63,7 @@ class SyncRepositoryImpl implements SyncRepository{
     //await sharedPreferences.setInt("full_sync_objects_type_id", fullSyncObjectsTypeId);
     //await sharedPreferences.setInt("full_sync_update_id", fullSyncUpdateId);
     if(syncObjectsTypeId>=objectsType.length) {
+      syncObjectsTypeId=0;
       return true;
     }
     else
@@ -81,6 +84,14 @@ class SyncRepositoryImpl implements SyncRepository{
       if(objectsType[syncObjectsTypeId]=="task") {
         print ("type = task");
         return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
+      }
+      if(objectsType[syncObjectsTypeId]=="tasklifecycle") {
+        print ("type = task");
+        return ((json as List).map((obj) => TaskLifeCycleModel.fromJson(obj)).toList());
+      }
+      if(objectsType[syncObjectsTypeId]=="taskstatus") {
+        print ("type = taskstatus");
+        return ((json as List).map((obj) => TaskStatusModel.fromJson(obj)).toList());
       }
       if(objectsType[syncObjectsTypeId]=="resolution"){
         print ("type = resolution");

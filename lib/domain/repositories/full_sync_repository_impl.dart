@@ -14,7 +14,9 @@ import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_object_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_status_model.dart';
+import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
+import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_object_entity.dart';
@@ -30,7 +32,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
   final FullRemoteDataSources fullRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["task","resolution"];
+  final List<String> objectsType=["taskstatus","tasklifecycle","task","resolution"];
   //final AuthorizationDataSource authorizationDataSource;
   //int lastSyncTime=0;
   int fullSyncUpdateId=0;
@@ -138,6 +140,14 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
       if(objectsType[fullSyncObjectsTypeId]=="task") {
         print ("type = task");
         return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
+      }
+      if(objectsType[fullSyncObjectsTypeId]=="tasklifecycle") {
+        print ("type = task");
+        return ((json as List).map((obj) => TaskLifeCycleModel.fromJson(obj)).toList());
+      }
+      if(objectsType[fullSyncObjectsTypeId]=="taskstatus") {
+        print ("type = taskstatus");
+        return ((json as List).map((obj) => TaskStatusModel.fromJson(obj)).toList());
       }
       if(objectsType[fullSyncObjectsTypeId]=="resolution"){
         print ("type = resolution");

@@ -35,6 +35,12 @@ class RefreshListTasks extends TaskListEvent
 
   RefreshListTasks();
 }
+class GetTaskUpdatesFromServer extends TaskListEvent
+{
+  //final int page;
+
+  GetTaskUpdatesFromServer();
+}
 
 class StartFullSync extends TaskListEvent
 {

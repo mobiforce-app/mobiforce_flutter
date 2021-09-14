@@ -47,12 +47,17 @@ class ModelImpl implements Model{
           _streamController.add(SyncStatus(syncPhase:sync.syncPhase));
           return true;
         }
+        else{
+          if(sync.complete)
+            _streamController.add(SyncStatus(syncPhase:SyncPhase.normalSyncComplete));
+        }
         return sync.complete;
         //print("**");
       });
       if(complete)
         break;
     }
+
 
     /*Future.delayed(Duration(seconds: 10),() {
         _counter++;

@@ -1,3 +1,6 @@
+import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
+
 class TaskEntity{
   int id;
   int serverId;
@@ -8,8 +11,9 @@ class TaskEntity{
  // String address;
  // String client;
  // String subdivision;
+  TaskStatusModel? status;
   TaskEntity({
-      required this.id, required this.usn, required this.serverId, required this.name, this.address, this.client///, required this.subdivision
+      required this.id, required this.usn, required this.serverId, required this.name, this.address, this.client, required this.status///, required this.subdivision
   });
   fromMap(Map<String, dynamic> map)
   {

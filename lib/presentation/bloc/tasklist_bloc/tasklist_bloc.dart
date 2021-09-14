@@ -28,7 +28,13 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   {
     m.counterUpdates.listen((item){
       //print(item.progress);
-      this.add(StartFullSync());
+      if(item.syncPhase==SyncPhase.normalSyncComplete)
+      {
+        print("complete");
+        this.add(RefreshListTasks());
+      }
+      else //if(item)
+        this.add(StartFullSync());
     });
     m.startUpdate();
     print("start");
@@ -49,6 +55,9 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       yield GoToFullSync();
       //print("start sync1");
       //yield TaskListEmpty();
+    }
+    if(event is GetTaskUpdatesFromServer){
+      m.startUpdate();
     }
     if(event is SetEmptyList){
     //   print("start sync");

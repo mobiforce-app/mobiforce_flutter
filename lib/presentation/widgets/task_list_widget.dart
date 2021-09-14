@@ -91,10 +91,11 @@ class TasksList extends StatelessWidget {
                       //return null;
                       //m.incrementCounter();
                       final bloc = BlocProvider.of<TaskListBloc>(context)
-                        ..add(RefreshListTasks());
+                        ..add(GetTaskUpdatesFromServer());
+                      //await Future.delayed(Duration(seconds: 2));
                       //return await bloc.first;
                       await bloc.stream.firstWhere((
-                          e) => e is! TaskListLoading);
+                          e) => e is! GetTaskUpdatesFromServer);
                       return null;
                     },
                     //_refreshTaskList(context),

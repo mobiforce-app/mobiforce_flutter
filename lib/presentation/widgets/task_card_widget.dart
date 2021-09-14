@@ -39,6 +39,7 @@ class TaskCard extends StatelessWidget {
                 //Text(task.name, style: TextStyle(color: Colors.black),),
                 //Text(task.name, style: TextStyle(color: Colors.black),),
                 Text('${task.client}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),
+                Text('${task.status?.name}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),
                 Text('${task.address}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
               ]
           ),

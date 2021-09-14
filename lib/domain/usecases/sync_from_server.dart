@@ -18,8 +18,8 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
   SyncFromServer(this.syncRepository, this.db, this.fullSyncRepository);
   Future<Either<Failure, SyncStatusEntity>> call(ListSyncParams params) async {
 
-    if(syncRepository.isFullSyncStarted())
-      return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0));
+    //if(syncRepository.isFullSyncStarted())
+    //  return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0));
     //return await syncRepository.getUpdates();
     //return await syncRepository.getUpdates();
     final faiureOrLoading = await syncRepository.getUpdates();
@@ -55,7 +55,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
           for(dynamic object in sync.dataList) {
             //id = task.serverId;
             print("ObjectModel.externalId = ${object.serverId}");
-            //await object.insertToDB(db);
+            await object.insertToDB(db);
           }
           await syncRepository.commit();
           return Right(SyncStatusModel(progress: 0,
