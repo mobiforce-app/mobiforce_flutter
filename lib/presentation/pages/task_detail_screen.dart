@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
@@ -88,6 +89,45 @@ class TaskDetailPage extends StatelessWidget {
                   )
                 );
               });
+
+              if(state.nextTaskStatuses.isNotEmpty)
+              {
+                list.addAll([SizedBox(
+                  height: 24,
+                ),
+                  Text(
+                    "Прошедшие статусы:",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                    ),
+                  )]);
+              }
+              final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
+
+              state.task.statuses?.forEach((element) {
+                var date = new DateTime.fromMillisecondsSinceEpoch(element.createdTime*1000);
+                //.fromMicrosecondsSinceEpoch(element.createdTime);
+                final String formatted = formatter.format(date);
+
+                list.add(
+                  SizedBox(
+                    height: 24,
+                  ),
+                );
+                list.add(
+                    Text(
+                        "${element.name} $formatted",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600
+                        ),
+                      ),
+                );
+              });
+
                 return Scaffold(
                   appBar: AppBar(
                       title: Text('Task'),
@@ -101,6 +141,8 @@ class TaskDetailPage extends StatelessWidget {
 
                     ),
               ));
+
+
             }
             return Scaffold(
                 appBar: AppBar(

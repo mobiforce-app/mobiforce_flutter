@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
+import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,7 +22,8 @@ class DBProvider {
   static Database? _database;
   String tasksTable="task";
   String resolutionTable="resolution";
-  String taskStatusesTable="taskstatus";
+  String taskStatusTable="taskstatus";
+  String tasksStatusesTable="tasksstatuses";
   String taskLifeCycleTable="tasklifecycletable";
 
   DBProvider.internal();
@@ -49,13 +51,51 @@ class DBProvider {
   void _createDB(Database db, int version) async {
 
     await db.execute(
-        'CREATE TABLE $taskStatusesTable (id INTEGER PRIMARY KEY AUTOINCREMENT, external_id INTEGER UNIQUE, usn INTEGER, color TEXT, name TEXT)');
+        'CREATE TABLE IF NOT EXISTS  $taskStatusTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'usn INTEGER, '
+            'color TEXT, '
+            'name TEXT)');
     await db.execute(
-        'CREATE TABLE $taskLifeCycleTable (id INTEGER PRIMARY KEY AUTOINCREMENT, external_id INTEGER UNIQUE, usn INTEGER, current_status INTEGER,  next_status INTEGER,  need_resolution INTEGER)');
+        'CREATE TABLE IF NOT EXISTS  $taskLifeCycleTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'usn INTEGER, '
+            'current_status INTEGER,  '
+            'next_status INTEGER,  '
+            'need_resolution INTEGER)');
     await db.execute(
-        'CREATE TABLE $tasksTable (id INTEGER PRIMARY KEY AUTOINCREMENT, external_id INTEGER UNIQUE, usn INTEGER, status INTEGER, client TEXT, address TEXT, name TEXT)');
+        'CREATE TABLE IF NOT EXISTS  $tasksTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'usn INTEGER, '
+            'status INTEGER, '
+            'client TEXT, '
+            'address TEXT, '
+            'name TEXT)');
     await db.execute(
-        'CREATE TABLE $resolutionTable (id INTEGER PRIMARY KEY AUTOINCREMENT, external_id INTEGER UNIQUE, client TEXT, address TEXT, name TEXT)');
+        'CREATE TABLE IF NOT EXISTS  $resolutionTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'client TEXT, '
+            'address TEXT, '
+            'name TEXT)');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $tasksStatusesTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'task_status INTEGER, '
+            'created_time INTEGER, '
+            'manual_time INTEGER, '
+            'task INTEGER, '
+            'lat TEXT, '
+            'lon TEXT)');
   }
 //CLEAR BASE
   Future<void> clear() async{
@@ -63,7 +103,8 @@ class DBProvider {
     print("DROP");
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
-    await db.execute('DROP TABLE IF EXISTS $taskStatusesTable');
+    await db.execute('DROP TABLE IF EXISTS $taskStatusTable');
+    await db.execute('DROP TABLE IF EXISTS $tasksStatusesTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleTable');
     _createDB(db, 1);
   }
@@ -72,13 +113,14 @@ class DBProvider {
   Future<TaskModel> getTask(int id) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
-    final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
-    return TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first);
+    final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
+    final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ?",[id]);
+    return TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first,tasksStatusesMapList);
   }
   Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
     Database db = await this.database;
     final List<TaskStatusModel> taskStatusesList = [];
-    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t2.* FROM $taskLifeCycleTable as t1 LEFT JOIN $taskStatusesTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ?",[id]);
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t2.* FROM $taskLifeCycleTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ?",[id]);
     //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     tasksMapList.forEach((element) {
       print("element = ${element.toString()}");
@@ -101,9 +143,9 @@ class DBProvider {
     {
       //int statusId = taskMap['status'];
       //TaskStatusModel? ts = await getTaskStatus(taskMap["status"]);
-      List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [taskMap['status']]);
+      List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [taskMap['status']]);
       //taskMap["status"]=null;
-      tasksList.add(TaskModel.fromMap(taskMap,taskStatusMapList.first));
+      tasksList.add(TaskModel.fromMap(taskMap,taskStatusMapList.first,[]));
     }
     return tasksList;
   }
@@ -119,6 +161,19 @@ class DBProvider {
     }
     task.id=id;
     return task;
+  }
+  Future<TasksStatusesModel> insertTasksStatuses(TasksStatusesModel tasksStatuses) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      print('${tasksStatuses.toMap().toString()}');
+      id=await db.insert(tasksStatusesTable, tasksStatuses.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    tasksStatuses.id=id;
+    return tasksStatuses;
   }
   Future<ResolutionModel> insertResolution(ResolutionModel resolution) async{
     Database db = await this.database;
@@ -140,7 +195,24 @@ class DBProvider {
   }
   Future<int> updateTaskByServerId(TaskModel task) async{
     Database db = await this.database;
-    return await db.update(tasksTable, task.toMap(), where: 'external_id =?', whereArgs: [task.serverId]);
+
+    int taskId = await getTaskIdByServerId(task.serverId);
+    if(taskId!=0)
+      await db.update(tasksTable, task.toMap(), where: 'external_id =?', whereArgs: [taskId]);
+    //task.id=taskId;
+    return taskId;
+  }
+
+
+  Future<TasksStatusesModel> updateTasksStatusesByServerId(TasksStatusesModel task) async{
+    Database db = await this.database;
+
+    int tasksStatusesId = await getTasksStatusesIdByServerId(task.serverId);
+    if(tasksStatusesId!=0)
+      await db.update(tasksStatusesTable, task.toMap(), where: 'external_id =?', whereArgs: [tasksStatusesId]);
+    task.id=tasksStatusesId;
+    return task;
+
 
   }
 //DELETE
@@ -151,13 +223,32 @@ class DBProvider {
 
   Future<TaskStatusModel?> getTaskStatusByServerId(int serverId) async {
     Database db = await this.database;
-    final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<int> getTaskIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+  Future<int> getTaskStatusIdByServerId(int serverId) async {
+    Database db = await this.database;
+    print("TaskStatus serverId = $serverId");
+
+    final List<Map<String,dynamic>> tasksStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksStatusMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+  Future<int> getTasksStatusesIdByServerId(int serverId) async {
+    Database db = await this.database;
+    print("serverId = $serverId");
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksStatusesTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
 
   Future<TaskStatusModel?> getTaskStatus(int id) async {
     Database db = await this.database;
-    final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
+    final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(tasksMapList.first):null;
   }
 
@@ -166,7 +257,7 @@ class DBProvider {
     Database db = await this.database;
     int id=0;
     try{
-      id=await db.insert(taskStatusesTable, taskStatus.toMap());
+      id=await db.insert(taskStatusTable, taskStatus.toMap());
     }
     catch(e){
       print("$e");
@@ -181,7 +272,7 @@ class DBProvider {
     Database db = await this.database;
     TaskStatusModel? ts = await getTaskStatusByServerId(taskStatus.serverId);
     if(ts?.serverId!=null)
-      await db.update(taskStatusesTable, taskStatus.toMap(), where: 'id =?', whereArgs: [ts?.id]);
+      await db.update(taskStatusTable, taskStatus.toMap(), where: 'id =?', whereArgs: [ts?.id]);
     return ts?.id;
   }
 

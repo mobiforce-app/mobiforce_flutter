@@ -1,28 +1,11 @@
+import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 
 class TaskModel extends TaskEntity
 {
-  /*TaskModel({
-    required id,
-    required name,
-    required address,
-    required client,
-    required subdivision
-  }) : super(
-      id:id,
-      name:name,
-      address:address,
-      client:client,
-      subdivision:subdivision
-  );
-  factory TaskModel.fromJson(Map<String, dynamic> json)
-  {
-    //print('jsonjson ${json[0]} ');
-    return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
-  }*/
 
-  TaskModel({required id,required usn,required serverId,required name, status, client, address}): super(
+  TaskModel({required id,required usn,required serverId,required name, status, client, address, statuses}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -30,6 +13,7 @@ class TaskModel extends TaskEntity
       client:client,
       address:address,
       status:status,
+      statuses:statuses,
   );
 
   Map<String, dynamic> toMap(){
@@ -51,15 +35,26 @@ class TaskModel extends TaskEntity
       id=0;
     print ("INSERT Status id = $id");
     dynamic t = await db.insertTask(this);
+    int taskId=t.id;
     print ("db id == ${t.id}");
-    if(t.id==0){
-      dynamic t1 = await db.updateTaskByServerId(this);
-      print ("db id == ${t1.toString()}");
-
+    if(taskId==0){
+      taskId = await db.updateTaskByServerId(this);
+      print ("db id == ${taskId}");
     }
+    if(statuses != null)
+    {
+      await Future.forEach(statuses!,(TasksStatusesModel element) async {
+        print("status Id = ${element.serverId}");
+        element.task = taskId;
+        await element.insertToDB(db);
+      });
+    }
+    else
+      id=0;
+
     return 0;
   }
-  factory TaskModel.fromMap(Map<String, dynamic> taskMap,Map<String, dynamic> statusMap)
+  factory TaskModel.fromMap(Map<String, dynamic> taskMap,Map<String, dynamic> statusMap,List<Map<String, dynamic>> statusesMap)
   {
    // id = map['id'];
    // externalId = map['externalId'];
@@ -73,12 +68,14 @@ class TaskModel extends TaskEntity
         address: taskMap['address'],
         name: taskMap['name'],
         status:TaskStatusModel.fromMap(statusMap),
+        statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList()
     );
   }
   factory TaskModel.fromJson(Map<String, dynamic> json)
   {
     //print('jsonjson ${json[0]} ');
     //return TaskModel(id:0,externalId: 0, name: "");
+    print('json["task_statuses"] = ${json["task_statuses"]}');
     return TaskModel(
         id: 0,
         usn: json["usn"]??0,
@@ -86,7 +83,8 @@ class TaskModel extends TaskEntity
         name: json["name"]??"",
         client: json["client"]??"",
         address: json["address"]??"",
-        status:TaskStatusModel.fromJson(json["task_status"])
+        status:TaskStatusModel.fromJson(json["task_status"]),
+        statuses:(json["task_statuses"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList()
     );
   }
   /*fromMap(Map<String, dynamic> map)

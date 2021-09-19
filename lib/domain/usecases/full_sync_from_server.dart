@@ -46,6 +46,7 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                   for(dynamic object in sync.dataList) {
                     //id = task.serverId;
                     print("ObjectModel.externalId = ${object.serverId}");
+                    print("ObjectModel = ${object.toString()}");
                     await object.insertToDB(db);
                   }
                   await fullSyncRepository.commit();
