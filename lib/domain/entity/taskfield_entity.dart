@@ -1,3 +1,5 @@
+import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
+
 enum TaskFieldTypeEnum {undefined,text,number,checkbox,group,optionlist,picture}
 
 class TaskFieldType {
@@ -43,10 +45,11 @@ class TaskFieldEntity{
   int serverId;
   String name;
   TaskFieldType type;
+  List<SelectionValueModel>? selectionValues;
   int usn;
   //
   TaskFieldEntity({
-      required this.id, required this.usn, required this.serverId, required this.name,required this.type
+      required this.id, required this.usn, required this.serverId, required this.name,required this.type,this.selectionValues
   });
   fromMap(Map<String, dynamic> map)
   {

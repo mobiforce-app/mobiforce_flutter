@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
+import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
@@ -25,6 +26,7 @@ class DBProvider {
   String tasksTable="task";
   String taskFieldTable="taskfield";
   String resolutionTable="resolution";
+  String selectionValuesTable="selection";
   String taskStatusTable="taskstatus";
   String tasksStatusesTable="tasksstatuses";
   String taskLifeCycleTable="tasklifecycletable";
@@ -107,9 +109,18 @@ class DBProvider {
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
-            'client TEXT, '
-            'address TEXT, '
             'name TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $selectionValuesTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'sorting INTEGER, '
+            'deleted INTEGER, '
+            'task_field task_field, '
+            'name TEXT)');
+
     await db.execute(
         'CREATE TABLE IF NOT EXISTS $tasksStatusesTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -128,6 +139,7 @@ class DBProvider {
     print("DROP");
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
+    await db.execute('DROP TABLE IF EXISTS $selectionValuesTable');
     await db.execute('DROP TABLE IF EXISTS $taskStatusTable');
     await db.execute('DROP TABLE IF EXISTS $tasksStatusesTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleTable');
@@ -233,6 +245,18 @@ class DBProvider {
     }
     resolution.id=id;
     return resolution;
+  }
+  Future<SelectionValueModel> insertSelection(SelectionValueModel selection) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(selectionValuesTable, selection.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    selection.id=id;
+    return selection;
   }
 //UPDATE
   Future<int> updateTask(TaskModel task) async{

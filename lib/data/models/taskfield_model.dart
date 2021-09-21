@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
@@ -24,12 +25,13 @@ class TaskFieldModel extends TaskFieldEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TaskFieldModel({required id,required usn,required serverId,required name, required type}): super(
+  TaskFieldModel({required id,required usn,required serverId,required name, required type,selectionValues}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       type:type,
+      selectionValues:selectionValues
   );
 
   Map<String, dynamic> toMap(){
@@ -47,11 +49,19 @@ class TaskFieldModel extends TaskFieldEntity
   }
   Future<int> insertToDB(DBProvider db) async {
     dynamic t = await db.insertTaskField(this);
-
     print ("db id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTaskFieldByServerId(this);
       print ("db id == ${t.toString()}");
+    }
+    print("selectionValues = $selectionValues");
+    if(selectionValues?.isNotEmpty??false)
+    {
+      await Future.forEach(selectionValues!,(SelectionValueModel element) async {
+        print("SelectionValueModel Id = ${element.serverId}");
+        element.taskFieldId = t.id;
+        await element.insertToDB(db);
+      });
     }
     return t.id;
     //return 1;
@@ -74,13 +84,17 @@ class TaskFieldModel extends TaskFieldEntity
 
     print('jsonjsonTaskFieldModel ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
-
+    //if(json["selectionValues"]!=null)
+    //{
+      final List<SelectionValueModel> sv = json["selectionValues"]!=null?(json["selectionValues"] as List).map((selectionValue) => SelectionValueModel.fromJson(selectionValue)).toList():[];
+    //}
     return TaskFieldModel(
         id: 0,
-        usn: json["usn"]??0,
+        usn: int.parse(json["usn"]??"0"),
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         type: TaskFieldType(int.parse(json["type"]??"0")),
+        selectionValues: sv
         //color: json["color"]??"",
     );
   }
