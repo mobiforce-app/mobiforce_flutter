@@ -1,3 +1,5 @@
+import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
+import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -5,7 +7,7 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({required id,required usn,required serverId,required name, status, client, address, statuses}): super(
+  TaskModel({required id,required usn,required serverId,required name, status, client, address, statuses, checkList, propsList}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -14,6 +16,8 @@ class TaskModel extends TaskEntity
       address:address,
       status:status,
       statuses:statuses,
+      propsList:propsList,
+      checkList:checkList,
   );
 
   Map<String, dynamic> toMap(){
@@ -51,14 +55,45 @@ class TaskModel extends TaskEntity
     }
     else
       id=0;
+    print("checkList = ${checkList.toString()}");
+    if(checkList != null)
+    {
+      await Future.forEach(checkList!,(TasksFieldsModel element) async {
+        print("TasksFieldsModel checkList Id = ${element.serverId}");
+        element.task = taskId;
+        await element.insertToDB(db);
+        if (element.childrens!=null&&element.childrens!.length>0){
+          await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
+            print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
+            elementChildren.task = taskId;
+            await elementChildren.insertToDB(db);
+          });
+        }
+      });
+    }
+    else
+      id=0;
+
+    /*if(propsList != null)
+    {
+      await Future.forEach(propsList!,(TasksFieldsModel element) async {
+        print("TasksFieldsModel props Id = ${element.serverId}");
+        element.task = taskId;
+        await element.insertToDB(db);
+      });
+    }
+    else
+      id=0;*/
 
     return 0;
   }
-  factory TaskModel.fromMap(Map<String, dynamic> taskMap,Map<String, dynamic> statusMap,List<Map<String, dynamic>> statusesMap)
+  factory TaskModel.fromMap(Map<String, dynamic> taskMap,Map<String, dynamic> statusMap,List<Map<String, dynamic>> statusesMap, List<Map<String, dynamic>> tasksFieldsMap)
   {
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField)).toList();
+
     print("statusMap = ${statusMap.toString()}");
     return TaskModel(
         id: taskMap['id'],
@@ -68,7 +103,8 @@ class TaskModel extends TaskEntity
         address: taskMap['address'],
         name: taskMap['name'],
         status:TaskStatusModel.fromMap(statusMap),
-        statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList()
+        statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
+        propsList: fieldList,
     );
   }
   factory TaskModel.fromJson(Map<String, dynamic> json)
@@ -76,6 +112,11 @@ class TaskModel extends TaskEntity
     //print('jsonjson ${json[0]} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     print('json["task_statuses"] = ${json["task_statuses"]}');
+    print("ok1");
+    var propsList = (json["props"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus)).toList();
+    print("ok2");
+    var checkList = (json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus)).toList();
+    print("ok3 ${checkList.length}");
     return TaskModel(
         id: 0,
         usn: json["usn"]??0,
@@ -84,6 +125,8 @@ class TaskModel extends TaskEntity
         client: json["client"]??"",
         address: json["address"]??"",
         status:TaskStatusModel.fromJson(json["task_status"]),
+        propsList:propsList,
+        checkList:checkList,
         statuses:(json["task_statuses"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList()
     );
   }

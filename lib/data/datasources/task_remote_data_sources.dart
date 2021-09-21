@@ -4,6 +4,7 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'dart:convert';
 
@@ -14,6 +15,7 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
   Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
+  Future<TaskModel> setTaskStatus({required int status,required int task});
 
 }
 
@@ -39,6 +41,15 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   @override
   Future<TaskModel> getTask(int id) async{
     return await db.getTask(id);
+  }
+  @override
+  Future<TaskModel> setTaskStatus({required int status,required int task}) async{
+    var date = new DateTime.now();
+    int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
+    TasksStatusesModel ts = TasksStatusesModel(id:0,usn:0,serverId: null, statusId:status, serverStatusId: 0,task:task,createdTime: d, manualTime: d, lat: 0.0, lon:0.0, color:"", name: "", dirty:true);
+
+    await db.addStatusToTask(ts);
+    return await db.getTask(task);
   }
 
 

@@ -17,12 +17,12 @@ class TasksStatusesModel extends TasksStatusesEntity
     required lat,
     required name,
     required lon,
+    required color,
     required statusId,
     required dirty,
   }): super(
       id: id,
       statusId: statusId,
-      serverId: serverId,
       serverStatusId: serverStatusId,
       task: task,
       createdTime: createdTime,
@@ -30,6 +30,7 @@ class TasksStatusesModel extends TasksStatusesEntity
       lat: lat,
       lon: lon,
       usn: usn,
+      color: color,
       name: name,
       dirty: dirty,
   );
@@ -50,6 +51,7 @@ class TasksStatusesModel extends TasksStatusesEntity
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
+
     statusId = await db.getTaskStatusIdByServerId(serverStatusId);
 
     dynamic t = await db.insertTasksStatuses(this);
@@ -66,6 +68,7 @@ class TasksStatusesModel extends TasksStatusesEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    print("TasksStatusesModel MAP ${map.toString()}");
     return TasksStatusesModel(
         id: map['id'],
         statusId: map['task_status'],
@@ -78,6 +81,7 @@ class TasksStatusesModel extends TasksStatusesEntity
         manualTime: map['manual_time'],
         lat: double.tryParse(map['lat']),
         lon: double.tryParse(map['lon']),
+        color: map['color'],
         dirty: map['dirty']==1?true:false,
         //color: map['color'],
         //name: map['name']
@@ -90,6 +94,7 @@ class TasksStatusesModel extends TasksStatusesEntity
     return TasksStatusesModel(
         id: 0,
         statusId: 0,
+        color: "",
         usn: json['usn']??0,
         name: json['name']??"",
         dirty: false,

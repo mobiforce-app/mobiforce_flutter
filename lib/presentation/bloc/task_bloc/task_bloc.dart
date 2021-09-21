@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
@@ -9,6 +10,7 @@ import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
+import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/wait.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 //import 'package:mobiforce_flutter/domain/usecases/search_task.dart';
@@ -20,6 +22,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state
 class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final GetTask task;
   final GetTaskStatusesGraph nextTaskStatuses;
+  final SetTaskStatus setTaskStatus;
 
   //final ModelImpl m;
   //final WaitDealys10 wait10;
@@ -31,7 +34,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   int id = 0;
 
-  TaskBloc({required this.task,required this.nextTaskStatuses}) : super(TaskEmpty()) {
+  TaskBloc({required this.task,required this.nextTaskStatuses,required this.setTaskStatus}) : super(TaskEmpty()) {
 
   }
 
@@ -45,6 +48,21 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   @override
   Stream<TaskState> mapEventToState(TaskEvent event) async* {
     print("tasklist bloc map event " + event.toString());
+    if (event is ChangeTaskStatus) {
+      yield StartLoadingTaskPage();
+      //await Future.delayed(Duration(seconds: 2));
+      print("SetTaskStatus ${event.status} ${event.task}");
+      final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: event.task,status: event.status));
+      yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task) async {
+        final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+        return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses) {
+          //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+          print("nextTaskStatuses = ${nextTaskStatuses.toString()}");
+          return TaskLoaded(task: task, nextTaskStatuses:nextTaskStatuses);
+        });
+        //return TaskLoaded(task: task);
+      });
+    }
     if (event is ReloadTask) {
       print("start sync");
       //TaskModel t=//task.taskRepository()

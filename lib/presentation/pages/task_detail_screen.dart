@@ -5,6 +5,22 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+extension HexColor on Color {
+  /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
+}
 
 class TaskDetailPage extends StatelessWidget {
   //final TaskEntity task;
@@ -77,7 +93,9 @@ class TaskDetailPage extends StatelessWidget {
                 );
                 list.add(
                   ElevatedButton(
-                    onPressed: ()=>{},
+                    onPressed: ()=>BlocProvider.of<TaskBloc>(context)
+                      ..add(ChangeTaskStatus(status:element.id,task:state.task.id))
+                    ,
                     child: Text(
                       "${element.name}",
                       style: TextStyle(
@@ -117,30 +135,87 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                 );
                 list.add(
-                    Text(
-                        "${element.name} $formatted",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600
+                    Row(
+                      children: [
+                        Container(
+                          height: 8,
+                          width: 8,
+                          decoration: BoxDecoration(
+                            color:HexColor.fromHex(element.color),
+                            borderRadius: BorderRadius.circular(8)
+                          ),
                         ),
-                      ),
+                        SizedBox(width: 8,),
+                        Text(
+                            "${element.name} $formatted",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600
+                            ),
+                          ),
+                      ],
+                    ),
                 );
               });
 
-                return Scaffold(
+              if(state.task.propsList!=null)
+              {
+                list.addAll([SizedBox(
+                  height: 24,
+                ),
+                  Text(
+                    "Дополнительные поля:",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                    ),
+                  )]);
+              }
+              state.task.propsList?.forEach((element) {
+                list.add(
+                  SizedBox(
+                    height: 24,
+                  ),
+                );
+                list.add(
+                  Text(
+                    "${element.taskField?.name}",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                    ),
+                  ),
+                );
+                list.add(
+                  Text(
+                    "${element.taskField?.type.string}",
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        //fontWeight: FontWeight.w600
+                    ),
+                  ),
+                );
+              });
+
+              return Scaffold(
                   appBar: AppBar(
                       title: Text('Task'),
                   centerTitle: true,
                   ),
-                  body:Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: list
+                  body:SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: list
 
-                    ),
-              ));
+                      ),
+              ),
+                  ));
 
 
             }

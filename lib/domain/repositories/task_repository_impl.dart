@@ -17,6 +17,12 @@ class TaskRepositoryImpl implements TaskRepository{
   TaskRepositoryImpl({required this.remoteDataSources,required this.networkInfo});
 
   @override
+  Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task}) async {
+    return Right(await remoteDataSources.setTaskStatus(status:status, task:task));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+  @override
   Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id) async {
     return Right(await remoteDataSources.getTaskStatusGraph(id));
     //return Right(_r);

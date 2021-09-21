@@ -15,6 +15,13 @@ class ReloadTask extends TaskEvent
 
   ReloadTask(this.id);
 }
+class ChangeTaskStatus extends TaskEvent
+{
+  final int status;
+  final int task;
+
+  ChangeTaskStatus({required this.status,required this.task});
+}
 /*
 class Wait10Sec extends TaskListEvent
 {
