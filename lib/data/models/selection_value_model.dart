@@ -46,9 +46,25 @@ class SelectionValueModel extends SelectionValueEntity
     return map;
   }
   Future<int> insertToDB(db) async {
-    dynamic t = await db.insertSelection(this);
+    dynamic t = await db.insertTaskSelection(this);
     print ("insertSelection id == ${t.id}");
+    return t.id;
+  }
+
+  Future<int> putTaskField2taskSelectionValueRelation(db, int fieldId) async {
+    if(id==0)
+    {
+      id=await db.getTaskSelectionValueIdByServerId(serverId);
+      if(id==0)
+        id=await insertToDB(db);
+    }
+    if(id!=0)
+    {
+      dynamic tid = await db.insertTaskField2taskSelectionValueRelation(fieldId,id);
+      print ("insertTaskField2taskSelectionValueRelation id == ${tid}");
+    }
     return 0;
+
   }
   factory SelectionValueModel.fromMap(Map<String, dynamic> map)
   {
@@ -69,6 +85,7 @@ class SelectionValueModel extends SelectionValueEntity
   }
   factory SelectionValueModel.fromJson(Map<String, dynamic> json)
   {
+    print("SelectionValueModel $json");
     return SelectionValueModel(
         id: 0,
         serverId: int.parse(json["id"]??"0"),

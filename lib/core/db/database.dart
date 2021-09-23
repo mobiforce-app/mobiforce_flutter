@@ -26,11 +26,13 @@ class DBProvider {
   String tasksTable="task";
   String taskFieldTable="taskfield";
   String resolutionTable="resolution";
-  String selectionValuesTable="selection";
+  String taskSelectionValuesTable="taskselectionvalue";
+  String taskSelectionValuesRelationTable="taskselectionvaluerelation";
   String taskStatusTable="taskstatus";
   String tasksStatusesTable="tasksstatuses";
   String taskLifeCycleTable="tasklifecycletable";
   String tasksFieldsTable="tasksfields";
+  String taskValuesTable="taskvaluestable";
 
   DBProvider.internal();
 
@@ -112,14 +114,28 @@ class DBProvider {
             'name TEXT)');
 
     await db.execute(
-        'CREATE TABLE IF NOT EXISTS  $selectionValuesTable ('
+        'CREATE TABLE IF NOT EXISTS  $taskSelectionValuesTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
             'sorting INTEGER, '
             'deleted INTEGER, '
-            'task_field task_field, '
+            'task_field INTEGER, '
             'name TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $taskSelectionValuesRelationTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'tasks_fields INTEGER, '
+            'tasks_selection_values INTEGER '
+            ')');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $taskValuesTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'tasks_fields INTEGER, '
+            'value TEXT '
+            ')');
 
     await db.execute(
         'CREATE TABLE IF NOT EXISTS $tasksStatusesTable ('
@@ -139,12 +155,14 @@ class DBProvider {
     print("DROP");
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
-    await db.execute('DROP TABLE IF EXISTS $selectionValuesTable');
+    await db.execute('DROP TABLE IF EXISTS $taskSelectionValuesTable');
+    await db.execute('DROP TABLE IF EXISTS $taskSelectionValuesRelationTable');
     await db.execute('DROP TABLE IF EXISTS $taskStatusTable');
     await db.execute('DROP TABLE IF EXISTS $tasksStatusesTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleTable');
     await db.execute('DROP TABLE IF EXISTS $tasksFieldsTable');
     await db.execute('DROP TABLE IF EXISTS $taskFieldTable');
+    await db.execute('DROP TABLE IF EXISTS $taskValuesTable');
     _createDB(db, 1);
   }
 
@@ -154,14 +172,37 @@ class DBProvider {
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name, t2.color FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
+    final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
+          "t1.id, "
+          "t1.external_id, "
+          "t1.name, "
+          "t2.name as value_name, "
+          "t2.external_id as value_external_id, "
+          "t2.sorting as value_sorting, "
+          "t2.id as value_id "
+        "FROM $taskFieldTable as t1 LEFT JOIN $taskSelectionValuesTable as t2 ON t1.id = t2.task_field ORDER BY t1.id DESC",[]);
     final List<Map<String,dynamic>> tasksFieldsMapList = await db.rawQuery("SELECT t1.*, "
       "t2.name as field_name, "
       "t2.type as field_type, "
       "t2.id as field_id, "
       "t2.usn as field_usn, "
-      "t2.external_id as field_external_id "
-      "FROM $tasksFieldsTable as t1 LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
-    return TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first,tasksStatusesMapList,tasksFieldsMapList);
+      "t2.external_id as field_external_id, "
+      "t4.id as task_selection_value_id, "
+      "t4.name as task_selection_value_name, "
+      "t4.external_id as task_selection_value_external_id, "
+      "t5.value as value "
+      "FROM $tasksFieldsTable as t1 "
+      "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
+      "LEFT JOIN $taskSelectionValuesRelationTable as t3 ON t1.id = t3.tasks_fields "
+      "LEFT JOIN $taskSelectionValuesTable as t4 ON t3.tasks_selection_values = t4.id "
+      "LEFT JOIN $taskValuesTable as t5 ON t1.id = t5.tasks_fields "
+        "WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
+    return TaskModel.fromMap(
+        taskMap:tasksMapList.first,
+        statusMap:taskStatusMapList.first,
+        statusesMap: tasksStatusesMapList,
+        tasksFieldsMap: tasksFieldsMapList,
+        tasksFieldsSelectionValuesMap:tasksFieldsSelectionValuesMapList);
   }
   Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
     Database db = await this.database;
@@ -191,7 +232,7 @@ class DBProvider {
       //TaskStatusModel? ts = await getTaskStatus(taskMap["status"]);
       List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [taskMap['status']]);
       //taskMap["status"]=null;
-      tasksList.add(TaskModel.fromMap(taskMap,taskStatusMapList.first,[],[]));
+      tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first));
     }
     return tasksList;
   }
@@ -207,6 +248,50 @@ class DBProvider {
     }
     task.id=id;
     return task;
+  }
+
+  Future<bool> updateTaskFieldSelectionValue({required int taskFieldId,int? taskFieldSelectionValue}) async{
+    Database db = await this.database;
+    try{
+      await db.delete(taskSelectionValuesRelationTable, where: 'tasks_fields =?', whereArgs: [taskFieldId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    if(taskFieldSelectionValue!=null) {
+      try {
+        await db.insert(taskSelectionValuesRelationTable, {
+          "tasks_fields": taskFieldId,
+          "tasks_selection_values": taskFieldSelectionValue
+        });
+      }
+      catch (e) {
+        return false;
+      }
+    }
+    return true;
+  }
+  Future<bool> updateTaskFieldValue({required int taskFieldId,String? taskFieldValue}) async{
+    Database db = await this.database;
+    try{
+      await db.delete(taskValuesTable, where: 'tasks_fields =?', whereArgs: [taskFieldId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    if(taskFieldValue!=null) {
+      try {
+        await db.insert(taskValuesTable, {
+          "tasks_fields": taskFieldId,
+          "value": taskFieldValue
+        });
+        print(":: $taskFieldValue");
+      }
+      catch (e) {
+        return false;
+      }
+    }
+    return true;
   }
   Future<TasksStatusesModel> insertTasksStatuses(TasksStatusesModel tasksStatuses) async{
     Database db = await this.database;
@@ -246,11 +331,11 @@ class DBProvider {
     resolution.id=id;
     return resolution;
   }
-  Future<SelectionValueModel> insertSelection(SelectionValueModel selection) async{
+  Future<SelectionValueModel> insertTaskSelection(SelectionValueModel selection) async{
     Database db = await this.database;
     int id=0;
     try{
-      id=await db.insert(selectionValuesTable, selection.toMap());
+      id=await db.insert(taskSelectionValuesTable, selection.toMap());
     }
     catch(e){
       //await db(tasksTable, task.toMap());
@@ -303,6 +388,11 @@ class DBProvider {
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
+  Future<int> getTaskSelectionValueIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(taskSelectionValuesTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
   Future<int> getTaskStatusIdByServerId(int serverId) async {
     Database db = await this.database;
     print("TaskStatus serverId = $serverId");
@@ -336,6 +426,21 @@ class DBProvider {
     }
     taskStatus.id=id;
     return taskStatus;
+  }
+
+  Future<int> insertTaskField2taskSelectionValueRelation(fieldId,id) async {
+    print("insertTaskField2taskSelectionValueRelation");
+    Database db = await this.database;
+    int rid=0;
+    try{
+      rid=await db.insert(taskSelectionValuesRelationTable, {"tasks_fields":fieldId,"tasks_selection_values":id});
+    }
+    catch(e){
+      print("$e");
+      //await db(tasksTable, task.toMap());
+    }
+    //taskStatus.id=id;
+    return rid;
   }
 
   //updateStatusByServerId(TaskStatusModel taskStatusModel) async {}

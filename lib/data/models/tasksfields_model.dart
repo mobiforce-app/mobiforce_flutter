@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -8,7 +9,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 class TasksFieldsModel extends TasksFieldsEntity
 {
 
-  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, }): super(
+  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -18,6 +19,10 @@ class TasksFieldsModel extends TasksFieldsEntity
       taskField:taskField,
       task:task,
       taskFieldId:taskFieldId,
+      selectionValue:selectionValue,
+      boolValue:boolValue,
+      doubleValue:doubleValue,
+      stringValue:stringValue,
       //taskServerId:taskServerId,
       //name:name,
       //task:task,
@@ -35,8 +40,15 @@ class TasksFieldsModel extends TasksFieldsEntity
     map['task_field'] = taskFieldId;
     map['sort'] = sort;
     map['task'] = task;
-    //map['color'] = color;
-    return map;
+
+/*    switch(taskField?.type?.value)
+    {
+      case TaskFieldTypeEnum.number: map['value']="$doubleValue";break;
+      case TaskFieldTypeEnum.text: map['value']=stringValue;break;
+      case TaskFieldTypeEnum.checkbox: map['value']=(boolValue==true?1:0);break;
+      default: map['value']="";
+    }
+  */  return map;
   }
   Future<int> insertToDB(DBProvider db) async {
 
@@ -49,10 +61,20 @@ class TasksFieldsModel extends TasksFieldsEntity
       t.id = await db.updateTasksFieldsByServerId(this);
       print ("db id == ${t.toString()}");
     }
+    print("putTaskField2taskSelectionValueRelation try to insert");
+
+    if(t.id>0)
+    {
+      print("putTaskField2taskSelectionValueRelation1 try to insert");
+      if(selectionValue!=null){
+        print("putTaskField2taskSelectionValueRelation2 try to insert");
+        await selectionValue!.putTaskField2taskSelectionValueRelation(db, t.id);
+      }
+    }
     return t.id;
     return 1;
   }
-  factory TasksFieldsModel.fromMap(Map<String, dynamic> map)
+  factory TasksFieldsModel.fromMap(Map<String, dynamic> map, Map<int, dynamic> mapListValues)
   {
    // id = map['id'];
    // externalId = map['externalId'];
@@ -74,8 +96,22 @@ class TasksFieldsModel extends TasksFieldsEntity
       'usn':map['field_usn'],
       'type':map['field_type'],
     };
-    final taskField=TaskFieldModel.fromMap(taskFieldMap);
+
+    final taskField=TaskFieldModel.fromMap(taskFieldMap,mapListValues[taskFieldMap["id"]]);
     print("TasksFieldsModel ${map.toString()}");
+    var selectionValue = null;
+    if(map['task_selection_value_id']!=null)
+      selectionValue= SelectionValueModel.fromMap(
+          {"sorting":0,
+            "external_id":map['task_selection_value_external_id'],
+            "id":map['task_selection_value_id'],
+            "name":map['task_selection_value_name'],
+          });
+    print("map['value'] ${map['value']} ${taskField.type.value}");
+    double? doubleValue=(taskField.type.value==TaskFieldTypeEnum.number&&map['value']!=null?double.tryParse(map['value']):null);
+    String? stringValue=(taskField.type.value==TaskFieldTypeEnum.text?map['value']:null);
+    bool? boolValue=(taskField.type.value==TaskFieldTypeEnum.checkbox&&map['value']=="1"?true:false);
+
     return TasksFieldsModel(
         id: map['id'],
         usn: map['usn']??0,
@@ -83,27 +119,45 @@ class TasksFieldsModel extends TasksFieldsEntity
         parentLocalId: map['parent_id'],
         elementLocalId: map['element_id'],
         sort: map['sort'],
-        taskField:taskField
+        taskField:taskField,
+        selectionValue: selectionValue,
+        doubleValue:doubleValue,
+        stringValue:stringValue,
+        boolValue:boolValue
        // type: tft,
        // name: map['name']
     );
   }
   factory TasksFieldsModel.fromJson(Map<String, dynamic> json)
   {
+    print("json[fieldId] = ${json["fieldId"]}");
     var taskField = TaskFieldModel.fromJson(json["fieldId"]);
-   print("TasksFieldsModel = ${json.toString()}|${taskField}");
-   return TasksFieldsModel(
-        id: 0,
-        usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??"0"),
-        elementLocalId: int.parse(json["element"]??"0"),
-        parentLocalId: int.parse(json["parent"]??"0"),
-        sort: int.parse(json["sort"]??"0"),
-        taskField: taskField
-        //name: json["name"]??"",
-        //taskServerId: taskServerId,
-        //task: 0,
+
+    print("optionList = ${json["value"].runtimeType}");
+    var optionList = null;
+    if(taskField.type.value==TaskFieldTypeEnum.optionlist) {
+      try {
+        optionList =
+        SelectionValueModel.fromJson(json["value"]);
+      }
+      catch (e) {}
+    }
+
+    print("TasksFieldsModel = ${json.toString()}|${taskField}");
+    return TasksFieldsModel(
+      id: 0,
+      usn: json["usn"]??0,
+      serverId: int.parse(json["id"]??"0"),
+      elementLocalId: int.parse(json["element"]??"0"),
+      parentLocalId: int.parse(json["parent"]??"0"),
+      sort: int.parse(json["sort"]??"0"),
+      taskField: taskField,
+      selectionValue: optionList,
+      //name: json["name"]??"",
+      //taskServerId: taskServerId,
+      //task: 0,
     );
   }
+
 
 }

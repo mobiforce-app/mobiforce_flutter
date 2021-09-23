@@ -18,9 +18,21 @@ class ReloadTask extends TaskEvent
 class ChangeTaskStatus extends TaskEvent
 {
   final int status;
-  final int task;
 
-  ChangeTaskStatus({required this.status,required this.task});
+  ChangeTaskStatus({required this.status});
+}
+class ChangeSelectionFieldValue extends TaskEvent
+{
+  final int fieldId;
+  final dynamic value;
+  //final int task;
+  ChangeSelectionFieldValue({required this.fieldId, required this.value});
+}
+class ChangeTextFieldValue extends TaskEvent
+{
+  final int fieldId;
+  final String value;
+  ChangeTextFieldValue({required this.fieldId, required this.value});
 }
 /*
 class Wait10Sec extends TaskListEvent

@@ -6,6 +6,7 @@ import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
+import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
@@ -17,10 +18,16 @@ class TaskRepositoryImpl implements TaskRepository{
   TaskRepositoryImpl({required this.remoteDataSources,required this.networkInfo});
 
   @override
+  Future<Either<Failure, bool>>setTaskFieldSelectionValue({required TasksFieldsModel taskField}) async {
+    bool res = await remoteDataSources.setTaskFieldSelectionValue(taskField:taskField);
+    if(res)
+      return Right(true);
+    else
+      return Left(ServerFailure());
+  }
+  @override
   Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task}) async {
     return Right(await remoteDataSources.setTaskStatus(status:status, task:task));
-    //return Right(_r);
-    //throw UnimplementedError();
   }
   @override
   Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id) async {

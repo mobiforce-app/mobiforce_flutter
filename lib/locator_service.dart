@@ -19,6 +19,7 @@ import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
+import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
@@ -48,7 +49,7 @@ Future<void>init() async
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => LoginBloc(auth: sl()));
   sl.registerFactory(() => SyncBloc(m:sl()));
-  sl.registerFactory(() => TaskBloc(task:sl(),nextTaskStatuses: sl(),setTaskStatus: sl()));
+  sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl()));
 
 
   //usecases
@@ -56,6 +57,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
   sl.registerLazySingleton(() => SetTaskStatus(sl()));
+  sl.registerLazySingleton(() => SetTaskFieldSelectionValue(sl()));
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
   sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), db:sl()));

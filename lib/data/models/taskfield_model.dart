@@ -66,17 +66,21 @@ class TaskFieldModel extends TaskFieldEntity
     return t.id;
     //return 1;
   }
-  factory TaskFieldModel.fromMap(Map<String, dynamic> map)
+  factory TaskFieldModel.fromMap(Map<String, dynamic> map, List<Map<String, dynamic>> values)
   {
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    print("SelectionValueModel = $values");
+    final List<SelectionValueModel> sv = values.map((selectionValue) => SelectionValueModel.fromMap(selectionValue)).toList();
+
     return TaskFieldModel(
         id: map['id'],
         usn: map['usn'],
         serverId: map['external_id'],
         type: TaskFieldType(map["type"]),
-        name: map['name']
+        name: map['name'],
+        selectionValues: sv
     );
   }
   factory TaskFieldModel.fromJson(Map<String, dynamic> json)
@@ -87,6 +91,7 @@ class TaskFieldModel extends TaskFieldEntity
     //if(json["selectionValues"]!=null)
     //{
       final List<SelectionValueModel> sv = json["selectionValues"]!=null?(json["selectionValues"] as List).map((selectionValue) => SelectionValueModel.fromJson(selectionValue)).toList():[];
+    print('jsonjsonTaskFieldModel ${json} ${json["selectionValues"].runtimeType} ');
     //}
     return TaskFieldModel(
         id: 0,

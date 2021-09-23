@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
@@ -71,7 +72,7 @@ class TaskDetailPage extends StatelessWidget {
                                     ),
                                   ),*/
                       ];
-              if(state.nextTaskStatuses.isNotEmpty)
+              if(state.nextTaskStatuses!=null)
               {
                 list.addAll([SizedBox(
                   height: 24,
@@ -85,7 +86,7 @@ class TaskDetailPage extends StatelessWidget {
                       ),
                     )]);
               }
-              state.nextTaskStatuses.forEach((element) {
+              state.nextTaskStatuses?.forEach((element) {
                 list.add(
                   SizedBox(
                     height: 24,
@@ -94,7 +95,7 @@ class TaskDetailPage extends StatelessWidget {
                 list.add(
                   ElevatedButton(
                     onPressed: ()=>BlocProvider.of<TaskBloc>(context)
-                      ..add(ChangeTaskStatus(status:element.id,task:state.task.id))
+                      ..add(ChangeTaskStatus(status:element.id))
                     ,
                     child: Text(
                       "${element.name}",
@@ -108,7 +109,7 @@ class TaskDetailPage extends StatelessWidget {
                 );
               });
 
-              if(state.nextTaskStatuses.isNotEmpty)
+              if(state.nextTaskStatuses!=null)
               {
                 list.addAll([SizedBox(
                   height: 24,
@@ -179,26 +180,103 @@ class TaskDetailPage extends StatelessWidget {
                     height: 24,
                   ),
                 );
-                list.add(
-                  Text(
-                    "${element.taskField?.name}",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600
+                if(element.taskField?.type.value==TaskFieldTypeEnum.optionlist){
+                  //int? textValue=element.selectionValue?.id;
+                  print("element.selectionValue: ${element.selectionValue?.name}");
+                  List<DropdownMenuItem<int>> ddmi = (element.taskField?.selectionValues?.map((element)=>DropdownMenuItem(child: Text("${element.name}"),value: element.id,))??[]).toList();
+                  list.add(
+                    DropdownButtonFormField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "${element.taskField?.name}",
+                        suffixIcon: element.selectionValue?.id!=null?IconButton(
+                          icon: Icon(Icons.delete_outline),
+                          onPressed: (){
+                          //  setState((){element.selectionValue=null;});
+                            print("press");
+                            BlocProvider.of<TaskBloc>(context).add(
+                              ChangeSelectionFieldValue(fieldId:element.id,value:null),
+                            );
+
+                          },
+                        ):null,
+                      ),
+                      items: ddmi,
+                      onChanged: (data){
+                        print("data: $data");
+                        BlocProvider.of<TaskBloc>(context).add(
+                          ChangeSelectionFieldValue(fieldId:element.id,value:data),
+                        );
+                      },
+                      value: element.selectionValue?.id,
+                    )
+                  );
+                }
+                else if(element.taskField?.type.value==TaskFieldTypeEnum.text){
+                  final _controller = TextEditingController();
+                  _controller.text=element.stringValue??"";
+                  list.add(
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: "${element.taskField?.name}:",
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.delete_outline),
+                      ),
+                      controller: _controller,
+                      onChanged: (data)
+                      {
+                        //print("${data.toString()}");
+                        BlocProvider.of<TaskBloc>(context).add(
+                          ChangeTextFieldValue(fieldId:element.id,value:data),
+                        );
+                      },//maxLines: 3,
                     ),
-                  ),
-                );
-                list.add(
+                  );
+                }
+                else if(element.taskField?.type.value==TaskFieldTypeEnum.number){
+                  final _controller = TextEditingController();
+                  _controller.text="${element.doubleValue}";
+                  list.add(
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: "${element.taskField?.name}:",
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.delete_outline),
+                      ),
+                      controller: _controller,
+                      //maxLines: 3,
+                      keyboardType: TextInputType.phone,//.numberWithOptions(),
+                      onChanged: (data)
+                      {
+                        //print("${data.toString()}");
+                        BlocProvider.of<TaskBloc>(context).add(
+                          ChangeTextFieldValue(fieldId:element.id,value:data),
+                        );
+                      },//maxLines: 3,
+                    ),
+                  );
+                }
+                else
+                  list.add(
+                    Text(
+                      "${element.taskField?.name}:",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600
+                      ),
+                    ),
+                  );
+                /*list.add(
                   Text(
-                    "${element.taskField?.type.string}",
+                    "${element.taskField?.type.string} ",
                     style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey,
                         //fontWeight: FontWeight.w600
                     ),
                   ),
-                );
+                );*/
               });
 
               return Scaffold(

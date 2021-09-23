@@ -4,8 +4,10 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +18,7 @@ abstract class TaskRemoteDataSources{
   Future<TaskModel>getTask(int id);
   Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
   Future<TaskModel> setTaskStatus({required int status,required int task});
-
+  Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
 }
 
 class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
@@ -50,6 +52,20 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
 
     await db.addStatusToTask(ts);
     return await db.getTask(task);
+  }
+
+  @override
+  Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField}) async{
+    print("taskField.taskField?.type.value = ${taskField.taskField?.type.value}, ${taskField.id} , ${taskField.selectionValue?.id}");
+    if(taskField.taskField?.type.value==TaskFieldTypeEnum.optionlist)
+      return await db.updateTaskFieldSelectionValue(taskFieldId:taskField.id,taskFieldSelectionValue:taskField.selectionValue?.id);
+    else if(taskField.taskField?.type.value==TaskFieldTypeEnum.text)
+      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.stringValue);
+    else if(taskField.taskField?.type.value==TaskFieldTypeEnum.number)
+      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:"${taskField.doubleValue}");
+    else if(taskField.taskField?.type.value==TaskFieldTypeEnum.checkbox)
+      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.boolValue==true?"1":"0");
+    return false;
   }
 
 
