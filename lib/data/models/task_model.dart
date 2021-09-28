@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
@@ -11,7 +12,7 @@ import 'employee_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees, template}): super(
+  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees,phones, template}): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
@@ -25,6 +26,7 @@ class TaskModel extends TaskEntity
       checkList:checkList,
       author:author,
       employees:employees,
+      phones:phones,
       template: template,
   );
 
@@ -83,6 +85,19 @@ class TaskModel extends TaskEntity
         if(employeeId>0){
           await db.addTaskEmployee(taskId,employeeId);
         }
+      });
+    }
+    if(phones != null)
+    {
+      await db.deleteAllTaskPhones(taskId);
+      await Future.forEach(phones!,(PhoneModel element) async {
+        print("phones Id = ${element.serverId}");
+        //element.task = taskId;
+        element.taskId=taskId;
+        int employeeId = await element.insertToDB(db);
+        //if(employeeId>0){
+        //  await db.addTaskEmployee(taskId,employeeId);
+        //}
       });
     }
     if(statuses != null)
@@ -221,6 +236,7 @@ class TaskModel extends TaskEntity
         author:json["author"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EmployeeModel.fromJson(json["author"]):null,
         employees:json["employee"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?[EmployeeModel.fromJson(json["employee"])]:null,
         template:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TemplateModel.fromJson(json["tasktemplate"]):null,
+        phones:(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList(),
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }

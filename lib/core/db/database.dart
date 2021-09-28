@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
@@ -368,6 +369,17 @@ class DBProvider {
     }
     return true;
   }
+  Future<bool> deleteAllTaskPhones(int taskId) async{
+    Database db = await this.database;
+    try{
+      await db.delete(tasksPhoneTable, where: 'task =?', whereArgs: [taskId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
   Future<bool> addTaskEmployee(int taskId, int employeeId) async{
     Database db = await this.database;
     try{
@@ -478,8 +490,6 @@ class DBProvider {
       await db.update(tasksTemplateTable, template.toMap(), where: 'external_id =?', whereArgs: [templateId]);
     template.id=templateId;
     return template;
-
-
   }
   Future<TemplateModel> insertTemplate(TemplateModel template) async{
     Database db = await this.database;
@@ -492,6 +502,33 @@ class DBProvider {
     }
     template.id=id;
     return template;
+  }
+  Future<int> getPhoneIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> phoneMapList = await db.query(tasksPhoneTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return phoneMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<PhoneModel> updatePhoneByServerId(PhoneModel phone) async{
+    Database db = await this.database;
+
+    int phoneId = await getTemplateIdByServerId(phone.serverId);
+    if(phoneId!=0)
+      await db.update(tasksPhoneTable, phone.toMap(), where: 'external_id =?', whereArgs: [phoneId]);
+    phone.id=phoneId;
+    return phone;
+  }
+  Future<PhoneModel> insertPhone(PhoneModel phone) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(tasksPhoneTable, phone.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    phone.id=id;
+    return phone;
   }
 
   Future<EmployeeModel> insertEmployee(EmployeeModel employee) async{
