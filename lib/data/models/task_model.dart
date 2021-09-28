@@ -3,6 +3,7 @@ import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 
 import 'employee_model.dart';
@@ -10,7 +11,7 @@ import 'employee_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees}): super(
+  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees, template}): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
@@ -24,6 +25,7 @@ class TaskModel extends TaskEntity
       checkList:checkList,
       author:author,
       employees:employees,
+      template: template,
   );
 
   Map<String, dynamic> toMap(){
@@ -36,6 +38,7 @@ class TaskModel extends TaskEntity
     map['status'] = status?.id;
     map['contractor'] = contractor?.id;
     map['author'] = author?.id;
+    map['template'] = template?.id;
     return map;
   }
   Future<int> insertToDB(db) async {
@@ -49,6 +52,11 @@ class TaskModel extends TaskEntity
     if(contractor != null)
     {
       contractor?.id = await contractor!.insertToDB(db);
+    }
+
+    if(template != null)
+    {
+      template?.id = await template!.insertToDB(db);
     }
 
     if(author != null)
@@ -212,6 +220,7 @@ class TaskModel extends TaskEntity
         statuses:(json["task_statuses"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
         author:json["author"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EmployeeModel.fromJson(json["author"]):null,
         employees:json["employee"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?[EmployeeModel.fromJson(json["employee"])]:null,
+        template:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TemplateModel.fromJson(json["tasktemplate"]):null,
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }

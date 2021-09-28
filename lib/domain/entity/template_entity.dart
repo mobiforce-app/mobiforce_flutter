@@ -1,17 +1,10 @@
-class EmployeeEntity{
+class TemplateEntity{
   int id;
   int usn;
   int serverId;
   String name;
-  bool webAuth;
-  bool mobileAuth;
-  //String? client;
-  //String? address;
- // String address;
- // String client;
- // String subdivision;
-  EmployeeEntity({
-      required this.id, required this.serverId, required this.name, required this.usn, required this.webAuth, required this.mobileAuth//, this.address, this.client///, required this.subdivision
+  TemplateEntity({
+      required this.id, required this.serverId, required this.name, required this.usn,
   });
   fromMap(Map<String, dynamic> map)
   {

@@ -11,6 +11,7 @@ import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -128,6 +129,7 @@ class DBProvider {
             'status INTEGER, '
             'contractor int, '
             'author int, '
+            'template int, '
             'address TEXT, '
             'name TEXT)');
     await db.execute(
@@ -462,6 +464,36 @@ class DBProvider {
     resolution.id=id;
     return resolution;
   }
+  Future<int> getTemplateIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> templateMapList = await db.query(tasksTemplateTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return templateMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<TemplateModel> updateTemplateByServerId(TemplateModel template) async{
+    Database db = await this.database;
+
+    int templateId = await getTemplateIdByServerId(template.serverId);
+    if(templateId!=0)
+      await db.update(tasksTemplateTable, template.toMap(), where: 'external_id =?', whereArgs: [templateId]);
+    template.id=templateId;
+    return template;
+
+
+  }
+  Future<TemplateModel> insertTemplate(TemplateModel template) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(tasksTemplateTable, template.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    template.id=id;
+    return template;
+  }
+
   Future<EmployeeModel> insertEmployee(EmployeeModel employee) async{
     Database db = await this.database;
     int id=0;
