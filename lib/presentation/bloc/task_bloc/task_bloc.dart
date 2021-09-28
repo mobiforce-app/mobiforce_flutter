@@ -107,7 +107,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //task.isChanged=!task.isChanged;
 
       print("task.isChanged ${task.isChanged}");
-      yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
+      //yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
     }
     if (event is ChangeTextFieldValue) {
       //getTask.

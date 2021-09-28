@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
@@ -32,7 +34,15 @@ class DBProvider {
   String tasksStatusesTable="tasksstatuses";
   String taskLifeCycleTable="tasklifecycletable";
   String tasksFieldsTable="tasksfields";
+  String tasksFieldsTabTable="tasksfieldstab";
   String taskValuesTable="taskvaluestable";
+  String employeeTable="employeetable";
+  String employee2TaskRelationTable="employee2taskrelationtable";
+  String tasksPersonTable="taskpersontable";
+  String tasksPhoneTable="taskphonetable";
+  String tasksTemplateTable="tasktamplatetable";
+  String contractorTable="contractortable";
+
 
   DBProvider.internal();
 
@@ -85,8 +95,21 @@ class DBProvider {
             'parent_id INTEGER, '
             'element_id INTEGER, '
             'task_field INTEGER, '
+            'tasks_fields_tab INTEGER, '
             'sort INTEGER'
             ')');
+    print('CREATE TABLE IF NOT EXISTS  $tasksFieldsTable ('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+        'dirty INTEGER, '
+        'external_id INTEGER UNIQUE, '
+        'usn INTEGER, '
+        'task INTEGER, '
+        'parent_id INTEGER, '
+        'element_id INTEGER, '
+        'task_field INTEGER, '
+        'tasks_fields_tab INTEGER, '
+        'sort INTEGER'
+        ')');
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskLifeCycleTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -103,7 +126,8 @@ class DBProvider {
             'external_id INTEGER UNIQUE, '
             'usn INTEGER, '
             'status INTEGER, '
-            'client TEXT, '
+            'contractor int, '
+            'author int, '
             'address TEXT, '
             'name TEXT)');
     await db.execute(
@@ -112,6 +136,16 @@ class DBProvider {
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
             'name TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $tasksFieldsTabTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'main_page INTEGER,'
+            'name TEXT)');
+    await db.insert(tasksFieldsTabTable, {'external_id':1,'main_page':1,'name':'Основное'});
+    await db.insert(tasksFieldsTabTable, {'external_id':2,'name':'Отчет'});
 
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskSelectionValuesTable ('
@@ -148,6 +182,71 @@ class DBProvider {
             'task INTEGER, '
             'lat TEXT, '
             'lon TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $contractorTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'usn INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'parent INTEGER, '
+            'name TEXT, '
+            'address TEXT, '
+            'address_floor TEXT, '
+            'address_info TEXT, '
+            'address_porch TEXT, '
+            'address_room TEXT, '
+            'lat TEXT, '
+            'lon TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $employeeTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'usn INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'name TEXT, '
+            'mobile_auth INTEGER, '
+            'web_auth INTEGER '
+            ')');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $employee2TaskRelationTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'task INTEGER, '
+            'employee INTEGER '
+            ')');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $tasksPersonTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'usn INTEGER, '
+            'contractor INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'name TEXT'
+            ')');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $tasksPhoneTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'usn INTEGER, '
+            'person INTEGER, '
+            'task INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'name TEXT'
+            ')');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $tasksTemplateTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'usn INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'name TEXT'
+            ')');
+
   }
 //CLEAR BASE
   Future<void> clear() async{
@@ -161,11 +260,17 @@ class DBProvider {
     await db.execute('DROP TABLE IF EXISTS $tasksStatusesTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleTable');
     await db.execute('DROP TABLE IF EXISTS $tasksFieldsTable');
+    await db.execute('DROP TABLE IF EXISTS $tasksFieldsTabTable');
     await db.execute('DROP TABLE IF EXISTS $taskFieldTable');
     await db.execute('DROP TABLE IF EXISTS $taskValuesTable');
+    await db.execute('DROP TABLE IF EXISTS $employeeTable');
+    await db.execute('DROP TABLE IF EXISTS $tasksPersonTable');
+    await db.execute('DROP TABLE IF EXISTS $tasksPhoneTable');
+    await db.execute('DROP TABLE IF EXISTS $tasksTemplateTable');
+    await db.execute('DROP TABLE IF EXISTS $contractorTable');
+    await db.execute('DROP TABLE IF EXISTS $employee2TaskRelationTable');
     _createDB(db, 1);
   }
-
 //READ
   Future<TaskModel> getTask(int id) async {
     Database db = await this.database;
@@ -250,6 +355,32 @@ class DBProvider {
     return task;
   }
 
+  Future<bool> deleteAllTaskEmployees(int taskId) async{
+    Database db = await this.database;
+    try{
+      await db.delete(employee2TaskRelationTable, where: 'task =?', whereArgs: [taskId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
+  Future<bool> addTaskEmployee(int taskId, int employeeId) async{
+    Database db = await this.database;
+    try{
+      await db.insert(employee2TaskRelationTable, {
+        "task": taskId,
+        "employee": employeeId
+      });
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
+
   Future<bool> updateTaskFieldSelectionValue({required int taskFieldId,int? taskFieldSelectionValue}) async{
     Database db = await this.database;
     try{
@@ -331,6 +462,65 @@ class DBProvider {
     resolution.id=id;
     return resolution;
   }
+  Future<EmployeeModel> insertEmployee(EmployeeModel employee) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(employeeTable, employee.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    employee.id=id;
+    return employee;
+  }
+  Future<int> getContractorIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> contractorMapList = await db.query(contractorTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return contractorMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<ContractorModel> updateContractorByServerId(ContractorModel contractor) async{
+    Database db = await this.database;
+
+    int contractorId = await getContractorIdByServerId(contractor.serverId);
+    if(contractorId!=0)
+      await db.update(contractorTable, contractor.toMap(), where: 'external_id =?', whereArgs: [contractorId]);
+    contractor.id=contractorId;
+    return contractor;
+
+
+  }
+  Future<int> getEmployeeIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return employeeMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<EmployeeModel> updateEmployeeByServerId(EmployeeModel employee) async{
+    Database db = await this.database;
+
+    int employeeId = await getEmployeeIdByServerId(employee.serverId);
+    if(employeeId!=0)
+      await db.update(employeeTable, employee.toMap(), where: 'external_id =?', whereArgs: [employeeId]);
+    employee.id=employeeId;
+    return employee;
+
+
+  }
+
+  Future<ContractorModel> insertContractor(ContractorModel contractor) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(contractorTable, contractor.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    contractor.id=id;
+    return contractor;
+  }
   Future<SelectionValueModel> insertTaskSelection(SelectionValueModel selection) async{
     Database db = await this.database;
     int id=0;
@@ -386,6 +576,12 @@ class DBProvider {
   Future<int> getTaskIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<int> getTasksFieldsTabIdByServerId(int? serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksFieldsTabTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
   Future<int> getTaskSelectionValueIdByServerId(int serverId) async {

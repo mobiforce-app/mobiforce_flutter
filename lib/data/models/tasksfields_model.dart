@@ -9,7 +9,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 class TasksFieldsModel extends TasksFieldsEntity
 {
 
-  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,}): super(
+  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,tab, tabServerId}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -23,9 +23,8 @@ class TasksFieldsModel extends TasksFieldsEntity
       boolValue:boolValue,
       doubleValue:doubleValue,
       stringValue:stringValue,
-      //taskServerId:taskServerId,
-      //name:name,
-      //task:task,
+      tabServerId:tabServerId,
+      tab:tab,
   );
 
   Map<String, dynamic> toMap(){
@@ -40,6 +39,7 @@ class TasksFieldsModel extends TasksFieldsEntity
     map['task_field'] = taskFieldId;
     map['sort'] = sort;
     map['task'] = task;
+    map['tasks_fields_tab'] = tab;
 
 /*    switch(taskField?.type?.value)
     {
@@ -55,6 +55,9 @@ class TasksFieldsModel extends TasksFieldsEntity
     print("taskField: $taskField");
     int? fieldId = await taskField?.insertToDB(db);
     taskFieldId = fieldId;
+    print("$tabServerId");
+    tab = await db.getTasksFieldsTabIdByServerId(tabServerId);
+
     dynamic t = await db.insertTasksFields(this);
     print ("db id == ${t.id}");
     if(t.id==0){
@@ -119,6 +122,7 @@ class TasksFieldsModel extends TasksFieldsEntity
         parentLocalId: map['parent_id'],
         elementLocalId: map['element_id'],
         sort: map['sort'],
+        tab:map['tasks_fields_tab'],
         taskField:taskField,
         selectionValue: selectionValue,
         doubleValue:doubleValue,
@@ -128,7 +132,7 @@ class TasksFieldsModel extends TasksFieldsEntity
        // name: map['name']
     );
   }
-  factory TasksFieldsModel.fromJson(Map<String, dynamic> json)
+  factory TasksFieldsModel.fromJson(Map<String, dynamic> json,int? tabServerId)
   {
     print("json[fieldId] = ${json["fieldId"]}");
     var taskField = TaskFieldModel.fromJson(json["fieldId"]);
@@ -142,7 +146,8 @@ class TasksFieldsModel extends TasksFieldsEntity
       }
       catch (e) {}
     }
-
+    //int tabServerId=
+    //if(tab)
     print("TasksFieldsModel = ${json.toString()}|${taskField}");
     return TasksFieldsModel(
       id: 0,
@@ -153,6 +158,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       sort: int.parse(json["sort"]??"0"),
       taskField: taskField,
       selectionValue: optionList,
+      tabServerId:tabServerId,
       //name: json["name"]??"",
       //taskServerId: taskServerId,
       //task: 0,

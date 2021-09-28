@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
@@ -10,12 +12,15 @@ class TaskEntity extends Equatable{
   int serverId;
   String name;
   int usn;
-  String? client;
+  ContractorModel? contractor;
   String? address;
+
  // String address;
  // String client;
  // String subdivision;
   TaskStatusModel? status;
+  EmployeeModel? author;
+  List<EmployeeModel>? employees;
   List<TasksFieldsModel>? checkList;
   List<TasksFieldsModel>? propsList;
   List<TasksStatusesModel>? statuses;
@@ -26,12 +31,14 @@ class TaskEntity extends Equatable{
       required this.serverId,
       required this.name,
       this.address,
-      this.client,
+      this.contractor,
       required
       this.status,
       required this.statuses,
       this.checkList,
-      this.propsList,///, required this.subdivision
+      this.propsList,
+      this.employees,
+      this.author,
   });
   fromMap(Map<String, dynamic> map)
   {

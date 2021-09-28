@@ -20,6 +20,8 @@ class TasksFieldsEntity{
   double? doubleValue;
   String? stringValue;
   int usn;
+  int? tab;
+  int? tabServerId;
   int? taskFieldId;
 
   TasksFieldsEntity({
@@ -36,6 +38,8 @@ class TasksFieldsEntity{
     this.boolValue,
     this.doubleValue,
     this.stringValue,
+    this.tab,
+    this.tabServerId,
   });
   fromMap(Map<String, dynamic> map)
   {

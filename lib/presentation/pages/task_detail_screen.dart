@@ -1,11 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
 extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
   static Color fromHex(String hexString) {
@@ -28,6 +31,99 @@ class TaskDetailPage extends StatelessWidget {
 //  final id;
   const TaskDetailPage({Key? key}) : super(key: key);
 
+  Widget getTaskFieldElement(TasksFieldsEntity element) {
+    if(element.taskField?.type.value==TaskFieldTypeEnum.optionlist){
+      List<DropdownMenuItem<int>> ddmi = (element.taskField?.selectionValues?.map((element)=>DropdownMenuItem(child: Text("${element.name}"),value: element.id,))??[]).toList();
+      return TaskFieldSelectionCard(name:element.taskField?.name??"",fieldId:element.id,val:element.selectionValue,items: ddmi,);
+    }
+    else if(element.taskField?.type.value==TaskFieldTypeEnum.text){
+      return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,val:element.stringValue??"");
+    }
+    else if(element.taskField?.type.value==TaskFieldTypeEnum.number){
+      return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,val:"${element.doubleValue??0.0}");
+    }
+    else
+      return
+        Text(
+          "${element.taskField?.name}",
+          style: TextStyle(
+              fontSize: 18,
+              color: Colors.black,
+              fontWeight: FontWeight.w600
+          ),
+        );
+
+  }
+  Widget buildSheet(List<Widget> list)
+  {
+    /*
+    return ListView.builder(
+    itemBuilder: (BuildContext context, int index) {
+      return InkWell(
+        child: Text(index.toString()),
+        onTap: () => Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text(index.toString()))),
+      );
+    },
+    itemCount: 10);
+    */
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: list
+      );
+
+  }
+
+  List<Widget> getFieldListByParent(int id,int tab,List<TasksFieldsEntity>? props)
+  {
+    List<Widget> l=[];
+    props?.forEach((element) {
+      print("element.parentLocalId==id ${element.id} ${element.parentLocalId} $id ${element.tab} $tab");
+      if(element.parentLocalId==id&&element.tab==tab){
+        l.add(
+          SizedBox(
+            height: 24,
+          ),
+        );
+        l.add(getTaskFieldElement(element));
+      }
+    });
+
+    print("${l.toString()}");
+    return l;
+  }
+
+  DraggableScrollableSheet _buildDraggableScrollableSheet() {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.2,
+      minChildSize: 0.2,
+      maxChildSize: 0.8,
+      builder: (BuildContext context, ScrollController scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.blue,
+            // border: Border.all(color: Colors.blue, width: 2),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+          ),
+          child: Scrollbar(
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: 25,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  leading: const Icon(Icons.ac_unit),
+                  title: Text('Item $index'),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
         return BlocBuilder<TaskBloc, TaskState>(
@@ -40,7 +136,8 @@ class TaskDetailPage extends StatelessWidget {
                     centerTitle: true,
                   ),
                   body:LinearProgressIndicator());
-            if(state is TaskLoaded){
+            else if(state is TaskLoaded){
+              List<List<Widget>> _kTabPages=[[], [], []];
               var list=[SizedBox(
                           height: 10,
                         ),
@@ -86,27 +183,40 @@ class TaskDetailPage extends StatelessWidget {
                       ),
                     )]);
               }
-              state.nextTaskStatuses?.forEach((element) {
-                list.add(
-                  SizedBox(
-                    height: 24,
-                  ),
-                );
-                list.add(
-                  ElevatedButton(
-                    onPressed: ()=>BlocProvider.of<TaskBloc>(context)
-                      ..add(ChangeTaskStatus(status:element.id))
-                    ,
-                    child: Text(
-                      "${element.name}",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600
+              List<Widget> buttons=[
+                //SizedBox(width: 20),
+
+              ];
+
+              buttons.add(
+                  Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text("Перевести задачу в статус", style: TextStyle(fontSize:18, color: Colors.black)),
                       ),
-                    ),
-                  )
+                    )
+              );
+
+              state.nextTaskStatuses?.forEach((element) {
+                //list.add(
+                //  SizedBox(
+                //    height: 24,
+                //  ),
+                //);
+                buttons.add(
+                    InkWell(
+                      onTap: () {}, // Handle your callback
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text("${element.name}", style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
+                          ),
+                        )
+                     ),
                 );
+
               });
 
               if(state.nextTaskStatuses!=null)
@@ -174,99 +284,67 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                   )]);
               }
+              //
+              //Map<int,Widget> groups={};
+              _kTabPages[0]=list;
+
               state.task.propsList?.forEach((element) {
-                list.add(
+      //          if(element.tab==1)
+        //        {
+                {
+                  print("element.tab ${element.tab}");
+                  final List<Widget> lst=_kTabPages[(element.tab??1)-1];
+
+              if (element.taskField?.type.value == TaskFieldTypeEnum.group) {
+                lst.add(
                   SizedBox(
                     height: 24,
                   ),
                 );
-                if(element.taskField?.type.value==TaskFieldTypeEnum.optionlist){
-                  //int? textValue=element.selectionValue?.id;
-                  print("element.selectionValue: ${element.selectionValue?.name}");
-                  List<DropdownMenuItem<int>> ddmi = (element.taskField?.selectionValues?.map((element)=>DropdownMenuItem(child: Text("${element.name}"),value: element.id,))??[]).toList();
-                  list.add(
-                    DropdownButtonFormField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "${element.taskField?.name}",
-                        suffixIcon: element.selectionValue?.id!=null?IconButton(
-                          icon: Icon(Icons.delete_outline),
-                          onPressed: (){
-                          //  setState((){element.selectionValue=null;});
-                            print("press");
-                            BlocProvider.of<TaskBloc>(context).add(
-                              ChangeSelectionFieldValue(fieldId:element.id,value:null),
-                            );
 
-                          },
-                        ):null,
-                      ),
-                      items: ddmi,
-                      onChanged: (data){
-                        print("data: $data");
-                        BlocProvider.of<TaskBloc>(context).add(
-                          ChangeSelectionFieldValue(fieldId:element.id,value:data),
-                        );
-                      },
-                      value: element.selectionValue?.id,
-                    )
-                  );
-                }
-                else if(element.taskField?.type.value==TaskFieldTypeEnum.text){
-                  final _controller = TextEditingController();
-                  _controller.text=element.stringValue??"";
-                  list.add(
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: "${element.taskField?.name}:",
-                        border: OutlineInputBorder(),
-                        suffixIcon: Icon(Icons.delete_outline),
-                      ),
-                      controller: _controller,
-                      onChanged: (data)
-                      {
-                        //print("${data.toString()}");
-                        BlocProvider.of<TaskBloc>(context).add(
-                          ChangeTextFieldValue(fieldId:element.id,value:data),
-                        );
-                      },//maxLines: 3,
-                    ),
-                  );
-                }
-                else if(element.taskField?.type.value==TaskFieldTypeEnum.number){
-                  final _controller = TextEditingController();
-                  _controller.text="${element.doubleValue}";
-                  list.add(
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: "${element.taskField?.name}:",
-                        border: OutlineInputBorder(),
-                        suffixIcon: Icon(Icons.delete_outline),
-                      ),
-                      controller: _controller,
-                      //maxLines: 3,
-                      keyboardType: TextInputType.phone,//.numberWithOptions(),
-                      onChanged: (data)
-                      {
-                        //print("${data.toString()}");
-                        BlocProvider.of<TaskBloc>(context).add(
-                          ChangeTextFieldValue(fieldId:element.id,value:data),
-                        );
-                      },//maxLines: 3,
-                    ),
-                  );
-                }
-                else
-                  list.add(
-                    Text(
-                      "${element.taskField?.name}:",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600
-                      ),
-                    ),
-                  );
+                final List<Widget> eList = getFieldListByParent(
+                    element.elementLocalId ?? -1,
+                    element.tab ?? 0,
+                    state.task.propsList);
+                lst.add(
+                  ExpansionTile(
+                    //height: 24,
+                    title: Text(
+                        "${element.taskField?.name ?? ''} (${eList.length ~/ 2})"),
+                    children: eList,
+                    //initiallyExpanded: true,
+                    //maintainState: true,
+                    onExpansionChanged: (e) {
+                      print("${e.toString()}");
+                    },
+                  ),
+                );
+              } else if (element.parentLocalId == 0 &&
+                  element.taskField?.type.value != TaskFieldTypeEnum.group) {
+                lst.add(
+                  SizedBox(
+                    height: 24,
+                  ),
+                );
+
+                lst.add(getTaskFieldElement(element));
+              }
+            }
+          });
+
+                /*list.add(
+                  ExpansionTile(
+                    //height: 24,
+                    title: Text("Развернуть"),
+                    children: eList,
+                    initiallyExpanded: true,
+                    maintainState: true,
+                    onExpansionChanged: (e){
+                      print("${e.toString()}");
+                    },
+                  ),
+                );*/
+
                 /*list.add(
                   Text(
                     "${element.taskField?.type.string} ",
@@ -277,23 +355,118 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                   ),
                 );*/
-              });
-
-              return Scaffold(
-                  appBar: AppBar(
-                      title: Text('Task'),
-                  centerTitle: true,
+              _kTabPages[0].add(SizedBox(
+                height: 80,
+              ),);
+              _kTabPages[1].add(SizedBox(
+                height: 80,
+              ),);
+              final _kTabs=<Tab>[
+                const Tab(text:"Основное"),
+                const Tab(text:"Отчет"),
+                const Tab(text:"Комментарии"),
+              ];
+              final _kTabPages1 = <Widget>[
+                SingleChildScrollView(
+                  child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _kTabPages[0]
                   ),
-                  body:SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: list
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _kTabPages[1]
+                  ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _kTabPages[2]
+                  ),
+                  ),
+                ),
+              ];
+              List<Widget> floatButton=[
+                Text("${state.task.status?.name}",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600
+                    )
+                ),
 
-                      ),
-              ),
-                  ));
+              ];
+              if(state.nextTaskStatuses?.isNotEmpty??true) {
+                floatButton.add(SizedBox(
+                  width: 10,
+                ));
+                floatButton.add(Icon(
+                  Icons.navigate_next,
+                  color: Colors.white,
+                  size: 24.0,
+                ));
+              }
+
+            return DefaultTabController(
+                length: _kTabs.length,
+                child: Scaffold(
+                    appBar: AppBar(
+                        title: Text('Task'),
+                        centerTitle: true,
+                        bottom:TabBar(isScrollable:true,tabs: _kTabs),
+                    ),
+                    body: //Stack(children: <Widget>[
+                      TabBarView(children: _kTabPages1,),
+                    //,_buildDraggableScrollableSheet()]),
+                  floatingActionButtonLocation:FloatingActionButtonLocation.centerDocked,
+                  floatingActionButton: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                          //padding:EdgeInsets.all(16.0),
+                        ///crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround ,
+                          children: [
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor: floatButton.length>1?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
+
+                              ),
+                                onPressed: () {
+                                  if (floatButton.length >
+                                      1) showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    context: context,
+                                    builder: (context) =>
+                                        Wrap(children: (buttons)),);
+                                },
+                              child:
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Wrap(
+                                  children: floatButton,
+                                ),
+                              )
+                            )
+                          ],
+                        ),
+                    ),
+                  ),
+                )
+              );
 
 
             }
@@ -307,4 +480,5 @@ class TaskDetailPage extends StatelessWidget {
       },
     );
   }
+
 }
