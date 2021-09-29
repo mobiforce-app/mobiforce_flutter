@@ -37,10 +37,10 @@ class TaskDetailPage extends StatelessWidget {
       return TaskFieldSelectionCard(name:element.taskField?.name??"",fieldId:element.id,val:element.selectionValue,items: ddmi,);
     }
     else if(element.taskField?.type.value==TaskFieldTypeEnum.text){
-      return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,val:element.stringValue??"");
+      return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,isText:true,val:element.stringValue??"");
     }
     else if(element.taskField?.type.value==TaskFieldTypeEnum.number){
-      return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,val:"${element.doubleValue??0.0}");
+      return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,isText:false,val:"${element.doubleValue??0.0}");
     }
     else
       return

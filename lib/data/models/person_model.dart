@@ -1,11 +1,13 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/person_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/phone_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
 
-class PhoneModel extends PhoneEntity
+class PersonModel extends PersonEntity
 {
   /*TaskModel({
     required id,
@@ -26,13 +28,13 @@ class PhoneModel extends PhoneEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  PhoneModel({required id,required usn,required serverId,required name, taskId, personId,}): super(
+  PersonModel({required id,required usn,required serverId,required name, taskId, phones}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       taskId:taskId,
-      personId:personId,
+      phones:phones,
   );
 
   Map<String, dynamic> toMap(){
@@ -40,25 +42,42 @@ class PhoneModel extends PhoneEntity
     map['name'] = name;
     map['external_id'] = serverId;
     map['task'] = taskId;
-    map['person'] = personId;
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
-    dynamic t = await db.insertPhone(this);
+    PersonModel t = await db.insertPerson(this);
     if(t.id==0){
-      t = await db.updatePhoneByServerId(this);
+      t = await db.updatePersonByServerId(this);
       print ("db id == ${t.toString()}");
+    }
+
+    if(phones != null&&t.id>0)
+    {
+      print("phonenotnull");
+      await db.deleteAllPersonPhones(t.id);
+      await Future.forEach(phones!,(PhoneModel element) async {
+        print("phones Id = ${element.serverId}");
+        //element.task = taskId;
+        element.personId=t.id;
+        element.taskId=t.taskId;
+        int phoneId = await element.insertToDB(db);
+        print("phonenotnull $phoneId");
+
+        //if(employeeId>0){
+        //  await db.addTaskEmployee(taskId,employeeId);
+        //}
+      });
     }
 
     print ("employee db id == ${t.id}");
     return t.id;
   }
-  factory PhoneModel.fromMap(Map<String, dynamic> map)
+  factory PersonModel.fromMap(Map<String, dynamic> map)
   {
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
-    return PhoneModel(
+    return PersonModel(
         id: map['id'],
         taskId: map['task'],
         usn: map['usn'],
@@ -66,15 +85,16 @@ class PhoneModel extends PhoneEntity
         name: map['name']
     );
   }
-  factory PhoneModel.fromJson(Map<String, dynamic> json)
+  factory PersonModel.fromJson(Map<String, dynamic> json)
   {
     print('employeejsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
-    return PhoneModel(
+    return PersonModel(
         id: 0,
         usn: json["usn"]??0,
         serverId: int.parse(json["id"]??0),
         name: json["name"]??"",
+        phones:(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList(),
     );
   }
   /*fromMap(Map<String, dynamic> map)

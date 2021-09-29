@@ -11,7 +11,9 @@ import 'package:mobiforce_flutter/data/models/task_model.dart';
 
 abstract class UpdatesRemoteDataSources{
   //Future<LoginModel>searchTask(String query);
+ // Future
   Future<SyncModel>getDataList({required String domain, required String accessToken, required int lastSyncTime, required int lastUpdateCount,required String objectType,required List<dynamic> Function(dynamic) mapObjects });
+  Future<bool> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic> mapObjects });
 }
 
 class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
@@ -25,6 +27,39 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
  // Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
 
 
+  @override
+  Future<bool> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic>? mapObjects })
+  async{
+
+    try{
+      Map data = {
+        'objectType':objectType,
+        'data': mapObjects
+      };
+      print("domain=$domain, access_token=$accessToken, objectType = $objectType");
+      final response = await client.post(Uri.parse("https://$domain/api2.0/send-update.php"),
+
+          headers:{
+            'Content-Type':"application/json",
+            HttpHeaders.authorizationHeader: "key=\"$accessToken\"",
+          },body: json.encode(data));
+      if(response.statusCode == 200){
+        final auth = json.decode(response.body);
+        print(response.body);
+        return true;
+      }
+      else{
+        print("My exception");
+        throw ServerException();
+      }
+    }
+    catch (error) {
+      print("error!!! $error");
+      throw ServerException();
+    }
+    return true;
+  }
+  @override
   Future<SyncModel> getDataList({
     required String domain,
     required  String accessToken,

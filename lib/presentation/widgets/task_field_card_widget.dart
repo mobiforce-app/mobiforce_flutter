@@ -9,8 +9,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TaskFieldTextCard extends StatefulWidget {
   final String name;
   final int fieldId;
+  final bool isText;
   String val;
-  TaskFieldTextCard({required this.name, required this.fieldId, required this.val});
+  TaskFieldTextCard({required this.name, required this.fieldId, required this.val, required this.isText});
 
   @override
   State<StatefulWidget> createState() {
@@ -49,7 +50,7 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
         ),
         controller: _controller,
         //maxLines: 3,
-        keyboardType: TextInputType.phone,//.numberWithOptions(),
+        keyboardType: widget.isText?TextInputType.text:TextInputType.phone,//.numberWithOptions(),
         onChanged: (data)
         {
           setState(()=>{});

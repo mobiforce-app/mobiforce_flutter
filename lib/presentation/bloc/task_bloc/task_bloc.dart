@@ -16,6 +16,7 @@ import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
+import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/wait.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 //import 'package:mobiforce_flutter/domain/usecases/search_task.dart';
@@ -32,7 +33,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final GetTaskStatusesGraph nextTaskStatusesReader;
   final SetTaskStatus setTaskStatus;
   final SetTaskFieldSelectionValue setTaskFieldSelectionValue;
-
+  final SyncToServer syncToServer;
   //final ModelImpl m;
   //final WaitDealys10 wait10;
 
@@ -43,7 +44,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   int id = 0;
 
-  TaskBloc({required this.taskReader,required this.nextTaskStatusesReader,required this.setTaskStatus,required this.setTaskFieldSelectionValue}) : super(TaskEmpty()) {
+  TaskBloc({required this.taskReader,required this.nextTaskStatusesReader,required this.setTaskStatus,required this.setTaskFieldSelectionValue,required this.syncToServer}) : super(TaskEmpty()) {
 
   }
 
@@ -90,6 +91,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             SetTaskFieldSelectionValueParams(taskField: fieldElement!));
         FoL.fold((failure) {print("error");}, (
             nextTaskStatuses_readed) {
+
+          syncToServer(ListSyncToServerParams());
           print("val ${val?.name}");
 
         });
@@ -140,6 +143,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             SetTaskFieldSelectionValueParams(taskField: fieldElement!));
         FoL.fold((failure) {print("error");}, (
             nextTaskStatuses_readed) {
+          syncToServer(ListSyncToServerParams());
           print("val ${event.value}");
           //fieldElement?.stringValue = event.value;
         });

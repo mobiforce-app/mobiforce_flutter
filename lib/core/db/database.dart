@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
@@ -44,6 +45,7 @@ class DBProvider {
   String tasksPhoneTable="taskphonetable";
   String tasksTemplateTable="tasktamplatetable";
   String contractorTable="contractortable";
+  String usnCountersTable="usncounterstable";
 
 
   DBProvider.internal();
@@ -78,6 +80,16 @@ class DBProvider {
             'usn INTEGER, '
             'color TEXT, '
             'name TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $usnCountersTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'object_type TEXT, '
+            'usn_counter INTEGER'
+            ')');
+    await db.insert(usnCountersTable, {'object_type':'task_option','usn_counter':0});
+
+
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskFieldTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -226,6 +238,7 @@ class DBProvider {
             'dirty INTEGER, '
             'usn INTEGER, '
             'contractor INTEGER, '
+            'task INTEGER, '
             'external_id INTEGER UNIQUE, '
             'name TEXT'
             ')');
@@ -272,9 +285,70 @@ class DBProvider {
     await db.execute('DROP TABLE IF EXISTS $tasksTemplateTable');
     await db.execute('DROP TABLE IF EXISTS $contractorTable');
     await db.execute('DROP TABLE IF EXISTS $employee2TaskRelationTable');
+    await db.execute('DROP TABLE IF EXISTS $usnCountersTable');
     _createDB(db, 1);
   }
 //READ
+  Future<List<TasksFieldsModel>> readTasksFieldsUpdates(int localUSN) async{
+   //return null;
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksFieldsMapList = await db.rawQuery("SELECT t1.*, "
+        "t2.name as field_name, "
+        "t2.type as field_type, "
+        "t2.id as field_id, "
+        "t2.usn as field_usn, "
+        "t2.external_id as field_external_id, "
+        "t4.id as task_selection_value_id, "
+        "t4.name as task_selection_value_name, "
+        "t4.external_id as task_selection_value_external_id, "
+        "t5.value as value "
+        "FROM $tasksFieldsTable as t1 "
+        "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
+        "LEFT JOIN $taskSelectionValuesRelationTable as t3 ON t1.id = t3.tasks_fields "
+        "LEFT JOIN $taskSelectionValuesTable as t4 ON t3.tasks_selection_values = t4.id "
+        "LEFT JOIN $taskValuesTable as t5 ON t1.id = t5.tasks_fields "
+        "WHERE t1.usn > ? ORDER BY t1.usn ASC",[localUSN]);
+
+    final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
+        "t1.id, "
+        "t1.external_id, "
+        "t1.name, "
+        "t2.name as value_name, "
+        "t2.external_id as value_external_id, "
+        "t2.sorting as value_sorting, "
+        "t2.id as value_id "
+        "FROM $taskFieldTable as t1 LEFT JOIN $taskSelectionValuesTable as t2 ON t1.id = t2.task_field ORDER BY t1.id DESC",[]);
+    final Map<int, dynamic> tasksFieldsSelectionValuesMap = reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList);
+
+    return tasksFieldsMapList.map((field) => TasksFieldsModel.fromMap(field,tasksFieldsSelectionValuesMap)).toList();
+  }
+  Map<int, dynamic> reMapTasksFieldsSelectionValues(List<Map<String, dynamic>> tasksFieldsSelectionValuesMap) {
+    int fieldId=0;
+    //List<TaskFieldModel> taskFieldList = [];
+    Map<int, dynamic> taskFieldSelectionValuesMap = {};
+    List<Map<String, dynamic>> taskFieldSelectionValues = [];
+    tasksFieldsSelectionValuesMap.forEach((element) {
+      if(element["id"]!=fieldId){
+        //taskFieldMapList.add(taskFieldMap);
+        taskFieldSelectionValuesMap[fieldId]=taskFieldSelectionValues;
+        fieldId=element["id"];
+        //taskFieldMap={"id":element["id"],"name":element["name"]};
+        taskFieldSelectionValues=[];
+      }
+      if(element["value_id"]!=null){
+        taskFieldSelectionValues.add({
+          "id":element["value_id"],
+          "sorting":element["value_sorting"],
+          "external_id":element["value_external_id"],
+          "name":element["value_name"]});
+      }
+
+    });
+    if(fieldId!=0)
+      taskFieldSelectionValuesMap[fieldId]=taskFieldSelectionValues;
+    return taskFieldSelectionValuesMap;
+
+  }
   Future<TaskModel> getTask(int id) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
@@ -310,7 +384,7 @@ class DBProvider {
         statusMap:taskStatusMapList.first,
         statusesMap: tasksStatusesMapList,
         tasksFieldsMap: tasksFieldsMapList,
-        tasksFieldsSelectionValuesMap:tasksFieldsSelectionValuesMapList);
+        tasksFieldsSelectionValuesMap:reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList));
   }
   Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
     Database db = await this.database;
@@ -380,6 +454,28 @@ class DBProvider {
     }
     return true;
   }
+  Future<bool> deleteAllPersonPhones(int personId) async{
+    Database db = await this.database;
+    try{
+      await db.delete(tasksPhoneTable, where: 'person =?', whereArgs: [personId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
+  Future<bool> deleteAllTaskPersons(int taskId) async{
+    Database db = await this.database;
+    try{
+      await db.delete(tasksPersonTable, where: 'task =?', whereArgs: [taskId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
   Future<bool> addTaskEmployee(int taskId, int employeeId) async{
     Database db = await this.database;
     try{
@@ -395,8 +491,21 @@ class DBProvider {
     return true;
   }
 
+  Future<int> getUSN() async{
+    Database db = await this.database;
+    try{
+      int usn = await db.insert(usnCountersTable,{"object_type":"task_option"});
+      print("usnresult: ${usn}");
+      return usn;
+    }
+    catch(e){
+      return 0;
+    }
+  }
+
   Future<bool> updateTaskFieldSelectionValue({required int taskFieldId,int? taskFieldSelectionValue}) async{
     Database db = await this.database;
+
     try{
       await db.delete(taskSelectionValuesRelationTable, where: 'tasks_fields =?', whereArgs: [taskFieldId]);
     }
@@ -405,6 +514,10 @@ class DBProvider {
     }
     if(taskFieldSelectionValue!=null) {
       try {
+        int usn = await getUSN();
+        await db.update(tasksFieldsTable, {
+          "usn":usn,
+        }, where: 'id =?', whereArgs: [taskFieldId]);
         await db.insert(taskSelectionValuesRelationTable, {
           "tasks_fields": taskFieldId,
           "tasks_selection_values": taskFieldSelectionValue
@@ -426,6 +539,10 @@ class DBProvider {
     }
     if(taskFieldValue!=null) {
       try {
+        int usn = await getUSN();
+        await db.update(tasksFieldsTable, {
+          "usn":usn,
+        }, where: 'id =?', whereArgs: [taskFieldId]);
         await db.insert(taskValuesTable, {
           "tasks_fields": taskFieldId,
           "value": taskFieldValue
@@ -529,6 +646,33 @@ class DBProvider {
     }
     phone.id=id;
     return phone;
+  }
+Future<int> getPersonIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> personMapList = await db.query(tasksPersonTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return personMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<PersonModel> updatePersonByServerId(PersonModel person) async{
+    Database db = await this.database;
+
+    int personId = await getTemplateIdByServerId(person.serverId);
+    if(personId!=0)
+      await db.update(tasksPersonTable, person.toMap(), where: 'external_id =?', whereArgs: [personId]);
+    person.id=personId;
+    return person;
+  }
+  Future<PersonModel> insertPerson(PersonModel person) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(tasksPersonTable, person.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    person.id=id;
+    return person;
   }
 
   Future<EmployeeModel> insertEmployee(EmployeeModel employee) async{

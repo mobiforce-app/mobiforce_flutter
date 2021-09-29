@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
@@ -19,6 +20,8 @@ import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
@@ -34,6 +37,7 @@ class SyncRepositoryImpl implements SyncRepository{
 
   //final AuthorizationDataSource authorizationDataSource;
   int lastSyncTime=0;
+  int localUSN=0;
 ///  int lastUpdateCount=0;
   String domain="";
   String accessToken="";
@@ -41,6 +45,7 @@ class SyncRepositoryImpl implements SyncRepository{
 
   SyncRepositoryImpl({required this.networkInfo, required this.updatesRemoteDataSources, required this.sharedPreferences})
   {
+    localUSN = sharedPreferences.getInt("local_usn")??0;
     lastSyncTime = sharedPreferences.getInt("last_sync_time")??0;
     //lastUpdateCount = sharedPreferences.getInt("last_update_count")??0;
     for(int i=0; i<objectsType.length;i++ ){
@@ -75,6 +80,39 @@ class SyncRepositoryImpl implements SyncRepository{
   bool isFullSyncStarted()
   {
     return sharedPreferences.getBool("full_sync")??false;
+  }
+  @override
+  Future<Either<Failure, SyncModel>> sendUpdates(DBProvider db) async {
+   // updatesRemoteDataSources.getDataList(
+    List<TasksFieldsEntity> tasksFiedls = await db.readTasksFieldsUpdates(localUSN);
+    Future.forEach(tasksFiedls,(TasksFieldsEntity element) async{
+      print("${element.id}");
+      String? val = null;
+      if(element.taskField?.type.value == TaskFieldTypeEnum.optionlist)
+      {
+        print ("serverId: ${element.serverId}, element.selectionValue?.serverId: ${element.selectionValue?.serverId}");
+        val = element.selectionValue?.serverId.toString();
+      }
+      else if(element.taskField?.type.value == TaskFieldTypeEnum.text) {
+        val = element.stringValue;
+      }
+      else if(element.taskField?.type.value == TaskFieldTypeEnum.number)
+      {
+        print ("serverId: ${element.serverId}, element.selectionValue?.serverId: ${element.selectionValue?.serverId}");
+        val = element.doubleValue!=null?element.doubleValue.toString():null;
+      }
+      final Map<String,dynamic> send = {"id":element.serverId,"value":val};
+
+      bool isSend = await updatesRemoteDataSources.sendUpdate(
+          domain: domain,
+          accessToken:accessToken,
+          objectType:objectsType[syncObjectsTypeId],
+          mapObjects: send
+      );
+      print("${isSend?"":"!"} OK");
+
+    });
+    return Left(ServerFailure());
   }
   @override
   Future<Either<Failure, SyncModel>> getUpdates() async {

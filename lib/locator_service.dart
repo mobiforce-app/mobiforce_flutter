@@ -38,6 +38,7 @@ import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
+import 'domain/usecases/sync_to_server.dart';
 import 'domain/usecases/wait.dart';
 
 final sl = GetIt.instance;
@@ -49,7 +50,7 @@ Future<void>init() async
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => LoginBloc(auth: sl()));
   sl.registerFactory(() => SyncBloc(m:sl()));
-  sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl()));
+  sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl(),syncToServer: sl()));
 
 
   //usecases
@@ -60,6 +61,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => SetTaskFieldSelectionValue(sl()));
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
   sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
+  sl.registerLazySingleton(() => SyncToServer(sl(),sl()));
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));
   //sl.registerLazySingleton(() => Model());

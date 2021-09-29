@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -12,7 +13,7 @@ import 'employee_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees,phones, template}): super(
+  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees,phones,persons, template}): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
@@ -27,6 +28,7 @@ class TaskModel extends TaskEntity
       author:author,
       employees:employees,
       phones:phones,
+      persons:persons,
       template: template,
   );
 
@@ -100,6 +102,19 @@ class TaskModel extends TaskEntity
         //}
       });
     }
+    if(persons != null)
+    {
+      await db.deleteAllTaskPersons(taskId);
+      await Future.forEach(persons!,(PersonModel element) async {
+        print("persons Id = ${element.serverId}");
+        //element.task = taskId;
+        element.taskId=taskId;
+        int employeeId = await element.insertToDB(db);
+        //if(employeeId>0){
+        //  await db.addTaskEmployee(taskId,employeeId);
+        //}
+      });
+    }
     if(statuses != null)
     {
       await Future.forEach(statuses!,(TasksStatusesModel element) async {
@@ -164,37 +179,14 @@ class TaskModel extends TaskEntity
     required Map<String, dynamic> statusMap,
     List<Map<String, dynamic>> statusesMap = const [],
     List<Map<String, dynamic>> tasksFieldsMap = const [],
-    List<Map<String, dynamic>> tasksFieldsSelectionValuesMap = const [],
+    Map<int, dynamic> tasksFieldsSelectionValuesMap = const {},
   })
   {
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
-    int fieldId=0;
-    //List<TaskFieldModel> taskFieldList = [];
-    Map<int, dynamic> taskFieldSelectionValuesMap = {};
-    List<Map<String, dynamic>> taskFieldSelectionValues = [];
-    tasksFieldsSelectionValuesMap.forEach((element) {
-      if(element["id"]!=fieldId){
-        //taskFieldMapList.add(taskFieldMap);
-        taskFieldSelectionValuesMap[fieldId]=taskFieldSelectionValues;
-        fieldId=element["id"];
-        //taskFieldMap={"id":element["id"],"name":element["name"]};
-        taskFieldSelectionValues=[];
-      }
-      if(element["value_id"]!=null){
-        taskFieldSelectionValues.add({
-          "id":element["value_id"],
-          "sorting":element["value_sorting"],
-          "external_id":element["value_external_id"],
-          "name":element["value_name"]});
-      }
 
-    });
-    if(fieldId!=0)
-      taskFieldSelectionValuesMap[fieldId]=taskFieldSelectionValues;
-
-    var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,taskFieldSelectionValuesMap)).toList();
+    var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,tasksFieldsSelectionValuesMap)).toList();
 
     print("statusMap = ${statusMap.toString()}");
     return TaskModel(
@@ -237,6 +229,7 @@ class TaskModel extends TaskEntity
         employees:json["employee"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?[EmployeeModel.fromJson(json["employee"])]:null,
         template:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TemplateModel.fromJson(json["tasktemplate"]):null,
         phones:(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList(),
+        persons:(json["person"] as List).map((person) => PersonModel.fromJson(person)).toList(),
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }
