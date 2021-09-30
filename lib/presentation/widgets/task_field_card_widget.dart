@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -11,6 +13,7 @@ class TaskFieldTextCard extends StatefulWidget {
   final int fieldId;
   final bool isText;
   String val;
+
   TaskFieldTextCard({required this.name, required this.fieldId, required this.val, required this.isText});
 
   @override
@@ -20,11 +23,42 @@ class TaskFieldTextCard extends StatefulWidget {
 }
 class _taskFieldTextState extends State<TaskFieldTextCard> {
   var _controller = TextEditingController();
+  var _oldValue;
+  Timer? _debounce;
   //_controller.text="20";
+  _onChanged(String query) {
+    setState(()=>{});
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 5000), () {
+      // do something with query
+      print("$query");
+      _oldValue=query;
+      BlocProvider.of<TaskBloc>(context).add(
+        ChangeTextFieldValue(fieldId:widget.fieldId,value:query),
+      );
+    });
+  }
+
+  @override
+  void deactivate() {
+    if(_oldValue!=_controller.text){
+      BlocProvider.of<TaskBloc>(context).add(
+        ChangeTextFieldValue(fieldId:widget.fieldId,value:_controller.text),
+      );
+    }
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
     _controller.text=widget.val;
+    _oldValue=_controller.text;
     super.initState();
   }
   @override
@@ -51,13 +85,14 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
         controller: _controller,
         //maxLines: 3,
         keyboardType: widget.isText?TextInputType.text:TextInputType.phone,//.numberWithOptions(),
-        onChanged: (data)
+  /*      onChanged: (data)
         {
           setState(()=>{});
           BlocProvider.of<TaskBloc>(context).add(
             ChangeTextFieldValue(fieldId:widget.fieldId,value:data),
           );
-        },//maxLines: 3,
+        },//maxLines: 3,*/
+        onChanged: _onChanged,
       );
   }
 }
