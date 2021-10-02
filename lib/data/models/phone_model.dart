@@ -68,12 +68,12 @@ class PhoneModel extends PhoneEntity
   }
   factory PhoneModel.fromJson(Map<String, dynamic> json)
   {
-    print('employeejsonjson ${json} ');
+    print('PhoneModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return PhoneModel(
         id: 0,
-        usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??0),
+        usn: int.parse(json["usn"]??"0"),
+        serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
     );
   }

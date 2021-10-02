@@ -69,7 +69,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
     required List<dynamic> Function(dynamic) mapObjects
   }) async{
     //await Future.delayed(const Duration(seconds: 5), (){});
-    try{
+    //try{
       Map data = {
         'lastUpdateCount': lastUpdateCount,
         'lastSyncTime': lastSyncTime,
@@ -92,11 +92,11 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
         print("My exception");
         throw ServerException();
       }
-    }
-    catch (error) {
+    //}
+    /*catch (error) {
       print("error!!! $error");
       throw ServerException();
-    }
+    }*/
   }
   
 }

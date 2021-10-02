@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
@@ -10,55 +11,59 @@ class TasksStatusesModel extends TasksStatusesEntity
     required id,
     required usn,
     required serverId,
-    required serverStatusId,
+    //required serverStatusId,
     required task,
     required createdTime,
     required manualTime,
     required lat,
-    required name,
+    //required name,
     required lon,
-    required color,
-    required statusId,
+    //required color,
+    //required statusId,
     required dirty,
+    required status,
   }): super(
       id: id,
-      statusId: statusId,
-      serverStatusId: serverStatusId,
+      // statusId: statusId,
+      //serverStatusId: serverStatusId,
+      serverId: serverId,
       task: task,
       createdTime: createdTime,
       manualTime: manualTime,
       lat: lat,
       lon: lon,
       usn: usn,
-      color: color,
-      name: name,
+      //color: color,
+      //name: name,
       dirty: dirty,
+      status:status,
   );
 
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     //map['name'] = name;
-    //map['usn'] = usn;
+    map['usn'] = usn;
     map['dirty'] = dirty?1:0;
-    map['task'] = task;
+    map['task'] = task.id;
     map['created_time'] = createdTime;
     map['manual_time'] = manualTime;
     map['lat'] = lat;
     map['lon'] = lon;
     map['external_id'] = serverId;
-    map['task_status'] = statusId;
+    map['task_status'] = status.id;
     //map['color'] = color;
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
 
-    statusId = await db.getTaskStatusIdByServerId(serverStatusId);
+    //statusId = await db.getTaskStatusIdByServerId(serverStatusId);
+    if(status.id==0)
+      status.id = await status.insertToDB(db);
 
     dynamic t = await db.insertTasksStatuses(this);
-
-    print ("db id == ${t.id}");
+    print ("status db id == ${t.id}");
     if(t.id==0){
-      t.id = await db.updateTasksStatusesByServerId(this);
+      t = await db.updateTasksStatusesByServerId(this);
       print ("db id == ${t.toString()}");
     }
     return t.id;
@@ -69,42 +74,48 @@ class TasksStatusesModel extends TasksStatusesEntity
    // externalId = map['externalId'];
    // name = map['name'];
     print("TasksStatusesModel MAP ${map.toString()}");
+    TaskStatusModel status = TaskStatusModel.fromMap({"id":map["taskstatus_id"],"external_id":map["taskstatus_external_id"],"name":map['taskstatus_name'],"color":map['taskstatus_color']});
+
     return TasksStatusesModel(
         id: map['id'],
-        statusId: map['task_status'],
-        usn: 0,//map['usn'],
+        //statusId: map['task_status'],
+        usn: map['usn'],
         serverId: map['external_id'],
-        serverStatusId: map['external_status_id']??0,
-        task: map['task'],
-        name: map['name']??"",
+        //serverStatusId: map['external_status_id']??0,
+        task: TaskModel.fromMap(taskMap: {"external_id":map['task_external_id']??0,"id":map['task_id']}, statusMap: null),
+        //name: map['name']??"",
         createdTime: map['created_time'],
         manualTime: map['manual_time'],
         lat: double.tryParse(map['lat']),
         lon: double.tryParse(map['lon']),
-        color: map['color'],
+        //color: map['color'],
         dirty: map['dirty']==1?true:false,
+        status:status,
         //color: map['color'],
         //name: map['name']
     );
   }
   factory TasksStatusesModel.fromJson(Map<String, dynamic> json)
   {
-    print('jsonjson ${json} ');
+    print('TasksStatusesModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
+    TaskStatusModel status = TaskStatusModel.fromJson({"id":json["statusId"],"name":json['description'],"color":json['color']});
+
     return TasksStatusesModel(
         id: 0,
-        statusId: 0,
-        color: "",
+        //statusId: 0,
+        //color: "",
         usn: json['usn']??0,
-        name: json['name']??"",
+        //name: json['name']??"",
         dirty: false,
         serverId: int.parse(json["id"]??"0"),
-        serverStatusId: int.parse(json["statusId"]??"0"),
+        //serverStatusId: int.parse(json["statusId"]??"0"),
         createdTime: int.parse(json["time"]??"0"),
         manualTime: int.parse(json["time"]??"0"),
         lat: double.tryParse(json["lat"]??"0.0")??0.0,
         lon: double.tryParse(json["lon"]??"0.0")??0.0,
-        task: 0,
+        task: TaskModel(id:0,serverId: 0),
+        status: status,
     );
   }
   /*fromMap(Map<String, dynamic> map)

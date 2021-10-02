@@ -19,6 +19,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DBProvider {
   //DBProvider._();
+  final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
   final int dbVersion=1;
@@ -189,6 +190,7 @@ class DBProvider {
     await db.execute(
         'CREATE TABLE IF NOT EXISTS $tasksStatusesTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'usn INTEGER, '
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
             'task_status INTEGER, '
@@ -293,6 +295,7 @@ class DBProvider {
    //return null;
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksFieldsMapList = await db.rawQuery("SELECT t1.*, "
+        "t1.task as task_id, "
         "t2.name as field_name, "
         "t2.type as field_type, "
         "t2.id as field_id, "
@@ -307,7 +310,7 @@ class DBProvider {
         "LEFT JOIN $taskSelectionValuesRelationTable as t3 ON t1.id = t3.tasks_fields "
         "LEFT JOIN $taskSelectionValuesTable as t4 ON t3.tasks_selection_values = t4.id "
         "LEFT JOIN $taskValuesTable as t5 ON t1.id = t5.tasks_fields "
-        "WHERE t1.usn > ? ORDER BY t1.usn ASC",[localUSN]);
+        "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
 
     final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
         "t1.id, "
@@ -321,6 +324,19 @@ class DBProvider {
     final Map<int, dynamic> tasksFieldsSelectionValuesMap = reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList);
 
     return tasksFieldsMapList.map((field) => TasksFieldsModel.fromMap(field,tasksFieldsSelectionValuesMap)).toList();
+  }
+
+  Future<List<TasksStatusesModel>> readTaskStatusUpdates(int localUSN) async{
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery(""
+        "SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color, t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t3.external_id as task_external_id, t3.id as task_id "
+        "FROM $tasksStatusesTable as t1 "
+        "LEFT JOIN $taskStatusTable as t2 "
+        "ON t1.task_status = t2.id "
+        "LEFT JOIN $tasksTable as t3 "
+        "ON t1.task = t3.id "
+        "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
+    return tasksStatusesMapList.map((taskstatus) => TasksStatusesModel.fromMap(taskstatus)).toList();
   }
   Map<int, dynamic> reMapTasksFieldsSelectionValues(List<Map<String, dynamic>> tasksFieldsSelectionValuesMap) {
     int fieldId=0;
@@ -353,7 +369,7 @@ class DBProvider {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
-    final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name, t2.color FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
+    final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color,t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t1.task as task_id FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
     final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
           "t1.id, "
           "t1.external_id, "
@@ -364,6 +380,7 @@ class DBProvider {
           "t2.id as value_id "
         "FROM $taskFieldTable as t1 LEFT JOIN $taskSelectionValuesTable as t2 ON t1.id = t2.task_field ORDER BY t1.id DESC",[]);
     final List<Map<String,dynamic>> tasksFieldsMapList = await db.rawQuery("SELECT t1.*, "
+      "t1.task as task_id, "
       "t2.name as field_name, "
       "t2.type as field_type, "
       "t2.id as field_id, "
@@ -503,7 +520,7 @@ class DBProvider {
     }
   }
 
-  Future<bool> updateTaskFieldSelectionValue({required int taskFieldId,int? taskFieldSelectionValue}) async{
+  Future<bool> updateTaskFieldSelectionValue({required int taskFieldId,int? taskFieldSelectionValue,required  bool update_usn}) async{
     Database db = await this.database;
 
     try{
@@ -514,14 +531,17 @@ class DBProvider {
     }
     if(taskFieldSelectionValue!=null) {
       try {
-        int usn = await getUSN();
-        await db.update(tasksFieldsTable, {
-          "usn":usn,
-        }, where: 'id =?', whereArgs: [taskFieldId]);
+        if(update_usn) {
+          int usn = await getUSN();
+          await db.update(tasksFieldsTable, {
+            "usn": usn,
+          }, where: 'id =?', whereArgs: [taskFieldId]);
+        }
         await db.insert(taskSelectionValuesRelationTable, {
           "tasks_fields": taskFieldId,
           "tasks_selection_values": taskFieldSelectionValue
         });
+
       }
       catch (e) {
         return false;
@@ -529,7 +549,7 @@ class DBProvider {
     }
     return true;
   }
-  Future<bool> updateTaskFieldValue({required int taskFieldId,String? taskFieldValue}) async{
+  Future<bool> updateTaskFieldValue({required int taskFieldId,String? taskFieldValue,required  bool update_usn}) async{
     Database db = await this.database;
     try{
       await db.delete(taskValuesTable, where: 'tasks_fields =?', whereArgs: [taskFieldId]);
@@ -539,15 +559,18 @@ class DBProvider {
     }
     if(taskFieldValue!=null) {
       try {
-        int usn = await getUSN();
-        await db.update(tasksFieldsTable, {
-          "usn":usn,
-        }, where: 'id =?', whereArgs: [taskFieldId]);
+        if(update_usn) {
+          int usn = await getUSN();
+          await db.update(tasksFieldsTable, {
+            "usn": usn,
+          }, where: 'id =?', whereArgs: [taskFieldId]);
+        }
         await db.insert(taskValuesTable, {
           "tasks_fields": taskFieldId,
           "value": taskFieldValue
         });
         print(":: $taskFieldValue");
+
       }
       catch (e) {
         return false;
@@ -568,11 +591,15 @@ class DBProvider {
     tasksStatuses.id=id;
     return tasksStatuses;
   }
-  Future<int> addStatusToTask(TasksStatusesModel ts) async {
+  Future<int> addStatusToTask({required TasksStatusesModel ts,required  bool update_usn}) async {
     Database db = await this.database;
     int id=0;
     try{
       //print('${tasksStatuses.toMap().toString()}');
+      if(update_usn){
+        int usn = await getUSN();
+        ts.usn=usn;
+      }
       id=await db.insert(tasksStatusesTable, ts.toMap());
     }
     catch(e){
@@ -734,6 +761,23 @@ Future<int> getPersonIdByServerId(int serverId) async {
     contractor.id=id;
     return contractor;
   }
+  Future<int> getTaskSelectionIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> taskSelectionMapList = await db.query(taskSelectionValuesTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return taskSelectionMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<int> updateTaskSelectionByServerId(SelectionValueModel selection) async{
+    Database db = await this.database;
+
+    int selectionId = await getTaskSelectionIdByServerId(selection.serverId);
+    //print("address: ${selection.address}");
+    if(selectionId!=0)
+      await db.update(taskSelectionValuesTable, selection.toMap(), where: 'id =?', whereArgs: [selectionId]);
+    //task.id=taskId;
+    return selectionId;
+
+  }
   Future<SelectionValueModel> insertTaskSelection(SelectionValueModel selection) async{
     Database db = await this.database;
     int id=0;
@@ -746,6 +790,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
     selection.id=id;
     return selection;
   }
+
 //UPDATE
   Future<int> updateTask(TaskModel task) async{
     Database db = await this.database;
@@ -756,8 +801,9 @@ Future<int> getPersonIdByServerId(int serverId) async {
     Database db = await this.database;
 
     int taskId = await getTaskIdByServerId(task.serverId);
+    print("address: ${task.address}");
     if(taskId!=0)
-      await db.update(tasksTable, task.toMap(), where: 'external_id =?', whereArgs: [taskId]);
+      await db.update(tasksTable, task.toMap(), where: 'id =?', whereArgs: [taskId]);
     //task.id=taskId;
     return taskId;
   }
@@ -842,7 +888,8 @@ Future<int> getPersonIdByServerId(int serverId) async {
     Database db = await this.database;
     int rid=0;
     try{
-      rid=await db.insert(taskSelectionValuesRelationTable, {"tasks_fields":fieldId,"tasks_selection_values":id});
+      await db.delete(taskSelectionValuesRelationTable, where: 'tasks_fields =?', whereArgs: [fieldId]);
+      rid=await db.insert(taskSelectionValuesRelationTable, {"tasks_fields": fieldId,"tasks_selection_values":id});
     }
     catch(e){
       print("$e");
@@ -855,7 +902,9 @@ Future<int> getPersonIdByServerId(int serverId) async {
   //updateStatusByServerId(TaskStatusModel taskStatusModel) async {}
   Future<int?> updateTaskStatusByServerId(TaskStatusModel taskStatus) async{
     Database db = await this.database;
+
     TaskStatusModel? ts = await getTaskStatusByServerId(taskStatus.serverId);
+    print("TaskStatusModel: serverId: ${taskStatus.serverId}, id: ${ts?.id}");
     if(ts?.serverId!=null)
       await db.update(taskStatusTable, taskStatus.toMap(), where: 'id =?', whereArgs: [ts?.id]);
     return ts?.id;

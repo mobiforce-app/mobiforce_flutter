@@ -48,6 +48,10 @@ class SelectionValueModel extends SelectionValueEntity
   Future<int> insertToDB(db) async {
     dynamic t = await db.insertTaskSelection(this);
     print ("insertSelection id == ${t.id}");
+    if(t.id==0){
+      t.id = await db.updateTaskSelectionByServerId(this);
+      print ("db id == ${t.toString()}");
+    }
     return t.id;
   }
 

@@ -206,7 +206,11 @@ class TaskDetailPage extends StatelessWidget {
                 //);
                 buttons.add(
                     InkWell(
-                      onTap: () {}, // Handle your callback
+                      onTap: () {
+                        BlocProvider.of<TaskBloc>(context)
+                          ..add(ChangeTaskStatus(status:element.id));
+                        Navigator.pop(context);
+                      }, // Handle your callback
                         child: Align(
                           alignment: Alignment.topLeft,
                           child: Padding(
@@ -252,13 +256,13 @@ class TaskDetailPage extends StatelessWidget {
                           height: 8,
                           width: 8,
                           decoration: BoxDecoration(
-                            color:HexColor.fromHex(element.color),
+                            color:HexColor.fromHex("${element.status.color}"),
                             borderRadius: BorderRadius.circular(8)
                           ),
                         ),
                         SizedBox(width: 8,),
                         Text(
-                            "${element.name} $formatted",
+                            "${element.status.name} $formatted",
                             style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.black,

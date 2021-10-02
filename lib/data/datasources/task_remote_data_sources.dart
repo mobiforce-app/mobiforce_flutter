@@ -48,9 +48,11 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<TaskModel> setTaskStatus({required int status,required int task}) async{
     var date = new DateTime.now();
     int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
-    TasksStatusesModel ts = TasksStatusesModel(id:0,usn:0,serverId: null, statusId:status, serverStatusId: 0,task:task,createdTime: d, manualTime: d, lat: 0.0, lon:0.0, color:"", name: "", dirty:true);
+    TasksStatusesModel ts = TasksStatusesModel(id:0,usn:0,serverId: null, status:TaskStatusModel(serverId: 0,id:status, color:"", name:"", usn: 0),
+        task:TaskModel(serverId:0,id:task),
+        createdTime: d, manualTime: d, lat: 0.0, lon:0.0, dirty:true);
 
-    await db.addStatusToTask(ts);
+    await db.addStatusToTask(ts:ts,update_usn: true);
     return await db.getTask(task);
   }
 
@@ -58,13 +60,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField}) async{
     print("taskField.taskField?.type.value = ${taskField.taskField?.type.value}, ${taskField.id} , ${taskField.selectionValue?.id}");
     if(taskField.taskField?.type.value==TaskFieldTypeEnum.optionlist)
-      return await db.updateTaskFieldSelectionValue(taskFieldId:taskField.id,taskFieldSelectionValue:taskField.selectionValue?.id);
+      return await db.updateTaskFieldSelectionValue(taskFieldId:taskField.id,taskFieldSelectionValue:taskField.selectionValue?.id,update_usn: true);
     else if(taskField.taskField?.type.value==TaskFieldTypeEnum.text)
-      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.stringValue);
+      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.stringValue,update_usn: true);
     else if(taskField.taskField?.type.value==TaskFieldTypeEnum.number)
-      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:"${taskField.doubleValue}");
+      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:"${taskField.doubleValue}",update_usn: true);
     else if(taskField.taskField?.type.value==TaskFieldTypeEnum.checkbox)
-      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.boolValue==true?"1":"0");
+      return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.boolValue==true?"1":"0",update_usn: true);
     return false;
   }
 

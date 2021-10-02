@@ -164,9 +164,10 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
     }
     if (event is ChangeTaskStatus) {
-      yield StartLoadingTaskPage();
       //await Future.delayed(Duration(seconds: 2));
       final task = (state as TaskLoaded).task;
+
+      yield StartLoadingTaskPage();
 
       print("SetTaskStatus ${event.status} ${task.id}");
       final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status));

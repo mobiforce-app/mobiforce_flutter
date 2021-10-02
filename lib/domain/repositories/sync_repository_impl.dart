@@ -22,11 +22,17 @@ import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+class QueueToSync{
+  final String type;
+  final int usn;
+  final dynamic object;
+  QueueToSync({required this.type,required this.usn,required this.object,});
+}
 class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
@@ -85,33 +91,62 @@ class SyncRepositoryImpl implements SyncRepository{
   Future<Either<Failure, SyncModel>> sendUpdates(DBProvider db) async {
    // updatesRemoteDataSources.getDataList(
     List<TasksFieldsEntity> tasksFiedls = await db.readTasksFieldsUpdates(localUSN);
-    Future.forEach(tasksFiedls,(TasksFieldsEntity element) async{
-      print("${element.id}");
-      String? val = null;
-      if(element.taskField?.type.value == TaskFieldTypeEnum.optionlist)
-      {
-        print ("serverId: ${element.serverId}, element.selectionValue?.serverId: ${element.selectionValue?.serverId}");
-        val = element.selectionValue?.serverId.toString();
-      }
-      else if(element.taskField?.type.value == TaskFieldTypeEnum.text) {
-        val = element.stringValue;
-      }
-      else if(element.taskField?.type.value == TaskFieldTypeEnum.number)
-      {
-        print ("serverId: ${element.serverId}, element.selectionValue?.serverId: ${element.selectionValue?.serverId}");
-        val = element.doubleValue!=null?element.doubleValue.toString():null;
-      }
-      final Map<String,dynamic> send = {"id":element.serverId,"value":val};
+    List<TasksStatusesEntity> tasksStatuses = await db.readTaskStatusUpdates(localUSN);
 
-      bool isSend = await updatesRemoteDataSources.sendUpdate(
-          domain: domain,
-          accessToken:accessToken,
-          objectType:objectsType[syncObjectsTypeId],
-          mapObjects: send
-      );
-      print("${isSend?"":"!"} OK");
-
+    List<QueueToSync> all=[];
+    tasksFiedls.forEach((element) {all.add(QueueToSync(type: "taskfield", usn:element.usn, object:element)); });
+    tasksStatuses.forEach((element) {all.add(QueueToSync(type: "taskstatus", usn:element.usn, object:element)); });
+    all.forEach((element) {
+      print("send object: ${element.type},  usn: ${element.usn}, ");
     });
+    all.sort((a, b) => a.usn.compareTo(b.usn));
+    all=all.length>30?all.sublist(0,30):all;
+    /**/
+    Future.forEach(all,(QueueToSync element) async{
+      print("usn: ${element.usn}");
+      if(element.type=="taskfield"){
+        String? val = null;
+        if(element.object.taskField?.type.value == TaskFieldTypeEnum.optionlist)
+        {
+          print ("serverId: ${element.object.serverId}, element.selectionValue?.serverId: ${element.object.selectionValue?.serverId}");
+          val = element.object.selectionValue?.serverId.toString();
+        }
+        else if(element.object.taskField?.type.value == TaskFieldTypeEnum.text) {
+          val = element.object.stringValue;
+        }
+        else if(element.object.taskField?.type.value == TaskFieldTypeEnum.number)
+        {
+          print ("serverId: ${element.object.serverId}, element.selectionValue?.serverId: ${element.object.selectionValue?.serverId}");
+          val = element.object.doubleValue!=null?element.object.doubleValue.toString():null;
+        }
+        final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
+
+        bool isSend = await updatesRemoteDataSources.sendUpdate(
+            domain: domain,
+            accessToken:accessToken,
+            objectType:"taskfield",
+            mapObjects: send
+        );
+        print("${isSend?"":"!"} OK");
+
+      }
+      else if(element.type=="taskstatus") {
+        //final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
+        final Map<String,dynamic> send = {"task":element.object.task.serverId,"value":element.object.status.serverId};
+        print("send: $send");
+        bool isSend = await updatesRemoteDataSources.sendUpdate(
+            domain: domain,
+            accessToken:accessToken,
+            objectType:"taskstatus",
+            mapObjects: send
+            );
+        print("${isSend?"":"!"} OK");
+
+
+      }
+      localUSN = element.usn;
+      await sharedPreferences.setInt("local_usn", localUSN);
+      });
     return Left(ServerFailure());
   }
   @override

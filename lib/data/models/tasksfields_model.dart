@@ -1,5 +1,6 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -9,7 +10,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 class TasksFieldsModel extends TasksFieldsEntity
 {
 
-  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,tab, tabServerId}): super(
+  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,tab, tabServerId, updateByToken}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -25,6 +26,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       stringValue:stringValue,
       tabServerId:tabServerId,
       tab:tab,
+      updateByToken:updateByToken,
   );
 
   Map<String, dynamic> toMap(){
@@ -38,7 +40,7 @@ class TasksFieldsModel extends TasksFieldsEntity
     map['element_id'] = elementLocalId;
     map['task_field'] = taskFieldId;
     map['sort'] = sort;
-    map['task'] = task;
+    map['task'] = task?.id;
     map['tasks_fields_tab'] = tab;
 
 /*    switch(taskField?.type?.value)
@@ -58,7 +60,7 @@ class TasksFieldsModel extends TasksFieldsEntity
     print("$tabServerId");
     tab = await db.getTasksFieldsTabIdByServerId(tabServerId);
 
-    dynamic t = await db.insertTasksFields(this);
+    TasksFieldsModel t = await db.insertTasksFields(this);
     print ("db id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTasksFieldsByServerId(this);
@@ -66,13 +68,33 @@ class TasksFieldsModel extends TasksFieldsEntity
     }
     print("putTaskField2taskSelectionValueRelation try to insert");
 
+    if(t.selectionValue?.id==0)
+    {
+      t.selectionValue!.taskFieldId=fieldId;
+      print("insert selectionValue ${t.selectionValue?.name}");
+      t.selectionValue?.id = await t.selectionValue!.insertToDB(db);
+    }
+
     if(t.id>0)
     {
-      print("putTaskField2taskSelectionValueRelation1 try to insert");
-      if(selectionValue!=null){
+
+      print("putTaskField2taskSelectionValueRelation1 try to insert ");
+
+      print("taskField.taskField?.type.value = ${t.taskField?.type.value}, ${t.id}, selection: ${t.selectionValue?.id}, string: ${t.stringValue}, double: ${t.doubleValue}");
+      if(t.taskField?.type.value==TaskFieldTypeEnum.optionlist)
+        await db.updateTaskFieldSelectionValue(taskFieldId:t.id,taskFieldSelectionValue:t.selectionValue?.id,update_usn: false);
+      else if(t.taskField?.type.value==TaskFieldTypeEnum.text)
+        await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:t.stringValue,update_usn: false);
+      else if(t.taskField?.type.value==TaskFieldTypeEnum.number)
+        await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:"${t.doubleValue}",update_usn: false);
+      else if(t.taskField?.type.value==TaskFieldTypeEnum.checkbox)
+        await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:t.boolValue==true?"1":"0",update_usn: false);
+
+      /*if(selectionValue!=null){
         print("putTaskField2taskSelectionValueRelation2 try to insert");
         await selectionValue!.putTaskField2taskSelectionValueRelation(db, t.id);
-      }
+      }*/
+
     }
     return t.id;
     return 1;
@@ -124,6 +146,7 @@ class TasksFieldsModel extends TasksFieldsEntity
         sort: map['sort'],
         tab:map['tasks_fields_tab'],
         taskField:taskField,
+        task:TaskModel.fromMap(taskMap: {"external_id":map['task_external_id']??0,"id":map['task_id']}, statusMap: null),
         selectionValue: selectionValue,
         doubleValue:doubleValue,
         stringValue:stringValue,
@@ -152,6 +175,7 @@ class TasksFieldsModel extends TasksFieldsEntity
     return TasksFieldsModel(
       id: 0,
       usn: json["usn"]??0,
+      updateByToken: int.parse(json["id"]??"0"),
       serverId: int.parse(json["id"]??"0"),
       elementLocalId: int.parse(json["element"]??"0"),
       parentLocalId: int.parse(json["parent"]??"0"),
@@ -159,6 +183,8 @@ class TasksFieldsModel extends TasksFieldsEntity
       taskField: taskField,
       selectionValue: optionList,
       tabServerId:tabServerId,
+      doubleValue: taskField.type.value==TaskFieldTypeEnum.number?double.tryParse(json["value"]):null,
+      stringValue: taskField.type.value==TaskFieldTypeEnum.text?json["value"]:null,
       //name: json["name"]??"",
       //taskServerId: taskServerId,
       //task: 0,

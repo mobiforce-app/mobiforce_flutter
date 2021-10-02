@@ -77,6 +77,7 @@ class PersonModel extends PersonEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+
     return PersonModel(
         id: map['id'],
         taskId: map['task'],
@@ -87,12 +88,14 @@ class PersonModel extends PersonEntity
   }
   factory PersonModel.fromJson(Map<String, dynamic> json)
   {
-    print('employeejsonjson ${json} ');
+    //print('employeejsonjson ${json} ');
+    print('PersonModeljsonjson ${json} ');
+
     //return TaskModel(id:0,externalId: 0, name: "");
     return PersonModel(
         id: 0,
-        usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??0),
+        usn: int.parse(json["usn"]??"0"),
+        serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         phones:(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList(),
     );

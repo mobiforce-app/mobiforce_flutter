@@ -1,6 +1,7 @@
 //enum TaskFieldType {undefined,text,number,checkbox,group,optionlist,picture}
 
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -12,7 +13,7 @@ class TasksFieldsEntity{
   int? sort;
   int? parentLocalId;
   //int taskServerId;
-  int? task;
+  TaskModel? task;
   TaskFieldModel? taskField;
   List<TasksFieldsModel>? childrens;
   SelectionValueModel? selectionValue;
@@ -21,6 +22,7 @@ class TasksFieldsEntity{
   String? stringValue;
   int usn;
   int? tab;
+  int? updateByToken;
   int? tabServerId;
   int? taskFieldId;
 
@@ -40,6 +42,7 @@ class TasksFieldsEntity{
     this.stringValue,
     this.tab,
     this.tabServerId,
+    this.updateByToken,
   });
   fromMap(Map<String, dynamic> map)
   {

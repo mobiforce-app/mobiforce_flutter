@@ -13,7 +13,7 @@ import 'employee_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({required isChanged,required id,required usn,required serverId,required name, status, contractor, address, statuses, checkList, propsList, author, employees,phones,persons, template}): super(
+  TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList, author, employees,phones,persons, template}): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
@@ -119,7 +119,7 @@ class TaskModel extends TaskEntity
     {
       await Future.forEach(statuses!,(TasksStatusesModel element) async {
         print("status Id = ${element.serverId}");
-        element.task = taskId;
+        element.task.id = taskId;
         await element.insertToDB(db);
       });
     }
@@ -130,12 +130,12 @@ class TaskModel extends TaskEntity
     {
       await Future.forEach(checkList!,(TasksFieldsModel element) async {
         print("TasksFieldsModel checkList Id = ${element.serverId}");
-        element.task = taskId;
+        element.task = TaskModel(id:taskId,serverId: 0);
         await element.insertToDB(db);
         if (element.childrens!=null&&element.childrens!.length>0){
           await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
             print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
-            elementChildren.task = taskId;
+            elementChildren.task = TaskModel(id:taskId,serverId: 0);
             await elementChildren.insertToDB(db);
           });
         }
@@ -147,12 +147,12 @@ class TaskModel extends TaskEntity
     {
       await Future.forEach(propsList!,(TasksFieldsModel element) async {
         print("TasksFieldsModel checkList Id = ${element.serverId}");
-        element.task = taskId;
+        element.task = TaskModel(id:taskId,serverId: 0);
         await element.insertToDB(db);
         if (element.childrens!=null&&element.childrens!.length>0){
           await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
             print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
-            elementChildren.task = taskId;
+            elementChildren.task = TaskModel(id:taskId,serverId: 0);
             await elementChildren.insertToDB(db);
           });
         }
@@ -176,7 +176,7 @@ class TaskModel extends TaskEntity
   }
   factory TaskModel.fromMap({
     required Map<String, dynamic> taskMap,
-    required Map<String, dynamic> statusMap,
+    required Map<String, dynamic>? statusMap,
     List<Map<String, dynamic>> statusesMap = const [],
     List<Map<String, dynamic>> tasksFieldsMap = const [],
     Map<int, dynamic> tasksFieldsSelectionValuesMap = const {},
@@ -197,7 +197,7 @@ class TaskModel extends TaskEntity
         //  contractor: taskMap['contractor'],
         address: taskMap['address'],
         name: taskMap['name'],
-        status:TaskStatusModel.fromMap(statusMap),
+        status:statusMap!=null?TaskStatusModel.fromMap(statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
     );
@@ -208,28 +208,28 @@ class TaskModel extends TaskEntity
     //return TaskModel(id:0,externalId: 0, name: "");
     print('json["task_statuses"] = ${json["task_statuses"]}');
     print("ok1");
-    var propsList = (json["props"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,1)).toList();
+    var propsList = json["props"]!=null?(json["props"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,1)).toList():<TasksFieldsModel>[];
     print("ok2");
-    var checkList = (json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,2)).toList();
+    var checkList = json["checklist"]!=null?(json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,2)).toList():<TasksFieldsModel>[];
     propsList.addAll(checkList);
     print("ok3 ${json["contractor"]} ${json["contractor"].runtimeType.toString()} ${json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'}");
     ContractorModel? contractor;
     return TaskModel(
         id: 0,
         isChanged:false,
-        usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??0),
+        usn: int.parse(json["usn"]??"0"),
+        serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         contractor: json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?ContractorModel.fromJson(json["contractor"]):null,
         address: json["address"]??"",
-        status:TaskStatusModel.fromJson(json["task_status"]),
+        status:json["task_status"].runtimeType. toString()=='_InternalLinkedHashMap<String, dynamic>'?TaskStatusModel.fromJson(json["task_status"]):null,
         propsList:propsList,
-        statuses:(json["task_statuses"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
+        statuses:json["task_statuses"]!=null?(json["task_statuses"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList():<TasksStatusesModel>[],
         author:json["author"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EmployeeModel.fromJson(json["author"]):null,
         employees:json["employee"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?[EmployeeModel.fromJson(json["employee"])]:null,
         template:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TemplateModel.fromJson(json["tasktemplate"]):null,
-        phones:(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList(),
-        persons:(json["person"] as List).map((person) => PersonModel.fromJson(person)).toList(),
+        phones:json["phone"]!=null?(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList():<PhoneModel>[],
+        persons:json["person"]!=null?(json["person"] as List).map((person) => PersonModel.fromJson(person)).toList():<PersonModel>[],
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }

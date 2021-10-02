@@ -10,11 +10,11 @@ import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 
 class TaskEntity extends Equatable{
-  final bool isChanged;
+  final bool? isChanged;
   int id;
   int serverId;
-  String name;
-  int usn;
+  String? name;
+  int? usn;
   ContractorModel? contractor;
   String? address;
 
@@ -30,25 +30,6 @@ class TaskEntity extends Equatable{
   List<TasksFieldsModel>? checkList;
   List<TasksFieldsModel>? propsList;
   List<TasksStatusesModel>? statuses;
-  TaskEntity({
-      required this.isChanged,
-      required this.id,
-      required this.usn,
-      required this.serverId,
-      required this.name,
-      this.address,
-      this.contractor,
-      required
-      this.status,
-      required this.statuses,
-      this.checkList,
-      this.propsList,
-      this.employees,
-      this.template,
-      this.author,
-      this.phones,
-      this.persons,
-  });
   fromMap(Map<String, dynamic> map)
   {
     print("FROM MAP");
@@ -57,6 +38,24 @@ class TaskEntity extends Equatable{
     serverId=0;
     name="";
   }
+  TaskEntity({
+      this.isChanged,
+      required this.id,
+      this.usn,
+      required this.serverId,
+      this.name,
+      this.address,
+      this.contractor,
+      this.status,
+      this.statuses,
+      this.checkList,
+      this.propsList,
+      this.employees,
+      this.template,
+      this.author,
+      this.phones,
+      this.persons,
+  });
 
   @override
   // TODO: implement props

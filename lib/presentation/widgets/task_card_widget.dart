@@ -41,7 +41,7 @@ class TaskCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
               children:[
-                Text(task.name, style: TextStyle(color: Colors.black),),
+                Text('${task.name}', style: TextStyle(color: Colors.black),),
                 //Text(task.name, style: TextStyle(color: Colors.black),),
                 //Text(task.name, style: TextStyle(color: Colors.black),),
                 Text('${task.contractor}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),

@@ -23,7 +23,7 @@ class TaskStatusModel extends TaskStatusEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TaskStatusModel({required id,required usn,required serverId,required name, required color}): super(
+  TaskStatusModel({required id,usn,required serverId,name, color}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -45,7 +45,7 @@ class TaskStatusModel extends TaskStatusEntity
     print ("db id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTaskStatusByServerId(this);
-      print ("db id == ${t.toString()}");
+      print ("updateTaskStatusByServerId db id == ${t.id}");
 
     }
     return t.id;
@@ -70,7 +70,7 @@ class TaskStatusModel extends TaskStatusEntity
     return TaskStatusModel(
         id: 0,
         usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??0),
+        serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         color: json["color"]??"",
     );

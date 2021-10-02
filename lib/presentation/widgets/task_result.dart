@@ -14,7 +14,7 @@ class TaskResult extends StatelessWidget {
       elevation:2.0,
         child: Column(
           children:[
-            Text(taskResult.name)
+            Text("${taskResult.name}")
           ]
         ),
         //"taskResult.name"
