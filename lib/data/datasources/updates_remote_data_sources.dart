@@ -13,7 +13,7 @@ abstract class UpdatesRemoteDataSources{
   //Future<LoginModel>searchTask(String query);
  // Future
   Future<SyncModel>getDataList({required String domain, required String accessToken, required int lastSyncTime, required int lastUpdateCount,required String objectType,required List<dynamic> Function(dynamic) mapObjects });
-  Future<bool> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic> mapObjects });
+  Future<int> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic> mapObjects });
 }
 
 class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
@@ -28,7 +28,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
 
 
   @override
-  Future<bool> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic>? mapObjects })
+  Future<int> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic>? mapObjects })
   async{
 
     try{
@@ -44,9 +44,12 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
             HttpHeaders.authorizationHeader: "key=\"$accessToken\"",
           },body: json.encode(data));
       if(response.statusCode == 200){
-        final auth = json.decode(response.body);
+        //final auth = json.decode(response.body);
         print(response.body);
-        return true;
+        final js = json.decode(response.body);
+        if(js["result"]?["id"]>0)
+          return js["result"]?["id"];
+        return 0;
       }
       else{
         print("My exception");
@@ -57,7 +60,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
       print("error!!! $error");
       throw ServerException();
     }
-    return true;
+    return 0;
   }
   @override
   Future<SyncModel> getDataList({

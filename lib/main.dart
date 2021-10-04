@@ -14,6 +14,7 @@ import 'package:mobiforce_flutter/presentation/pages/login_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();

@@ -662,6 +662,15 @@ class DBProvider {
     phone.id=phoneId;
     return phone;
   }
+  Future<bool> setTasksStatusServerID(int id, int serverId) async{
+    Database db = await this.database;
+
+    //int phoneId = await getTemplateIdByServerId(phone.serverId);
+    //if(phoneId!=0)
+    await db.update(tasksStatusesTable, {"external_id":serverId}, where: 'id =?', whereArgs: [id]);
+    //phone.id=phoneId;
+    return true;
+  }
   Future<PhoneModel> insertPhone(PhoneModel phone) async{
     Database db = await this.database;
     int id=0;

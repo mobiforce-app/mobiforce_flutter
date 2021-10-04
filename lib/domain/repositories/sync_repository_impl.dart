@@ -121,26 +121,28 @@ class SyncRepositoryImpl implements SyncRepository{
         }
         final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
 
-        bool isSend = await updatesRemoteDataSources.sendUpdate(
+        int serverId = await updatesRemoteDataSources.sendUpdate(
             domain: domain,
             accessToken:accessToken,
             objectType:"taskfield",
             mapObjects: send
         );
-        print("${isSend?"":"!"} OK");
+        print("${serverId} OK");
 
       }
       else if(element.type=="taskstatus") {
         //final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
         final Map<String,dynamic> send = {"task":element.object.task.serverId,"value":element.object.status.serverId};
         print("send: $send");
-        bool isSend = await updatesRemoteDataSources.sendUpdate(
+        int serverId = await updatesRemoteDataSources.sendUpdate(
             domain: domain,
             accessToken:accessToken,
             objectType:"taskstatus",
             mapObjects: send
             );
-        print("${isSend?"":"!"} OK");
+        if(serverId>0)
+            db.setTasksStatusServerID(element.object.id,serverId);
+        print("Status id: ${element.object.id}/${serverId} OK");
 
 
       }

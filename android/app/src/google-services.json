@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1085626663359",
+    "project_id": "mobiforce-flutter",
+    "storage_bucket": "mobiforce-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085626663359:android:d74458c2a7706d74bde10a",
+        "android_client_info": {
+          "package_name": "ru.mobiforce.mc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1085626663359-5og7tekgncpmend4l4a6kpoma9u4h66r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqq5y_rWFDiP61N9w6ymXGX9ubGJd175c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1085626663359-5og7tekgncpmend4l4a6kpoma9u4h66r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
