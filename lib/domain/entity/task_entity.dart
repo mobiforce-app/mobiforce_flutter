@@ -13,6 +13,7 @@ class TaskEntity extends Equatable{
   final bool? isChanged;
   int id;
   int serverId;
+  bool? deleted;
   String? name;
   int? usn;
   ContractorModel? contractor;
@@ -55,6 +56,7 @@ class TaskEntity extends Equatable{
       this.author,
       this.phones,
       this.persons,
+      this.deleted,
   });
 
   @override

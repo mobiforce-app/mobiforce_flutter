@@ -55,7 +55,13 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
           for(dynamic object in sync.dataList) {
             //id = task.serverId;
             print("ObjectModel.externalId = ${object.serverId}");
-            await object.insertToDB(db);
+            //if(object.deleted) {
+            //  print("delete ObjectModel.externalId = ${object.serverId}");
+              //object.insertByExternalId(db);
+              //await object.insertToDB(db);
+            //}
+            //else
+              await object.insertToDB(db);
           }
           await syncRepository.commit();
           return Right(SyncStatusModel(progress: 0,

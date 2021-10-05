@@ -13,11 +13,12 @@ import 'employee_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList, author, employees,phones,persons, template}): super(
+  TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList, author, employees,phones,persons, template, deleted}): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
       serverId:serverId,
+      deleted:deleted,
       name:name,
       contractor:contractor,
       address:address,
@@ -36,6 +37,7 @@ class TaskModel extends TaskEntity
     final map=Map<String, dynamic>();
     map['name'] = name;
     map['usn'] = usn;
+    map['deleted'] = deleted==true?1:0;
     map['external_id'] = serverId;
     map['contractor'] = contractor?.id;
     map['address'] = address;
@@ -220,6 +222,7 @@ class TaskModel extends TaskEntity
         usn: int.parse(json["usn"]??"0"),
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
+        deleted: json["deleted"]==1?true:false,
         contractor: json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?ContractorModel.fromJson(json["contractor"]):null,
         address: json["address"]??"",
         status:json["task_status"].runtimeType. toString()=='_InternalLinkedHashMap<String, dynamic>'?TaskStatusModel.fromJson(json["task_status"]):null,

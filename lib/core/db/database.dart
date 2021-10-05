@@ -142,6 +142,7 @@ class DBProvider {
             'usn INTEGER, '
             'status INTEGER, '
             'contractor int, '
+            'deleted int, '
             'author int, '
             'template int, '
             'address TEXT, '
@@ -367,7 +368,7 @@ class DBProvider {
   }
   Future<TaskModel> getTask(int id) async {
     Database db = await this.database;
-    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =? AND deleted <> 1', whereArgs: [id]);
     final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color,t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t1.task as task_id FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
     final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
@@ -418,7 +419,7 @@ class DBProvider {
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
     print("limit $limit, offset $page");
-    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: limit,offset: limit*page);
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: limit,offset: limit*page, where: "deleted != 1");
     final List<TaskModel> tasksList = [];
     //await Future.forEach(tasksMapList,(taskMap) async {
       //int statusId = taskMap['status'];
@@ -429,9 +430,10 @@ class DBProvider {
     {
       //int statusId = taskMap['status'];
       //TaskStatusModel? ts = await getTaskStatus(taskMap["status"]);
-      List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [taskMap['status']]);
-      //taskMap["status"]=null;
-      tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first));
+      if(taskMap['status']!=null){
+        List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [taskMap['status']]);
+        tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first));
+      }
     }
     return tasksList;
   }
