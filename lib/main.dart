@@ -1,6 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mobiforce_flutter/common/app_colors.dart';
+import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
@@ -14,10 +18,32 @@ import 'package:mobiforce_flutter/presentation/pages/login_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  //await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+  print("message! ${message.notification} ${message.notification?.android}" );
 
+}
+/*
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  'This channel is used for important notifications.', // description
+  importance: Importance.max,
+);
+
+late AndroidNotificationChannel channel;
+
+/// Initialize the [FlutterLocalNotificationsPlugin] package.
+late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+*/
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await di.init();
+  di.sl<PushNotificationService>();
   runApp(MyApp());
 }
 

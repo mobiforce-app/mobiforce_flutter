@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
@@ -33,6 +34,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasksearch_bloc/tasksearch_b
 import 'package:mobiforce_flutter/presentation/pages/syncscreen_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'domain/repositories/firebase.dart';
 import 'domain/repositories/task_repository_impl.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/search_task.dart';
@@ -48,9 +50,10 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
-  sl.registerFactory(() => LoginBloc(auth: sl()));
+  sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
   sl.registerFactory(() => SyncBloc(m:sl()));
   sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl(),syncToServer: sl()));
+  sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService(m:sl()));
 
 
   //usecases
@@ -132,6 +135,9 @@ Future<void>init() async
   //external
   final sharedPrefernces = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPrefernces);
+  //final sharedPrefernces = await SharedPreferences.getInstance();
+  //sl.registerLazySingleton(() => sharedPrefernces);
+  //sl.registerLazySingleton(() => PushNotificationService());
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => InternetConnectionChecker());
 }

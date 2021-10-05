@@ -10,7 +10,7 @@ import 'package:mobiforce_flutter/domain/repositories/authirization_repository.d
 class Authorization extends UseCase<AuthorizationEntity, AuthorizationParams>{
   final AuthorizationRepository authRepository;
   Authorization(this.authRepository);
-  Future<Either<Failure, AuthorizationEntity>> call(AuthorizationParams params) async => await authRepository.firstLogin(domain:params.domain,login:params.login,pass:params.pass);
+  Future<Either<Failure, AuthorizationEntity>> call(AuthorizationParams params) async => await authRepository.firstLogin(fcmToken: params.fcmToken, domain:params.domain,login:params.login,pass:params.pass);
 
   /*Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {
     return await _getTasks(()=> remoteDataSources.getAllTask(page));
@@ -37,7 +37,8 @@ class AuthorizationParams extends Equatable{
   final String login;
   final String pass;
   final String domain;
-  AuthorizationParams({required this.login,required this.pass,required this.domain});
+  final String? fcmToken;
+  AuthorizationParams({required this.login,required this.pass,required this.domain,this.fcmToken});
 
   @override
   List<Object> get props => [login,pass,domain];

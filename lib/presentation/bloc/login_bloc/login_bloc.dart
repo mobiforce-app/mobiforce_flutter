@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_event.dart';
@@ -13,9 +14,10 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_state.dart'
 // import 'equatabl'
 class LoginBloc extends Bloc<LoginEvent,LoginState>{
   final Authorization auth;
+  final PushNotificationService fcm;
   //final GetAllTasks listTask;
   //int page = 1;
-  LoginBloc({required this.auth}) : super(LoginReady());
+  LoginBloc({required this.auth, required this.fcm}) : super(LoginReady());
 
   //
 
@@ -24,8 +26,10 @@ class LoginBloc extends Bloc<LoginEvent,LoginState>{
     print("map event+");
     if(event is TryToLogin) {
       yield LoginWaitingServerAnswer();
+
       final faiureOrLoading = await auth(AuthorizationParams(
           domain: event.domain,
+          fcmToken: fcm.token,
           login:  event.login,
           pass:  event.pass));
       //await Future.delayed(Duration(seconds: 2));
