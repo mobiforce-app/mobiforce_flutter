@@ -146,7 +146,18 @@ class DBProvider {
             'author int, '
             'template int, '
             'address TEXT, '
-            'name TEXT)');
+            'name TEXT,'
+            'address_floor TEXT,'
+            'address_info TEXT,'
+            'address_porch TEXT,'
+            'address_room TEXT,'
+            'lat TEXT,'
+            'lon TEXT,'
+            'external_link TEXT,'
+            'created_at INTEGER,'
+            'planned_visit_time INTEGER,'
+            'planned_end_visit_time INTEGER'
+            ')');
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $resolutionTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -294,6 +305,7 @@ class DBProvider {
 //READ
   Future<List<TasksFieldsModel>> readTasksFieldsUpdates(int localUSN) async{
    //return null;
+    print("localUSN $localUSN");
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksFieldsMapList = await db.rawQuery("SELECT t1.*, "
         "t1.task as task_id, "
@@ -368,7 +380,7 @@ class DBProvider {
   }
   Future<TaskModel> getTask(int id) async {
     Database db = await this.database;
-    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =? AND deleted <> 1', whereArgs: [id]);
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =? AND deleted != 1', whereArgs: [id]);
     final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color,t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t1.task as task_id FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
     final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
@@ -455,6 +467,18 @@ class DBProvider {
     Database db = await this.database;
     try{
       await db.delete(employee2TaskRelationTable, where: 'task =?', whereArgs: [taskId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
+  Future<bool> deleteAllTaskStatuses(int taskId) async{
+    print ("task Id: $taskId");
+    Database db = await this.database;
+    try{
+      await db.delete(tasksStatusesTable, where: 'task =?', whereArgs: [taskId]);
     }
     catch(e){
       //await db(tasksTable, task.toMap());
@@ -602,7 +626,9 @@ class DBProvider {
         int usn = await getUSN();
         ts.usn=usn;
       }
+      await db.update(tasksTable, {"status":ts.id}, where: 'external_id =?', whereArgs: [ts.task.id]);
       id=await db.insert(tasksStatusesTable, ts.toMap());
+
     }
     catch(e){
       //await db(tasksTable, task.toMap());

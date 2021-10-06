@@ -13,7 +13,9 @@ import 'employee_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList, author, employees,phones,persons, template, deleted}): super(
+  TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
+              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink, createdAt, plannedVisitTime, plannedEndVisitTime,
+  }): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
@@ -31,6 +33,16 @@ class TaskModel extends TaskEntity
       phones:phones,
       persons:persons,
       template: template,
+      addressFloor:addressFloor,
+      addressInfo:addressInfo,
+      addressPorch:addressPorch,
+      addressRoom:addressRoom,
+      lat:lat,
+      lon:lon,
+      externalLink:externalLink,
+      createdAt:createdAt,
+      plannedVisitTime:plannedVisitTime,
+      plannedEndVisitTime:plannedEndVisitTime,
   );
 
   Map<String, dynamic> toMap(){
@@ -45,6 +57,16 @@ class TaskModel extends TaskEntity
     map['contractor'] = contractor?.id;
     map['author'] = author?.id;
     map['template'] = template?.id;
+    map['address_floor'] = addressFloor;
+    map['address_info'] = addressInfo;
+    map['address_porch'] = addressPorch;
+    map['address_room'] = addressRoom;
+    map['lat'] = lat;
+    map['lon'] = lon;
+    map['external_link'] = externalLink;
+    map['created_at'] = createdAt;
+    map['planned_visit_time'] = plannedVisitTime;
+    map['planned_end_visit_time'] = plannedEndVisitTime;
     return map;
   }
   Future<int> insertToDB(db) async {
@@ -119,6 +141,7 @@ class TaskModel extends TaskEntity
     }
     if(statuses != null)
     {
+      await db.deleteAllTaskStatuses(taskId);
       await Future.forEach(statuses!,(TasksStatusesModel element) async {
         print("status Id = ${element.serverId}");
         element.task.id = taskId;
@@ -233,6 +256,16 @@ class TaskModel extends TaskEntity
         template:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TemplateModel.fromJson(json["tasktemplate"]):null,
         phones:json["phone"]!=null?(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList():<PhoneModel>[],
         persons:json["person"]!=null?(json["person"] as List).map((person) => PersonModel.fromJson(person)).toList():<PersonModel>[],
+        addressFloor:json["addressFloor"]??"",
+        addressInfo:json["addressInfo"]??"",
+        addressPorch:json["addressPorch"]??"",
+        addressRoom:json["addressRoom"]??"",
+        lat: double.tryParse(json["lat"]??"0.0")??0.0,
+        lon: double.tryParse(json["lon"]??"0.0")??0.0,
+        externalLink:json["externalLink"],
+        createdAt:json["createdAt"]!=null?int.parse(json["createdAt"]??"0"):null,
+        plannedVisitTime:json["plannedVisitTime"]!=null?int.parse(json["plannedVisitTime"]??"0"):null,
+        plannedEndVisitTime:json["plannedEndVisitTime"]!=null?int.parse(json["plannedEndVisitTime"]??"0"):null,
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }

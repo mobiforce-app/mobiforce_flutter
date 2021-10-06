@@ -19,6 +19,19 @@ class TaskEntity extends Equatable{
   ContractorModel? contractor;
   String? address;
 
+  String? addressFloor;
+  String? addressInfo;
+  String? addressPorch;
+  String? addressRoom;
+  double? lat;
+  double? lon;
+  String? externalLink;
+  int? createdAt;
+  int? plannedVisitTime;
+  int? plannedEndVisitTime;
+  //String? verificationRequired;
+  //String? addressRoom;
+
  // String address;
  // String client;
  // String subdivision;
@@ -57,6 +70,17 @@ class TaskEntity extends Equatable{
       this.phones,
       this.persons,
       this.deleted,
+    this.addressFloor,
+    this.addressInfo,
+    this.addressPorch,
+    this.addressRoom,
+    this.lat,
+    this.lon,
+    this.externalLink,
+    this.createdAt,
+    this.plannedVisitTime,
+    this.plannedEndVisitTime,
+
   });
 
   @override

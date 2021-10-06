@@ -18,7 +18,7 @@ class SyncToServer extends UseCase<SyncStatusEntity, ListSyncToServerParams>{
   SyncToServer(this.syncRepository, this.db);
   Future<Either<Failure, SyncStatusEntity>> call(ListSyncToServerParams params) async {
 
-    print("sync!");
+    print("sync!!!");
     //if(syncRepository.isFullSyncStarted())
     //  return Left(failure);
     //return await syncRepository.getUpdates();

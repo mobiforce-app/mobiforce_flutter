@@ -99,7 +99,7 @@ class TasksStatusesModel extends TasksStatusesEntity
   {
     print('TasksStatusesModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
-    TaskStatusModel status = TaskStatusModel.fromJson({"id":json["statusId"],"name":json['description'],"color":json['color']});
+    TaskStatusModel status = TaskStatusModel.fromJson({"id":json["taskStatusId"],"name":json['description'],"color":json['color']});
 
     return TasksStatusesModel(
         id: 0,

@@ -75,6 +75,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
     await sharedPreferences.setInt("full_sync_update_id", fullSyncUpdateId);
     if(fullSyncObjectsTypeId>=objectsType.length) {
       await sharedPreferences.setBool("full_sync", false);
+      await sharedPreferences.setInt("local_usn", 0);
       return true;
     }
     else

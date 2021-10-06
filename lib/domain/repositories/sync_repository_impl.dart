@@ -92,7 +92,7 @@ class SyncRepositoryImpl implements SyncRepository{
    // updatesRemoteDataSources.getDataList(
     List<TasksFieldsEntity> tasksFiedls = await db.readTasksFieldsUpdates(localUSN);
     List<TasksStatusesEntity> tasksStatuses = await db.readTaskStatusUpdates(localUSN);
-
+  print("!!! ${tasksStatuses.length} ${tasksFiedls.length}");
     List<QueueToSync> all=[];
     tasksFiedls.forEach((element) {all.add(QueueToSync(type: "taskfield", usn:element.usn, object:element)); });
     tasksStatuses.forEach((element) {all.add(QueueToSync(type: "taskstatus", usn:element.usn, object:element)); });
@@ -120,7 +120,7 @@ class SyncRepositoryImpl implements SyncRepository{
           val = element.object.doubleValue!=null?element.object.doubleValue.toString():null;
         }
         final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
-
+        print("send: $send");
         int serverId = await updatesRemoteDataSources.sendUpdate(
             domain: domain,
             accessToken:accessToken,
@@ -132,7 +132,7 @@ class SyncRepositoryImpl implements SyncRepository{
       }
       else if(element.type=="taskstatus") {
         //final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
-        final Map<String,dynamic> send = {"task":element.object.task.serverId,"value":element.object.status.serverId};
+        final Map<String,dynamic> send = {"task":element.object.task.serverId,"statusId":element.object.status.serverId,"createdTime":element.object.createdTime};
         print("send: $send");
         int serverId = await updatesRemoteDataSources.sendUpdate(
             domain: domain,

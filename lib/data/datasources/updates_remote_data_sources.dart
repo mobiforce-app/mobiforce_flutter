@@ -45,10 +45,11 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
           },body: json.encode(data));
       if(response.statusCode == 200){
         //final auth = json.decode(response.body);
-        print(response.body);
+        print("body: ${response.body}");
         final js = json.decode(response.body);
-        if(js["result"]?["id"]>0)
-          return js["result"]?["id"];
+        print("body js: ${js.toString()}");
+        if(js["result"]?["id"]!=null&&js["result"]?["id"]>0)
+          return js["result"]?["id"]  ;
         return 0;
       }
       else{
@@ -87,8 +88,8 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
             HttpHeaders.authorizationHeader: "key=\"$accessToken\"",
           },body: json.encode(data));
       if(response.statusCode == 200){
-        final auth = json.decode(response.body);
         print(response.body);
+        final auth = json.decode(response.body);
         return SyncModel.fromJson(auth['results'],mapObjects);
       }
       else{
