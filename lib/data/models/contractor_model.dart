@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/domain/entity/contractor_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
@@ -82,6 +83,7 @@ class ContractorModel extends ContractorEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    print("ContractorModel ${map.toString()}");
     return ContractorModel(
         id: map['id'],
         usn: map['usn'],
@@ -94,7 +96,7 @@ class ContractorModel extends ContractorEntity
         addressInfo:map['address_info'],
         addressPorch:map['address_porch'],
         addressRoom: map['address_room'],
-
+        parent:map["parent"]!=null?ContractorModel.fromMap(map["parent"]):null
     );
   }
   factory ContractorModel.fromJson(Map<String, dynamic> json)

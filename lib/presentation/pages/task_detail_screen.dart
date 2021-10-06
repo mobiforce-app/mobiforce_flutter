@@ -138,6 +138,10 @@ class TaskDetailPage extends StatelessWidget {
                   body:LinearProgressIndicator());
             else if(state is TaskLoaded){
               List<List<Widget>> _kTabPages=[[], [], []];
+              final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
+
+              var plannedVisitTimeString = state.task.plannedVisitTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.task.plannedVisitTime??0))):"без даты";
+
               var list=[SizedBox(
                           height: 10,
                         ),
@@ -149,7 +153,18 @@ class TaskDetailPage extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       ),
                       SizedBox(
-                      height: 24,
+                        height: 24,
+                      ),
+                      Text(
+                        "Назначена: ${plannedVisitTimeString} ",
+                        style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                        ),
+                      ),
+                      SizedBox(
+                        height: 24,
                       ),
                       Text(
                       "${state.task.status?.name}",
@@ -169,19 +184,84 @@ class TaskDetailPage extends StatelessWidget {
                                     ),
                                   ),*/
                       ];
-              if(state.nextTaskStatuses!=null)
-              {
+              if(state.task.contractor!=null){
                 list.addAll([SizedBox(
                   height: 24,
                 ),
+                  Text(
+                    "${state.task.contractor?.parent?.name} ${state.task.contractor?.name} ",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                    ),
+                  )]);
+
+              }
+
+              if(state.task.phones!=null){
+
+                String? phoneStr = state.task.phones?.map((e) => e.name).join(", ");
+                list.addAll([SizedBox(
+                  height: 24,
+                ),
+                  Text(
+                    "Телефоны: ${phoneStr} ",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                    ),
+                  )]);
+
+              }
+              if(state.task.persons!=null){
+                state.task.persons?.forEach((element) {
+                  String? phoneStr = element.phones?.map((e) => e.name).join(", ");
+                  list.addAll([SizedBox(
+                    height: 24,
+                  ),
                     Text(
-                      "Доступные статусы:",
+                      "${element.name}: ${phoneStr} ",
                       style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
                           fontWeight: FontWeight.w600
                       ),
                     )]);
+
+                });
+
+              }
+
+
+                list.addAll([SizedBox(
+                  height: 24,
+                ),
+                    Text(
+                      "${state.task.address??""} ${state.task.addressPorch??""} ${state.task.addressFloor??""} ${state.task.addressRoom??""} ${state.task.addressInfo??""} ",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600
+                      ),
+                    )]);
+              if(state.task.persons!=null)
+              {
+                state.task.persons?.forEach((element) {
+                  list.addAll([SizedBox(
+                    height: 24,
+                  ),
+                    Text(
+                      "${element.name}",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600
+                      ),
+                    )]);
+                });
+
               }
               List<Widget> buttons=[
                 //SizedBox(width: 20),
@@ -237,7 +317,7 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                   )]);
               }
-              final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
+              //final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
 
               state.task.statuses?.forEach((element) {
                 var date = new DateTime.fromMillisecondsSinceEpoch(element.createdTime*1000);

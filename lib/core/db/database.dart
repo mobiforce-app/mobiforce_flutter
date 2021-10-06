@@ -380,7 +380,51 @@ class DBProvider {
   }
   Future<TaskModel> getTask(int id) async {
     Database db = await this.database;
-    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =? AND deleted != 1', whereArgs: [id]);
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery(
+        "SELECT "
+            "t1.id,"
+            "t1.dirty, "
+            "t1.external_id,"
+            "t1.usn, "
+            "t1.status, "
+            "t1.contractor, "
+            "t1.deleted, "
+            "t1.author, "
+            "t1.template, "
+            "t1.address, "
+            "t1.name,"
+            "t1.address_floor,"
+            "t1.address_info,"
+            "t1.address_porch,"
+            "t1.address_room,"
+            "t1.lat,"
+            "t1.lon,"
+            "t1.external_link,"
+            "t1.created_at,"
+            "t1.planned_visit_time,"
+            "t1.planned_end_visit_time,"
+            "t2.id as contractor_id,"
+            "t2.usn as contractor_usn,"
+            "t2.external_id as contractor_external_id,"
+            "t2.name as contractor_name,"
+            "t3.id as contractor_parent_id,"
+            "t3.usn as contractor_parent_usn,"
+            "t3.external_id as contractor_parent_external_id,"
+            "t3.name as contractor_parent_name"
+            " FROM $tasksTable as t1 "
+            " LEFT JOIN $contractorTable as t2"
+            " ON t1.contractor = t2.id "
+            " LEFT JOIN $contractorTable as t3"
+            " ON t2.parent = t3.id "
+            " WHERE t1.id=? AND t1.deleted != 1",[id]);
+//        orderBy: "id desc",limit: 1,where: 'id =? AND deleted != 1', whereArgs: [id]);
+
+    final List<Map<String,dynamic>> taskPhoneMapList = await db.rawQuery(""
+        "SELECT t1.id, t1.name, t2.name as person_name, t2.id as person_id "
+        "FROM $tasksPhoneTable as t1 "
+        "LEFT JOIN $tasksPersonTable as t2 ON t1.person = t2.id "
+        "WHERE t1.task = ? ORDER BY t1.person ASC",[id]);
+
     final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color,t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t1.task as task_id FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
     final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
@@ -414,7 +458,9 @@ class DBProvider {
         statusMap:taskStatusMapList.first,
         statusesMap: tasksStatusesMapList,
         tasksFieldsMap: tasksFieldsMapList,
-        tasksFieldsSelectionValuesMap:reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList));
+        tasksFieldsSelectionValuesMap:reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList),
+        taskPhoneMap:taskPhoneMapList
+    );
   }
   Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
     Database db = await this.database;
@@ -431,7 +477,44 @@ class DBProvider {
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
     print("limit $limit, offset $page");
-    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: limit,offset: limit*page, where: "deleted != 1");
+    //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: limit,offset: limit*page, where: "deleted != 1");
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery(
+        "SELECT t1.id,"
+            "t1.dirty, "
+            "t1.external_id,"
+            "t1.usn, "
+            "t1.status, "
+            "t1.contractor, "
+            "t1.deleted, "
+            "t1.author, "
+            "t1.template, "
+            "t1.address, "
+            "t1.name,"
+            "t1.address_floor,"
+            "t1.address_info,"
+            "t1.address_porch,"
+            "t1.address_room,"
+            "t1.lat,"
+            "t1.lon,"
+            "t1.external_link,"
+            "t1.created_at,"
+            "t1.planned_visit_time,"
+            "t1.planned_end_visit_time,"
+            "t2.id as contractor_id,"
+            "t2.usn as contractor_usn,"
+            "t2.external_id as contractor_external_id,"
+            "t2.name as contractor_name,"
+            "t3.id as contractor_parent_id,"
+            "t3.usn as contractor_parent_usn,"
+            "t3.external_id as contractor_parent_external_id,"
+            "t3.name as contractor_parent_name"
+            " FROM $tasksTable as t1 "
+            " LEFT JOIN $contractorTable as t2"
+            " ON t1.contractor = t2.id "
+            " LEFT JOIN $contractorTable as t3"
+            " ON t2.parent = t3.id "
+            " WHERE t1.deleted != 1 ORDER BY t1.id DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
+
     final List<TaskModel> tasksList = [];
     //await Future.forEach(tasksMapList,(taskMap) async {
       //int statusId = taskMap['status'];

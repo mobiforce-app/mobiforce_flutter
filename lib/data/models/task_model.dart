@@ -205,11 +205,64 @@ class TaskModel extends TaskEntity
     List<Map<String, dynamic>> statusesMap = const [],
     List<Map<String, dynamic>> tasksFieldsMap = const [],
     Map<int, dynamic> tasksFieldsSelectionValuesMap = const {},
+    List<Map<String, dynamic>> taskPhoneMap = const []
   })
   {
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    print("taskMap = ${taskMap.toString()}");
+
+    //List<PhoneModel> phones = [];
+    List<Map<String, dynamic>> phonesMap = [];
+    Map<String, dynamic>? person = null;
+
+    //PersonModel? p = null;//PersonModel(id: id, usn: usn, serverId: serverId, name: name)
+    List<Map<String, dynamic>> persons = [];
+    int personId=-1;
+    taskPhoneMap.forEach((element) {
+      if(element["person_id"]==null){
+        phonesMap.add({"id":element["id"],"name":element["name"]});
+      }
+      else {
+        if(person != null&&element["person_id"]!=person?["id"]){
+          persons.add(person!);
+          person = null;
+        }
+        if (person == null) {
+          person =
+          {"id": element["person_id"], "name": element["person_name"],"phone":<Map<String, dynamic>>[]};
+          personId=element["person_id"];
+        }
+        if(element["person_id"]==personId){
+          person?["phone"].add({"id":element["id"],"name":element["name"]});
+        }
+      }
+      /*p = PersonModel.fromJson({"id"})
+      if(element["person_id"]!=null) {
+
+      }
+      else{
+
+      }*/
+
+    });
+    if(personId>0)
+      persons.add(person!);
+    print("personsListMap: ${persons} $phonesMap");
+
+    var contractor = ContractorModel.fromMap({
+      "id":taskMap['contractor_id'],
+      "usn":int.parse(taskMap['contractor_usn']??"0"),
+      "external_id":taskMap['contractor_external_id']??0,
+      "name":taskMap['contractor_name']??"",
+      "parent": {
+        "id":taskMap['contractor_parent_id'],
+        "usn":int.parse(taskMap['contractor_parent_usn']??"0"),
+        "external_id":taskMap['contractor_parent_external_id']??0,
+        "name":taskMap['contractor_parent_name']??""
+      }
+    });
 
     var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,tasksFieldsSelectionValuesMap)).toList();
 
@@ -218,13 +271,25 @@ class TaskModel extends TaskEntity
         id: taskMap['id'],
         isChanged:false,
         usn: taskMap['usn'],
+        lat: double.tryParse(taskMap['lat']??"0"),
+        lon: double.tryParse(taskMap['lon']??"0"),
         serverId: taskMap['external_id'],
-        //  contractor: taskMap['contractor'],
         address: taskMap['address'],
+        addressFloor: taskMap['address_floor'],
+        addressPorch: taskMap['address_porch'],
+        addressInfo: taskMap['address_info'],
+        addressRoom: taskMap['address_room'],
+        externalLink: taskMap['internal_link'],
+        createdAt: taskMap['created_at'],
+        plannedEndVisitTime: taskMap['planned_end_visit_time'],
+        plannedVisitTime: taskMap['planned_visit_time'],
         name: taskMap['name'],
+        contractor: contractor,
         status:statusMap!=null?TaskStatusModel.fromMap(statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
+        persons: persons.map((person) =>PersonModel.fromMap(person)).toList(),
+        phones: phonesMap.map((phone) =>PhoneModel.fromMap(phone)).toList(),
     );
   }
   factory TaskModel.fromJson(Map<String, dynamic> json)

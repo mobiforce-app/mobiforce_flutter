@@ -60,9 +60,9 @@ class PhoneModel extends PhoneEntity
    // name = map['name'];
     return PhoneModel(
         id: map['id'],
-        taskId: map['task'],
-        usn: map['usn'],
-        serverId: map['external_id'],
+        taskId: map['task']??0,
+        usn: map['usn']??0,
+        serverId: map['external_id']??0,
         name: map['name']
     );
   }

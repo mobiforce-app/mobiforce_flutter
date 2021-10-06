@@ -80,10 +80,11 @@ class PersonModel extends PersonEntity
 
     return PersonModel(
         id: map['id'],
-        taskId: map['task'],
-        usn: map['usn'],
-        serverId: map['external_id'],
-        name: map['name']
+        taskId: map['task']??0,
+        usn: map['usn']??0,
+        serverId: map['external_id']??0,
+        name: map['name'],
+        phones: (map["phone"] as List).map((phone) => PhoneModel.fromMap(phone)).toList(),
     );
   }
   factory PersonModel.fromJson(Map<String, dynamic> json)
