@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
@@ -24,6 +25,7 @@ class TaskFieldTextCard extends StatefulWidget {
 class _taskFieldTextState extends State<TaskFieldTextCard> {
   var _controller = TextEditingController();
   var _oldValue;
+  //var _needToLoadValue=true;
   Timer? _debounce;
   //_controller.text="20";
   _onChanged(String query) {
@@ -33,6 +35,7 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
       // do something with query
       print("$query");
       _oldValue=query;
+      widget.val=query;
       BlocProvider.of<TaskBloc>(context).add(
         ChangeTextFieldValue(fieldId:widget.fieldId,value:query),
       );
@@ -42,8 +45,9 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
   @override
   void deactivate() {
     if(_oldValue!=_controller.text){
+      widget.val  = _controller.text;
       BlocProvider.of<TaskBloc>(context).add(
-        ChangeTextFieldValue(fieldId:widget.fieldId,value:_controller.text),
+          ChangeTextFieldValue(fieldId:widget.fieldId,value:_controller.text),
       );
     }
     super.deactivate();
@@ -57,8 +61,13 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
 
   @override
   void initState() {
-    _controller.text=widget.val;
-    _oldValue=_controller.text;
+    //if(widget.needToLoadValue) {
+      print("initState ${widget.val}");
+
+      _controller.text = widget.val;
+      _oldValue = _controller.text;
+    //}
+    //widget.needToLoadValue=false;
     super.initState();
   }
   @override
@@ -75,6 +84,8 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
               setState(()=>
                 _controller.text=""
               );
+              widget.val  = "";
+
               BlocProvider.of<TaskBloc>(context).add(
                 ChangeTextFieldValue(fieldId:widget.fieldId,value:""),
               );
@@ -117,6 +128,11 @@ class _taskFieldSelectionState extends State<TaskFieldSelectionCard> {
   @override
   void initState() {
     //_controller.text=widget.val;
+    /*KeyboardVisibilityNotification().addNewListener(
+      onChange: (bool visible) {
+        print(visible);
+      },
+    );*/
     super.initState();
   }
   @override
@@ -143,7 +159,8 @@ class _taskFieldSelectionState extends State<TaskFieldSelectionCard> {
           items: widget.items,
           onChanged: (data){
             print("data: $data");
-            widget.val=data;
+
+            widget.val=SelectionValueModel(id: int.parse("$data"), serverId: 0, name: "", deleted: false, sorting: 0);
             BlocProvider.of<TaskBloc>(context).add(
               ChangeSelectionFieldValue(fieldId:widget.fieldId,value:data),
             );

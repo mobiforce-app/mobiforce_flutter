@@ -26,6 +26,7 @@ class TaskEntity extends Equatable{
   double? lat;
   double? lon;
   String? externalLink;
+  String? externalLinkName;
   int? createdAt;
   int? plannedVisitTime;
   int? plannedEndVisitTime;
@@ -77,6 +78,7 @@ class TaskEntity extends Equatable{
     this.lat,
     this.lon,
     this.externalLink,
+    this.externalLinkName,
     this.createdAt,
     this.plannedVisitTime,
     this.plannedEndVisitTime,

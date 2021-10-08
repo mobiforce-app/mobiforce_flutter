@@ -94,7 +94,6 @@ class TasksFieldsModel extends TasksFieldsEntity
         print("putTaskField2taskSelectionValueRelation2 try to insert");
         await selectionValue!.putTaskField2taskSelectionValueRelation(db, t.id);
       }*/
-
     }
     return t.id;
     return 1;

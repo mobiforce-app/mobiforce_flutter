@@ -14,7 +14,7 @@ class TaskModel extends TaskEntity
 {
 
   TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
-              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink, createdAt, plannedVisitTime, plannedEndVisitTime,
+              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,
   }): super(
       isChanged:isChanged,
       id:id,
@@ -40,6 +40,7 @@ class TaskModel extends TaskEntity
       lat:lat,
       lon:lon,
       externalLink:externalLink,
+      externalLinkName:externalLinkName,
       createdAt:createdAt,
       plannedVisitTime:plannedVisitTime,
       plannedEndVisitTime:plannedEndVisitTime,
@@ -64,6 +65,7 @@ class TaskModel extends TaskEntity
     map['lat'] = lat;
     map['lon'] = lon;
     map['external_link'] = externalLink;
+    map['external_link_name'] = externalLinkName;
     map['created_at'] = createdAt;
     map['planned_visit_time'] = plannedVisitTime;
     map['planned_end_visit_time'] = plannedEndVisitTime;
@@ -279,7 +281,8 @@ class TaskModel extends TaskEntity
         addressPorch: taskMap['address_porch'],
         addressInfo: taskMap['address_info'],
         addressRoom: taskMap['address_room'],
-        externalLink: taskMap['internal_link'],
+        externalLink: taskMap['external_link'],
+        externalLinkName: taskMap['external_link_name'],
         createdAt: taskMap['created_at'],
         plannedEndVisitTime: taskMap['planned_end_visit_time'],
         plannedVisitTime: taskMap['planned_visit_time'],
@@ -328,6 +331,7 @@ class TaskModel extends TaskEntity
         lat: double.tryParse(json["lat"]??"0.0")??0.0,
         lon: double.tryParse(json["lon"]??"0.0")??0.0,
         externalLink:json["externalLink"],
+        externalLinkName:json["externalLinkName"],
         createdAt:json["createdAt"]!=null?int.parse(json["createdAt"]??"0"):null,
         plannedVisitTime:json["plannedVisitTime"]!=null?int.parse(json["plannedVisitTime"]??"0"):null,
         plannedEndVisitTime:json["plannedEndVisitTime"]!=null?int.parse(json["plannedEndVisitTime"]??"0"):null,

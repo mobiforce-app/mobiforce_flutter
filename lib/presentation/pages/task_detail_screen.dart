@@ -9,6 +9,9 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
+import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
   static Color fromHex(String hexString) {
@@ -201,6 +204,25 @@ class TaskDetailPage extends StatelessWidget {
                                     ),
                                   ),*/
                       ];
+              if(state.task.externalLink != null){
+                list.addAll([SizedBox(
+                  height: 24,
+                ),
+                  InkWell(
+                      child: new Text('${state.task.externalLinkName}',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                              //fontWeight: FontWeight.w600
+                              //fontStyle: FontStyle(a)
+                              decoration: TextDecoration.underline,
+                          ),
+                      ),
+                      onTap: () => launch('${state.task.externalLink}')
+                  )
+                ]);
+
+              }
               if(state.task.contractor!=null){
                 list.addAll([SizedBox(
                   height: 24,
