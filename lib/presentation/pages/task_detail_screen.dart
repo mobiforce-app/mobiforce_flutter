@@ -137,6 +137,23 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                   body:LinearProgressIndicator());
             else if(state is TaskLoaded){
+              WidgetsBinding.instance!.addPostFrameCallback((_) {
+                // Navigation
+                /*BlocProvider.of<TaskListBloc>(context)
+                  ..add(RefreshListTasks());
+                Navigator.pushReplacement(context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) => HomePage(),
+                      transitionDuration: Duration(seconds: 0),
+                    ));*/
+                print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first.id??0}");
+                if(state.task.status?.systemStatusId==1&&(state.nextTaskStatuses?.first.id??0)>0){
+                  print("add!");
+                  BlocProvider.of<TaskBloc>(context)
+                    ..add(ChangeTaskStatus(status:state.nextTaskStatuses?.first.id??0));
+                }
+              });
+
               List<List<Widget>> _kTabPages=[[], [], []];
               final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
 
@@ -284,12 +301,35 @@ class TaskDetailPage extends StatelessWidget {
                 //    height: 24,
                 //  ),
                 //);
+                print("rrrrr ${element.resolutions?.length}");
                 buttons.add(
                     InkWell(
                       onTap: () {
-                        BlocProvider.of<TaskBloc>(context)
-                          ..add(ChangeTaskStatus(status:element.id));
-                        Navigator.pop(context);
+                        if((element.resolutions?.length??0)>0){
+                          List<Widget> resolutions=element.resolutions!.map((e) => ListTile(
+                            leading: const Icon(Icons.check),
+                            title: Text("${e.name}"),
+                            onTap: ()=>Navigator.pop(context,e.id)
+                          )).toList();
+
+                          showDialog<int>(context: context, builder: (BuildContext context) => SimpleDialog(
+                            title: const Text("Выберите причину"),
+                            children: resolutions,
+                          )).then((value) {
+                            print("$value");
+                            if(value!=null){
+
+                              BlocProvider.of<TaskBloc>(context)
+                                ..add(ChangeTaskStatus(status:element.id,resolution:value));
+                              Navigator.pop(context);
+                            }
+                          });
+                        }
+                        else {
+                          BlocProvider.of<TaskBloc>(context)
+                            ..add(ChangeTaskStatus(status:element.id));
+                          Navigator.pop(context);
+                        }
                       }, // Handle your callback
                         child: Align(
                           alignment: Alignment.topLeft,

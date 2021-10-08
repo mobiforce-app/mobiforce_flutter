@@ -9,13 +9,15 @@ import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 class SetTaskStatus extends UseCase<TaskEntity, SetTaskStatusParams>{
   final TaskRepository taskRepository;
   SetTaskStatus(this.taskRepository);
-  Future<Either<Failure, TaskEntity>> call(SetTaskStatusParams params) async => await taskRepository.setTaskStatus(status:params.status,task:params.task);
+  Future<Either<Failure, TaskEntity>> call(SetTaskStatusParams params) async => await taskRepository.setTaskStatus(status:params.status,task:params.task,resolution:params.resolution);
 }
 
 class SetTaskStatusParams extends Equatable{
   final int task;
   final int status;
-  SetTaskStatusParams({required this.task,required this.status});
+  int? resolution;
+
+  SetTaskStatusParams({required this.task,required this.status, this.resolution});
 
   @override
   List<Object> get props => [];

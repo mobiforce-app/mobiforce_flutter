@@ -74,7 +74,7 @@ class TasksStatusesModel extends TasksStatusesEntity
    // externalId = map['externalId'];
    // name = map['name'];
     print("TasksStatusesModel MAP ${map.toString()}");
-    TaskStatusModel status = TaskStatusModel.fromMap({"id":map["taskstatus_id"],"external_id":map["taskstatus_external_id"],"name":map['taskstatus_name'],"color":map['taskstatus_color']});
+    TaskStatusModel status = TaskStatusModel.fromMap(map:{"id":map["taskstatus_id"],"external_id":map["taskstatus_external_id"],"name":map['taskstatus_name'],"color":map['taskstatus_color']});
 
     return TasksStatusesModel(
         id: map['id'],

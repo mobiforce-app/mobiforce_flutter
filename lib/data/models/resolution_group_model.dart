@@ -1,8 +1,8 @@
-import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/resolution_group_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 
-class ResolutionModel extends ResolutionEntity
+class ResolutionGroupModel extends ResolutionGroupEntity
 {
   /*TaskModel({
     required id,
@@ -23,12 +23,11 @@ class ResolutionModel extends ResolutionEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  ResolutionModel({required id,required usn,required serverId,required name, client, address, required resolutionGroup}): super(
+  ResolutionGroupModel({required id,required usn,required serverId,required name, client, address}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
-      resolutionGroup:resolutionGroup,
       //client:client,
       //address:address
   );
@@ -42,38 +41,42 @@ class ResolutionModel extends ResolutionEntity
     return map;
   }
   Future<int> insertToDB(db) async {
-    //List<int> resolutionGroupId=[];
-    dynamic t = await db.insertResolution(this);
-    await db.deleteResolutuionGroupRelation(t.id);
-    Future.forEach(resolutionGroup, (ResolutionGroupModel element) async {
-      int resolutionGroupId = await element.insertToDB(db);
-      await db.insertResolutuionGroupRelation(t.id,resolutionGroupId);
-    });
-    print ("db id == ${t.id}");
-    return 0;
+
+    ///if(.id==0)
+    //  status.id = await status.insertToDB(db);
+
+
+    dynamic t = await db.insertResolutionGroup(this);
+    print ("status db id == ${t.id}");
+    if(t.id==0){
+      t = await db.updateResolutionGroupByServerId(this);
+      print ("db id == ${t.toString()}");
+    }
+    return t.id;
   }
-  factory ResolutionModel.fromMap({required Map<String, dynamic> map, List<Map<String, dynamic>> mapResolutionsList = const[]})
+  factory ResolutionGroupModel.fromMap(Map<String, dynamic> map)
   {
-    return ResolutionModel(
+   // id = map['id'];
+   // externalId = map['externalId'];
+   // name = map['name'];
+    return ResolutionGroupModel(
         id: map['id'],
-        usn: map['usn']??0,
+        usn: map['usn'],
         serverId: map['external_id'],
         //client: map['client'],
         //address: map['address'],
-        name: map['name'],
-        resolutionGroup: mapResolutionsList.map((person) =>ResolutionGroupModel.fromMap(person)).toList(),
+        name: map['name']
     );
   }
-  factory ResolutionModel.fromJson(Map<String, dynamic> json)
+  factory ResolutionGroupModel.fromJson(Map<String, dynamic> json)
   {
     //print('jsonjson ${json[0]} ');
     //return TaskModel(id:0,externalId: 0, name: "");
-    return ResolutionModel(
+    return ResolutionGroupModel(
         id: 0,
         usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??"0"),
+        serverId: json["id"]??0,
         name: json["name"]??"",
-        resolutionGroup:json["resolutionGroups"]!=null?(json["resolutionGroups"] as List).map((person) => ResolutionGroupModel.fromJson(person)).toList():<ResolutionGroupModel>[],
         //client: json["client"]??"",
         //address: json["address"]??""
     );

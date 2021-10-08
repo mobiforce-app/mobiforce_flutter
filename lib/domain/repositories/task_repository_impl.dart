@@ -26,8 +26,9 @@ class TaskRepositoryImpl implements TaskRepository{
       return Left(ServerFailure());
   }
   @override
-  Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task}) async {
-    return Right(await remoteDataSources.setTaskStatus(status:status, task:task));
+  Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task,int? resolution}) async {
+    print("resolution1 $resolution");
+    return Right(await remoteDataSources.setTaskStatus(status:status, task:task, resolution:resolution));
   }
   @override
   Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id) async {

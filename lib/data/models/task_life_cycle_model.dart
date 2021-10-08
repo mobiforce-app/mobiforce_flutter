@@ -25,15 +25,16 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TaskLifeCycleModel({required id,required usn,required serverId,required currentStatusServerId, required nextStatusServerId, required needResolution, nextStatus, currentStatus}): super(
+  TaskLifeCycleModel({required id,required usn,required serverId,required currentStatusServerId, required nextStatusServerId, required needResolutionGroup, nextStatus, currentStatus, resolutionGroupServerId}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       currentStatusServerId:currentStatusServerId,
       nextStatusServerId:nextStatusServerId,
-      needResolution:needResolution,
+      needResolutionGroup:needResolutionGroup,
       nextStatus:nextStatus,
       currentStatus:currentStatus,
+      resolutionGroupServerId:resolutionGroupServerId,
 
   );
 
@@ -41,7 +42,7 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
     final map=Map<String, dynamic>();
     map['current_status'] = currentStatus;
     map['next_status'] = nextStatus;
-    map['need_resolution'] = needResolution;
+    map['need_resolution'] = needResolutionGroup;
     map['usn'] = usn;
     map['external_id'] = serverId;
     return map;
@@ -49,6 +50,9 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
   Future<int> insertToDB(DBProvider db) async {
     TaskStatusModel? tsCurrent = await db.getTaskStatusByServerId(currentStatusServerId);
     TaskStatusModel? tsNext = await db.getTaskStatusByServerId(nextStatusServerId);
+
+    if(resolutionGroupServerId>0)
+        needResolutionGroup = await db.getResolutionGroupIdByServerId(resolutionGroupServerId);
     nextStatus = tsNext?.id;
     currentStatus = tsCurrent?.id;
     dynamic t = await db.insertTaskLifeCycle(this);
@@ -69,7 +73,7 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
         id: map['id'],
         usn: map['usn'],
         serverId: map['external_id'],
-        needResolution: map['resolution'],
+        needResolutionGroup: map['need_resolution'],
         nextStatus: map['next_status'],
         currentStatus: map['current_status'],
         nextStatusServerId: map['next'],
@@ -82,11 +86,12 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
     //return TaskModel(id:0,externalId: 0, name: "");
     return TaskLifeCycleModel(
         id: 0,
+        needResolutionGroup: 0,
         usn: json["usn"]??0,
         serverId: json["id"]??0,
         nextStatusServerId: json["next"]??0,
         currentStatusServerId: json["current"]??0,
-        needResolution: json["resolution"]??0,
+        resolutionGroupServerId: json["resolutionGroup"]??0,
     );
   }
   /*fromMap(Map<String, dynamic> map)

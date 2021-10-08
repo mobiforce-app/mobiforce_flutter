@@ -285,7 +285,7 @@ class TaskModel extends TaskEntity
         plannedVisitTime: taskMap['planned_visit_time'],
         name: taskMap['name'],
         contractor: contractor,
-        status:statusMap!=null?TaskStatusModel.fromMap(statusMap):null,
+        status:statusMap!=null?TaskStatusModel.fromMap(map:statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
         persons: persons.map((person) =>PersonModel.fromMap(person)).toList(),

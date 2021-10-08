@@ -15,11 +15,19 @@ class ReloadTask extends TaskEvent
 
   ReloadTask(this.id);
 }
+class SetTaskReaded extends TaskEvent
+{
+  //final int id;
+  //final int page;
+
+  SetTaskReaded();
+}
 class ChangeTaskStatus extends TaskEvent
 {
   final int status;
+  final int? resolution;
 
-  ChangeTaskStatus({required this.status});
+  ChangeTaskStatus({required this.status, this.resolution});
 }
 class ChangeSelectionFieldValue extends TaskEvent
 {

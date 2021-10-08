@@ -5,6 +5,7 @@ import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
+import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
@@ -32,6 +33,9 @@ class DBProvider {
   String tasksTable="task";
   String taskFieldTable="taskfield";
   String resolutionTable="resolution";
+  String resolutionGroupTable="resolutiongroup";
+  String resolutionGroup2ResolutionRelationTable="resolutiongroup2resolutionrelation";
+
   String taskSelectionValuesTable="taskselectionvalue";
   String taskSelectionValuesRelationTable="taskselectionvaluerelation";
   String taskStatusTable="taskstatus";
@@ -78,6 +82,7 @@ class DBProvider {
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
+            'system_status_id INTEGER, '
             'usn INTEGER, '
             'color TEXT, '
             'name TEXT)');
@@ -144,6 +149,7 @@ class DBProvider {
             'contractor int, '
             'deleted int, '
             'author int, '
+            'resolution INTEGER, '
             'template int, '
             'address TEXT, '
             'name TEXT,'
@@ -164,6 +170,20 @@ class DBProvider {
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
             'name TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $resolutionGroupTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'name TEXT)');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $resolutionGroup2ResolutionRelationTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'resolution INTEGER,'
+            'resolution_group INTEGER'
+            ')');
 
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $tasksFieldsTabTable ('
@@ -284,6 +304,8 @@ class DBProvider {
     print("DROP");
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
+    await db.execute('DROP TABLE IF EXISTS $resolutionGroup2ResolutionRelationTable');
+    await db.execute('DROP TABLE IF EXISTS $resolutionGroupTable');
     await db.execute('DROP TABLE IF EXISTS $taskSelectionValuesTable');
     await db.execute('DROP TABLE IF EXISTS $taskSelectionValuesRelationTable');
     await db.execute('DROP TABLE IF EXISTS $taskStatusTable');
@@ -342,17 +364,22 @@ class DBProvider {
   Future<List<TasksStatusesModel>> readTaskStatusUpdates(int localUSN) async{
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery(""
-        "SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color, t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t3.external_id as task_external_id, t3.id as task_id "
+        "SELECT t1.*, "
+        //"t4.external_id as resolution_external_id,t4.id as resolution_id,t4.name as resolution_name, "
+        "t2.name as taskstatus_name, t2.color as taskstatus_color, t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t3.external_id as task_external_id, t3.id as task_id "
         "FROM $tasksStatusesTable as t1 "
         "LEFT JOIN $taskStatusTable as t2 "
         "ON t1.task_status = t2.id "
         "LEFT JOIN $tasksTable as t3 "
         "ON t1.task = t3.id "
+        //"LEFT JOIN $resolutionTable as t4 "
+        //"ON t1.resolution = t4.id "
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
     return tasksStatusesMapList.map((taskstatus) => TasksStatusesModel.fromMap(taskstatus)).toList();
   }
   Map<int, dynamic> reMapTasksFieldsSelectionValues(List<Map<String, dynamic>> tasksFieldsSelectionValuesMap) {
     int fieldId=0;
+
     //List<TaskFieldModel> taskFieldList = [];
     Map<int, dynamic> taskFieldSelectionValuesMap = {};
     List<Map<String, dynamic>> taskFieldSelectionValues = [];
@@ -465,12 +492,19 @@ class DBProvider {
   Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
     Database db = await this.database;
     final List<TaskStatusModel> taskStatusesList = [];
-    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t2.* FROM $taskLifeCycleTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ?",[id]);
-    //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
-    tasksMapList.forEach((element) {
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t1.need_resolution, t2.* FROM $taskLifeCycleTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ?",[id]);
+    await Future.forEach(tasksMapList, (Map<String,dynamic> element) async {
+      print("need_resolution ${element.toString()}");
+      List<Map<String,dynamic>> resolutionsMapList = [];
+      if(element["need_resolution"]>0){
+        resolutionsMapList = await db.rawQuery("SELECT t2.* FROM $resolutionGroup2ResolutionRelationTable as t1 "
+            "LEFT JOIN $resolutionTable as t2 ON t1.resolution=t2.id WHERE t1.resolution_group = ?",[element["need_resolution"]]);
+
+      }
       print("element = ${element.toString()}");
-      taskStatusesList.add(TaskStatusModel.fromMap(element));
+      taskStatusesList.add(TaskStatusModel.fromMap(map:element,mapResolutions: resolutionsMapList));
     });
+    //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     //final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     return taskStatusesList;//TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first);
   }
@@ -700,7 +734,7 @@ class DBProvider {
     tasksStatuses.id=id;
     return tasksStatuses;
   }
-  Future<int> addStatusToTask({required TasksStatusesModel ts,required  bool update_usn}) async {
+  Future<int> addStatusToTask({required TasksStatusesModel ts,int? resolution, required  bool update_usn}) async {
     Database db = await this.database;
     int id=0;
     try{
@@ -709,7 +743,10 @@ class DBProvider {
         int usn = await getUSN();
         ts.usn=usn;
       }
-      await db.update(tasksTable, {"status":ts.id}, where: 'external_id =?', whereArgs: [ts.task.id]);
+      Map<String,dynamic> upd={"status":ts.status.id};
+      if(resolution!=null)
+        upd["resolution"]=resolution;
+      await db.update(tasksTable, upd, where: 'id =?', whereArgs: [ts.task.id]);
       id=await db.insert(tasksStatusesTable, ts.toMap());
 
     }
@@ -731,6 +768,18 @@ class DBProvider {
     resolution.id=id;
     return resolution;
   }
+  Future<ResolutionGroupModel> insertResolutionGroup(ResolutionGroupModel resolutionGroup) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(resolutionGroupTable, resolutionGroup.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    resolutionGroup.id=id;
+    return resolutionGroup;
+  }
   Future<int> getTemplateIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> templateMapList = await db.query(tasksTemplateTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
@@ -742,7 +791,7 @@ class DBProvider {
 
     int templateId = await getTemplateIdByServerId(template.serverId);
     if(templateId!=0)
-      await db.update(tasksTemplateTable, template.toMap(), where: 'external_id =?', whereArgs: [templateId]);
+      await db.update(tasksTemplateTable, template.toMap(), where: 'id =?', whereArgs: [templateId]);
     template.id=templateId;
     return template;
   }
@@ -769,7 +818,7 @@ class DBProvider {
 
     int phoneId = await getTemplateIdByServerId(phone.serverId);
     if(phoneId!=0)
-      await db.update(tasksPhoneTable, phone.toMap(), where: 'external_id =?', whereArgs: [phoneId]);
+      await db.update(tasksPhoneTable, phone.toMap(), where: 'id =?', whereArgs: [phoneId]);
     phone.id=phoneId;
     return phone;
   }
@@ -805,7 +854,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
 
     int personId = await getTemplateIdByServerId(person.serverId);
     if(personId!=0)
-      await db.update(tasksPersonTable, person.toMap(), where: 'external_id =?', whereArgs: [personId]);
+      await db.update(tasksPersonTable, person.toMap(), where: 'id =?', whereArgs: [personId]);
     person.id=personId;
     return person;
   }
@@ -845,7 +894,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
 
     int contractorId = await getContractorIdByServerId(contractor.serverId);
     if(contractorId!=0)
-      await db.update(contractorTable, contractor.toMap(), where: 'external_id =?', whereArgs: [contractorId]);
+      await db.update(contractorTable, contractor.toMap(), where: 'id =?', whereArgs: [contractorId]);
     contractor.id=contractorId;
     return contractor;
 
@@ -862,9 +911,26 @@ Future<int> getPersonIdByServerId(int serverId) async {
 
     int employeeId = await getEmployeeIdByServerId(employee.serverId);
     if(employeeId!=0)
-      await db.update(employeeTable, employee.toMap(), where: 'external_id =?', whereArgs: [employeeId]);
+      await db.update(employeeTable, employee.toMap(), where: 'id =?', whereArgs: [employeeId]);
     employee.id=employeeId;
     return employee;
+
+
+  }
+Future<int> getResolutionGroupIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> resolutionMapList = await db.query(resolutionGroupTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return resolutionMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<ResolutionGroupModel> updateResolutionGroupByServerId(ResolutionGroupModel resolutionGroup) async{
+    Database db = await this.database;
+
+    int resolutionGroupId = await getResolutionGroupIdByServerId(resolutionGroup.serverId);
+    if(resolutionGroupId!=0)
+      await db.update(resolutionGroupTable, resolutionGroup.toMap(), where: 'id =?', whereArgs: [resolutionGroupId]);
+    resolutionGroup.id=resolutionGroupId;
+    return resolutionGroup;
 
 
   }
@@ -910,6 +976,31 @@ Future<int> getPersonIdByServerId(int serverId) async {
     selection.id=id;
     return selection;
   }
+  Future<void> insertResolutuionGroupRelation(int id, int resolutionGroupId) async{
+    Database db = await this.database;
+    //int id=0;
+    try{
+      await db.insert(resolutionGroup2ResolutionRelationTable, {"resolution":id,"resolution_group":resolutionGroupId});
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    //selection.id=id;
+    //return selection;
+  }
+  Future<void> deleteResolutuionGroupRelation(int id) async{
+    Database db = await this.database;
+    //int id=0;
+    try{
+      await db.delete(resolutionGroup2ResolutionRelationTable, where: 'resolution =?', whereArgs: [id]);
+      //await db.insert(resolutionGroup2ResolutionRelationTable, {"resolution":id,"resolution_group":resolutionGroupId});
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    //selection.id=id;
+    //return selection;
+  }
 
 //UPDATE
   Future<int> updateTask(TaskModel task) async{
@@ -934,7 +1025,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
 
     int tasksStatusesId = await getTasksStatusesIdByServerId(task.serverId);
     if(tasksStatusesId!=0)
-      await db.update(tasksStatusesTable, task.toMap(), where: 'external_id =?', whereArgs: [tasksStatusesId]);
+      await db.update(tasksStatusesTable, task.toMap(), where: 'id =?', whereArgs: [tasksStatusesId]);
     task.id=tasksStatusesId;
     return task;
 
@@ -949,7 +1040,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
   Future<TaskStatusModel?> getTaskStatusByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
-    return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(tasksMapList.first):null;
+    return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(map:tasksMapList.first):null;
   }
 
   Future<int> getTaskIdByServerId(int serverId) async {
@@ -985,7 +1076,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
   Future<TaskStatusModel?> getTaskStatus(int id) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
-    return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(tasksMapList.first):null;
+    return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(map:tasksMapList.first):null;
   }
 
 
@@ -1067,7 +1158,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
 
     int taskId = await getTaskFieldIdByServerId(taskFieldModel.serverId);
     if(taskId!=0)
-      await db.update(taskFieldTable, taskFieldModel.toMap(), where: 'external_id =?', whereArgs: [taskId]);
+      await db.update(taskFieldTable, taskFieldModel.toMap(), where: 'id =?', whereArgs: [taskId]);
     //task.id=taskId;
     return taskId;
   }
@@ -1097,7 +1188,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
 
     int taskId = await getTasksFieldIdByServerId(taskFieldModel.serverId);
     if(taskId!=0)
-      await db.update(tasksFieldsTable, taskFieldModel.toMap(), where: 'external_id =?', whereArgs: [taskId]);
+      await db.update(tasksFieldsTable, taskFieldModel.toMap(), where: 'id =?', whereArgs: [taskId]);
     //task.id=taskId;
     return taskId;
   }

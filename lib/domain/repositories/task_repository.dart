@@ -9,7 +9,7 @@ abstract class TaskRepository{
 
   Future<Either<Failure, List<TaskEntity>>>getAllTasks(int page);
   Future<Either<Failure, TaskEntity>>getTask(int id);
-  Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task});
+  Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task,int? resolution,});
   Future<Either<Failure, bool>>setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id);
 

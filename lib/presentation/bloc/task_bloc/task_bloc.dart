@@ -143,7 +143,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             SetTaskFieldSelectionValueParams(taskField: fieldElement!));
         FoL.fold((failure) {print("error");}, (
             nextTaskStatuses_readed) {
-          syncToServer(ListSyncToServerParams());
+          //syncToServer(ListSyncToServerParams());
           print("val ${event.value}");
           //fieldElement?.stringValue = event.value;
         });
@@ -169,7 +169,30 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
       yield StartLoadingTaskPage();
 
-      print("SetTaskStatus ${event.status} ${task.id}");
+      print("SetTaskStatus ${event.status} ${task.id} ${event.resolution}");
+      final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status, resolution: event.resolution));
+      yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
+        //this.task = task_readed;
+        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id));
+        return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
+          //this.nextTaskStatuses = nextTaskStatuses_readed;
+          //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+          print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
+          syncToServer(ListSyncToServerParams());
+          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed);
+
+        });
+        //return TaskLoaded(task: task);
+      });
+    }
+    /*if (event is SetTaskReaded) {
+      //await Future.delayed(Duration(seconds: 2));
+      final task = (state as TaskLoaded).task;
+
+      yield StartLoadingTaskPage();
+
+      print("SetTaskReaded");
+      //int readedStatusId=await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status));
       final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status));
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
         //this.task = task_readed;
@@ -182,7 +205,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
         //return TaskLoaded(task: task);
       });
-    }
+    }*/
     if (event is ReloadTask) {
       print("start sync");
       //TaskModel t=//task.taskRepository()

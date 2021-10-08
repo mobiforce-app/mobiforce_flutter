@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 
@@ -23,17 +24,21 @@ class TaskStatusModel extends TaskStatusEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TaskStatusModel({required id,usn,required serverId,name, color}): super(
+  TaskStatusModel({required id,usn,required serverId,name, color,systemStatusId,resolutions}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       color:color,
+      systemStatusId:systemStatusId,
+      resolutions:resolutions,
   );
 
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
+    if(systemStatusId!=null)
+      map['system_status_id'] = systemStatusId;
     map['usn'] = usn;
     map['external_id'] = serverId;
     map['color'] = color;
@@ -50,7 +55,7 @@ class TaskStatusModel extends TaskStatusEntity
     }
     return t.id;
   }
-  factory TaskStatusModel.fromMap(Map<String, dynamic> map)
+  factory TaskStatusModel.fromMap({required Map<String, dynamic> map, List<Map<String, dynamic>> mapResolutions = const[]})
   {
    // id = map['id'];
    // externalId = map['externalId'];
@@ -59,8 +64,10 @@ class TaskStatusModel extends TaskStatusEntity
         id: map['id'],
         usn: map['usn'],
         serverId: map['external_id'],
+        systemStatusId: map['system_status_id'],
         color: map['color'],
-        name: map['name']
+        name: map['name'],
+        resolutions:mapResolutions.map((resolution) =>ResolutionModel.fromMap(map:resolution)).toList(),
     );
   }
   factory TaskStatusModel.fromJson(Map<String, dynamic> json)
@@ -72,6 +79,7 @@ class TaskStatusModel extends TaskStatusEntity
         usn: json["usn"]??0,
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
+        systemStatusId: json['statusId']!=null?int.parse(json["statusId"]??"0"):null,
         color: json["color"]??"",
     );
   }

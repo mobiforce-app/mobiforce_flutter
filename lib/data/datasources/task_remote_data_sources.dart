@@ -17,7 +17,7 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
   Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
-  Future<TaskModel> setTaskStatus({required int status,required int task});
+  Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
 }
 
@@ -45,14 +45,15 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     return await db.getTask(id);
   }
   @override
-  Future<TaskModel> setTaskStatus({required int status,required int task}) async{
+  Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution}) async{
+
     var date = new DateTime.now();
     int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
     TasksStatusesModel ts = TasksStatusesModel(id:0,usn:0,serverId: null, status:TaskStatusModel(serverId: 0,id:status, color:"", name:"", usn: 0),
         task:TaskModel(serverId:0,id:task),
         createdTime: d, manualTime: d, lat: 0.0, lon:0.0, dirty:true);
-
-    await db.addStatusToTask(ts:ts,update_usn: true);
+    print("resolution $resolution");
+    await db.addStatusToTask(ts:ts,resolution: resolution,update_usn: true);
     return await db.getTask(task);
   }
 

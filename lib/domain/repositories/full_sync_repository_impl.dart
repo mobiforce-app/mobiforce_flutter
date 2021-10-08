@@ -34,7 +34,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
   final FullRemoteDataSources fullRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["taskfield","taskstatus","tasklifecycle","task","resolution"];
+  final List<String> objectsType=["taskfield","taskstatus","resolution","tasklifecycle","task"];
   //final AuthorizationDataSource authorizationDataSource;
   //int lastSyncTime=0;
   int fullSyncUpdateId=0;

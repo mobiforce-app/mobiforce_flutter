@@ -3,12 +3,13 @@ class TaskLifeCycleEntity{
   int serverId;
   int? currentStatus;
   int? nextStatus;
-  int needResolution;
+  int needResolutionGroup;
   int usn;
   int nextStatusServerId;
   int currentStatusServerId;
+  int resolutionGroupServerId;
   TaskLifeCycleEntity({
-      required this.id, required this.usn, required this.serverId, required this.currentStatusServerId,required this.nextStatusServerId, required this.currentStatus,required this.nextStatus, required this.needResolution
+      required this.id, required this.usn, required this.serverId, required this.currentStatusServerId,required this.nextStatusServerId, required this.currentStatus,required this.nextStatus, required this.needResolutionGroup, required this.resolutionGroupServerId
   });
   fromMap(Map<String, dynamic> map)
   {
@@ -17,6 +18,6 @@ class TaskLifeCycleEntity{
     serverId=0;
     currentStatus=0;
     nextStatus=0;
-    needResolution=0;
+    needResolutionGroup=0;
   }
 }
