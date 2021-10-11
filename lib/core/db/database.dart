@@ -160,6 +160,7 @@ class DBProvider {
             'lat TEXT,'
             'lon TEXT,'
             'external_link TEXT,'
+            'external_link_name TEXT,'
             'created_at INTEGER,'
             'planned_visit_time INTEGER,'
             'planned_end_visit_time INTEGER'

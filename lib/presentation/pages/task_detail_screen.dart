@@ -9,6 +9,7 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -31,8 +32,9 @@ extension HexColor on Color {
 
 class TaskDetailPage extends StatelessWidget {
   //final TaskEntity task;
+  bool _keyboardVisible = false;
 //  final id;
-  const TaskDetailPage({Key? key}) : super(key: key);
+  TaskDetailPage({Key? key}) : super(key: key);
 
   Widget getTaskFieldElement(TasksFieldsEntity element) {
     if(element.taskField?.type.value==TaskFieldTypeEnum.optionlist){
@@ -129,6 +131,8 @@ class TaskDetailPage extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
+    _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
+    print("rebiult it ${_keyboardVisible?"1":"0"}");
         return BlocBuilder<TaskBloc, TaskState>(
           builder: (context, state) {
 
@@ -149,7 +153,7 @@ class TaskDetailPage extends StatelessWidget {
                       pageBuilder: (context, animation1, animation2) => HomePage(),
                       transitionDuration: Duration(seconds: 0),
                     ));*/
-                print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first.id??0}");
+                //print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first?.id??0}");
                 if(state.task.status?.systemStatusId==1&&(state.nextTaskStatuses?.first.id??0)>0){
                   print("add!");
                   BlocProvider.of<TaskBloc>(context)
@@ -561,58 +565,62 @@ class TaskDetailPage extends StatelessWidget {
                   size: 24.0,
                 ));
               }
-
-            return DefaultTabController(
-                length: _kTabs.length,
-                child: Scaffold(
-                    appBar: AppBar(
-                        title: Text('Task'),
-                        centerTitle: true,
-                        bottom:TabBar(isScrollable:true,tabs: _kTabs),
-                    ),
-                    body: //Stack(children: <Widget>[
-                      TabBarView(children: _kTabPages1,),
-                    //,_buildDraggableScrollableSheet()]),
-                  floatingActionButtonLocation:FloatingActionButtonLocation.centerDocked,
-                  floatingActionButton: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                          //padding:EdgeInsets.all(16.0),
-                        ///crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround ,
-                          children: [
-                            ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: floatButton.length>1?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
-
-                              ),
-                                onPressed: () {
-                                  if (floatButton.length >
-                                      1) showModalBottomSheet(
-                                    isScrollControlled: true,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    context: context,
-                                    builder: (context) =>
-                                        Wrap(children: (buttons)),);
-                                },
-                              child:
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Wrap(
-                                  children: floatButton,
-                                ),
-                              )
-                            )
-                          ],
-                        ),
-                    ),
-                  ),
-                )
-              );
+              return TaskTabs(tabs: _kTabs, tabsBody: _kTabPages1, keyboardVisible: _keyboardVisible, floatButton: floatButton, buttons: buttons);
+            // return DefaultTabController(
+            //     //controller: _tabController,
+            //     length: _kTabs.length,
+            //     child: Scaffold(
+            //         appBar: AppBar(
+            //             title: Text('Task'),
+            //             centerTitle: true,
+            //             bottom:TabBar(isScrollable:true,tabs: _kTabs),
+            //         ),
+            //         body: //Stack(children: <Widget>[
+            //           TabBarView(
+            //             //controller: _tabController,
+            //             children: _kTabPages1,
+            //           ),
+            //         //,_buildDraggableScrollableSheet()]),
+            //       floatingActionButtonLocation:FloatingActionButtonLocation.centerDocked,
+            //       floatingActionButton: !_keyboardVisible?SingleChildScrollView(
+            //         scrollDirection: Axis.horizontal,
+            //         child: Padding(
+            //           padding: const EdgeInsets.all(16.0),
+            //           child: Row(
+            //               //padding:EdgeInsets.all(16.0),
+            //             ///crossAxisAlignment: CrossAxisAlignment.center,
+            //               mainAxisAlignment: MainAxisAlignment.spaceAround ,
+            //               children: [
+            //                 ElevatedButton(
+            //                   style: ButtonStyle(
+            //                     backgroundColor: floatButton.length>1?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
+            //
+            //                   ),
+            //                     onPressed: () {
+            //                       if (floatButton.length >
+            //                           1) showModalBottomSheet(
+            //                         isScrollControlled: true,
+            //                         shape: RoundedRectangleBorder(
+            //                           borderRadius: BorderRadius.circular(10.0),
+            //                         ),
+            //                         context: context,
+            //                         builder: (context) =>
+            //                             Wrap(children: (buttons)),);
+            //                     },
+            //                   child:
+            //                   Padding(
+            //                     padding: const EdgeInsets.all(16.0),
+            //                     child: Wrap(
+            //                       children: floatButton,
+            //                     ),
+            //                   )
+            //                 )
+            //               ],
+            //             ),
+            //         ),
+            //       ):null,
+            //     )
+            //   );
 
 
             }

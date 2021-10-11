@@ -82,13 +82,13 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
               //  setState((){element.selectionValue=null;});
               print("press");
               setState(()=>
-                _controller.text=""
+                _controller.clear()
               );
-              widget.val  = "";
+//              widget.val  = "";
 
-              BlocProvider.of<TaskBloc>(context).add(
+              /*BlocProvider.of<TaskBloc>(context).add(
                 ChangeTextFieldValue(fieldId:widget.fieldId,value:""),
-              );
+              );*/
 
             },
           ):null,
