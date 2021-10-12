@@ -12,6 +12,7 @@ import 'package:mobiforce_flutter/domain/repositories/authirization_repository.d
 import 'package:mobiforce_flutter/domain/repositories/authorization_repository_impl.dart';
 import 'package:mobiforce_flutter/domain/repositories/full_sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/full_sync_repository_impl.dart';
+import 'package:mobiforce_flutter/domain/repositories/picture_repository_impl.dart';
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/sync_repository_impl.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
@@ -19,6 +20,7 @@ import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
@@ -35,6 +37,7 @@ import 'package:mobiforce_flutter/presentation/pages/syncscreen_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'domain/repositories/firebase.dart';
+import 'domain/repositories/picture_repository.dart';
 import 'domain/repositories/task_repository_impl.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/search_task.dart';
@@ -52,11 +55,12 @@ Future<void>init() async
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
   sl.registerFactory(() => SyncBloc(m:sl()));
-  sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl(),syncToServer: sl()));
+  sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl(),syncToServer: sl(),getPictureFromCamera:sl()));
   sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService(m:sl()));
 
 
   //usecases
+  sl.registerLazySingleton(() => GetPictureFromCamera(taskRepository: sl(), fileRepository: sl()));
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
@@ -77,6 +81,11 @@ Future<void>init() async
       () => TaskRepositoryImpl(
           remoteDataSources: sl(),
           networkInfo: sl()
+      )
+  );
+  sl.registerLazySingleton<FileRepository>(
+      () => FileRepositoryImpl(
+          remoteDataSources: sl(),
       )
   );
 

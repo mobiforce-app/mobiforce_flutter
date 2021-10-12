@@ -36,7 +36,7 @@ class TaskDetailPage extends StatelessWidget {
 //  final id;
   TaskDetailPage({Key? key}) : super(key: key);
 
-  Widget getTaskFieldElement(TasksFieldsEntity element) {
+  Widget getTaskFieldElement(TasksFieldsEntity element, String appFilesDirectory) {
     if(element.taskField?.type.value==TaskFieldTypeEnum.optionlist){
       List<DropdownMenuItem<int>> ddmi = (element.taskField?.selectionValues?.map((element)=>DropdownMenuItem(child: Text("${element.name}"),value: element.id,))??[]).toList();
       return TaskFieldSelectionCard(name:element.taskField?.name??"",fieldId:element.id,val:element.selectionValue,items: ddmi,);
@@ -46,6 +46,9 @@ class TaskDetailPage extends StatelessWidget {
     }
     else if(element.taskField?.type.value==TaskFieldTypeEnum.number){
       return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,isText:false,val:"${element.doubleValue??0.0}");
+    }
+    else if(element.taskField?.type.value==TaskFieldTypeEnum.picture){
+      return TaskFieldPictureCard(name:element.taskField?.name??"", fieldId:element.id, files:element.fileValueList, appFilesDirectory:appFilesDirectory);
     }
     else
       return
@@ -79,7 +82,7 @@ class TaskDetailPage extends StatelessWidget {
 
   }
 
-  List<Widget> getFieldListByParent(int id,int tab,List<TasksFieldsEntity>? props)
+  List<Widget> getFieldListByParent(int id,int tab,List<TasksFieldsEntity>? props, String appFilesDirectory)
   {
     List<Widget> l=[];
     props?.forEach((element) {
@@ -90,7 +93,7 @@ class TaskDetailPage extends StatelessWidget {
             height: 24,
           ),
         );
-        l.add(getTaskFieldElement(element));
+        l.add(getTaskFieldElement(element, appFilesDirectory));
       }
     });
 
@@ -455,7 +458,9 @@ class TaskDetailPage extends StatelessWidget {
                 final List<Widget> eList = getFieldListByParent(
                     element.elementLocalId ?? -1,
                     element.tab ?? 0,
-                    state.task.propsList);
+                    state.task.propsList,
+                    state.appFilesDirectory
+                );
                 lst.add(
                   ExpansionTile(
                     //height: 24,
@@ -477,7 +482,7 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                 );
 
-                lst.add(getTaskFieldElement(element));
+                lst.add(getTaskFieldElement(element,state.appFilesDirectory));
               }
             }
           });

@@ -31,6 +31,7 @@ class DBProvider {
 
   static Database? _database;
   String tasksTable="task";
+  String fileTable="file";
   String taskFieldTable="taskfield";
   String resolutionTable="resolution";
   String resolutionGroupTable="resolutiongroup";
@@ -51,6 +52,7 @@ class DBProvider {
   String tasksTemplateTable="tasktamplatetable";
   String contractorTable="contractortable";
   String usnCountersTable="usncounterstable";
+  String usnCountersFileTable="usnfiletable";
 
 
   DBProvider.internal();
@@ -88,12 +90,33 @@ class DBProvider {
             'name TEXT)');
 
     await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $fileTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'type INTEGER, '
+            'link_object INTEGER, '
+            'link_object_type INTEGER, '
+            'downloaded INTEGER, '
+            'deleted INTEGER, '
+            'usn INTEGER, '
+            'name TEXT, '
+            'description TEXT)');
+
+    await db.execute(
         'CREATE TABLE IF NOT EXISTS  $usnCountersTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             'object_type TEXT, '
             'usn_counter INTEGER'
             ')');
     await db.insert(usnCountersTable, {'object_type':'task_option','usn_counter':0});
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $usnCountersFileTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'object_type TEXT, '
+            'usn_counter INTEGER'
+            ')');
+    await db.insert(usnCountersFileTable, {'object_type':'task_option','usn_counter':0});
 
 
     await db.execute(
@@ -303,6 +326,7 @@ class DBProvider {
   Future<void> clear() async{
     Database db = await this.database;
     print("DROP");
+    await db.execute('DROP TABLE IF EXISTS $fileTable');
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionGroup2ResolutionRelationTable');
@@ -323,6 +347,7 @@ class DBProvider {
     await db.execute('DROP TABLE IF EXISTS $contractorTable');
     await db.execute('DROP TABLE IF EXISTS $employee2TaskRelationTable');
     await db.execute('DROP TABLE IF EXISTS $usnCountersTable');
+    await db.execute('DROP TABLE IF EXISTS $usnCountersFileTable');
     _createDB(db, 1);
   }
 //READ
@@ -360,6 +385,43 @@ class DBProvider {
     final Map<int, dynamic> tasksFieldsSelectionValuesMap = reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList);
 
     return tasksFieldsMapList.map((field) => TasksFieldsModel.fromMap(field,tasksFieldsSelectionValuesMap)).toList();
+  }
+
+  Future<int> addPictureToTaskField({required int taskFieldId,required int pictureId}) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      //id=await db.update(fileTable, {"deleted":1});
+      int usn = await getFileUSN();
+      dynamic map={
+        "usn": usn,
+        "link_object":taskFieldId,
+        "deleted":0,
+        "link_object_type":1,
+      };
+      print("to base ${map.toString()}, id: $pictureId");
+      await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
+      return pictureId;
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return 0;
+    }
+    //task.id=id;
+    //return id;
+  }
+
+  Future<int> newFileRecord() async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(fileTable, {"deleted":1});
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    //task.id=id;
+    return id;
   }
 
   Future<List<TasksStatusesModel>> readTaskStatusUpdates(int localUSN) async{
@@ -481,13 +543,33 @@ class DBProvider {
       "LEFT JOIN $taskSelectionValuesTable as t4 ON t3.tasks_selection_values = t4.id "
       "LEFT JOIN $taskValuesTable as t5 ON t1.id = t5.tasks_fields "
         "WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
+
+    final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
+      //"t1.task as task_id, "
+      //"t2.name as field_name, "
+      //"t2.type as field_type, "
+      "t1.id as field_id, "
+      //"t2.usn as field_usn, "
+      "t2.external_id as field_external_id, "
+      //"t2.id as task_file_id, "
+      //"t2.external id as task_file_id, "
+      "t3.id as id, "
+      "t3.name as name, "
+      "t3.external_id as external_id, "
+      "t3.description as description "
+      "FROM $tasksFieldsTable as t1 "
+      "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
+      "LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
+      "WHERE t1.task = ? and deleted = 0 and t3.link_object_type = ? AND t3.id IS NOT NULL ORDER BY t1.id DESC",[id, 1]);
+    print("tasksFieldsFilesMapList: ${tasksFieldsFilesMapList.toString()}");
     return TaskModel.fromMap(
         taskMap:tasksMapList.first,
         statusMap:taskStatusMapList.first,
         statusesMap: tasksStatusesMapList,
         tasksFieldsMap: tasksFieldsMapList,
         tasksFieldsSelectionValuesMap:reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList),
-        taskPhoneMap:taskPhoneMapList
+        taskPhoneMap:taskPhoneMapList,
+        tasksFieldsFilesMap:tasksFieldsFilesMapList,
     );
   }
   Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
@@ -656,6 +738,17 @@ class DBProvider {
     Database db = await this.database;
     try{
       int usn = await db.insert(usnCountersTable,{"object_type":"task_option"});
+      print("usnresult: ${usn}");
+      return usn;
+    }
+    catch(e){
+      return 0;
+    }
+  }
+  Future<int> getFileUSN() async{
+    Database db = await this.database;
+    try{
+      int usn = await db.insert(usnCountersFileTable,{"object_type":"task_file"});
       print("usnresult: ${usn}");
       return usn;
     }

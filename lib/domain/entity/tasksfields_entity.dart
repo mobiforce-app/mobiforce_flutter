@@ -1,5 +1,6 @@
 //enum TaskFieldType {undefined,text,number,checkbox,group,optionlist,picture}
 
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
@@ -20,6 +21,7 @@ class TasksFieldsEntity{
   bool? boolValue;
   double? doubleValue;
   String? stringValue;
+  List<FileModel>? fileValueList;
   int usn;
   int? tab;
   int? updateByToken;
@@ -40,6 +42,7 @@ class TasksFieldsEntity{
     this.boolValue,
     this.doubleValue,
     this.stringValue,
+    this.fileValueList,
     this.tab,
     this.tabServerId,
     this.updateByToken,

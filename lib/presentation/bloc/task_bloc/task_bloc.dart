@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -12,6 +14,7 @@ import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
@@ -23,6 +26,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dar
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
+import 'package:path_provider/path_provider.dart';
 //import 'package:dartz/dartz.dart';
 // import 'equatabl'
 class TaskBloc extends Bloc<TaskEvent,TaskState> {
@@ -30,6 +34,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   //TaskEntity? task;
   //List<TaskStatusEntity>? nextTaskStatuses;
+  final GetPictureFromCamera getPictureFromCamera;
   final GetTaskStatusesGraph nextTaskStatusesReader;
   final SetTaskStatus setTaskStatus;
   final SetTaskFieldSelectionValue setTaskFieldSelectionValue;
@@ -44,7 +49,13 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   int id = 0;
 
-  TaskBloc({required this.taskReader,required this.nextTaskStatusesReader,required this.setTaskStatus,required this.setTaskFieldSelectionValue,required this.syncToServer}) : super(TaskEmpty()) {
+  TaskBloc({
+    required this.taskReader,
+    required this.nextTaskStatusesReader,
+    required this.getPictureFromCamera,
+    required this.setTaskStatus,
+    required this.setTaskFieldSelectionValue,
+    required this.syncToServer}) : super(TaskEmpty()) {
 
   }
 
@@ -112,6 +123,54 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       print("task.isChanged ${task.isChanged}");
       //yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
     }
+    if (event is AddPhotoToField) {
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final FoL = await getPictureFromCamera(
+          GetPictureFromCameraParams(taskFieldId: event.fieldId));
+      Directory dir =  await getApplicationDocumentsDirectory();
+      yield StartLoadingTaskPage();
+      yield FoL.fold((failure) => TaskError(message:"bad"), (
+          picture) {
+        //syncToServer(ListSyncToServerParams());
+        print("picture OK! ${picture.id}");
+        //fieldElement?.stringValue = event.value;
+        task.propsList?.forEach((element) {
+          if(event.fieldId==element.id){
+            if(element.fileValueList!=null)
+              element.fileValueList?.add(picture);
+            else
+              element.fileValueList=[picture];
+          }
+
+          print("picture + ${event.fieldId} ${element.id}");
+        });
+        return TaskLoaded(isChanged:true, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path);
+      });
+      print("picture OK! 2!");
+      //
+
+      //yield StartLoadingTaskPage();
+
+      //Directory dir =  await getApplicationDocumentsDirectory();
+      //print("SetTaskStatus ${event.status} ${task.id} ${event.resolution}");
+      /*final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status, resolution: event.resolution));
+      yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
+        //this.task = task_readed;
+        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id));
+        return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
+          //this.nextTaskStatuses = nextTaskStatuses_readed;
+          //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+          print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
+          syncToServer(ListSyncToServerParams());
+          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path);
+
+        });
+        //return TaskLoaded(task: task);
+      });*/
+
+
+    }
     if (event is ChangeTextFieldValue) {
       //getTask.
       final task = (state as TaskLoaded).task;
@@ -169,6 +228,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
       yield StartLoadingTaskPage();
 
+      Directory dir =  await getApplicationDocumentsDirectory();
       print("SetTaskStatus ${event.status} ${task.id} ${event.resolution}");
       final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status, resolution: event.resolution));
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
@@ -179,7 +239,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
           print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
           syncToServer(ListSyncToServerParams());
-          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed);
+          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path);
 
         });
         //return TaskLoaded(task: task);
@@ -210,7 +270,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       print("start sync");
       //TaskModel t=//task.taskRepository()
       yield StartLoadingTaskPage();
-     // await Future.delayed(Duration(seconds: 2));
+      Directory dir =  await getApplicationDocumentsDirectory();
+
+      // await Future.delayed(Duration(seconds: 2));
       final faiureOrLoading = await taskReader(TaskParams(id: event.id));
 
       //print("start sync1");
@@ -220,7 +282,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
           print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()}");
-          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed);
+          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path);
         });
         //return TaskLoaded(task: task);
       });

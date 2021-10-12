@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
@@ -7,6 +8,7 @@ import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 
 import 'employee_model.dart';
 
@@ -207,7 +209,8 @@ class TaskModel extends TaskEntity
     List<Map<String, dynamic>> statusesMap = const [],
     List<Map<String, dynamic>> tasksFieldsMap = const [],
     Map<int, dynamic> tasksFieldsSelectionValuesMap = const {},
-    List<Map<String, dynamic>> taskPhoneMap = const []
+    List<Map<String, dynamic>> taskPhoneMap = const [],
+    List<Map<String, dynamic>> tasksFieldsFilesMap = const [],
   })
   {
    // id = map['id'];
@@ -265,8 +268,24 @@ class TaskModel extends TaskEntity
         "name":taskMap['contractor_parent_name']??""
       }
     });
-
+    print("tasksFieldsFilesMap!: $tasksFieldsFilesMap");
+    final List<FileModel> files = tasksFieldsFilesMap.map((files) => FileModel.fromMap(files)).toList();
+    print("files!: $files");
     var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,tasksFieldsSelectionValuesMap)).toList();
+
+    fieldList.forEach((element) {
+      if(element.taskField?.type.value==TaskFieldTypeEnum.picture){
+        print("TaskFieldTypeEnum.picture");
+        files.forEach((file) {
+          print("TaskFieldTypeEnum.picture ${file.parent.id} && ${element.id}");
+          if(file.parent?.id!=null&&file.parent.id==element.id) {
+            element.fileValueList?.add(file);
+            print("add files ${file.parent.id} && ${element.id}");
+          }
+        });
+      }
+    });
+        //var fieldList1=tasksFieldsFilesMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,{})).toList();
 
     print("statusMap = ${statusMap.toString()}");
     return TaskModel(

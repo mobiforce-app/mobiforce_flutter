@@ -36,6 +36,13 @@ class ChangeSelectionFieldValue extends TaskEvent
   //final int task;
   ChangeSelectionFieldValue({required this.fieldId, required this.value});
 }
+class AddPhotoToField extends TaskEvent
+{
+  final int fieldId;
+  //final dynamic value;
+  //final int task;
+  AddPhotoToField({required this.fieldId});
+}
 class ChangeTextFieldValue extends TaskEvent
 {
   final int fieldId;

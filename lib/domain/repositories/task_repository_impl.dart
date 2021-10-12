@@ -5,6 +5,7 @@ import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -33,6 +34,13 @@ class TaskRepositoryImpl implements TaskRepository{
   @override
   Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id) async {
     return Right(await remoteDataSources.getTaskStatusGraph(id));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+  @override
+  Future<Either<Failure, FileModel>>addTaskFieldPicture({required int taskFieldId, required int pictureId}) async {
+    print("picture id= $pictureId");
+    return Right(await remoteDataSources.addPictureTaskField(taskFieldId:taskFieldId,pictureId:pictureId));
     //return Right(_r);
     //throw UnimplementedError();
   }

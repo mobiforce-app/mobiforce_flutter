@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
@@ -33,9 +35,10 @@ class TaskListLoading extends TaskListState{
 class TaskLoaded extends TaskState{
   final TaskEntity task;
   final bool isChanged;
+  final String appFilesDirectory;
   final List<TaskStatusEntity>? nextTaskStatuses;
 
-  TaskLoaded({required this.task, required this.isChanged,this.nextTaskStatuses});
+  TaskLoaded({required this.task, required this.isChanged,this.nextTaskStatuses,required this.appFilesDirectory});
 
   @override
   List<Object> get props => [isChanged];

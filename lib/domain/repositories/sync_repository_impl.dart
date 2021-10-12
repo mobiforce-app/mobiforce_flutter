@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/data/datasources/authorization_remote_data_sou
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/datasources/updates_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/models/authorization_model.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_status_model.dart';
@@ -172,6 +173,10 @@ class SyncRepositoryImpl implements SyncRepository{
       if(objectsType[syncObjectsTypeId]=="resolution"){
         print ("type = resolution");
         return ((json as List).map((obj) => ResolutionModel.fromJson(obj)).toList());
+      }
+      if(objectsType[syncObjectsTypeId]=="file"){
+        print ("type = file");
+        return ((json as List).map((obj) => FileModel.fromJson(obj)).toList());
       }
       if(objectsType[syncObjectsTypeId]=="taskfield"){
         print ("type = taskfield");

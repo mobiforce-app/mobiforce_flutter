@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -13,12 +14,15 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class TaskRemoteDataSources{
+  Future<int> newTaskPicture();
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
   Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
+  Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
+
 }
 
 class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
@@ -40,9 +44,20 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   {
     return await db.getNextStatuses(id);
   }
+
+  @override
+  Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId}) async
+  {
+    int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
+    return FileModel(id: id);
+  }
   @override
   Future<TaskModel> getTask(int id) async{
     return await db.getTask(id);
+  }
+  @override
+  Future<int> newTaskPicture() async{
+    return await db.newFileRecord();
   }
   @override
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution}) async{

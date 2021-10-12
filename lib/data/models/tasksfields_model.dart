@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
@@ -10,7 +11,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 class TasksFieldsModel extends TasksFieldsEntity
 {
 
-  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,tab, tabServerId, updateByToken}): super(
+  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,fileValueList,tab, tabServerId, updateByToken}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -24,6 +25,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       boolValue:boolValue,
       doubleValue:doubleValue,
       stringValue:stringValue,
+      fileValueList:fileValueList,
       tabServerId:tabServerId,
       tab:tab,
       updateByToken:updateByToken,
@@ -149,7 +151,8 @@ class TasksFieldsModel extends TasksFieldsEntity
         selectionValue: selectionValue,
         doubleValue:doubleValue,
         stringValue:stringValue,
-        boolValue:boolValue
+        boolValue:boolValue,
+        fileValueList:<FileModel>[]
        // type: tft,
        // name: map['name']
     );
