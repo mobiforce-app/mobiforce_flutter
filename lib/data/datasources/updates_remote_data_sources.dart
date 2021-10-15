@@ -14,6 +14,7 @@ abstract class UpdatesRemoteDataSources{
  // Future
   Future<SyncModel>getDataList({required String domain, required String accessToken, required int lastSyncTime, required int lastUpdateCount,required String objectType,required List<dynamic> Function(dynamic) mapObjects });
   Future<int> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic> mapObjects });
+  Future<int> sendFile({required String domain, required String accessToken, required String filename, required int localId });
 }
 
 class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
@@ -27,6 +28,31 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
  // Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
 
 
+  @override
+  Future<int> sendFile({required String domain, required String accessToken, required String filename, required int localId })
+  async {
+    var request = http.MultipartRequest('POST', Uri.parse("https://$domain/api2.0/send-file.php"));
+    request.files.add(
+        http.MultipartFile(
+            'file',
+            File(filename).readAsBytes().asStream(),
+            File(filename).lengthSync(),
+            filename: filename.split("/").last
+        )
+    );
+    request.fields['localId'] = "$localId";
+    request.headers["Content-Type"]="application/json";
+    request.headers[HttpHeaders.authorizationHeader]="key=\"$accessToken\"";
+    http.Response response = await http.Response.fromStream(await request.send());
+    //return 0;
+    print("body js: ${response.body}");
+    final js = json.decode(response.body);
+    print("body js: ${js.toString()}");
+    if(js["result"]?["id"]!=null&&js["result"]?["id"]>0)
+      return js["result"]?["id"]  ;
+    return 0;
+
+  }
   @override
   Future<int> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic>? mapObjects })
   async{

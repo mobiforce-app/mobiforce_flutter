@@ -49,7 +49,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId}) async
   {
     int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
-    return FileModel(id: id);
+    return FileModel(id: id, usn:0);
   }
   @override
   Future<TaskModel> getTask(int id) async{

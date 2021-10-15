@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
@@ -15,6 +16,7 @@ import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
+import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -383,8 +385,32 @@ class DBProvider {
         "t2.id as value_id "
         "FROM $taskFieldTable as t1 LEFT JOIN $taskSelectionValuesTable as t2 ON t1.id = t2.task_field ORDER BY t1.id DESC",[]);
     final Map<int, dynamic> tasksFieldsSelectionValuesMap = reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList);
+    List<TasksFieldsModel> tasksFieldsUpdates=[];
+    await Future.forEach(tasksFieldsMapList,(Map<String,dynamic> field) async {
+      final TasksFieldsModel tf = TasksFieldsModel.fromMap(field,tasksFieldsSelectionValuesMap);
+      if(tf.taskField?.type.value==TaskFieldTypeEnum.picture){
+        final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
+            "t1.id as field_id, "
+            "t2.external_id as field_external_id, "
+            "t3.id as id, "
+            "t3.link_object as link_object,"
+            "t3.usn as usn, "
+            "t3.link_object_type as link_object_type,"
+            "t3.name as name, "
+            "t3.external_id as external_id, "
+            "t3.description as description "
+            "FROM $tasksFieldsTable as t1 "
+            "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
+            "LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
+            "WHERE t1.id = ? and t3.link_object_type = ? AND t3.id IS NOT NULL ORDER BY t1.id DESC",[tf.id, 1]);
+        print("image files: ${tf.id} ${tasksFieldsFilesMapList.toString()}");
+        tf.fileValueList=tasksFieldsFilesMapList.map((files) => FileModel.fromMap(files)).toList();
+      }
 
-    return tasksFieldsMapList.map((field) => TasksFieldsModel.fromMap(field,tasksFieldsSelectionValuesMap)).toList();
+
+      tasksFieldsUpdates.add(tf);
+    });
+    return tasksFieldsUpdates;
   }
 
   Future<int> addPictureToTaskField({required int taskFieldId,required int pictureId}) async{
@@ -401,6 +427,8 @@ class DBProvider {
       };
       print("to base ${map.toString()}, id: $pictureId");
       await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
+      usn = await getUSN();
+      await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [taskFieldId]);
       return pictureId;
     }
     catch(e){
@@ -439,6 +467,28 @@ class DBProvider {
         //"ON t1.resolution = t4.id "
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
     return tasksStatusesMapList.map((taskstatus) => TasksStatusesModel.fromMap(taskstatus)).toList();
+  }
+  Future<List<FileModel>> readFilesUpdates(int localFileUSN) async{
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
+        //"t2.id as field_id, "
+        //"t2.external_id as field_external_id, "
+        "t1.id as id, "
+        "t1.name as name, "
+        "t1.usn as usn, "
+        "t1.external_id as external_id, "
+        "t1.link_object as link_object,"
+        "t1.link_object_type as link_object_type,"
+        "t1.description as description "
+        "FROM $fileTable as t1 "
+        //"LEFT JOIN $tasksFieldsTable as t2 ON t1.link_object = t2.id "
+        //"LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
+        "WHERE t1.usn > ? ORDER BY t1.usn ASC",[localFileUSN]);
+
+    print("image files localFileUSN> ${localFileUSN} ${tasksFieldsFilesMapList.toString()}");
+
+    //tf.fileValueList=tasksFieldsFilesMapList.map((files) => FileModel.fromMap(files)).toList();
+    return tasksFieldsFilesMapList.map((taskfile) => FileModel.fromMap(taskfile)).toList();
   }
   Map<int, dynamic> reMapTasksFieldsSelectionValues(List<Map<String, dynamic>> tasksFieldsSelectionValuesMap) {
     int fieldId=0;
@@ -556,6 +606,9 @@ class DBProvider {
       "t3.id as id, "
       "t3.name as name, "
       "t3.external_id as external_id, "
+      "t3.link_object as link_object,"
+      "t3.usn as usn, "
+      "t3.link_object_type as link_object_type,"
       "t3.description as description "
       "FROM $tasksFieldsTable as t1 "
       "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
@@ -918,11 +971,12 @@ class DBProvider {
   }
   Future<bool> setTasksStatusServerID(int id, int serverId) async{
     Database db = await this.database;
-
-    //int phoneId = await getTemplateIdByServerId(phone.serverId);
-    //if(phoneId!=0)
     await db.update(tasksStatusesTable, {"external_id":serverId}, where: 'id =?', whereArgs: [id]);
-    //phone.id=phoneId;
+    return true;
+  }
+  Future<bool> setFileServerID(int id, int serverId) async{
+    Database db = await this.database;
+    await db.update(fileTable, {"external_id":serverId}, where: 'id =?', whereArgs: [id]);
     return true;
   }
   Future<PhoneModel> insertPhone(PhoneModel phone) async{

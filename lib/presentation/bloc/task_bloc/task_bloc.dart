@@ -145,6 +145,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           print("picture + ${event.fieldId} ${element.id}");
         });
+        syncToServer(ListSyncToServerParams());
         return TaskLoaded(isChanged:true, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path);
       });
       print("picture OK! 2!");

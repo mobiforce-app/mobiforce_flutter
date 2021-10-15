@@ -10,7 +10,7 @@ abstract class SyncRepository{
   ///Future<Either<Failure, List<SyncEntity>>>searchTask(String query);
 
   Future<Either<Failure, SyncEntity>>getUpdates();
-  Future<Either<Failure, SyncEntity>>sendUpdates(DBProvider db);
+  Future<Either<Failure, int>>sendUpdates(DBProvider db);
   bool isFullSyncStarted();
   Future<bool>setComplete();
   Future<bool>commit();

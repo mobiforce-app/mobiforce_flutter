@@ -24,16 +24,26 @@ class SyncToServer extends UseCase<SyncStatusEntity, ListSyncToServerParams>{
     //return await syncRepository.getUpdates();
     //return await syncRepository.getUpdates();
     //db.readUpdate
-    final faiureOrLoading = await syncRepository.sendUpdates(db);
-    return faiureOrLoading.fold((failure){
-      //print ("*")
-      return Left(failure);
-    }, (sync) async{
-      return Right(SyncStatusModel(progress: 0,
-          complete: true,
-          dataLength: 0,
-          syncPhase: SyncPhase.normal));
-    });
+    bool cycle=true;
+    while(cycle) {
+
+      final faiureOrLoading = await syncRepository.sendUpdates(db);
+      cycle =  faiureOrLoading.fold((failure) {
+        //print ("*")
+        //return Left(failure);
+        return false;
+      }, (sync) {
+        if(sync==0)
+          return false;
+        return true;
+      });
+      print("cycle: $cycle");
+    }
+
+    return Right(SyncStatusModel(progress: 0,
+        complete: true,
+        dataLength: 0,
+        syncPhase: SyncPhase.normal));
 
   }
 }

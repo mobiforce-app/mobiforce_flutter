@@ -7,12 +7,12 @@ class FileEntity{
   //int? systemStatusId;
   String? name;
   String? description;
-  int? usn;
+  int usn;
   dynamic? parent;
   //
   FileEntity({
       required this.id,
-      this.usn,
+      required this.usn,
       this.serverId,
       this.name,
       this.description,

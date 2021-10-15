@@ -26,7 +26,7 @@ class FileModel extends FileEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  FileModel({required id,usn,serverId,name, description, parent}): super(
+  FileModel({required id, required usn,serverId,name, description, parent}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -64,8 +64,8 @@ class FileModel extends FileEntity
    // externalId = map['externalId'];
    // name = map['name'];
     dynamic? parent = null;
-    if(map['field_id']!=null)
-      parent=TasksFieldsModel(id: map['field_id'], usn: 0, serverId: map['field_external_id']);
+    if(map['link_object_type']==1)
+      parent=TasksFieldsModel(id: map['link_object'], usn: 0, serverId: map['field_external_id']??0);
     return FileModel(
         id: map['id'],
         usn: map['usn'],
