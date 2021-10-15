@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_comment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 
@@ -37,8 +39,9 @@ class TaskLoaded extends TaskState{
   final bool isChanged;
   final String appFilesDirectory;
   final List<TaskStatusEntity>? nextTaskStatuses;
+  final List<TaskCommentEntity>? comments;
 
-  TaskLoaded({required this.task, required this.isChanged,this.nextTaskStatuses,required this.appFilesDirectory});
+  TaskLoaded({required this.task, required this.isChanged,this.nextTaskStatuses,required this.appFilesDirectory,this.comments});
 
   @override
   List<Object> get props => [isChanged];

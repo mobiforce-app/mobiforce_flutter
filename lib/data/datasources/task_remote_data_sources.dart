@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -19,6 +20,7 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
   Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
+  Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
@@ -50,6 +52,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   {
     int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
     return FileModel(id: id, usn:0);
+  }
+  @override
+  Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async
+  {
+    return await db.getCommentList(task:task,page:page);
+    //return
+      ;//FileModel(id: id, usn:0);
   }
   @override
   Future<TaskModel> getTask(int id) async{

@@ -49,14 +49,14 @@ class ChangeTextFieldValue extends TaskEvent
   final String value;
   ChangeTextFieldValue({required this.fieldId, required this.value});
 }
-/*
-class Wait10Sec extends TaskListEvent
+
+class ShowTaskComment extends TaskEvent
 {
   //final int page;
 
-  Wait10Sec();
+  ShowTaskComment();
 }
-
+/*
 class SetEmptyList extends TaskListEvent
 {
   //final int page;

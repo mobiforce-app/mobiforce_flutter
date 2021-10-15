@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
@@ -75,6 +77,9 @@ class TasksList extends StatelessWidget {
               }
               else if (state is TaskListLoaded) {
                 tasks = state.tasksList;
+                print("state.tasksList");
+                BlocProvider.of<TaskBloc>(context)
+                  ..add(ShowTaskComment());
               }
               else if (state is TaskListError) {
                 return _showErrorText(state.message);

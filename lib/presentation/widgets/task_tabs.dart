@@ -57,7 +57,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
           ),
           //,_buildDraggableScrollableSheet()]),
           floatingActionButtonLocation:FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: !widget.keyboardVisible?SingleChildScrollView(
+          floatingActionButton: !widget.keyboardVisible&&(_tabController.index!=2)?SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -66,6 +66,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
                 ///crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround ,
                 children: [
+                  Text("${_tabController.index}"),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: widget.floatButton.length>1?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
@@ -102,11 +103,18 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
   void _onTabChanged() {
     print("_tabController.index: ${_tabController.index}");
     FocusScope.of(context).requestFocus(new FocusNode());
+    setState(() {
+      
+    });
     switch (_tabController.index) {
       case 0:
       // handle 0 position
         break;
-      case 1:
+      case 2:
+        print("comments page");
+        BlocProvider.of<TaskBloc>(context).add(
+          ShowTaskComment(),
+        );
       // handle 1 position
         break;
     }

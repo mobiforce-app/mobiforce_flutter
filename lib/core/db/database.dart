@@ -9,6 +9,7 @@ import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
+import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
@@ -42,6 +43,7 @@ class DBProvider {
   String taskSelectionValuesTable="taskselectionvalue";
   String taskSelectionValuesRelationTable="taskselectionvaluerelation";
   String taskStatusTable="taskstatus";
+  String taskCommentTable="taskcomment";
   String tasksStatusesTable="tasksstatuses";
   String taskLifeCycleTable="tasklifecycletable";
   String tasksFieldsTable="tasksfields";
@@ -104,6 +106,17 @@ class DBProvider {
             'usn INTEGER, '
             'name TEXT, '
             'description TEXT)');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $taskCommentTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'task INTEGER, '
+            'author INTEGER, '
+            'deleted INTEGER, '
+            'usn INTEGER, '
+            'created_at INTEGER,'
+            'message TEXT)');
 
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $usnCountersTable ('
@@ -330,6 +343,7 @@ class DBProvider {
     print("DROP");
     await db.execute('DROP TABLE IF EXISTS $fileTable');
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
+    await db.execute('DROP TABLE IF EXISTS $taskCommentTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionGroup2ResolutionRelationTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionGroupTable');
@@ -644,6 +658,20 @@ class DBProvider {
     //final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     return taskStatusesList;//TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first);
   }
+  Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> taskCommentMapList = await db.rawQuery("SELECT t1.id, t1.usn, t1.external_id, t1.created_at, t1.message, t2.id as author_id, t2.name as author_name "
+        "FROM $taskCommentTable as t1 "
+        "LEFT JOIN $employeeTable as t2 ON t1.author=t2.id "
+        ""
+        "WHERE t1.task=?",[task]);
+    return taskCommentMapList.map((map) => TaskCommentModel.fromMap(map)).toList();
+
+
+
+//    task:TaskModel.fromMap(taskMap: {"external_id":map['task_external_id']??0,"id":map['task_id']}, statusMap: null),
+
+  }
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
     print("limit $limit, offset $page");
@@ -881,6 +909,19 @@ class DBProvider {
     tasksStatuses.id=id;
     return tasksStatuses;
   }
+  Future<TaskCommentModel> insertTaskComment(TaskCommentModel tasksComment) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      print('${tasksComment.toMap().toString()}');
+      id=await db.insert(taskCommentTable, tasksComment.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    tasksComment.id=id;
+    return tasksComment;
+  }
   Future<int> addStatusToTask({required TasksStatusesModel ts,int? resolution, required  bool update_usn}) async {
     Database db = await this.database;
     int id=0;
@@ -942,6 +983,21 @@ class DBProvider {
     template.id=templateId;
     return template;
   }
+  Future<TaskCommentModel> updateTaskCommntByServerId(TaskCommentModel comment) async{
+    Database db = await this.database;
+
+    int templateId = await getCommentIdByServerId(comment.serverId);
+    if(templateId!=0)
+      await db.update(taskCommentTable, comment.toMap(), where: 'id =?', whereArgs: [templateId]);
+    comment.id=templateId;
+    return comment;
+  }
+  Future<int> getCommentIdByServerId(int? serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> phoneMapList = await db.query(taskCommentTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return phoneMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
   Future<TemplateModel> insertTemplate(TemplateModel template) async{
     Database db = await this.database;
     int id=0;

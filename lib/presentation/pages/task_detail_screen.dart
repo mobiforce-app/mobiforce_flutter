@@ -516,6 +516,54 @@ class TaskDetailPage extends StatelessWidget {
               _kTabPages[1].add(SizedBox(
                 height: 80,
               ),);
+              if(state.comments!=null){
+                print("${state.comments}");
+                /*state.comments!.forEach((element) {
+                  _kTabPages[2].add(SizedBox(
+                    height: 8,
+                  ));
+                  _kTabPages[2].add(
+                    Text("${element.message}|${element.author.name}")
+                  );
+                });*/
+                _kTabPages[2].add(
+                    ListView.separated(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+
+                  //physics: BouncingScrollPhysics (),
+                    //controller: scrollController,
+                    itemBuilder: (context, index) {
+                      /*if (index < tasks.length)
+                        return TaskCard(task: tasks[index]);
+                      else
+                        return _loadingIndicator();*/
+                      final String formatted = state.comments?[index].createdTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.comments![index].createdTime))):"без даты";
+                      //final String formatted = formatter.format(state.comments![index].createdTime);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("${state.comments![index].message}"),
+                          Text("${state.comments![index].author.name}, ${formatted}")
+                        ],
+                      );
+                      return Text("${state.comments![index].message}|${state.comments![index].author.name}");
+                    },
+                    separatorBuilder: (context, index) {
+                      return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Divider(height: 1,
+                            color: Colors.grey,
+                            thickness: 1,)
+                      );
+                    },
+                    itemCount: state.comments!.length
+
+                  )
+
+                );
+              }
+
               final _kTabs=<Tab>[
                 const Tab(text:"Основное"),
                 const Tab(text:"Отчет"),

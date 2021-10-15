@@ -14,6 +14,7 @@ import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_model.dart';
 import 'package:mobiforce_flutter/data/models/sync_status_model.dart';
+import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
@@ -41,7 +42,7 @@ class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["taskstatus","taskfield","tasklifecycle","task","resolution"];
+  final List<String> objectsType=["taskstatus","taskfield","tasklifecycle","task","resolution","taskcomment"];
   final List<int> objectsTypeLastUpdateId=[];
   int syncObjectsTypeId=0;
 
@@ -247,6 +248,10 @@ class SyncRepositoryImpl implements SyncRepository{
       if(objectsType[syncObjectsTypeId]=="taskfield"){
         print ("type = taskfield");
         return ((json as List).map((obj) => TaskFieldModel.fromJson(obj)).toList());
+      }
+      if(objectsType[syncObjectsTypeId]=="taskcomment"){
+        print ("type = taskcomment");
+        return ((json as List).map((obj) => TaskCommentModel.fromJson(obj)).toList());
       }
 
       return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());

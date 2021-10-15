@@ -17,6 +17,7 @@ import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_tasks_comments.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
@@ -39,6 +40,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final SetTaskStatus setTaskStatus;
   final SetTaskFieldSelectionValue setTaskFieldSelectionValue;
   final SyncToServer syncToServer;
+  final GetTaskComments getTaskComments;
   //final ModelImpl m;
   //final WaitDealys10 wait10;
 
@@ -54,6 +56,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.nextTaskStatusesReader,
     required this.getPictureFromCamera,
     required this.setTaskStatus,
+    required this.getTaskComments,
     required this.setTaskFieldSelectionValue,
     required this.syncToServer}) : super(TaskEmpty()) {
 
@@ -69,6 +72,25 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   @override
   Stream<TaskState> mapEventToState(TaskEvent event) async* {
     print("tasklist bloc map event " + event.toString());
+    if (event is ShowTaskComment){
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      //yield StartLoadingTaskPage();
+      final FoL = await getTaskComments(
+          GetTaskCommentsParams
+            (task: task.id, page: 0));
+      //await await Future.delayed(Duration(seconds: 2));
+      yield FoL.fold((failure) =>TaskError(message:"bad"), (comments) {
+        return TaskLoaded(isChanged: isChanged,
+            task: task,
+            nextTaskStatuses: nextTaskStatuses,
+            appFilesDirectory: dir,
+            comments:comments,
+        );
+      });
+    }
     if (event is ChangeSelectionFieldValue) {
       //getTask.
       final task = (state as TaskLoaded).task;

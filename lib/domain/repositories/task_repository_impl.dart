@@ -6,8 +6,10 @@ import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_comment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
@@ -53,6 +55,17 @@ class TaskRepositoryImpl implements TaskRepository{
   @override
   Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {
    return await _getTasks(()=> remoteDataSources.getAllTask(page));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, List<TaskCommentEntity>>>getAllTaskComments(int task, int page) async {
+
+    return Right(await remoteDataSources.getCommentList(task:task,page:page));
+    //return Right([TaskCommentModel(id: 0, usn: 0, task: task, createdTime: 0, dirty: 0, serverId: 0)]);
+//  Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {
+   //return await _getTasks(()=> remoteDataSources.getAllTask(page));
     //return Right(_r);
     //throw UnimplementedError();
   }

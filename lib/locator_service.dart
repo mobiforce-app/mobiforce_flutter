@@ -40,6 +40,7 @@ import 'domain/repositories/firebase.dart';
 import 'domain/repositories/picture_repository.dart';
 import 'domain/repositories/task_repository_impl.dart';
 import 'domain/usecases/get_task_status_graph.dart';
+import 'domain/usecases/get_tasks_comments.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
@@ -55,7 +56,16 @@ Future<void>init() async
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
   sl.registerFactory(() => SyncBloc(m:sl()));
-  sl.registerFactory(() => TaskBloc(taskReader:sl(),nextTaskStatusesReader: sl(),setTaskStatus: sl(),setTaskFieldSelectionValue:sl(),syncToServer: sl(),getPictureFromCamera:sl()));
+  sl.registerFactory(() => TaskBloc(
+      taskReader:sl(),
+      nextTaskStatusesReader: sl(),
+      setTaskStatus: sl(),
+      getTaskComments: sl(),
+      setTaskFieldSelectionValue:sl(),
+      syncToServer: sl(),
+      getPictureFromCamera:sl()),
+
+  );
   sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService(m:sl()));
 
 
@@ -64,6 +74,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
+  sl.registerLazySingleton(() => GetTaskComments(sl()));
   sl.registerLazySingleton(() => SetTaskStatus(sl()));
   sl.registerLazySingleton(() => SetTaskFieldSelectionValue(sl()));
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
