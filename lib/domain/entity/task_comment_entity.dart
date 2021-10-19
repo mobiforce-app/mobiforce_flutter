@@ -14,7 +14,7 @@ class TaskCommentEntity{
   String? message;
   int usn;
   bool dirty;
-  EmployeeModel author;
+  EmployeeModel? author;
 
   TaskCommentEntity({
     required this.id,
@@ -26,7 +26,7 @@ class TaskCommentEntity{
     required this.dirty,
     required this.serverId,
     this.message,
-    required this.author
+    this.author
   });
   fromMap(Map<String, dynamic> map)
   {

@@ -39,6 +39,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'domain/repositories/firebase.dart';
 import 'domain/repositories/picture_repository.dart';
 import 'domain/repositories/task_repository_impl.dart';
+import 'domain/usecases/add_task_comment.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
 import 'domain/usecases/search_task.dart';
@@ -63,7 +64,8 @@ Future<void>init() async
       getTaskComments: sl(),
       setTaskFieldSelectionValue:sl(),
       syncToServer: sl(),
-      getPictureFromCamera:sl()),
+      getPictureFromCamera:sl(),
+      addTaskComment:sl()),
 
   );
   sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService(m:sl()));
@@ -72,6 +74,7 @@ Future<void>init() async
   //usecases
   sl.registerLazySingleton(() => GetPictureFromCamera(taskRepository: sl(), fileRepository: sl()));
   sl.registerLazySingleton(() => SearchTask(sl()));
+  sl.registerLazySingleton(() => AddTaskComment(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
   sl.registerLazySingleton(() => GetTaskComments(sl()));

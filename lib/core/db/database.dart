@@ -664,7 +664,7 @@ class DBProvider {
         "FROM $taskCommentTable as t1 "
         "LEFT JOIN $employeeTable as t2 ON t1.author=t2.id "
         ""
-        "WHERE t1.task=?",[task]);
+        "WHERE t1.task=? ORDER BY t1.id DESC",[task]);
     return taskCommentMapList.map((map) => TaskCommentModel.fromMap(map)).toList();
 
 

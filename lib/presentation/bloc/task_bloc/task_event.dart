@@ -49,6 +49,12 @@ class ChangeTextFieldValue extends TaskEvent
   final String value;
   ChangeTextFieldValue({required this.fieldId, required this.value});
 }
+class AddComment extends TaskEvent
+{
+  //final int fieldId;
+  final String value;
+  AddComment({required this.value});
+}
 
 class ShowTaskComment extends TaskEvent
 {

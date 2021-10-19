@@ -20,7 +20,7 @@ class TaskCommentModel extends TaskCommentEntity
     lat,
     lon,
     required dirty,
-    required serverId,
+    serverId,
     message,
     author,
   }): super(
@@ -40,10 +40,12 @@ class TaskCommentModel extends TaskCommentEntity
     final map=Map<String, dynamic>();
 
     map['usn'] = usn;
-    map['external_id'] = serverId;
+    if(serverId!=null)
+      map['external_id'] = serverId;
     map['created_at'] = createdTime;
     map['message'] = message;
-    map["author"] = author.id;
+    if(author!=null)
+      map["author"] = author?.id;
     map["task"] = task.id;
     //map['element_id'] = elementLocalId;
     //map['task_field'] = taskFieldId;
@@ -63,9 +65,9 @@ class TaskCommentModel extends TaskCommentEntity
   Future<int> insertToDB(DBProvider db) async {
     print('getTaskByServerName: ${task.serverId}');
     task.id = await db.getTaskIdByServerId(task.serverId);
-    print('author: ${author.serverId}');
-    author.id = await author.insertToDB(db);
-    print('author: ${author.id}');
+    print('author: ${author?.serverId}');
+    author?.id = await author!.insertToDB(db);
+    print('author: ${author?.id}');
 
     TaskCommentModel comment = await db.insertTaskComment(this);
     print ("db id == ${comment.id}");

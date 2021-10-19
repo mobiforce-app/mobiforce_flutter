@@ -24,7 +24,7 @@ abstract class TaskRemoteDataSources{
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
-
+  Future<List<TaskCommentModel>> addTaskComment({required TaskCommentModel comment});
 }
 
 class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
@@ -57,6 +57,15 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async
   {
     return await db.getCommentList(task:task,page:page);
+    //return
+      ;//FileModel(id: id, usn:0);
+  }
+  @override
+  Future<List<TaskCommentModel>> addTaskComment({required TaskCommentModel comment}) async
+  {
+    print("insert comment to base");
+    await db.insertTaskComment(comment);
+    return await db.getCommentList(task:comment.task.id,page:0);
     //return
       ;//FileModel(id: id, usn:0);
   }

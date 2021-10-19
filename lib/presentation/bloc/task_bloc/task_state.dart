@@ -39,9 +39,9 @@ class TaskLoaded extends TaskState{
   final bool isChanged;
   final String appFilesDirectory;
   final List<TaskStatusEntity>? nextTaskStatuses;
-  final List<TaskCommentEntity>? comments;
+  final List<TaskCommentEntity> comments;
 
-  TaskLoaded({required this.task, required this.isChanged,this.nextTaskStatuses,required this.appFilesDirectory,this.comments});
+  TaskLoaded({required this.task, required this.isChanged,this.nextTaskStatuses,required this.appFilesDirectory,required this.comments});
 
   @override
   List<Object> get props => [isChanged];

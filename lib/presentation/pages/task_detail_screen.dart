@@ -8,6 +8,7 @@ import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+import 'package:mobiforce_flutter/presentation/widgets/comment_input_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
 import 'package:url_launcher/link.dart';
@@ -516,7 +517,8 @@ class TaskDetailPage extends StatelessWidget {
               _kTabPages[1].add(SizedBox(
                 height: 80,
               ),);
-              if(state.comments!=null){
+              //if(state.comments!=null)
+              {
                 print("${state.comments}");
                 /*state.comments!.forEach((element) {
                   _kTabPages[2].add(SizedBox(
@@ -527,41 +529,76 @@ class TaskDetailPage extends StatelessWidget {
                   );
                 });*/
                 _kTabPages[2].add(
+                   // Expanded(
+                   //   child:
+                      Column(
+
+
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                        Expanded(
+                          child:
+                          ListView.separated(
+                            reverse: true,
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              final String formatted = state.comments[index].createdTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.comments[index].createdTime))):"без даты";
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("${state.comments[index].message}"),
+                                    Text("${state.comments[index].author?.name}, ${formatted}",style: TextStyle(color: Colors.grey), )
+                                  ],
+                                ),
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Divider(height: 1,
+                                    color: Colors.grey,
+                                    thickness: 1,)
+                              );
+                            },
+                            itemCount: state.comments.length
+                        ),
+                        ),
+                    //Expanded(
+                      //child:
+                          CommentInput(val:""),
+                    //)
+                  ])
+                );
+                /*_kTabPages[2].add(
                     ListView.separated(
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
-
-                  //physics: BouncingScrollPhysics (),
-                    //controller: scrollController,
-                    itemBuilder: (context, index) {
-                      /*if (index < tasks.length)
-                        return TaskCard(task: tasks[index]);
-                      else
-                        return _loadingIndicator();*/
-                      final String formatted = state.comments?[index].createdTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.comments![index].createdTime))):"без даты";
-                      //final String formatted = formatter.format(state.comments![index].createdTime);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("${state.comments![index].message}"),
-                          Text("${state.comments![index].author.name}, ${formatted}")
-                        ],
-                      );
-                      return Text("${state.comments![index].message}|${state.comments![index].author.name}");
-                    },
-                    separatorBuilder: (context, index) {
-                      return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Divider(height: 1,
-                            color: Colors.grey,
-                            thickness: 1,)
-                      );
-                    },
-                    itemCount: state.comments!.length
-
+                        itemBuilder: (context, index) {
+                          final String formatted = state.comments?[index].createdTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.comments![index].createdTime))):"без даты";
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("${state.comments![index].message}"),
+                              Text("${state.comments![index].author.name}, ${formatted}")
+                            ],
+                          );
+                      },
+                      separatorBuilder: (context, index) {
+                        return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Divider(height: 1,
+                              color: Colors.grey,
+                              thickness: 1,)
+                        );
+                      },
+                      itemCount: state.comments!.length
                   )
-
-                );
+                );*/
               }
 
               final _kTabs=<Tab>[
@@ -588,15 +625,16 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                   ),
                 ),
-                SingleChildScrollView(
-                  child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _kTabPages[2]
-                  ),
-                  ),
-                ),
+                // SingleChildScrollView(
+                //   child: Padding(
+                //   padding: EdgeInsets.all(8.0),
+                //   child: Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children:
+                    _kTabPages[2][0]
+                  // ),
+                  // ),
+                // ),
               ];
               List<Widget> floatButton=[
                 Text("${state.task.status?.name}",
