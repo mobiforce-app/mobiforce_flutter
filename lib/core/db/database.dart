@@ -482,6 +482,22 @@ class DBProvider {
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
     return tasksStatusesMapList.map((taskstatus) => TasksStatusesModel.fromMap(taskstatus)).toList();
   }
+  Future<List<TaskCommentModel>> readTaskCommentsUpdates(int localUSN) async{
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksCommentsMapList = await db.rawQuery(""
+        "SELECT t1.*, t2.id as task_id, t2.external_id as task_external_id "
+        //"t4.external_id as resolution_external_id,t4.id as resolution_id,t4.name as resolution_name, "
+        //"t2.name as taskstatus_name, t2.color as taskstatus_color, t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t3.external_id as task_external_id, t3.id as task_id "
+        "FROM $taskCommentTable as t1 "
+        "LEFT JOIN $tasksTable as t2 "
+        "ON t1.task = t2.id "
+        //"LEFT JOIN $tasksTable as t3 "
+        //"ON t1.task = t3.id "
+        //"LEFT JOIN $resolutionTable as t4 "
+        //"ON t1.resolution = t4.id "
+        "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
+    return tasksCommentsMapList.map((taskcomment) => TaskCommentModel.fromMap(taskcomment)).toList();
+  }
   Future<List<FileModel>> readFilesUpdates(int localFileUSN) async{
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
@@ -660,9 +676,21 @@ class DBProvider {
   }
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async {
     Database db = await this.database;
-    final List<Map<String,dynamic>> taskCommentMapList = await db.rawQuery("SELECT t1.id, t1.usn, t1.external_id, t1.created_at, t1.message, t2.id as author_id, t2.name as author_name "
+    final List<Map<String,dynamic>> taskCommentMapList = await db.rawQuery("SELECT "
+        "t1.id, "
+        "t1.usn, "
+        "t1.external_id, "
+        "t1.created_at, "
+        "t1.message, "
+        "t2.id as author_id, "
+        "t2.name as author_name, "
+        "t3.id as task_id, "
+        "t3.external_id as task_external_id "
         "FROM $taskCommentTable as t1 "
-        "LEFT JOIN $employeeTable as t2 ON t1.author=t2.id "
+        "LEFT JOIN $employeeTable as t2 "
+        "ON t1.author=t2.id "
+        "LEFT JOIN $tasksTable as t3 "
+        "ON t1.task = t3.id "
         ""
         "WHERE t1.task=? ORDER BY t1.id DESC",[task]);
     return taskCommentMapList.map((map) => TaskCommentModel.fromMap(map)).toList();

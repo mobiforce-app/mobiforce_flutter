@@ -23,6 +23,7 @@ import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/task_comment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
@@ -100,11 +101,13 @@ class SyncRepositoryImpl implements SyncRepository{
     int sendObjects=0;
     List<TasksFieldsEntity> tasksFiedls = await db.readTasksFieldsUpdates(localUSN);
     List<TasksStatusesEntity> tasksStatuses = await db.readTaskStatusUpdates(localUSN);
+    List<TaskCommentEntity> tasksComments = await db.readTaskCommentsUpdates(localUSN);
     //List<TasksStatusesEntity> Files = await db.readFilesUpdates(localUSN);
     print("!!! ${tasksStatuses.length} ${tasksFiedls.length}");
     List<QueueToSync> all=[];
     tasksFiedls.forEach((element) {all.add(QueueToSync(type: "taskfield", usn:element.usn, object:element)); });
     tasksStatuses.forEach((element) {all.add(QueueToSync(type: "taskstatus", usn:element.usn, object:element)); });
+    tasksComments.forEach((element) {all.add(QueueToSync(type: "comment", usn:element.usn, object:element)); });
     if(all.length==0){
       List<FileModel> files = await db.readFilesUpdates(localFileUSN);
       //files.forEach((element) {all.add(QueueToSync(type: "file", usn:element.usn, object:element)); });
@@ -192,6 +195,24 @@ class SyncRepositoryImpl implements SyncRepository{
               mapObjects: send
           );
           print("${serverId} OK");
+        }
+        else if (element.type == "comment") {
+          final Map<String, dynamic> send = {
+            "id": element.object.task.id,
+            "task": element.object.task.serverId,
+            "message": element.object.message,
+            "createdTime": element.object.createdTime
+          };
+          print("send: $send");
+          int serverId = await updatesRemoteDataSources.sendUpdate(
+              domain: domain,
+              accessToken: accessToken,
+              objectType: "comment",
+              mapObjects: send
+          );
+          if (serverId > 0)
+            db.setTasksStatusServerID(element.object.id, serverId);
+          print("Status id: ${element.object.id}/${serverId} OK");
         }
         else if (element.type == "taskstatus") {
           //final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};

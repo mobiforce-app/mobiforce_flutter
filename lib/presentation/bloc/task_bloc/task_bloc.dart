@@ -263,6 +263,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final isChanged=!(state as TaskLoaded).isChanged;
       //yield StartLoadingTaskPage();
       yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comments) {
+        syncToServer(ListSyncToServerParams());
         return TaskLoaded(isChanged: isChanged,
           task: task,
           nextTaskStatuses: nextTaskStatuses,

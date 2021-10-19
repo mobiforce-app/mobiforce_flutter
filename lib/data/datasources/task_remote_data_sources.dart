@@ -64,6 +64,8 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<List<TaskCommentModel>> addTaskComment({required TaskCommentModel comment}) async
   {
     print("insert comment to base");
+    //int usn = await db.getUSN();
+    comment.usn = await db.getUSN();
     await db.insertTaskComment(comment);
     return await db.getCommentList(task:comment.task.id,page:0);
     //return

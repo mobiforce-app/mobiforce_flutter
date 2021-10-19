@@ -80,42 +80,7 @@ class TaskCommentModel extends TaskCommentEntity
   }
   factory TaskCommentModel.fromMap(Map<String, dynamic> map)
   {
-   // id = map['id'];
-   // externalId = map['externalId'];
-   // name = map['name'];
-    /*TaskFieldType tft;
-    switch(map["type"]){
-      case 1: tft=TaskFieldType.text; break;
-      case 2: tft=TaskFieldType.number; break;
-      case 3: tft=TaskFieldType.checkbox; break;
-      case 4: tft=TaskFieldType.group; break;
-      case 5: tft=TaskFieldType.optionlist; break;
-      case 6: tft=TaskFieldType.picture; break;
-      default: tft=TaskFieldType.undefined;
-    }*//*
-    Map<String, dynamic> taskFieldMap={
-      'id':map['field_id'],
-      'name':map['field_name'],
-      'external_id':map['field_external_id'],
-      'usn':map['field_usn'],
-      'type':map['field_type'],
-    };
 
-    final taskField=TaskFieldModel.fromMap(taskFieldMap,mapListValues[taskFieldMap["id"]]);
-    print("TasksFieldsModel ${map.toString()}");
-    var selectionValue = null;
-    if(map['task_selection_value_id']!=null)
-      selectionValue= SelectionValueModel.fromMap(
-          {"sorting":0,
-            "external_id":map['task_selection_value_external_id'],
-            "id":map['task_selection_value_id'],
-            "name":map['task_selection_value_name'],
-          });
-    print("map['value'] ${map['value']} ${taskField.type.value}");
-    double? doubleValue=(taskField.type.value==TaskFieldTypeEnum.number&&map['value']!=null?double.tryParse(map['value']):null);
-    String? stringValue=(taskField.type.value==TaskFieldTypeEnum.text?map['value']:null);
-    bool? boolValue=(taskField.type.value==TaskFieldTypeEnum.checkbox&&map['value']=="1"?true:false);
-*/
     print("TaskCommentModelMAP: $map");
     return TaskCommentModel(
         id: map['id'],
@@ -130,7 +95,7 @@ class TaskCommentModel extends TaskCommentEntity
         //sort: map['sort'],
         //tab:map['tasks_fields_tab'],
         //taskField:taskField,
-        task:TaskModel(id: 0, serverId: 0),//nullTaskModel.fromMap(taskMap: {"external_id":0,"id":0}, statusMap: null),
+        task:TaskModel(id: map['task_id'], serverId: map['task_external_id']),//nullTaskModel.fromMap(taskMap: {"external_id":0,"id":0}, statusMap: null),
         //selectionValue: selectionValue,
         //doubleValue:doubleValue,
         //stringValue:stringValue,
@@ -159,7 +124,7 @@ class TaskCommentModel extends TaskCommentEntity
     //print("TasksFieldsModel = ${json.toString()}|${taskField}");
     return TaskCommentModel(
       id: 0,
-      usn: json["usn"]??0,
+      usn: 0,
       //updateByToken: int.parse(json["id"]??"0"),
       serverId: int.parse(json["id"]??"0"),
       createdTime: int.parse(json['createdTime']??"0"),
