@@ -107,12 +107,12 @@ class SyncRepositoryImpl implements SyncRepository{
     List<QueueToSync> all=[];
     tasksFiedls.forEach((element) {all.add(QueueToSync(type: "taskfield", usn:element.usn, object:element)); });
     tasksStatuses.forEach((element) {all.add(QueueToSync(type: "taskstatus", usn:element.usn, object:element)); });
-    tasksComments.forEach((element) {all.add(QueueToSync(type: "comment", usn:element.usn, object:element)); });
+    tasksComments.forEach((element) {all.add(QueueToSync(type: "comment", usn:element.localUsn, object:element)); });
     if(all.length==0){
       List<FileModel> files = await db.readFilesUpdates(localFileUSN);
       //files.forEach((element) {all.add(QueueToSync(type: "file", usn:element.usn, object:element)); });
       final directory = await getApplicationDocumentsDirectory();
-
+      print("${files.toString()} $localFileUSN");
       await Future.forEach(files, (FileModel fileElement) async {
         //final fileElement = element.object as FileModel;
         print("fileid: ${fileElement.id}");
@@ -201,6 +201,7 @@ class SyncRepositoryImpl implements SyncRepository{
             "id": element.object.task.id,
             "task": element.object.task.serverId,
             "message": element.object.message,
+            "file": element.object.file?.id,
             "createdTime": element.object.createdTime
           };
           print("send: $send");

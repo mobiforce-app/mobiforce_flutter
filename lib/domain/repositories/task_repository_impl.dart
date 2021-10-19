@@ -70,9 +70,10 @@ class TaskRepositoryImpl implements TaskRepository{
     //throw UnimplementedError();
   }
   @override
-  Future<Either<Failure, List<TaskCommentEntity>>>addTaskComment( {required TaskCommentModel comment}) async {
+  Future<Either<Failure, TaskCommentEntity>>addTaskComment( {required TaskCommentModel comment}) async {
 
-    return Right(await remoteDataSources.addTaskComment(comment:comment));
+    comment = await remoteDataSources.addTaskComment(comment:comment);
+    return Right(comment);
     //return Right([TaskCommentModel(id: 0, usn: 0, task: task, createdTime: 0, dirty: 0, serverId: 0)]);
 //  Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {
    //return await _getTasks(()=> remoteDataSources.getAllTask(page));

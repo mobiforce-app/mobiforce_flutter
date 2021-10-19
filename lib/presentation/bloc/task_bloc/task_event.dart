@@ -43,6 +43,10 @@ class AddPhotoToField extends TaskEvent
   //final int task;
   AddPhotoToField({required this.fieldId});
 }
+class AddPhotoToComment extends TaskEvent
+{
+  AddPhotoToComment();
+}
 class ChangeTextFieldValue extends TaskEvent
 {
   final int fieldId;

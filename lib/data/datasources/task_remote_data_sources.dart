@@ -24,7 +24,8 @@ abstract class TaskRemoteDataSources{
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
-  Future<List<TaskCommentModel>> addTaskComment({required TaskCommentModel comment});
+  //Future<FileModel> addPictureTaskComment({required int taskCommentId,required int pictureId});
+  Future<TaskCommentModel> addTaskComment({required TaskCommentModel comment});
 }
 
 class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
@@ -53,6 +54,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
     return FileModel(id: id, usn:0);
   }
+
+  /*@override
+  Future<FileModel> addPictureTaskComment({required int taskCommentId,required int pictureId}) async
+  {
+    int id = await db.addPictureToTaskComment(taskCommentId:taskCommentId,pictureId:pictureId);
+    return FileModel(id: id, usn:0);
+  }*/
   @override
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async
   {
@@ -61,13 +69,19 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
       ;//FileModel(id: id, usn:0);
   }
   @override
-  Future<List<TaskCommentModel>> addTaskComment({required TaskCommentModel comment}) async
+  Future<TaskCommentModel> addTaskComment({required TaskCommentModel comment}) async
   {
     print("insert comment to base");
     //int usn = await db.getUSN();
-    comment.usn = await db.getUSN();
-    await db.insertTaskComment(comment);
-    return await db.getCommentList(task:comment.task.id,page:0);
+    comment.localUsn = await db.getUSN();
+    comment = await db.insertTaskComment(comment);
+    if(comment.file!=null)
+    {
+      await db.addPictureToTaskComment(taskCommentId:comment.id,pictureId:comment.file?.id);
+      //return FileModel(id: id, usn:0);
+    }
+
+    return comment;
     //return
       ;//FileModel(id: id, usn:0);
   }

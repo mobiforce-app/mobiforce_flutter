@@ -115,6 +115,7 @@ class DBProvider {
             'author INTEGER, '
             'deleted INTEGER, '
             'usn INTEGER, '
+            'file INTEGER, '
             'created_at INTEGER,'
             'message TEXT)');
 
@@ -453,6 +454,35 @@ class DBProvider {
     //return id;
   }
 
+  Future<int?> addPictureToTaskComment({required int taskCommentId,required int? pictureId}) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      //id=await db.update(fileTable, {"deleted":1});
+      int usn = await getFileUSN();
+      dynamic map={
+        "usn": usn,
+        "link_object":taskCommentId,
+        "deleted":0,
+        "link_object_type":2,
+      };
+      print("to base ${map.toString()}, id: $pictureId");
+      if(pictureId!=null) {
+        await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
+        await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
+      }
+      //usn = await getUSN();
+      //await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [taskCommentId]);
+      return pictureId;
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return 0;
+    }
+    //task.id=id;
+    //return id;
+  }
+
   Future<int> newFileRecord() async{
     Database db = await this.database;
     int id=0;
@@ -496,6 +526,7 @@ class DBProvider {
         //"LEFT JOIN $resolutionTable as t4 "
         //"ON t1.resolution = t4.id "
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
+    print("tasksCommentsMapList ${tasksCommentsMapList.toString()} $localUSN");
     return tasksCommentsMapList.map((taskcomment) => TaskCommentModel.fromMap(taskcomment)).toList();
   }
   Future<List<FileModel>> readFilesUpdates(int localFileUSN) async{
@@ -682,6 +713,7 @@ class DBProvider {
         "t1.external_id, "
         "t1.created_at, "
         "t1.message, "
+        "t1.file, "
         "t2.id as author_id, "
         "t2.name as author_name, "
         "t3.id as task_id, "

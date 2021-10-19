@@ -61,6 +61,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
               //await object.insertToDB(db);
             //}
             //else
+              //object.usn=0;
               await object.insertToDB(db);
           }
           await syncRepository.commit();

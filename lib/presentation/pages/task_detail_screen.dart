@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -552,6 +554,11 @@ class TaskDetailPage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text("${state.comments[index].message}"),
+                                    state.comments[index].file?.id!=null?
+                                    Container(
+                                      width: 160,
+                                      height: 160,
+                                      child: Image.file(File('${state.appFilesDirectory}/photo_${state.comments[index].file?.id}.jpg'))):
                                     Text("${state.comments[index].author?.name}, ${formatted}",style: TextStyle(color: Colors.grey), )
                                   ],
                                 ),

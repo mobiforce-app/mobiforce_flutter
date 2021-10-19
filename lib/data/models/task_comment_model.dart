@@ -14,6 +14,7 @@ class TaskCommentModel extends TaskCommentEntity
 {
 
   TaskCommentModel({required id,
+    required localUsn,
     required usn,
     required task,
     required createdTime,
@@ -23,8 +24,10 @@ class TaskCommentModel extends TaskCommentEntity
     serverId,
     message,
     author,
+    file,
   }): super(
       id:id,
+      localUsn:localUsn,
       usn:usn,
       serverId:serverId,
       task:task,
@@ -32,6 +35,7 @@ class TaskCommentModel extends TaskCommentEntity
       createdTime:createdTime,
       message:message,
       author:author,
+      file:file,
   );
 
   Map<String, dynamic> toMap(){
@@ -39,13 +43,15 @@ class TaskCommentModel extends TaskCommentEntity
 
     final map=Map<String, dynamic>();
 
-    map['usn'] = usn;
+    map['usn'] = localUsn;
     if(serverId!=null)
       map['external_id'] = serverId;
     map['created_at'] = createdTime;
     map['message'] = message;
     if(author!=null)
       map["author"] = author?.id;
+    if(file!=null)
+      map["file"] = file?.id;
     map["task"] = task.id;
     //map['element_id'] = elementLocalId;
     //map['task_field'] = taskFieldId;
@@ -82,28 +88,33 @@ class TaskCommentModel extends TaskCommentEntity
   {
 
     print("TaskCommentModelMAP: $map");
-    return TaskCommentModel(
-        id: map['id'],
-        usn: map['usn']??0,
-        serverId: map['external_id'],
-        createdTime: map['created_at'],
-        dirty: false,
-        message: map['message'],
-        author: EmployeeModel.fromMap({"usn":0,"external_id":0, "id":map['author_id']??0, "name":map['author_name']??""}),
-        //parentLocalId: map['parent_id'],
-        //elementLocalId: map['element_id'],
-        //sort: map['sort'],
-        //tab:map['tasks_fields_tab'],
-        //taskField:taskField,
-        task:TaskModel(id: map['task_id'], serverId: map['task_external_id']),//nullTaskModel.fromMap(taskMap: {"external_id":0,"id":0}, statusMap: null),
-        //selectionValue: selectionValue,
-        //doubleValue:doubleValue,
-        //stringValue:stringValue,
-        //boolValue:boolValue,
-        //fileValueList:<FileModel>[]
-       // type: tft,
-       // name: map['name']
+    TaskCommentModel comment = TaskCommentModel(
+      id: map['id'],
+      usn:0,
+      localUsn: map['usn']??0,
+      serverId: map['external_id'],
+      createdTime: map['created_at'],
+      dirty: false,
+      message: map['message'],
+      author: EmployeeModel.fromMap({"usn":0,"external_id":0, "id":map['author_id']??0, "name":map['author_name']??""}),
+      //parentLocalId: map['parent_id'],
+      //elementLocalId: map['element_id'],
+      //sort: map['sort'],
+      //tab:map['tasks_fields_tab'],
+      //taskField:taskField,
+      task:TaskModel(id: map['task_id'], serverId: map['task_external_id']),//nullTaskModel.fromMap(taskMap: {"external_id":0,"id":0}, statusMap: null),
+      //selectionValue: selectionValue,
+      //doubleValue:doubleValue,
+      //stringValue:stringValue,
+      //boolValue:boolValue,
+      //fileValueList:<FileModel>[]
+      // type: tft,
+      // name: map['name']
     );
+    if(map['file']!=null)
+      comment.file = FileModel(id: map['file'],usn: 0);
+
+    return comment;
   }
   factory TaskCommentModel.fromJson(Map<String, dynamic> json)
   {
@@ -124,7 +135,8 @@ class TaskCommentModel extends TaskCommentEntity
     //print("TasksFieldsModel = ${json.toString()}|${taskField}");
     return TaskCommentModel(
       id: 0,
-      usn: 0,
+      usn: json['usn']??0,
+      localUsn: 0,
       //updateByToken: int.parse(json["id"]??"0"),
       serverId: int.parse(json["id"]??"0"),
       createdTime: int.parse(json['createdTime']??"0"),

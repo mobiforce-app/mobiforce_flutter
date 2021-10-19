@@ -74,6 +74,9 @@ class _commentFieldTextState extends State<CommentInput> {
          ):IconButton(
            icon: Icon(Icons.attach_file),
            onPressed: (){
+             BlocProvider.of<TaskBloc>(context).add(
+               AddPhotoToComment(),
+             );
            },
          ),
        ),
