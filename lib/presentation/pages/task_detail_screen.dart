@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/widgets/comment_input_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
@@ -52,6 +53,9 @@ class TaskDetailPage extends StatelessWidget {
     }
     else if(element.taskField?.type.value==TaskFieldTypeEnum.picture){
       return TaskFieldPictureCard(name:element.taskField?.name??"", fieldId:element.id, files:element.fileValueList, appFilesDirectory:appFilesDirectory);
+    }
+    else if(element.taskField?.type.value==TaskFieldTypeEnum.signature){
+      return TaskFieldSignatureCard(name:element.taskField?.name??"", fieldId:element.id, files:element.fileValueList, appFilesDirectory:appFilesDirectory);
     }
     else
       return
@@ -233,6 +237,7 @@ class TaskDetailPage extends StatelessWidget {
                 ]);
 
               }
+
               if(state.task.contractor!=null){
                 list.addAll([SizedBox(
                   height: 24,

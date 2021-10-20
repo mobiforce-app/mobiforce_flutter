@@ -183,6 +183,18 @@ class SyncRepositoryImpl implements SyncRepository{
             //print ("serverId: ${element.object.serverId}, element.selectionValue?.serverId: ${element.object.selectionValue?.serverId}");
             val = picts;
           }
+          else if (taskFieldElement.taskField?.type.value ==
+              TaskFieldTypeEnum.signature) {
+            List<Map<String, dynamic>> picts = [];
+            taskFieldElement.fileValueList?.forEach((FileModel element) {
+              //Map<String,dynamic> pictEl={"localId":element.id};
+              //if(element.serverId!=null)
+              //  pictEl["id"]=element.serverId;
+              picts.add({"id": element.serverId, "localId": element.id});
+            });
+            //print ("serverId: ${element.object.serverId}, element.selectionValue?.serverId: ${element.object.selectionValue?.serverId}");
+            val = picts;
+          }
           final Map<String, dynamic> send = {
             "id": element.object.serverId,
             "value": val

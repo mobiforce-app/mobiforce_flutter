@@ -1,6 +1,6 @@
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 
-enum TaskFieldTypeEnum {undefined,text,number,checkbox,group,optionlist,picture}
+enum TaskFieldTypeEnum {undefined,text,number,checkbox,group,optionlist,picture,signature}
 
 class TaskFieldType {
   TaskFieldTypeEnum value=TaskFieldTypeEnum.undefined;
@@ -13,6 +13,7 @@ class TaskFieldType {
       case 4: value=TaskFieldTypeEnum.group; break;
       case 5: value=TaskFieldTypeEnum.optionlist; break;
       case 6: value=TaskFieldTypeEnum.picture; break;
+      case 7: value=TaskFieldTypeEnum.signature; break;
       default: value=TaskFieldTypeEnum.undefined;
     }
   }
@@ -23,7 +24,8 @@ class TaskFieldType {
       case TaskFieldTypeEnum.checkbox: return "Галочка";
       case TaskFieldTypeEnum.group: return "Группа";
       case TaskFieldTypeEnum.optionlist: return "Список выбора";
-      case TaskFieldTypeEnum.picture: return "Картинка";
+      case TaskFieldTypeEnum.picture: return "Изображение";
+      case TaskFieldTypeEnum.signature: return "Подпись";
       default: return "Неизвестный тип";
     }
   }
@@ -35,6 +37,7 @@ class TaskFieldType {
       case TaskFieldTypeEnum.group: return 4;
       case TaskFieldTypeEnum.optionlist: return 5;
       case TaskFieldTypeEnum.picture: return 6;
+      case TaskFieldTypeEnum.signature: return 7;
       default: return 0;
     }
   }

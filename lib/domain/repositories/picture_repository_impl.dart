@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +22,7 @@ class FileRepositoryImpl implements FileRepository{
   FileRepositoryImpl({required this.remoteDataSources});
 
   @override
-  Future<Either<Failure, int>>savePicture({required XFile picture}) async {
+  Future<Either<Failure, int>>savePicture({Uint8List? bytes}) async {
     //bool res = await remoteDataSources.setTaskFieldSelectionValue(taskField:taskField);
     //if(res)
     final directory = await getApplicationDocumentsDirectory();
@@ -29,8 +30,9 @@ class FileRepositoryImpl implements FileRepository{
     print('${directory.path}/photo.jpg');
     int id= await remoteDataSources.newTaskPicture();
     final file = File('${directory.path}/photo_$id.jpg');
-    List<int> bytes = await picture.readAsBytes();
-    file.writeAsBytes(bytes);
+    //List<int> bytes = await picture.readAsBytes();
+    if(bytes!=null)
+      file.writeAsBytes(bytes);
 
     return Right(id);
   }

@@ -8,6 +8,7 @@ import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
+import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -243,6 +244,80 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text("Добавить фото"),
+          )
+      ),
+      ]
+    );
+  }
+}
+
+class TaskFieldSignatureCard extends StatefulWidget {
+  final String name;
+  final int fieldId;
+  final String appFilesDirectory;
+  final List<FileModel>? files;
+
+  //final bool isText;
+  //String val;
+
+  TaskFieldSignatureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _taskFieldSignatureCard();
+  }
+}
+class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
+  //final TaskEntity taskPicture;
+//  TaskFieldPictureCard({required this.taskPicture});
+  //TaskFieldPictureCard();
+
+  //final ImagePicker _picker = ImagePicker();
+  @override
+  void initState() {
+    //if(widget.needToLoadValue) {
+    print("pictureInitState!!+!!");
+    /*final FoL = await getPicturesByFieldId(
+        GetPictureFromCameraParams(taskFieldId: widget.fieldId));
+    FoL.fold((failure) {print("error");}, (
+        nextTaskStatuses_readed) {
+      //syncToServer(ListSyncToServerParams());
+      print("picture OK!");
+      //fieldElement?.stringValue = event.value;
+    });*/
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+
+
+
+    final List<Widget>? photos = widget.files?.map((e) => Container(
+        width: 160,
+        height: 160,
+        child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
+    )
+    ).toList();
+
+    return Column(
+      children: [
+        Text("${widget.name}"),
+        SizedBox(height: 8,),
+        ElevatedButton(
+          onPressed: () async {
+              //BlocProvider.of<TaskBloc>(context).add(
+              //  AddPhotoToField(fieldId:widget.fieldId),
+              //);
+            Navigator.push(context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => SignaturePage(fieldId:widget.fieldId),
+                  transitionDuration: Duration(seconds: 0),
+                ));
+          },
+          child:
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: (widget.files?.length??0)==0?Text("Ввести подпись"):Text("Изменить подпись"),
           )
       ),
       ]

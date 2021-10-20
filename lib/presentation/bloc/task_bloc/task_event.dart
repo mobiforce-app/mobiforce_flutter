@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 
 abstract class TaskEvent extends Equatable {
@@ -42,6 +44,14 @@ class AddPhotoToField extends TaskEvent
   //final dynamic value;
   //final int task;
   AddPhotoToField({required this.fieldId});
+}
+class AddSignatureToField extends TaskEvent
+{
+  final int fieldId;
+  final Uint8List? data;
+  //final dynamic value;
+  //final int task;
+  AddSignatureToField({required this.fieldId, this.data});
 }
 class AddPhotoToComment extends TaskEvent
 {

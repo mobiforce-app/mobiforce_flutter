@@ -403,7 +403,7 @@ class DBProvider {
     List<TasksFieldsModel> tasksFieldsUpdates=[];
     await Future.forEach(tasksFieldsMapList,(Map<String,dynamic> field) async {
       final TasksFieldsModel tf = TasksFieldsModel.fromMap(field,tasksFieldsSelectionValuesMap);
-      if(tf.taskField?.type.value==TaskFieldTypeEnum.picture){
+      if(tf.taskField?.type.value==TaskFieldTypeEnum.picture||tf.taskField?.type.value==TaskFieldTypeEnum.signature){
         final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
             "t1.id as field_id, "
             "t2.external_id as field_external_id, "

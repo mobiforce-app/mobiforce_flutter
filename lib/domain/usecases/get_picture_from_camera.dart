@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -13,7 +14,7 @@ import 'package:mobiforce_flutter/domain/repositories/picture_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:path_provider/path_provider.dart';
 
-enum PictureParentTypeEnum {taskField,taskComment}
+enum PictureSourceEnum {camera,bytes}
 
 
 class GetPictureFromCamera extends UseCase<int, GetPictureFromCameraParams>{
@@ -22,46 +23,48 @@ class GetPictureFromCamera extends UseCase<int, GetPictureFromCameraParams>{
   GetPictureFromCamera({required this.fileRepository});
   Future<Either<Failure, int>> call(GetPictureFromCameraParams params) async
   {
-    final ImagePicker _picker = ImagePicker();
-    final pickedFile = await _picker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 2000,
-      maxHeight: 2000,
-      imageQuality: 80,
-    );
+    if(params.src == PictureSourceEnum.camera){
+      final ImagePicker _picker = ImagePicker();
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 80,
+      );
+      final Either addResult = await fileRepository.savePicture(bytes: await pickedFile!.readAsBytes());
+      final obj = await addResult.fold((l) => null,
+              (r) async {
+            print("Picture $r.");
+            return r;
+          }
+      );
+      if(obj==null)
+        return Left(ServerFailure());
+      return Right(obj);
 
-    final Either addResult = await fileRepository.savePicture(picture: pickedFile!);
-    final obj = await addResult.fold((l) => null,
-            (r) async {
-              print("Picture $r.");
-              return r;
-              //return fileOrFairure.fold((l) => null, (r) => r);
-              /*
-              if(params.parent==PictureParentTypeEnum.taskField) {
-                final Either fileOrFairure = await taskRepository
-                    .addTaskFieldPicture(
-                    taskFieldId: params.parentId, pictureId: r);
-                return fileOrFairure.fold((l) => null, (r) => r);
-              }
-              else {
-                final Either fileOrFairure = await taskRepository
-                    .addCommentPicture(
-                    taskCommentId: params.parentId, pictureId: r);
-                return fileOrFairure.fold((l) => null, (r) => r);
-              }*/
-            }
-            );
-    if(obj==null)
-      return Left(ServerFailure());
-    return Right(obj);
+    }
+    else{
+      final Either addResult = await fileRepository.savePicture(bytes: params.data!);
+      final obj = await addResult.fold((l) => null,
+              (r) async {
+            print("PictureSignature $r.");
+            return r;
+          }
+      );
+      if(obj==null)
+        return Left(ServerFailure());
+      return Right(obj);
+
+    }
+
   }
 }
 
 class GetPictureFromCameraParams extends Equatable{
-  //final int parentId;
-  //final PictureParentTypeEnum parent;
+  final PictureSourceEnum src;
+  final Uint8List? data;
   //final int? taskFieldSelectionValue;
-  GetPictureFromCameraParams();
+  GetPictureFromCameraParams({required this.src, this.data});
 
   @override
   List<Object> get props => [];

@@ -161,7 +161,40 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
       final FoL = await getPictureFromCamera(
-          GetPictureFromCameraParams());
+          GetPictureFromCameraParams(src: PictureSourceEnum.camera));
+      final isChanged = !(state as TaskLoaded).isChanged;
+
+      Directory dir =  await getApplicationDocumentsDirectory();
+      //yield StartLoadingTaskPage();
+      yield await FoL.fold((failure) => TaskError(message:"bad"), (
+          pictureId) async {
+
+        final FoL = await addPictureToTaskField(
+            AddPictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: pictureId));
+        return FoL.fold((l) => TaskError(message:"bad"), (FileModel picture)  {
+
+          task.propsList?.forEach((element) {
+            if(event.fieldId==element.id){
+              if(element.fileValueList!=null)
+                element.fileValueList?.add(picture);
+              else
+                element.fileValueList=[picture];
+            }
+
+            print("picture + ${event.fieldId} ${element.id}");
+          });
+          syncToServer(ListSyncToServerParams());
+          return TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: []);
+        });
+        //syncToServer(ListSyncToServerParams());
+      });
+      print("picture OK! 2!");
+    }
+    if (event is AddSignatureToField) {
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final FoL = await getPictureFromCamera(
+          GetPictureFromCameraParams(data:event.data, src: PictureSourceEnum.bytes));
       final isChanged = !(state as TaskLoaded).isChanged;
 
       Directory dir =  await getApplicationDocumentsDirectory();
@@ -274,7 +307,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final isChanged=!(state as TaskLoaded).isChanged;
 
       final FoL = await getPictureFromCamera(
-          GetPictureFromCameraParams());
+          GetPictureFromCameraParams(src: PictureSourceEnum.camera));
       //yield StartLoadingTaskPage();
       yield await FoL.fold((failure) => TaskError(message:"bad"), (
           pictureId) async {

@@ -33,6 +33,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dar
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasksearch_bloc/tasksearch_bloc.dart';
+import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/syncscreen_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,6 +59,7 @@ Future<void>init() async
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
+  //sl.registerFactory(() => SignaturePage();
   sl.registerFactory(() => SyncBloc(m:sl()));
   sl.registerFactory(() => TaskBloc(
       taskReader:sl(),
