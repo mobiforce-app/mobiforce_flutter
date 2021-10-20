@@ -15,9 +15,10 @@ import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
 class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
   final FullSyncRepository fullSyncRepository;
+  final SyncRepository syncRepository;
   final DBProvider db;
   //int syncId
-  FullSyncFromServer({required this.fullSyncRepository,required  this.db});
+  FullSyncFromServer({required this.fullSyncRepository,required this.syncRepository,required  this.db});
   Future<Either<Failure, SyncStatusEntity>> call(FullSyncParams params) async {
     final dataFromWeb = await fullSyncRepository.getNext(params.syncId);
     return dataFromWeb.fold(
@@ -28,11 +29,13 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
               if(sync.dataList.isEmpty) {
                 print ("empty");
                 //await sharedPreferences.getBool("full_sync")??false;
-                if(await fullSyncRepository.setComplete())
+                if(await fullSyncRepository.setComplete()) {
+                  syncRepository.realoadUSN();
                   return Right(SyncStatusModel(progress: 0,
                       complete: true,
                       dataLength: 0,
                       syncPhase: SyncPhase.fullSyncStart));
+                }
                 else
                   return Right(SyncStatusModel(progress: 0,
                       complete: false,

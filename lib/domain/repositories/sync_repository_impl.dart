@@ -61,7 +61,6 @@ class SyncRepositoryImpl implements SyncRepository{
     localUSN = sharedPreferences.getInt("local_usn")??0;
     localFileUSN = sharedPreferences.getInt("local_file_usn")??0;
     lastSyncTime = sharedPreferences.getInt("last_sync_time")??0;
-    //lastUpdateCount = sharedPreferences.getInt("last_update_count")??0;
     for(int i=0; i<objectsType.length;i++ ){
       objectsTypeLastUpdateId.add(sharedPreferences.getInt("last_update_count_${objectsType[i]}")??0);
     }
@@ -95,6 +94,27 @@ class SyncRepositoryImpl implements SyncRepository{
   {
     return sharedPreferences.getBool("full_sync")??false;
   }
+
+  @override
+  void realoadUSN()
+  {
+    print("realoadUSN ${lastSyncTime}");
+    localUSN = 0;
+    localFileUSN = 0;
+    //lastSyncTime = 0;
+    //for(int i=0; i<objectsTypeLastUpdateId.length;i++ ){
+    //  objectsTypeLastUpdateId[i]=0;
+    //}
+    lastSyncTime = sharedPreferences.getInt("last_sync_time")??0;
+    print("realoadUSN ${lastSyncTime}");
+    objectsTypeLastUpdateId.clear();
+    for(int i=0; i<objectsType.length;i++ ){
+      objectsTypeLastUpdateId.add(sharedPreferences.getInt("last_update_count_${objectsType[i]}")??0);
+    }
+    print("objectsTypeLastUpdateId ${objectsTypeLastUpdateId.toString()}");
+    //return null;
+  }
+
   @override
   Future<Either<Failure, int>> sendUpdates(DBProvider db) async {
    // updatesRemoteDataSources.getDataList(

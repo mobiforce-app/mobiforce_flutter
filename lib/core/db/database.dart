@@ -66,7 +66,7 @@ class DBProvider {
   Future<Database> _initDB() async {
     Directory dir = await getApplicationDocumentsDirectory();
     String path = dir.path + dbName;
-    return await openDatabase(path, version: dbVersion, onCreate: _createDB);
+    return await openDatabase(path, version: dbVersion, onCreate: await _createDB);
   }
 
 
@@ -81,7 +81,7 @@ class DBProvider {
   }
 */
   //CREATE
-  void _createDB(Database db, int version) async {
+  Future<void> _createDB(Database db, int version) async {
 
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskStatusTable ('
@@ -365,7 +365,7 @@ class DBProvider {
     await db.execute('DROP TABLE IF EXISTS $employee2TaskRelationTable');
     await db.execute('DROP TABLE IF EXISTS $usnCountersTable');
     await db.execute('DROP TABLE IF EXISTS $usnCountersFileTable');
-    _createDB(db, 1);
+    await _createDB(db, 1);
   }
 //READ
   Future<List<TasksFieldsModel>> readTasksFieldsUpdates(int localUSN) async{

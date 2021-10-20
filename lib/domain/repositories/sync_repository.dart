@@ -14,5 +14,6 @@ abstract class SyncRepository{
   bool isFullSyncStarted();
   Future<bool>setComplete();
   Future<bool>commit();
+  void realoadUSN();
 
 }

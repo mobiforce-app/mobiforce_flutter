@@ -14,31 +14,22 @@ import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_state.dart';
 // import 'equatabl'
 class SyncBloc extends Bloc<SyncEvent,SyncState>{
   final FullSyncImpl m;
-
+  bool listenerIsInit=false;
   //final Authorization auth;
   //final GetAllTasks listTask;
   //int page = 1;
   //int lastUpdateCount;
   //int lastSyncTime;
 
-  SyncBloc({required this.m}) : super(FullSyncReadyToStart())
+  SyncBloc({required this.m}) : super(SyncOK())
   {
-      m.counterUpdates.listen((item){
-        print(item.progress);
-        if(item.complete)
-          this.add(FullSyncingComplete());
-        else
-          this.add(FullSyncingInProgress(item.progress));
-      });
-      m.startUpdate();
-      print("start full exchange");
   }
 
   //
 
   @override
   Stream<SyncState> mapEventToState(SyncEvent event) async* {
-    print("map event+");
+    print("map event+ ${event}");
     if(event is TryToSync) {
       yield SyncWaitingServerAnswer();
       /*final faiureOrLoading = await auth(AuthorizationParams(
@@ -50,8 +41,29 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
         return LoginOK();
       });*/
     }
+    else if(event is FullSyncingStart){
+      if(!listenerIsInit) {
+        listenerIsInit=true;
+        m.counterUpdates.listen((item) {
+          print(item.progress);
+          if (item.complete)
+            this.add(FullSyncingComplete());
+          else
+            this.add(FullSyncingInProgress(item.progress));
+        });
+
+      }
+
+      print("start full exchange");
+
+      m.startUpdate();
+      //yield CloseFullSyncWindow();
+    }
     else if(event is FullSyncingComplete){
       yield CloseFullSyncWindow();
+    }
+    else if(event is ReadyToSync){
+      yield SyncOK();
     }
     else if(event is FullSyncingInProgress){
       print ("event progress=${event.progress.toDouble()}");

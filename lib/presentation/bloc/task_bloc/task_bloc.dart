@@ -84,7 +84,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   @override
   Stream<TaskState> mapEventToState(TaskEvent event) async* {
     print("tasklist bloc map event " + event.toString());
-    if (event is ShowTaskComment){
+    if (event is ShowTaskComment&&(state.runtimeType == TaskLoaded)){
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
       final dir =  (state as TaskLoaded).appFilesDirectory;

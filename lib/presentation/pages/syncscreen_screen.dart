@@ -19,6 +19,13 @@ class SyncPage extends StatelessWidget {
  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    //final arguments = ModalRoute.of(context)?.settings.arguments as Map;
+    //if (arguments != null) {
+    //  if(arguments['restart']==true)
+        BlocProvider.of<SyncBloc>(context)
+          ..add(FullSyncingStart());
+    //};
+
     return BlocBuilder<SyncBloc, SyncState>(
         builder: (context, state) {
           //if(state is LoginOK){
@@ -27,6 +34,8 @@ class SyncPage extends StatelessWidget {
           if (state is CloseFullSyncWindow) {
             WidgetsBinding.instance!.addPostFrameCallback((_) {
               // Navigation
+              BlocProvider.of<SyncBloc>(context)
+                ..add(ReadyToSync());
               BlocProvider.of<TaskListBloc>(context)
                 ..add(RefreshListTasks());
               Navigator.pushReplacement(context,
@@ -41,6 +50,7 @@ class SyncPage extends StatelessWidget {
             //}
           if (state is SyncInProgress) {
             //tasks = state.tasksList;
+            print("Загружено: ${state.progress}%");
             return
               Scaffold(
                 appBar: AppBar(

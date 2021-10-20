@@ -90,7 +90,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
   sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => SyncToServer(sl(),sl()));
-  sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), db:sl()));
+  sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), syncRepository:sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));
   //sl.registerLazySingleton(() => Model());
   sl.registerLazySingleton(() => Authorization(sl()));

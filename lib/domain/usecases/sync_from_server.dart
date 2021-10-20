@@ -23,13 +23,14 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
     //return await syncRepository.getUpdates();
     //return await syncRepository.getUpdates();
     final faiureOrLoading = await syncRepository.getUpdates();
-    return faiureOrLoading.fold((failure){
+    return await faiureOrLoading.fold((failure){
       //print ("*")
       return Left(failure);
     }, (sync) async{
       if(sync.fullSync){
       //if(sync.syncPhase == SyncPhase.fullSyncStart) {
         await db.clear();
+        print("sync.lastSyncTime ${sync.lastSyncTime}");
         await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime);
         return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0));
       }
