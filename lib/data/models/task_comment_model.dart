@@ -74,7 +74,9 @@ class TaskCommentModel extends TaskCommentEntity
     print('author: ${author?.serverId}');
     author?.id = await author!.insertToDB(db);
     print('author: ${author?.id}');
-
+    if(file!=null&&file?.id==0){
+      file?.id = await file!.insertToDB(db);
+    }
     TaskCommentModel comment = await db.insertTaskComment(this);
     print ("db id == ${comment.id}");
     if(comment.id==0){
@@ -111,8 +113,8 @@ class TaskCommentModel extends TaskCommentEntity
       // type: tft,
       // name: map['name']
     );
-    if(map['file']!=null)
-      comment.file = FileModel(id: map['file'],usn: 0);
+    if(map['file_id']!=null)
+      comment.file = FileModel(id:map['file_id'],size:map['file_size']??0,usn: 0,downloaded: map['file_downloaded']==1?true:false,deleted: map['file_deleted']==1?true:false);
 
     return comment;
   }
@@ -132,8 +134,8 @@ class TaskCommentModel extends TaskCommentEntity
     }*/
     //int tabServerId=
     //if(tab)
-    //print("TasksFieldsModel = ${json.toString()}|${taskField}");
-    return TaskCommentModel(
+    print("TaskCommentModel comment  = ${json.toString()}");
+    TaskCommentModel comment =  TaskCommentModel(
       id: 0,
       usn: json['usn']??0,
       localUsn: 0,
@@ -144,18 +146,11 @@ class TaskCommentModel extends TaskCommentEntity
       message: '${json['message']}',
       task: TaskModel.fromJson(json['task']),
       author: EmployeeModel.fromJson(json['author']),
-      //elementLocalId: int.parse(json["element"]??"0"),
-      //parentLocalId: int.parse(json["parent"]??"0"),
-      //sort: int.parse(json["sort"]??"0"),
-      //taskField: taskField,
-      //selectionValue: optionList,
-      //tabServerId:tabServerId,
-      //doubleValue: taskField.type.value==TaskFieldTypeEnum.number?double.tryParse(json["value"]):null,
-      //stringValue: taskField.type.value==TaskFieldTypeEnum.text?json["value"]:null,
-      //name: json["name"]??"",
-      //taskServerId: taskServerId,
-      //task: 0,
     );
+    if(json['file']!=null)
+      comment.file = FileModel.fromJson(json['file']);
+
+    return comment;
   }
 
 

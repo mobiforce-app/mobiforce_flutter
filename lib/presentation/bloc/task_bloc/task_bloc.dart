@@ -23,6 +23,7 @@ import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_tasks_comments.dart';
+import 'package:mobiforce_flutter/domain/usecases/load_file.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
@@ -41,6 +42,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   //TaskEntity? task;
   //List<TaskStatusEntity>? nextTaskStatuses;
   final GetPictureFromCamera getPictureFromCamera;
+  final LoadFile loadFile;
   final AddPictureToTaskField addPictureToTaskField;
   //final AddCommentWithPictureToTask addCommentWithPictureToTask;
   final GetTaskStatusesGraph nextTaskStatusesReader;
@@ -61,6 +63,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   TaskBloc({
     required this.taskReader,
+    required this.loadFile,
     required this.nextTaskStatusesReader,
     required this.getPictureFromCamera,
     required this.setTaskStatus,
@@ -89,19 +92,23 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
       final dir =  (state as TaskLoaded).appFilesDirectory;
       final isChanged=!(state as TaskLoaded).isChanged;
+      final comments=(state as TaskLoaded).comments;
+      print("(state as TaskLoaded).comments ${(state as TaskLoaded).comments}");
       //yield StartLoadingTaskPage();
-      final FoL = await getTaskComments(
-          GetTaskCommentsParams
-            (task: task.id, page: 0));
-      //await await Future.delayed(Duration(seconds: 2));
-      yield FoL.fold((failure) =>TaskError(message:"bad"), (comments) {
-        return TaskLoaded(isChanged: isChanged,
+      if(comments.length==0) {
+        final FoL = await getTaskComments(
+            GetTaskCommentsParams
+              (task: task.id, page: 0));
+        //await await Future.delayed(Duration(seconds: 2));
+        yield FoL.fold((failure) => TaskError(message: "bad"), (comments) {
+          return TaskLoaded(isChanged: isChanged,
             task: task,
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
-            comments:comments,
-        );
-      });
+            comments: comments,
+          );
+        });
+      }
     }
     if (event is ChangeSelectionFieldValue) {
       //getTask.
@@ -167,10 +174,10 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       Directory dir =  await getApplicationDocumentsDirectory();
       //yield StartLoadingTaskPage();
       yield await FoL.fold((failure) => TaskError(message:"bad"), (
-          pictureId) async {
+          picture) async {
 
         final FoL = await addPictureToTaskField(
-            AddPictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: pictureId));
+            AddPictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: picture.id));
         return FoL.fold((l) => TaskError(message:"bad"), (FileModel picture)  {
 
           task.propsList?.forEach((element) {
@@ -200,10 +207,10 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       Directory dir =  await getApplicationDocumentsDirectory();
       //yield StartLoadingTaskPage();
       yield await FoL.fold((failure) => TaskError(message:"bad"), (
-          pictureId) async {
+          picture) async {
 
         final FoL = await addPictureToTaskField(
-            AddPictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: pictureId));
+            AddPictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: picture.id));
         return FoL.fold((l) => TaskError(message:"bad"), (FileModel picture)  {
 
           task.propsList?.forEach((element) {
@@ -299,6 +306,111 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         );
       });
     }
+    if (event is CommentFileDownload) {
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final comments =  (state as TaskLoaded).comments;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final int id=event.file!;
+      print("readFile ${id}");
+
+      comments.forEach((element) {
+        print("element.file?.downloaded ${element.file?.downloaded}");
+        if(element.file?.id==id){
+          element.file?.downloading=true;
+          print("element.file?.downloading ${element.file?.downloading}");
+        }
+      });
+      //final faiureOrLoading = await loadFile(LoadFileParams(event.file!));
+
+      yield TaskLoaded(isChanged: isChanged,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments:comments,
+      );
+      print("readFile ${id}");
+      final faiureOrLoading = await loadFile(LoadFileParams(id));
+      await Future.delayed(Duration(seconds: 3));
+      yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
+
+        final task = (state as TaskLoaded).task;
+        final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+        final comments =  (state as TaskLoaded).comments;
+        final dir =  (state as TaskLoaded).appFilesDirectory;
+        final isChanged=!(state as TaskLoaded).isChanged;
+        final int id=event.file!;
+
+        comments.forEach((element) {
+          print("element.file?.downloaded ${element.file?.downloaded}");
+          if(element.file?.id==id){
+            element.file?.downloading=false;
+            element.file?.downloaded=true;
+            print("element.file?.downloading ${element.file?.downloading}");
+          }
+        });
+
+        return TaskLoaded(isChanged: isChanged,
+          task: task,
+          nextTaskStatuses: nextTaskStatuses,
+          appFilesDirectory: dir,
+          comments:comments,
+        );
+      });
+    }
+    if (event is FieldFileDownload) {
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final comments =  (state as TaskLoaded).comments;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final int id=event.file!;
+      print("readFile ${id}");
+
+      task.propsList?.forEach((element) {
+        print("element.file?.downloaded ${element.fileValueList}");
+        element.fileValueList?.forEach((e) {
+          if(e.id==id)
+            e.downloading=true;
+        });
+      });
+      //final faiureOrLoading = await loadFile(LoadFileParams(event.file!));
+
+      yield TaskLoaded(isChanged: isChanged,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments:comments,
+      );
+      print("readFile ${id}");
+      final faiureOrLoading = await loadFile(LoadFileParams(id));
+      await Future.delayed(Duration(seconds: 3));
+      yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
+
+        final task = (state as TaskLoaded).task;
+        final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+        final comments =  (state as TaskLoaded).comments;
+        final dir =  (state as TaskLoaded).appFilesDirectory;
+        final isChanged=!(state as TaskLoaded).isChanged;
+        task.propsList?.forEach((element) {
+          print("element.file?.downloaded ${element.fileValueList}");
+          element.fileValueList?.forEach((e) {
+            if(e.id==id) {
+              e.downloading = false;
+              e.downloaded = true;
+            }
+          });
+        });
+
+        return TaskLoaded(isChanged: isChanged,
+          task: task,
+          nextTaskStatuses: nextTaskStatuses,
+          appFilesDirectory: dir,
+          comments:comments,
+        );
+      });
+    }
     if (event is AddPhotoToComment) {
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
@@ -310,12 +422,12 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           GetPictureFromCameraParams(src: PictureSourceEnum.camera));
       //yield StartLoadingTaskPage();
       yield await FoL.fold((failure) => TaskError(message:"bad"), (
-          pictureId) async {
+          picture) async {
 
         var date = new DateTime.now();
         int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
 
-        TaskCommentModel comment = TaskCommentModel(id: 0, localUsn: 0, usn: 0, message:"", file: FileModel(id: pictureId, usn: 0), task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
+        TaskCommentModel comment = TaskCommentModel(id: 0, localUsn: 0, usn: 0, message:"", file: picture, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
         final faiureOrLoading = await addTaskComment(AddTaskCommentParams(comment));
 
         //yield StartLoadingTaskPage();

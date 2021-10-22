@@ -218,11 +218,29 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
 
 
 
-    final List<Widget>? photos = widget.files?.map((e) => Container(
-        width: 160,
-        height: 160,
-        child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
-    )
+    final List<Widget>? photos = widget.files?.map((e) {
+      final size=(e.size??0)~/1024;
+      return Container(
+          width: 160,
+          height: 160,
+          child:
+          e.downloaded==true?
+          Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')):(
+              e.downloading==true?Padding(padding: const EdgeInsets.all(8.0),
+                  child: Center(child: CircularProgressIndicator(),))
+                  :
+              InkWell(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено ($size Кб)",textAlign:TextAlign.center),Text("Загрузить?")],),
+                  onTap: ()  {
+                    BlocProvider.of<TaskBloc>(context)
+                      ..add(FieldFileDownload(file:e.id));
+                  }
+              ))
+        // Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
+      );
+    }
     ).toList();
 
     return Column(
@@ -303,7 +321,7 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
       children: [
         Text("${widget.name}"),
         SizedBox(height: 8,),
-        ElevatedButton(
+        (widget.files?.length??0)==0?ElevatedButton(
           onPressed: () async {
               //BlocProvider.of<TaskBloc>(context).add(
               //  AddPhotoToField(fieldId:widget.fieldId),
@@ -317,9 +335,13 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
           child:
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: (widget.files?.length??0)==0?Text("Ввести подпись"):Text("Изменить подпись"),
+            child: Text("Ввести подпись"),
           )
-      ),
+      ):Container(
+            width: 160,
+            height: 160,
+            child: Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg'))
+        ),
       ]
     );
   }

@@ -553,6 +553,8 @@ class TaskDetailPage extends StatelessWidget {
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               final String formatted = state.comments[index].createdTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.comments[index].createdTime))):"без даты";
+                              //int i= (100/200).toInt();
+                              final size=(state.comments[index].file?.size??0)~/1024;
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
@@ -563,7 +565,21 @@ class TaskDetailPage extends StatelessWidget {
                                     Container(
                                       width: 160,
                                       height: 160,
-                                      child: Image.file(File('${state.appFilesDirectory}/photo_${state.comments[index].file?.id}.jpg'))):
+                                      child: state.comments[index].file?.downloaded==true?
+                                      Image.file(File('${state.appFilesDirectory}/photo_${state.comments[index].file?.id}.jpg')):(
+                                          state.comments[index].file?.downloading==true?Padding(padding: const EdgeInsets.all(8.0),
+                                              child: Center(child: CircularProgressIndicator(),))
+                                              :
+                                          InkWell(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено ($size Кб)}",textAlign:TextAlign.center),Text("Загрузить?")],),
+                                        onTap: ()  {
+                                          BlocProvider.of<TaskBloc>(context)
+                                          ..add(CommentFileDownload(file:state.comments[index].file?.id));
+                                        }
+                                      ))
+                                    ):
                                     Text("${state.comments[index].author?.name}, ${formatted}",style: TextStyle(color: Colors.grey), )
                                   ],
                                 ),

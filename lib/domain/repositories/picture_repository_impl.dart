@@ -8,6 +8,7 @@ import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -22,7 +23,7 @@ class FileRepositoryImpl implements FileRepository{
   FileRepositoryImpl({required this.remoteDataSources});
 
   @override
-  Future<Either<Failure, int>>savePicture({Uint8List? bytes}) async {
+  Future<Either<Failure, FileModel>>savePicture({Uint8List? bytes}) async {
     //bool res = await remoteDataSources.setTaskFieldSelectionValue(taskField:taskField);
     //if(res)
     final directory = await getApplicationDocumentsDirectory();
@@ -34,6 +35,12 @@ class FileRepositoryImpl implements FileRepository{
     if(bytes!=null)
       file.writeAsBytes(bytes);
 
-    return Right(id);
+    return Right(FileModel(id: id, usn: 0, downloaded: true, size: bytes?.length??0,deleted: false));
+  }
+  @override
+  Future<Either<Failure, int>> loadFromWebPicture(int id) async {
+    print("readFile load $id");
+    dynamic res = await remoteDataSources.loadFileFromWeb(id);
+    return Right(1);
   }
 }

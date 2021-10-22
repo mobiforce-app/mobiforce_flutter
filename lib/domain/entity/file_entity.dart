@@ -8,7 +8,11 @@ class FileEntity{
   String? name;
   String? description;
   int usn;
+  bool deleted;
+  bool downloaded;
+  bool? downloading;
   dynamic? parent;
+  int size;
   //
   FileEntity({
       required this.id,
@@ -16,7 +20,11 @@ class FileEntity{
       this.serverId,
       this.name,
       this.description,
-      this.parent
+      this.parent,
+      this.downloading,
+      required this.downloaded,
+      required this.deleted,
+      required this.size,
   });
   fromMap(Map<String, dynamic> map)
   {

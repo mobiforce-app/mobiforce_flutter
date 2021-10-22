@@ -89,6 +89,18 @@ class TasksFieldsModel extends TasksFieldsEntity
         await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:t.stringValue,update_usn: false);
       else if(t.taskField?.type.value==TaskFieldTypeEnum.number)
         await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:"${t.doubleValue}",update_usn: false);
+      else if(t.taskField?.type.value==TaskFieldTypeEnum.picture)
+      {
+        print("add files to base");
+        await Future.forEach(fileValueList!, (FileModel element) async {
+          element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0);
+          print("file extId ${element.serverId}");
+          //element.
+          await element.insertToDB(db);
+
+        });
+      }
+        //await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:"${t.doubleValue}",update_usn: false);
       else if(t.taskField?.type.value==TaskFieldTypeEnum.checkbox)
         await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:t.boolValue==true?"1":"0",update_usn: false);
 
@@ -171,9 +183,23 @@ class TasksFieldsModel extends TasksFieldsEntity
       }
       catch (e) {}
     }
+    List<FileModel>? fileVL=[];
+    print("TasksFieldsModel = ${json.toString()})");
+    print("${taskField}");
+    if(taskField.type.value==TaskFieldTypeEnum.picture) {
+      print('json["value"] ${json["value"]}');
+      try {
+        fileVL =
+        (json["value"] as List).map((e) {
+          print('map file ${e.toString()}');
+          return FileModel.fromJson({"id":e["pictureId"],"size":e["size"],"name":e["name"],"decription":e["decription"]});
+        }).toList();
+        //SelectionValueModel.fromJson(json["value"]);
+      }
+      catch (e) {}
+    }
     //int tabServerId=
     //if(tab)
-    print("TasksFieldsModel = ${json.toString()}|${taskField}");
     return TasksFieldsModel(
       id: 0,
       usn: json["usn"]??0,
@@ -187,6 +213,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       tabServerId:tabServerId,
       doubleValue: taskField.type.value==TaskFieldTypeEnum.number?double.tryParse(json["value"]):null,
       stringValue: taskField.type.value==TaskFieldTypeEnum.text?json["value"]:null,
+      fileValueList: fileVL,
       //name: json["name"]??"",
       //taskServerId: taskServerId,
       //task: 0,

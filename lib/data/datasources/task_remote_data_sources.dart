@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
@@ -10,6 +11,7 @@ import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +22,7 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
   Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
+  Future<FileModel>loadFileFromWeb(int id);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
@@ -49,10 +52,36 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   }
 
   @override
+  Future<FileModel>loadFileFromWeb(int id) async
+  {
+    String domain=sharedPreferences.getString("domain")??"";
+    String accessToken=sharedPreferences.getString("access_token")??"";
+
+    final f = await db.readFile(id);
+    print("remote file: ${f.serverId}");
+    print("domain=$domain, access_token=$accessToken");
+    final response = await http.get(Uri.parse("https://$domain/api2.0/get-file.php?id=${f.serverId}"),headers:{
+      HttpHeaders.authorizationHeader: "key=\"$accessToken\"",
+    });
+    print("readFile load ${response.bodyBytes.toString()}");
+    final directory = await getApplicationDocumentsDirectory();
+    //final path = await _localPath;
+    print('${directory.path}/photo.jpg');
+    final file = File('${directory.path}/photo_$id.jpg');
+    //List<int> bytes = await picture.readAsBytes();
+    if(response.bodyBytes!=null) {
+      file.writeAsBytes(response.bodyBytes);
+      f.downloaded=true;
+      await db.updateFile(f);
+    }
+    return f;
+  }
+
+  @override
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId}) async
   {
     int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
-    return FileModel(id: id, usn:0);
+    return FileModel(id: id, usn:0,downloaded: true, size:0, deleted: false);
   }
 
   /*@override

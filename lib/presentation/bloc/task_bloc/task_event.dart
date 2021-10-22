@@ -45,6 +45,16 @@ class AddPhotoToField extends TaskEvent
   //final int task;
   AddPhotoToField({required this.fieldId});
 }
+class CommentFileDownload extends TaskEvent
+{
+  final int? file;
+  CommentFileDownload({required this.file});
+}
+class FieldFileDownload extends TaskEvent
+{
+  final int? file;
+  FieldFileDownload({required this.file});
+}
 class AddSignatureToField extends TaskEvent
 {
   final int fieldId;

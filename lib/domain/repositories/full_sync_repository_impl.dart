@@ -154,7 +154,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
         print ("type = taskstatus");
         return ((json as List).map((obj) => TaskStatusModel.fromJson(obj)).toList());
       }
-      if(objectsType[fullSyncObjectsTypeId]=="taskcomment") {
+      if(objectsType[fullSyncObjectsTypeId]=="comments") {
         print ("type = taskcomment");
         return ((json as List).map((obj) => TaskCommentModel.fromJson(obj)).toList());
       }

@@ -17,11 +17,11 @@ import 'package:path_provider/path_provider.dart';
 enum PictureSourceEnum {camera,bytes}
 
 
-class GetPictureFromCamera extends UseCase<int, GetPictureFromCameraParams>{
+class GetPictureFromCamera extends UseCase<FileModel, GetPictureFromCameraParams>{
   //final TaskRepository taskRepository;
   final FileRepository fileRepository;
   GetPictureFromCamera({required this.fileRepository});
-  Future<Either<Failure, int>> call(GetPictureFromCameraParams params) async
+  Future<Either<Failure, FileModel>> call(GetPictureFromCameraParams params) async
   {
     if(params.src == PictureSourceEnum.camera){
       final ImagePicker _picker = ImagePicker();

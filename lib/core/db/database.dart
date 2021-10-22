@@ -104,6 +104,7 @@ class DBProvider {
             'downloaded INTEGER, '
             'deleted INTEGER, '
             'usn INTEGER, '
+            'size INTEGER, '
             'name TEXT, '
             'description TEXT)');
     await db.execute(
@@ -487,7 +488,7 @@ class DBProvider {
     Database db = await this.database;
     int id=0;
     try{
-      id=await db.insert(fileTable, {"deleted":1});
+      id=await db.insert(fileTable, {"downloaded":true,"deleted":1});
     }
     catch(e){
       //await db(tasksTable, task.toMap());
@@ -515,7 +516,7 @@ class DBProvider {
   Future<List<TaskCommentModel>> readTaskCommentsUpdates(int localUSN) async{
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksCommentsMapList = await db.rawQuery(""
-        "SELECT t1.*, t2.id as task_id, t2.external_id as task_external_id "
+        "SELECT t1.*, t1.file as file_id, t2.id as task_id, t2.external_id as task_external_id "
         //"t4.external_id as resolution_external_id,t4.id as resolution_id,t4.name as resolution_name, "
         //"t2.name as taskstatus_name, t2.color as taskstatus_color, t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t3.external_id as task_external_id, t3.id as task_id "
         "FROM $taskCommentTable as t1 "
@@ -528,6 +529,30 @@ class DBProvider {
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
     print("tasksCommentsMapList ${tasksCommentsMapList.toString()} $localUSN");
     return tasksCommentsMapList.map((taskcomment) => TaskCommentModel.fromMap(taskcomment)).toList();
+  }
+  Future<FileModel> readFile(int id) async{
+    Database db = await this.database;
+    print("readFile $id");
+    final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
+    //"t2.id as field_id, "
+    //"t2.external_id as field_external_id, "
+        "t1.id as id, "
+        "t1.name as name, "
+        "0 as usn, "
+        "t1.external_id as external_id, "
+        "t1.link_object as link_object,"
+        "t1.link_object_type as link_object_type,"
+        "t1.description as description "
+        "FROM $fileTable as t1 "
+    //"LEFT JOIN $tasksFieldsTable as t2 ON t1.link_object = t2.id "
+    //"LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
+        "WHERE t1.id = ? ",[id]);
+
+   // print("image files localFileUSN> ${localFileUSN} ${tasksFieldsFilesMapList.toString()}");
+
+    //tf.fileValueList=tasksFieldsFilesMapList.map((files) => FileModel.fromMap(files)).toList();
+    return FileModel.fromMap(tasksFieldsFilesMapList.first);
+
   }
   Future<List<FileModel>> readFilesUpdates(int localFileUSN) async{
     Database db = await this.database;
@@ -670,7 +695,10 @@ class DBProvider {
       "t3.link_object as link_object,"
       "t3.usn as usn, "
       "t3.link_object_type as link_object_type,"
-      "t3.description as description "
+      "t3.description as description, "
+      "t3.size as size, "
+      "t3.downloaded as downloaded, "
+      "t3.deleted as deleted "
       "FROM $tasksFieldsTable as t1 "
       "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
       "LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
@@ -713,7 +741,8 @@ class DBProvider {
         "t1.external_id, "
         "t1.created_at, "
         "t1.message, "
-        "t1.file, "
+        "t4.id as file_id, "
+        "t4.downloaded as file_downloaded, "
         "t2.id as author_id, "
         "t2.name as author_name, "
         "t3.id as task_id, "
@@ -723,6 +752,8 @@ class DBProvider {
         "ON t1.author=t2.id "
         "LEFT JOIN $tasksTable as t3 "
         "ON t1.task = t3.id "
+        "LEFT JOIN $fileTable as t4 "
+        "ON t1.file = t4.id "
         ""
         "WHERE t1.task=? ORDER BY t1.id DESC",[task]);
     return taskCommentMapList.map((map) => TaskCommentModel.fromMap(map)).toList();
@@ -771,7 +802,7 @@ class DBProvider {
             " ON t1.contractor = t2.id "
             " LEFT JOIN $contractorTable as t3"
             " ON t2.parent = t3.id "
-            " WHERE t1.deleted != 1 ORDER BY t1.id DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
+            " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.id DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
 
     final List<TaskModel> tasksList = [];
     //await Future.forEach(tasksMapList,(taskMap) async {
@@ -779,6 +810,7 @@ class DBProvider {
       //await getTaskStatus(?taskMap["status"]);
       //tasksList.add(TaskModel.fromMap(taskMap));
     //});
+    print("tasksMapList ${tasksMapList.toString()}");
     for (Map<String,dynamic> taskMap in tasksMapList)
     {
       //int statusId = taskMap['status'];
@@ -788,6 +820,8 @@ class DBProvider {
         tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first));
       }
     }
+    print("tasksMapList ${tasksList.toString()}");
+
     return tasksList;
   }
 //INSERT
@@ -802,6 +836,19 @@ class DBProvider {
     }
     task.id=id;
     return task;
+  }
+  Future<FileModel> insertFileRecord(FileModel file) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      print("file.toMap() ${file.toMap()}");
+      id=await db.insert(fileTable, file.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    file.id=id;
+    return file;
   }
 
   Future<bool> deleteAllTaskEmployees(int taskId) async{
@@ -1272,6 +1319,11 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     return await db.update(tasksTable, task.toMap(), where: 'id =?', whereArgs: [task.id]);
 
   }
+  Future<int> updateFile(FileModel file) async{
+    Database db = await this.database;
+    return await db.update(fileTable, file.toMap(), where: 'id =?', whereArgs: [file.id]);
+
+  }
   Future<int> updateTaskByServerId(TaskModel task) async{
     Database db = await this.database;
 
@@ -1310,6 +1362,8 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
   Future<int> getTaskIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    if(tasksMapList.length==0)
+      return 0;
     return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
 

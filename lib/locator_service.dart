@@ -22,6 +22,7 @@ import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
+import 'package:mobiforce_flutter/domain/usecases/load_file.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
@@ -63,6 +64,7 @@ Future<void>init() async
   sl.registerFactory(() => SyncBloc(m:sl()));
   sl.registerFactory(() => TaskBloc(
       taskReader:sl(),
+      loadFile:sl(),
       nextTaskStatusesReader: sl(),
       setTaskStatus: sl(),
       getTaskComments: sl(),
@@ -84,6 +86,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => AddTaskComment(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
+  sl.registerLazySingleton(() => LoadFile(fileRepository:sl()));
   sl.registerLazySingleton(() => GetTaskComments(sl()));
   sl.registerLazySingleton(() => SetTaskStatus(sl()));
   sl.registerLazySingleton(() => SetTaskFieldSelectionValue(sl()));
