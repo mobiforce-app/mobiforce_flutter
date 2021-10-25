@@ -17,10 +17,10 @@ class AuthorizationManager {
     else
       return true;
   }
-  Future<void> autorize({required String token, required String domain}) async{
-    await authRepository.saveAuthorization(token:token, domain:domain);
+ // Future<void> autorize({required String token, required String domain}) async{
+    //await authRepository.saveAuthorization(token:token, domain:domain);
     //return true;
-  }
+ // }
   //Future<Either<Failure, AuthorizationEntity>> call(AuthorizationParams params) async => await authRepository.firstLogin(domain:params.domain,login:params.login,pass:params.pass);
 
   /*Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {

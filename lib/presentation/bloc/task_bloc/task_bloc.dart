@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
+import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';

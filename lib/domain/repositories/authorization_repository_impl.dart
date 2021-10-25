@@ -29,12 +29,15 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
   }
 
   @override
-  Future <void> saveAuthorization({required String token, required String domain}) async {
+  Future <void> saveAuthorization({required String token, required String domain, required int selfId, required String selfName}) async {
    //return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass));
     //return Right(_r);
     //throw UnimplementedError();
-    await authorizationDataSource.setString(key: "domain", value: domain);
+    await authorizationDataSource.setInt(key: "self_id", value: selfId);
+    await authorizationDataSource.setString(key: "self_name", value: selfName);
     await authorizationDataSource.setString(key: "access_token", value: token);
+    await authorizationDataSource.setString(key: "access_token", value: token);
+    await authorizationDataSource.setString(key: "domain", value: domain);
     await authorizationDataSource.setInt(key: "start_sync_position", value: -1);
     await authorizationDataSource.setInt(key: "start_sync_length", value: -1);
     await authorizationDataSource.setInt(key: "last_update_count", value: 0);
@@ -62,7 +65,7 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
     if(await networkInfo.isConnected){
       try{
         final remoteAuth = await getAuthrisationInfo();//remoteDataSources.searchTask(query);
-        await saveAuthorization(token:remoteAuth.token,domain:remoteAuth.domain);
+        await saveAuthorization(token:remoteAuth.token,domain:remoteAuth.domain, selfId: remoteAuth.id, selfName: remoteAuth.name);
         return Right(remoteAuth);
       }
       on ServerException{

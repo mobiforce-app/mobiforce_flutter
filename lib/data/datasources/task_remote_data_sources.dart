@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
+import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
@@ -109,6 +110,12 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   {
     print("insert comment to base");
     //int usn = await db.getUSN();
+    final int selfId = sharedPreferences.getInt("self_id")??0;
+    print("self_id $selfId");
+    if(selfId!=0){
+      EmployeeModel? empl = await db.getEmployee(await db.getEmployeeIdByServerId(selfId));
+      comment.author=empl;
+    }
     comment.localUsn = await db.getUSN();
     comment = await db.insertTaskComment(comment);
     if(comment.file!=null)

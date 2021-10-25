@@ -1239,6 +1239,12 @@ Future<int> getPersonIdByServerId(int serverId) async {
     final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return employeeMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
+  Future<EmployeeModel?> getEmployee(int id) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
+    print("employeeMapList.first ${employeeMapList.first}");
+    return employeeMapList.first!=null?EmployeeModel.fromMap(employeeMapList.first):null;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
 
   Future<EmployeeModel> updateEmployeeByServerId(EmployeeModel employee) async{
     Database db = await this.database;

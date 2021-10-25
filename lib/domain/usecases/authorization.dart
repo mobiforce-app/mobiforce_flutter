@@ -4,13 +4,26 @@ import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/usecases/usecase.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
+import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
 class Authorization extends UseCase<AuthorizationEntity, AuthorizationParams>{
   final AuthorizationRepository authRepository;
-  Authorization(this.authRepository);
-  Future<Either<Failure, AuthorizationEntity>> call(AuthorizationParams params) async => await authRepository.firstLogin(fcmToken: params.fcmToken, domain:params.domain,login:params.login,pass:params.pass);
+  final SyncRepository syncRepository;
+
+  Authorization(this.authRepository, this.syncRepository);
+  Future<Either<Failure, AuthorizationEntity>> call(AuthorizationParams params) async {
+
+    final FoL = await authRepository.firstLogin(fcmToken: params.fcmToken,
+          domain: params.domain,
+          login: params.login,
+          pass: params.pass);
+    return FoL.fold((l) => Left(l), (r) {
+      syncRepository.realoadUSN();
+      return Right(r);
+    });
+  }
 
   /*Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {
     return await _getTasks(()=> remoteDataSources.getAllTask(page));

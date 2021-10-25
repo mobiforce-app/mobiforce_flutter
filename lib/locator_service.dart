@@ -98,7 +98,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), syncRepository:sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));
   //sl.registerLazySingleton(() => Model());
-  sl.registerLazySingleton(() => Authorization(sl()));
+  sl.registerLazySingleton(() => Authorization(sl(),sl()));
   sl.registerLazySingleton(() => AuthorizationManager(sl()));
   //sl.registerLazySingleton(() => Model());
   //sl.registerLazySingleton(() => LoginTasks(sl()));

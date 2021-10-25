@@ -111,6 +111,8 @@ class SyncRepositoryImpl implements SyncRepository{
     for(int i=0; i<objectsType.length;i++ ){
       objectsTypeLastUpdateId.add(sharedPreferences.getInt("last_update_count_${objectsType[i]}")??0);
     }
+    domain=sharedPreferences.getString("domain")??"";
+    accessToken=sharedPreferences.getString("access_token")??"";
     print("objectsTypeLastUpdateId ${objectsTypeLastUpdateId.toString()}");
     //return null;
   }

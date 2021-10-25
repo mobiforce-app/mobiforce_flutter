@@ -62,7 +62,7 @@ class EmployeeModel extends EmployeeEntity
    // name = map['name'];
     return EmployeeModel(
         id: map['id'],
-        usn: map['usn'],
+        usn: map['usn']??0,
         serverId: map['external_id'],
         mobileAuth: map['mobile_auth']==1?true:false,
         webAuth: map['web_auth']==1?true:false,
