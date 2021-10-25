@@ -14,7 +14,7 @@ import 'package:mobiforce_flutter/domain/repositories/picture_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:path_provider/path_provider.dart';
 
-enum PictureSourceEnum {camera,bytes}
+enum PictureSourceEnum {camera,bytes,gallery}
 
 
 class GetPictureFromCamera extends UseCase<FileModel, GetPictureFromCameraParams>{
@@ -23,10 +23,10 @@ class GetPictureFromCamera extends UseCase<FileModel, GetPictureFromCameraParams
   GetPictureFromCamera({required this.fileRepository});
   Future<Either<Failure, FileModel>> call(GetPictureFromCameraParams params) async
   {
-    if(params.src == PictureSourceEnum.camera){
+    if(params.src == PictureSourceEnum.camera||params.src == PictureSourceEnum.gallery){
       final ImagePicker _picker = ImagePicker();
       final pickedFile = await _picker.pickImage(
-        source: ImageSource.camera,
+        source: params.src == PictureSourceEnum.camera?ImageSource.camera:ImageSource.gallery,
         maxWidth: 2000,
         maxHeight: 2000,
         imageQuality: 80,

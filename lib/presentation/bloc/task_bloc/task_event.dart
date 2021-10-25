@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 
 abstract class TaskEvent extends Equatable {
   const TaskEvent();
@@ -48,9 +49,10 @@ class ChangeBoolFieldValue extends TaskEvent
 class AddPhotoToField extends TaskEvent
 {
   final int fieldId;
+  final PictureSourceEnum src;
   //final dynamic value;
   //final int task;
-  AddPhotoToField({required this.fieldId});
+  AddPhotoToField({required this.fieldId, required this.src});
 }
 class RemovePhotoFromField extends TaskEvent
 {

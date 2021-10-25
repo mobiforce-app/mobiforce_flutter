@@ -11,6 +11,7 @@ class FileEntity{
   bool deleted;
   bool downloaded;
   bool? downloading;
+  bool? waiting;
   dynamic? parent;
   int size;
   //
@@ -25,6 +26,7 @@ class FileEntity{
       required this.downloaded,
       required this.deleted,
       required this.size,
+      this.waiting,
   });
   fromMap(Map<String, dynamic> map)
   {

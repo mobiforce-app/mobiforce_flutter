@@ -66,7 +66,6 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
                 ///crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround ,
                 children: [
-                  Text("${_tabController.index}"),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: widget.floatButton.length>1?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)

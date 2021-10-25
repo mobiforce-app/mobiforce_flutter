@@ -26,7 +26,7 @@ class FileModel extends FileEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  FileModel({required id, required usn,serverId,name, description, parent, required downloaded, downloading, required size, required deleted}): super(
+  FileModel({required id, required usn,serverId,name, description, parent, required downloaded, downloading, required size, required deleted, waiting}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -36,7 +36,8 @@ class FileModel extends FileEntity
       parent:parent,
       deleted:deleted,
       downloaded:downloaded,
-      downloading:downloading
+      downloading:downloading,
+      waiting:waiting,
   );
 
   Map<String, dynamic> toMap(){

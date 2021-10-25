@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
@@ -331,7 +332,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
           child:
           e.downloaded==true?
           Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')):(
-              e.downloading==true?Padding(padding: const EdgeInsets.all(8.0),
+              e.downloading==true||e.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
                   child: Center(child: CircularProgressIndicator(),))
                   :
               InkWell(
@@ -353,15 +354,63 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
         Text("${widget.name} (${widget.files?.length??0})"),
         SizedBox(height: 8,),
         SingleChildScrollView(
+          reverse: true,
           scrollDirection: Axis.horizontal,
           child: Row(children: photos==null||photos.length==0?[Text("Нет фоточек")]:photos,),
         ),
         SizedBox(height: 8,),
         ElevatedButton(
           onPressed: () async {
-              BlocProvider.of<TaskBloc>(context).add(
-                AddPhotoToField(fieldId:widget.fieldId),
-              );
+            showModalBottomSheet(
+              isScrollControlled: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              context: context,
+              builder: (context) =>
+                  Wrap(children:
+                  [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text("Загрузить изображение", style: TextStyle(fontSize:18, color: Colors.black)),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        BlocProvider.of<TaskBloc>(context).add(
+                          AddPhotoToField(fieldId:widget.fieldId,src: PictureSourceEnum.camera),
+                        );
+                      }, // Handle your callback
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text("Камера", style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
+                        ),
+                      )
+                  ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        BlocProvider.of<TaskBloc>(context).add(
+                          AddPhotoToField(fieldId:widget.fieldId,src: PictureSourceEnum.gallery),
+                        );
+                      }, // Handle your callback
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text("Галерея", style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
+                        ),
+                      )
+                  ),
+                  ]
+                  ),);
+
+
           },
           child:
           Padding(

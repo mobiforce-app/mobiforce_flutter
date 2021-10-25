@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,6 +40,8 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state
 import 'package:path_provider/path_provider.dart';
 //import 'package:dartz/dartz.dart';
 // import 'equatabl'
+//enum PictureSourceEnum {camera, gallery}
+
 class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final GetTask taskReader;
 
@@ -172,34 +176,89 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     if (event is AddPhotoToField) {
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
-      final FoL = await getPictureFromCamera(
-          GetPictureFromCameraParams(src: PictureSourceEnum.camera));
-      final isChanged = !(state as TaskLoaded).isChanged;
+      final dir = (state as TaskLoaded).appFilesDirectory;
+      bool isChanged = !(state as TaskLoaded).isChanged;
 
-      Directory dir =  await getApplicationDocumentsDirectory();
-      //yield StartLoadingTaskPage();
-      yield await FoL.fold((failure) => TaskError(message:"bad"), (
-          picture) async {
+      final ImagePicker _picker = ImagePicker();
+      final pickedFile = await _picker.pickImage(
+        source: event.src == PictureSourceEnum.camera?ImageSource.camera:ImageSource.gallery,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 80,
+      );
+      if(pickedFile!=null) {
+        task.propsList?.forEach((element) {
+          if(event.fieldId==element.id){
+            final FileModel picture = FileModel(id: 0, usn: 0, downloaded: false, size: 0, deleted: false);
+            picture.waiting=true;
+            if(element.fileValueList!=null)
+              element.fileValueList?.add(picture);
+            else
+              element.fileValueList=[picture];
 
-        final FoL = await addPictureToTaskField(
-            AddPictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: picture.id));
-        return FoL.fold((l) => TaskError(message:"bad"), (FileModel picture)  {
+          }
+          //element.waitingCount=0;
 
-          task.propsList?.forEach((element) {
-            if(event.fieldId==element.id){
-              if(element.fileValueList!=null)
-                element.fileValueList?.add(picture);
-              else
-                element.fileValueList=[picture];
-            }
-
-            print("picture + ${event.fieldId} ${element.id}");
-          });
-          syncToServer(ListSyncToServerParams());
-          return TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: []);
+          print("picture + ${event.fieldId} ${element.id}");
         });
-        //syncToServer(ListSyncToServerParams());
-      });
+        print("pickedFile ${pickedFile.toString()}");
+        yield TaskLoaded(isChanged: isChanged,
+            task: task,
+            nextTaskStatuses: nextTaskStatuses,
+            appFilesDirectory: dir,
+            comments: []);
+
+        Uint8List? data=await pickedFile.readAsBytes();
+        final FoL = await getPictureFromCamera(
+            GetPictureFromCameraParams(src: PictureSourceEnum.bytes,
+                data: data));
+
+
+        //Directory dir =  await getApplicationDocumentsDirectory();
+        //yield StartLoadingTaskPage();
+        yield await FoL.fold((failure) => TaskError(message: "bad"), (
+            picture) async {
+          final FoL = await addPictureToTaskField(
+              AddPictureToTaskFieldParams(
+                  taskFieldId: event.fieldId, pictureId: picture.id));
+          return FoL.fold((l) => TaskError(message: "bad"), (
+              FileModel picture) {
+            task.propsList?.forEach((element) {
+              if (event.fieldId == element.id) {
+                //bool isAdd=false;
+                /*if(element.fileValueList!=null){
+                element.fileValueList?.forEach((pict) {
+                  if(pict.waiting==true) {
+                    pict = picture;
+                    isAdd=true;
+                  }
+                });
+              }*/
+                for (var elem in element.fileValueList!) {
+                  if (elem.waiting == true) {
+                    element.fileValueList!.remove(elem);
+                    break;
+                  }
+                }
+                if (element.fileValueList != null)
+                  element.fileValueList?.add(picture);
+                else
+                  element.fileValueList = [picture];
+              }
+
+              print("picture + ${event.fieldId} ${element.id}");
+            });
+            syncToServer(ListSyncToServerParams());
+            isChanged = !(state as TaskLoaded).isChanged;
+            return TaskLoaded(isChanged: isChanged,
+                task: task,
+                nextTaskStatuses: nextTaskStatuses,
+                appFilesDirectory: dir,
+                comments: []);
+          });
+          //syncToServer(ListSyncToServerParams());
+        });
+      }
       print("picture OK! 2!");
     }
     if (event is RemovePhotoFromField) {
