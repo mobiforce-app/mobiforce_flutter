@@ -18,6 +18,7 @@ import 'package:mobiforce_flutter/domain/usecases/add_picture_to_field.dart';
 //import 'package:mobiforce_flutter/domain/usecases/add_picture_to_task_comment.dart';
 import 'package:mobiforce_flutter/domain/usecases/add_task_comment.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
+import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
@@ -44,6 +45,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final GetPictureFromCamera getPictureFromCamera;
   final LoadFile loadFile;
   final AddPictureToTaskField addPictureToTaskField;
+  final DeletePictureToTaskField deletePictureToTaskField;
   //final AddCommentWithPictureToTask addCommentWithPictureToTask;
   final GetTaskStatusesGraph nextTaskStatusesReader;
   final SetTaskStatus setTaskStatus;
@@ -72,6 +74,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.addTaskComment,
     required this.syncToServer,
     required this.addPictureToTaskField,
+    required this.deletePictureToTaskField,
+
    // required this.addCommentWithPictureToTask,
   }) : super(TaskEmpty()) {
 
@@ -197,6 +201,32 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       });
       print("picture OK! 2!");
     }
+    if (event is RemovePhotoFromField) {
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final comments=(state as TaskLoaded).comments;
+
+        final FoL = await deletePictureToTaskField(
+            DeletePictureToTaskFieldParams(taskFieldId: event.fieldId, pictureId: event.fileId));
+        yield FoL.fold((l) => TaskError(message:"bad"), (FileModel picture)  {
+
+          task.propsList?.forEach((element) {
+            if(event.fieldId==element.id){
+              //if(element.fileValueList!=null)
+              //  element.fileValueList?.add(picture);
+              //else
+              element.fileValueList=[];
+            }
+
+            print("picture + ${event.fieldId} ${element.id}");
+          });
+          syncToServer(ListSyncToServerParams());
+          return TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: []);
+        });
+        //syncToServer(ListSyncToServerParams());
+    }
     if (event is AddSignatureToField) {
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
@@ -215,9 +245,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           task.propsList?.forEach((element) {
             if(event.fieldId==element.id){
-              if(element.fileValueList!=null)
-                element.fileValueList?.add(picture);
-              else
+              //if(element.fileValueList!=null)
+              //  element.fileValueList?.add(picture);
+              //else
                 element.fileValueList=[picture];
             }
 

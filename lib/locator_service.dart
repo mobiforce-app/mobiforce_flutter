@@ -18,6 +18,7 @@ import 'package:mobiforce_flutter/domain/repositories/sync_repository_impl.dart'
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
+import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
 import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
@@ -72,15 +73,16 @@ Future<void>init() async
       syncToServer: sl(),
       getPictureFromCamera:sl(),
       addTaskComment:sl(),
-      addPictureToTaskField: sl()),
-    //  addCommentWithPictureToTask: sl()),
-  );
+      addPictureToTaskField: sl(),
+      deletePictureToTaskField: sl(),
+    ));
   sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService(m:sl()));
 
 
   //usecases
   sl.registerLazySingleton(() => GetPictureFromCamera(fileRepository: sl()));
   sl.registerLazySingleton(() => AddPictureToTaskField(taskRepository: sl()));
+  sl.registerLazySingleton(() => DeletePictureToTaskField(taskRepository: sl()));
   //sl.registerLazySingleton(() => AddCommentWithPictureToTask(taskRepository: sl()));
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => AddTaskComment(sl()));

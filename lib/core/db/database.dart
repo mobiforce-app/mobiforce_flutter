@@ -413,6 +413,7 @@ class DBProvider {
             "t3.usn as usn, "
             "t3.link_object_type as link_object_type,"
             "t3.name as name, "
+            "t3.deleted as deleted, "
             "t3.external_id as external_id, "
             "t3.description as description "
             "FROM $tasksFieldsTable as t1 "
@@ -444,6 +445,28 @@ class DBProvider {
       print("to base ${map.toString()}, id: $pictureId");
       await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
       usn = await getUSN();
+      await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [taskFieldId]);
+      return pictureId;
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return 0;
+    }
+    //task.id=id;
+    //return id;
+  }
+
+  Future<int> deletePictureFromTaskField({required int taskFieldId,required int pictureId}) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      //id=await db.update(fileTable, {"deleted":1});
+      dynamic map={
+        "deleted":1,
+      };
+      print("to base ${map.toString()}, id: $pictureId");
+      await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
+      int usn = await getUSN();
       await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [taskFieldId]);
       return pictureId;
     }

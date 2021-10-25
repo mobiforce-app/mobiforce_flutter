@@ -46,6 +46,13 @@ class TaskRepositoryImpl implements TaskRepository{
     //return Right(_r);
     //throw UnimplementedError();
   }
+  @override
+  Future<Either<Failure, FileModel>>deleteTaskFieldPicture({required int taskFieldId, required int pictureId}) async {
+    print("picture id= $pictureId");
+    return Right(await remoteDataSources.deletePictureTaskField(taskFieldId:taskFieldId,pictureId:pictureId));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
   Future<Either<Failure, List<TaskEntity>>> searchTask(String query) async {
    return await _getTasks(()=> remoteDataSources.searchTask(query));
     //return Right(_r);

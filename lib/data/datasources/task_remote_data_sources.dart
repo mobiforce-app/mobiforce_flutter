@@ -27,6 +27,7 @@ abstract class TaskRemoteDataSources{
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
+  Future<FileModel> deletePictureTaskField({required int taskFieldId,required int pictureId});
   //Future<FileModel> addPictureTaskComment({required int taskCommentId,required int pictureId});
   Future<TaskCommentModel> addTaskComment({required TaskCommentModel comment});
 }
@@ -81,6 +82,12 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId}) async
   {
     int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
+    return FileModel(id: id, usn:0,downloaded: true, size:0, deleted: false);
+  }
+  @override
+  Future<FileModel> deletePictureTaskField({required int taskFieldId,required int pictureId}) async
+  {
+    int id = await db.deletePictureFromTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
     return FileModel(id: id, usn:0,downloaded: true, size:0, deleted: false);
   }
 

@@ -82,7 +82,7 @@ class FileModel extends FileEntity
       parent=TasksFieldsModel(id: map['link_object'], usn: 0, serverId: map['field_external_id']??0);
     return FileModel(
         id: map['id'],
-        size: map['size']??0,
+        size: map['size']==null?0:map['size'],
         usn: map['usn'],
         serverId: map['external_id'],
         description: map['description'],

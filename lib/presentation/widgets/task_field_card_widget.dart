@@ -9,6 +9,7 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
+import 'package:mobiforce_flutter/presentation/pages/signature_view_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -219,7 +220,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
 
 
     final List<Widget>? photos = widget.files?.map((e) {
-      final size=(e.size??0)~/1024;
+      final size=(e.size)~/1024;
       return Container(
           width: 160,
           height: 160,
@@ -337,11 +338,20 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
             padding: const EdgeInsets.all(16.0),
             child: Text("Ввести подпись"),
           )
-      ):Container(
+      ):InkWell(
+        child: Container(
             width: 160,
             height: 160,
             child: Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg'))
         ),
+          onTap: (){
+            Navigator.push(context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => SignatureViewPage(fieldId:widget.fieldId,fileId:widget.files?.first.id??0,picturePath:'${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg'),
+                  transitionDuration: Duration(seconds: 0),
+                ));
+          },
+        )
       ]
     );
   }

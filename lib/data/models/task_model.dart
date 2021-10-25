@@ -274,7 +274,7 @@ class TaskModel extends TaskEntity
     var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,tasksFieldsSelectionValuesMap)).toList();
 
     fieldList.forEach((element) {
-      if(element.taskField?.type.value==TaskFieldTypeEnum.picture){
+      if(element.taskField?.type.value==TaskFieldTypeEnum.picture||element.taskField?.type.value==TaskFieldTypeEnum.signature){
         print("TaskFieldTypeEnum.picture");
         files.forEach((file) {
           print("TaskFieldTypeEnum.picture ${file.parent.id} && ${element.id}");

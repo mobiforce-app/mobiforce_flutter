@@ -45,6 +45,14 @@ class AddPhotoToField extends TaskEvent
   //final int task;
   AddPhotoToField({required this.fieldId});
 }
+class RemovePhotoFromField extends TaskEvent
+{
+  final int fieldId;
+  final int fileId;
+  //final dynamic value;
+  //final int task;
+  RemovePhotoFromField({required this.fieldId, required this.fileId});
+}
 class CommentFileDownload extends TaskEvent
 {
   final int? file;

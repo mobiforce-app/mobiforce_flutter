@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_event.dart';
@@ -23,6 +24,7 @@ class TasksList extends StatelessWidget {
 
   void setupScrollController(BuildContext context) {
     scrollController.addListener(() {
+      print("scroll");
       if (scrollController.position.atEdge) {
         if (scrollController.position.pixels != 0) {
           BlocProvider.of<TaskListBloc>(context)
@@ -93,6 +95,9 @@ class TasksList extends StatelessWidget {
                     child: Icon(Icons.now_wallpaper)
                 );
               }
+              //tasks.add(TaskModel(id: 0, serverId: 0));
+
+              //print("return scroll");
               return
                 RefreshIndicator(
                     key: _refreshIndicatorKey,
@@ -115,26 +120,33 @@ class TasksList extends StatelessWidget {
                     //di.sl<TaskListBloc>()..add(ListTasks());
                     //},
                     child: Scrollbar(
-                      child: ListView.separated(
-                        //physics: BouncingScrollPhysics (),
-                          controller: scrollController,
-                          itemBuilder: (context, index) {
-                            if (index < tasks.length)
-                              return TaskCard(task: tasks[index]);
-                            else
-                              return _loadingIndicator();
-                          },
-                          separatorBuilder: (context, index) {
-                            return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Divider(height: 1,
-                                  color: Colors.grey,
-                                  thickness: 1,)
-                            );
-                          },
-                          itemCount: tasks.length + (isLoading ? 1 : 0)
+                      //child: Container(
+                        //controller: scrollController,
+                        //height: double.infinity,
+                        //color: Colors.red,
+                        child: ListView.separated(
+                          //physics: BouncingScrollPhysics (),
+                            physics: AlwaysScrollableScrollPhysics(),
+                            controller: scrollController,
+                            itemBuilder: (context, index) {
+                              print("list bbuilder");
+                              if (index < tasks.length)
+                                return TaskCard(task: tasks[index]);
+                              else
+                                return _loadingIndicator();
+                            },
+                            separatorBuilder: (context, index) {
+                              return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Divider(height: 1,
+                                    color: Colors.grey,
+                                    thickness: 1,)
+                              );
+                            },
+                            itemCount: tasks.length + (isLoading ? 1 : 0)
 
-                      ),
+                        ),
+                      //),
 
                     )
                 );

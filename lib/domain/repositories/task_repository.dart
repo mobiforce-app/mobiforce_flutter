@@ -18,5 +18,6 @@ abstract class TaskRepository{
   Future<Either<Failure, bool>>setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id);
   Future<Either<Failure, FileModel >>addTaskFieldPicture({required int taskFieldId, required int pictureId});
+  Future<Either<Failure, FileModel >>deleteTaskFieldPicture({required int taskFieldId, required int pictureId});
 
 }

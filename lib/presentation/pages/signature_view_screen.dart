@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -6,15 +7,17 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
+import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/widgets/custom_search_delegate.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:signature/signature.dart';
 
-class SignaturePage extends StatelessWidget {
+class SignatureViewPage extends StatelessWidget {
   final int fieldId;
-  final int? oldFileId;
+  final int fileId;
+  final String picturePath;
 
-  const SignaturePage({Key? key, required this.fieldId, this.oldFileId}) : super(key: key);
+  const SignatureViewPage({Key? key, required this.fieldId, required this.fileId, required this.picturePath}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,46 @@ class SignaturePage extends StatelessWidget {
         title: Text('Signature'),
         centerTitle: true,
       ),
-      body: SignatureInput(fieldId:fieldId,oldFileId:oldFileId),
+      body: Column(
+          children: <Widget>[
+      Expanded(child:
+        Image.file(File(picturePath))
+      ),
+            Container(
+              decoration: const BoxDecoration(color: Colors.black),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  //SHOW EXPORTED IMAGE IN NEW ROUTE
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    color: Colors.white,
+                    onPressed: () async {
+                      BlocProvider.of<TaskBloc>(context).add(
+                        RemovePhotoFromField(fieldId:fieldId,fileId:fileId),
+                      );
+                      Navigator.pop(context);
+
+                    }
+                    ,
+                  ),
+                  //CLEAR CANVAS
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    color: Colors.white,
+                    onPressed: () {
+                      Navigator.push(context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation1, animation2) => SignaturePage(fieldId:fieldId, oldFileId: fileId,),
+                            transitionDuration: Duration(seconds: 0),
+                          ));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ])
     );
   }
 }
@@ -31,11 +73,10 @@ class SignaturePage extends StatelessWidget {
 class SignatureInput extends StatefulWidget {
   //final String name;
   final int fieldId;
-  final int? oldFileId;
-//final bool isText;
+  //final bool isText;
   //String val;
 
-  SignatureInput({required this.fieldId, this.oldFileId});
+  SignatureInput({required this.fieldId});
 
   @override
   State<StatefulWidget> createState() {
@@ -103,15 +144,9 @@ class _signatureState extends State<SignatureInput> {
                   if (_controller.isNotEmpty) {
                     final Uint8List? data = await _controller.toPngBytes();
                     if (data != null) {
-                      if(widget.oldFileId!=null)
-                        BlocProvider.of<TaskBloc>(context).add(
-                          RemovePhotoFromField(fieldId:widget.fieldId,fileId:widget.oldFileId!),
-                        );
                       BlocProvider.of<TaskBloc>(context).add(
                         AddSignatureToField(fieldId:widget.fieldId,data:data),
                       );
-                      if(widget.oldFileId!=null)
-                        Navigator.pop(context);
                       Navigator.pop(context);
                       /*await Navigator.of(context).push(
                         MaterialPageRoute<void>(
