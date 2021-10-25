@@ -311,6 +311,54 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       print("task.isChanged ${task.isChanged}");
       //yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
     }
+    if (event is ChangeBoolFieldValue) {
+      //getTask.
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final isChanged = !(state as TaskLoaded).isChanged;
+      //yield TaskSaved(task: task, nextTaskStatuses:nextTaskStatuses);
+      print("element.id: ${task.id}");
+      print("fieldId: ${event.fieldId}, ${task.toString()}");
+      TasksFieldsModel? fieldElement=null;
+      //dynamic val=event.value;
+
+      task.propsList?.forEach((element) {
+        print("element.id: ${element.id}");
+        if(element.id==event.fieldId) {
+          fieldElement=element;
+        }
+      });
+      print("val1 ${event.value}");
+      dynamic v=null;
+      fieldElement?.boolValue=event.value;
+      //else if(fieldElement?.taskField?.type.value==TaskFieldTypeEnum.checkbox)
+      //  return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.boolValue==true?"1":"0");
+
+      if(fieldElement!=null) {
+        final FoL = await setTaskFieldSelectionValue(
+            SetTaskFieldSelectionValueParams(taskField: fieldElement!));
+        FoL.fold((failure) {print("error");}, (
+            nextTaskStatuses_readed) {
+          //syncToServer(ListSyncToServerParams());
+          print("val ${event.value}");
+          //fieldElement?.stringValue = event.value;
+        });
+      }
+
+
+
+    task.checkList?.forEach((element) {
+        print("element.id: ${element.id}");
+        if(element.id==event.fieldId) {
+          element.boolValue = event.value;
+          print("${element.taskField?.name}");
+        }
+      });
+      //task.isChanged=!task.isChanged;
+
+      print("task.isChanged ${task.isChanged}");
+      //yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
+    }
     if (event is AddComment) {
 
       final task = (state as TaskLoaded).task;

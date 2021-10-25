@@ -114,6 +114,110 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
   }
 }
 
+class TaskFieldCheckboxCard extends StatefulWidget {
+  final String name;
+  final int fieldId;
+  //final bool isText;
+  bool val;
+
+  TaskFieldCheckboxCard({required this.name, required this.fieldId, required this.val});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _taskFieldCheckboxState();
+  }
+}
+class _taskFieldCheckboxState extends State<TaskFieldCheckboxCard> {
+  var _controller = TextEditingController();
+  var _oldValue;
+  //var _needToLoadValue=true;
+  //Timer? _debounce;
+  //_controller.text="20";
+  _onChanged(bool? val) {
+    setState((){
+      _oldValue=val??false;
+      widget.val=_oldValue;
+      BlocProvider.of<TaskBloc>(context).add(
+        ChangeBoolFieldValue(fieldId:widget.fieldId,value:_oldValue),
+      );
+    });
+  }
+
+  @override
+  void deactivate() {
+    /*if(_oldValue!=_controller.text){
+      widget.val  = _controller.text;
+      BlocProvider.of<TaskBloc>(context).add(
+          ChangeTextFieldValue(fieldId:widget.fieldId,value:_controller.text),
+      );
+    }*/
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    //_debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    //if(widget.needToLoadValue) {
+      print("initState ${widget.val}");
+
+      //_controller.text = widget.val;
+      _oldValue = widget.val;
+    //}
+    //widget.needToLoadValue=false;
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+     return Row(
+       children: [
+         Checkbox(
+            value: _oldValue,
+            /*decoration: InputDecoration(
+              labelText: widget.name,
+              border: OutlineInputBorder(),
+              suffixIcon: _controller.text.length>0?IconButton(
+                icon: Icon(Icons.cancel),
+                onPressed: (){
+                  //  setState((){element.selectionValue=null;});
+                  print("press");
+                  setState(()=>
+                    _controller.clear()
+                  );
+//              widget.val  = "";
+
+                  /*BlocProvider.of<TaskBloc>(context).add(
+                    ChangeTextFieldValue(fieldId:widget.fieldId,value:""),
+                  );*/
+
+                },
+              ):null,
+            ),*/
+            //controller: _controller,
+            //maxLines: 3,
+            //keyboardType: widget.isText?TextInputType.text:TextInputType.phone,//.numberWithOptions(),
+  /*      onChanged: (data)
+            {
+              setState(()=>{});
+              BlocProvider.of<TaskBloc>(context).add(
+                ChangeTextFieldValue(fieldId:widget.fieldId,value:data),
+              );
+            },//maxLines: 3,*/
+            onChanged: _onChanged//(bool? t){
+              //setState((){_oldValue=t!;});
+            //},
+          ),
+           Text("${widget.name}"),
+
+       ],
+     );
+  }
+}
+
 
 class TaskFieldSelectionCard extends StatefulWidget {
   final String name;

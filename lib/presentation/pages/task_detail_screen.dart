@@ -51,6 +51,9 @@ class TaskDetailPage extends StatelessWidget {
     else if(element.taskField?.type.value==TaskFieldTypeEnum.number){
       return TaskFieldTextCard(name:element.taskField?.name??"",fieldId:element.id,isText:false,val:"${element.doubleValue??0.0}");
     }
+    else if(element.taskField?.type.value==TaskFieldTypeEnum.checkbox){
+      return TaskFieldCheckboxCard(name:element.taskField?.name??"",fieldId:element.id,val:element.boolValue??false);
+    }
     else if(element.taskField?.type.value==TaskFieldTypeEnum.picture){
       return TaskFieldPictureCard(name:element.taskField?.name??"", fieldId:element.id, files:element.fileValueList, appFilesDirectory:appFilesDirectory);
     }
