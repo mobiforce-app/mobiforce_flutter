@@ -26,6 +26,7 @@ class LoginBloc extends Bloc<LoginEvent,LoginState>{
     print("map event+");
     if(event is TryToLogin) {
       yield LoginWaitingServerAnswer();
+      print("fcmToken: ${fcm.token}");
 
       final faiureOrLoading = await auth(AuthorizationParams(
           domain: event.domain,

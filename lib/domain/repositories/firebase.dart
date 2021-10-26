@@ -18,11 +18,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class PushNotificationService {
-  final ModelImpl m;
+  //final ModelImpl m;
   String? _token;
   //factory PushNotificationService() => _instance??=PushNotificationService._();
 
-  PushNotificationService({required this.m}){
+  PushNotificationService(){
     print("ref");
     _register();
   }

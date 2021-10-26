@@ -10,6 +10,7 @@ abstract class SyncRepository{
   ///Future<Either<Failure, List<SyncEntity>>>searchTask(String query);
 
   Future<Either<Failure, SyncEntity>>getUpdates();
+  Future<bool> sendToken(String? fcmToken);
   Future<Either<Failure, int>>sendUpdates(DBProvider db);
   bool isFullSyncStarted();
   Future<bool>setComplete();

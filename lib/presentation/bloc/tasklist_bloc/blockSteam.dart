@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
+import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 class SyncStatus
 {
@@ -21,7 +22,10 @@ abstract class Model{
 class ModelImpl implements Model{
   int _counter = 0;
   final SyncFromServer syncFromServer;
-  ModelImpl({required this.syncFromServer});
+  final PushNotificationService fcm;
+  bool fcmTokenNotSync = true;
+
+  ModelImpl({required this.syncFromServer,required this.fcm});
 
   SyncStatus s = SyncStatus(syncPhase:SyncPhase.normal);
   //var controller = new StreamController<String>();
@@ -34,12 +38,17 @@ class ModelImpl implements Model{
     while(true)
     {
 
-      final faiureOrLoading = await syncFromServer(ListSyncParams(lastSyncTime: 0, lastUpdateCount: 0,));
+      final faiureOrLoading = await syncFromServer(ListSyncParams(
+        lastSyncTime: 0,
+        lastUpdateCount: 0,
+          fcmToken: fcmTokenNotSync?fcm.token:null
+      ));
       bool complete=faiureOrLoading.fold((failure) {
         print ("*");
         return false;
       }, (sync) {
-
+        if(sync.sendToken)
+          fcmTokenNotSync=false;
         // open full sync page
         print("fullSync ${sync.syncPhase}");
         if(sync.syncPhase != SyncPhase.normal)

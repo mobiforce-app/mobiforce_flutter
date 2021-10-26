@@ -76,7 +76,6 @@ Future<void>init() async
       addPictureToTaskField: sl(),
       deletePictureToTaskField: sl(),
     ));
-  sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService(m:sl()));
 
 
   //usecases
@@ -130,7 +129,8 @@ Future<void>init() async
       )
   );
   sl.registerLazySingleton<ModelImpl>(
-      () => ModelImpl(syncFromServer:sl()
+      () => ModelImpl(syncFromServer:sl(),
+          fcm: sl(),
           //remoteDataSources: sl(),
           //networkInfo: sl()
       )
@@ -165,6 +165,7 @@ Future<void>init() async
   );
   //core
 
+  sl.registerLazySingleton<PushNotificationService>(() => PushNotificationService());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton(() => DBProvider());
   //external

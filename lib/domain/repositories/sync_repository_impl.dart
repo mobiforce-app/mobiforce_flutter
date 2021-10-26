@@ -277,6 +277,23 @@ class SyncRepositoryImpl implements SyncRepository{
     return Right(sendObjects);
   }
   @override
+  Future<bool> sendToken(String? fcmToken) async {
+    if(fcmToken!=null) {
+      final Map<String, dynamic> send = {
+        "fcmToken": fcmToken,
+      };
+      print("send: $send");
+      final int serverId = await updatesRemoteDataSources.sendUpdate(
+        domain: domain,
+        accessToken: accessToken,
+        objectType: "fcmtoken",
+        mapObjects: send,
+      );
+      return serverId == 1 ? true : false;
+    }
+    return false;
+  }
+  @override
   Future<Either<Failure, SyncModel>> getUpdates() async {
 
     List<dynamic> mapObject(json) {

@@ -19,9 +19,13 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
   Future<Either<Failure, SyncStatusEntity>> call(ListSyncParams params) async {
 
     if(syncRepository.isFullSyncStarted())
-      return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0));
+      return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0, sendToken: false));
     //return await syncRepository.getUpdates();
     //return await syncRepository.getUpdates();
+    //if(params.fcmToken!=null) {
+    final bool sendToken = await syncRepository.sendToken(params.fcmToken);
+    //}
+
     final faiureOrLoading = await syncRepository.getUpdates();
     return await faiureOrLoading.fold((failure){
       //print ("*")
@@ -32,7 +36,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
         await db.clear();
         print("sync.lastSyncTime ${sync.lastSyncTime}");
         await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime);
-        return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0));
+        return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0, sendToken: sendToken));
       }
       else {
         if(sync.dataList.isEmpty) {
@@ -42,12 +46,15 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
             return Right(SyncStatusModel(progress: 0,
                 complete: true,
                 dataLength: 0,
-                syncPhase: SyncPhase.normal));
+                syncPhase: SyncPhase.normal,
+                sendToken:sendToken));
           else
             return Right(SyncStatusModel(progress: 0,
                 complete: false,
                 dataLength: 0,
-                syncPhase: SyncPhase.normal));
+                syncPhase: SyncPhase.normal,
+                sendToken:sendToken
+            ));
         }
         else {
           int id=0;
@@ -69,7 +76,8 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
           return Right(SyncStatusModel(progress: 0,
               complete: false,
               dataLength: 0,
-              syncPhase: SyncPhase.normal));
+              syncPhase: SyncPhase.normal,
+              sendToken:sendToken));
           /*else if(sync.objectType=="resolution")
                   for(ResolutionModel task in sync.dataList) {
                     //id = task.serverId;
@@ -78,10 +86,10 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
                   }*/
           //fullSyncRepository.saveProgress(sync.dataProgress+sync.dataList.length,id);
           //await sharedPreferences.getBool("full_sync")??false;
-          return Right(SyncStatusModel(progress: sync.dataProgress,
+         /* return Right(SyncStatusModel(progress: sync.dataProgress,
               complete: false,
               dataLength: sync.dataLength,
-              syncPhase: SyncPhase.fullSyncStart));
+              syncPhase: SyncPhase.fullSyncStart));*/
         }
       }
 
@@ -93,8 +101,9 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
 class ListSyncParams extends Equatable{
   final int lastUpdateCount;
   final int lastSyncTime;
+  final String? fcmToken;
   //ListTaskParams({required this.page});
-  ListSyncParams({required this.lastSyncTime, required this.lastUpdateCount});
+  ListSyncParams({required this.lastSyncTime, required this.lastUpdateCount, this.fcmToken});
 
   @override
   List<Object> get props => [lastUpdateCount,lastSyncTime];

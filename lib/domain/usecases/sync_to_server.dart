@@ -43,7 +43,9 @@ class SyncToServer extends UseCase<SyncStatusEntity, ListSyncToServerParams>{
     return Right(SyncStatusModel(progress: 0,
         complete: true,
         dataLength: 0,
-        syncPhase: SyncPhase.normal));
+        syncPhase: SyncPhase.normal,
+        sendToken:false,
+    ));
 
   }
 }

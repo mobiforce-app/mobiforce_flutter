@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/wait.dart';

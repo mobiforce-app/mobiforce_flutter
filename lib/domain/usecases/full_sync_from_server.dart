@@ -34,13 +34,17 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                   return Right(SyncStatusModel(progress: 0,
                       complete: true,
                       dataLength: 0,
-                      syncPhase: SyncPhase.fullSyncStart));
+                      syncPhase: SyncPhase.fullSyncStart,
+                      sendToken:false,
+                  ));
                 }
                 else
                   return Right(SyncStatusModel(progress: 0,
                       complete: false,
                       dataLength: 0,
-                      syncPhase: SyncPhase.fullSyncStart));
+                      syncPhase: SyncPhase.fullSyncStart,
+                      sendToken:false,
+                  ));
               }
               else {
                 int id=0;
@@ -65,7 +69,9 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                 return Right(SyncStatusModel(progress: sync.dataProgress,
                     complete: false,
                     dataLength: sync.dataLength,
-                    syncPhase: SyncPhase.fullSyncStart));
+                    syncPhase: SyncPhase.fullSyncStart,
+                    sendToken:false,
+                ));
               }
             });
     //return Left(ServerFailure());

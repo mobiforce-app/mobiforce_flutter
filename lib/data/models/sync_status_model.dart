@@ -9,11 +9,13 @@ class SyncStatusModel extends SyncStatusEntity
     required progress,
     required dataLength,
     required syncPhase,
+    required sendToken,
   }) : super(
       complete:complete,
       syncPhase:syncPhase,
       progress:progress,
       dataLength:dataLength,
+      sendToken:sendToken,
   );
   /*factory SyncModel.fromJson(Map<String, dynamic> json)
   {

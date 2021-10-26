@@ -47,7 +47,7 @@ class _signatureState extends State<SignatureInput> {
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 3,
     penColor: Colors.black,
-    exportBackgroundColor: Colors.white,
+    //exportBackgroundColor: Colors.white,
     onDrawStart: () => print('onDrawStart called!'),
     onDrawEnd: () => print('onDrawEnd called!'),
   );

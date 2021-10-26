@@ -25,6 +25,7 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
 
   Future<AuthorizationModel> firstLogin({required String domain,required  String login,required  String pass, String? fcmToken}) async{
     try{
+      print("fcmToken++: $fcmToken");
       Map data = {
         'domain': domain,
         'login': login,
