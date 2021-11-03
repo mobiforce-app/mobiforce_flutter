@@ -205,6 +205,17 @@ class TaskDetailPage extends StatelessWidget {
                         height: 24,
                       ),
                       Text(
+                        "Жизненный цикл: ${state.task.lifecycle?.name} ",
+                        style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                        ),
+                      ),
+                      SizedBox(
+                        height: 24,
+                      ),
+                      Text(
                       "${state.task.status?.name}",
                       style: TextStyle(
                       fontSize: 18,

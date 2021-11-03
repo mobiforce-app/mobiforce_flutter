@@ -9,12 +9,13 @@ import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 class GetTaskStatusesGraph extends UseCase<List<TaskStatusEntity>, TaskStatusParams>{
   final TaskRepository taskRepository;
   GetTaskStatusesGraph(this.taskRepository);
-  Future<Either<Failure, List<TaskStatusEntity>>> call(TaskStatusParams params) async => await taskRepository.getTaskStatusGraph(params.id);
+  Future<Either<Failure, List<TaskStatusEntity>>> call(TaskStatusParams params) async => await taskRepository.getTaskStatusGraph(params.id, params.lifecycle);
 }
 
 class TaskStatusParams extends Equatable{
   final int? id;
-  TaskStatusParams({this.id});
+  final int? lifecycle;
+  TaskStatusParams({this.id, this.lifecycle});
 
   @override
   List<Object> get props => [];

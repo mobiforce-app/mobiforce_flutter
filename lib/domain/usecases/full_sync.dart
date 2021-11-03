@@ -6,7 +6,7 @@ import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
-
+/*
 class AuthorizationManager {
   final AuthorizationRepository authRepository;
   AuthorizationManager(this.authRepository);
@@ -23,3 +23,4 @@ class AuthorizationManager {
   }
 
 }
+*/

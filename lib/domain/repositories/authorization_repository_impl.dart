@@ -33,6 +33,7 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
    //return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass));
     //return Right(_r);
     //throw UnimplementedError();
+    print("saveAuthorization $domain");
     await authorizationDataSource.setInt(key: "self_id", value: selfId);
     await authorizationDataSource.setString(key: "self_name", value: selfName);
     await authorizationDataSource.setString(key: "access_token", value: token);

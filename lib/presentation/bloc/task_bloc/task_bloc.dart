@@ -652,7 +652,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status, resolution: event.resolution));
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
         //this.task = task_readed;
-        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id));
+        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
         return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
           //this.nextTaskStatuses = nextTaskStatuses_readed;
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
@@ -697,7 +697,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //print("start sync1");
       //yield TaskListEmpty();
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
-        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id));
+        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
         return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
           print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()}");

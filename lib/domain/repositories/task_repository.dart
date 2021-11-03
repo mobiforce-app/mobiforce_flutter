@@ -16,7 +16,7 @@ abstract class TaskRepository{
   Future<Either<Failure, TaskEntity>>getTask(int id);
   Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task,int? resolution,});
   Future<Either<Failure, bool>>setTaskFieldSelectionValue({required TasksFieldsModel taskField});
-  Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id);
+  Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id, int? lifecycle);
   Future<Either<Failure, FileModel >>addTaskFieldPicture({required int taskFieldId, required int pictureId});
   Future<Either<Failure, FileModel >>deleteTaskFieldPicture({required int taskFieldId, required int pictureId});
 

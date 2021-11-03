@@ -56,6 +56,9 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
     syncDataProgress = sharedPreferences.getInt("sync_data_progress")??0;
     fullSyncUpdateId = sharedPreferences.getInt("full_sync_update_id")??0;
     fullSyncObjectsTypeId = sharedPreferences.getInt("full_sync_objects_type_id")??0;
+    domain=sharedPreferences.getString("domain")??"";
+    accessToken=sharedPreferences.getString("access_token")??"";
+
     //fullSync=sharedPreferences.getBool("full_sync")??false;
   }
 
@@ -86,6 +89,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
   Future<bool>restartFullSync({required int lastSyncTime}) async {
 
     domain=sharedPreferences.getString("domain")??"";
+    print("load domain $domain");
     accessToken=sharedPreferences.getString("access_token")??"";
      for(var item in objectsType){
         // item представляет MapEntry<K, V>

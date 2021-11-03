@@ -1,7 +1,10 @@
+//import 'dart:html';
+
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
+import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
@@ -16,7 +19,7 @@ class TaskModel extends TaskEntity
 {
 
   TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
-              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,
+              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,lifecycle,
   }): super(
       isChanged:isChanged,
       id:id,
@@ -46,6 +49,7 @@ class TaskModel extends TaskEntity
       createdAt:createdAt,
       plannedVisitTime:plannedVisitTime,
       plannedEndVisitTime:plannedEndVisitTime,
+      lifecycle:lifecycle,
   );
 
   Map<String, dynamic> toMap(){
@@ -55,6 +59,7 @@ class TaskModel extends TaskEntity
     map['deleted'] = deleted==true?1:0;
     map['external_id'] = serverId;
     map['contractor'] = contractor?.id;
+    map['lifecycle'] = lifecycle?.id;
     map['address'] = address;
     map['status'] = status?.id;
     map['contractor'] = contractor?.id;
@@ -95,6 +100,12 @@ class TaskModel extends TaskEntity
     {
       author?.id = await author!.insertToDB(db);
     }
+    if(lifecycle != null)
+    {
+      lifecycle?.id = await lifecycle!.insertToDB(db);
+    }
+    print("lifecycle?.id ${lifecycle?.id}");
+
     //else
     //  id=0;
     print ("INSERT Status id = $id");
@@ -216,7 +227,10 @@ class TaskModel extends TaskEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    Map<String,dynamic> lifeCycleMap={"id":taskMap['lifecycle_id'],"usn":taskMap['lifecycle_usn'],"name":taskMap['lifecycle_name'],"external_id":taskMap['lifecycle_external_id']};
+
     print("taskMap = ${taskMap.toString()}");
+    print("lifeCycleMap = ${lifeCycleMap.toString()}");
 
     //List<PhoneModel> phones = [];
     List<Map<String, dynamic>> phonesMap = [];
@@ -310,6 +324,7 @@ class TaskModel extends TaskEntity
         status:statusMap!=null?TaskStatusModel.fromMap(map:statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
+        lifecycle: lifeCycleMap['id']!=null?TaskLifeCycleModel.fromMap(lifeCycleMap):null,
         persons: persons.map((person) =>PersonModel.fromMap(person)).toList(),
         phones: phonesMap.map((phone) =>PhoneModel.fromMap(phone)).toList(),
     );
@@ -354,6 +369,7 @@ class TaskModel extends TaskEntity
         createdAt:json["createdAt"]!=null?int.parse(json["createdAt"]??"0"):null,
         plannedVisitTime:json["plannedVisitTime"]!=null?int.parse(json["plannedVisitTime"]??"0"):null,
         plannedEndVisitTime:json["plannedEndVisitTime"]!=null?int.parse(json["plannedEndVisitTime"]??"0"):null,
+        lifecycle: json["lifecycle"]!=null?TaskLifeCycleModel.fromJson(json["lifecycle"]):null,
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }

@@ -11,6 +11,7 @@ import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
+import 'package:mobiforce_flutter/data/models/task_life_cycle_node_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -46,6 +47,7 @@ class DBProvider {
   String taskCommentTable="taskcomment";
   String tasksStatusesTable="tasksstatuses";
   String taskLifeCycleTable="tasklifecycletable";
+  String taskLifeCycleNodeTable="tasklifecyclenodetable";
   String tasksFieldsTable="tasksfields";
   String tasksFieldsTabTable="tasksfieldstab";
   String taskValuesTable="taskvaluestable";
@@ -171,14 +173,24 @@ class DBProvider {
         'sort INTEGER'
         ')');
     await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $taskLifeCycleNodeTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'deleted INTEGER, '
+            'usn INTEGER, '
+            'name TEXT, '
+            'life_cycle INTEGER,  '
+            'current_status INTEGER,  '
+            'next_status INTEGER,  '
+            'need_resolution INTEGER)');
+    await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskLifeCycleTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             'dirty INTEGER, '
             'external_id INTEGER UNIQUE, '
             'usn INTEGER, '
-            'current_status INTEGER,  '
-            'next_status INTEGER,  '
-            'need_resolution INTEGER)');
+            'name TEXT)');
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $tasksTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -190,6 +202,7 @@ class DBProvider {
             'deleted int, '
             'author int, '
             'resolution INTEGER, '
+            'lifecycle INTEGER, '
             'template int, '
             'address TEXT, '
             'name TEXT,'
@@ -354,6 +367,7 @@ class DBProvider {
     await db.execute('DROP TABLE IF EXISTS $taskStatusTable');
     await db.execute('DROP TABLE IF EXISTS $tasksStatusesTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleTable');
+    await db.execute('DROP TABLE IF EXISTS $taskLifeCycleNodeTable');
     await db.execute('DROP TABLE IF EXISTS $tasksFieldsTable');
     await db.execute('DROP TABLE IF EXISTS $tasksFieldsTabTable');
     await db.execute('DROP TABLE IF EXISTS $taskFieldTable');
@@ -632,6 +646,11 @@ class DBProvider {
     final List<Map<String,dynamic>> tasksMapList = await db.rawQuery(
         "SELECT "
             "t1.id,"
+            "t3.name as contractor_parent_name,"
+            "t4.id as lifecycle_id,"
+            "t4.usn as lifecycle_usn,"
+            "t4.name as lifecycle_name,"
+            "t4.external_id as lifecycle_external_id,"
             "t1.dirty, "
             "t1.external_id,"
             "t1.usn, "
@@ -658,13 +677,14 @@ class DBProvider {
             "t2.name as contractor_name,"
             "t3.id as contractor_parent_id,"
             "t3.usn as contractor_parent_usn,"
-            "t3.external_id as contractor_parent_external_id,"
-            "t3.name as contractor_parent_name"
+            "t3.external_id as contractor_parent_external_id"
             " FROM $tasksTable as t1 "
             " LEFT JOIN $contractorTable as t2"
             " ON t1.contractor = t2.id "
             " LEFT JOIN $contractorTable as t3"
             " ON t2.parent = t3.id "
+            " LEFT JOIN $taskLifeCycleTable as t4 "
+            " ON t1.lifecycle = t4.id "
             " WHERE t1.id=? AND t1.deleted != 1",[id]);
 //        orderBy: "id desc",limit: 1,where: 'id =? AND deleted != 1', whereArgs: [id]);
 
@@ -737,10 +757,10 @@ class DBProvider {
         tasksFieldsFilesMap:tasksFieldsFilesMapList,
     );
   }
-  Future<List<TaskStatusModel>> getNextStatuses(int ?id) async {
+  Future<List<TaskStatusModel>> getNextStatuses(int ?id, int? lifecycle) async {
     Database db = await this.database;
     final List<TaskStatusModel> taskStatusesList = [];
-    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t1.need_resolution, t2.* FROM $taskLifeCycleTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ?",[id]);
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t1.need_resolution, t2.* FROM $taskLifeCycleNodeTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ? and t1.life_cycle = ?",[id, lifecycle]);
     await Future.forEach(tasksMapList, (Map<String,dynamic> element) async {
       print("need_resolution ${element.toString()}");
       List<Map<String,dynamic>> resolutionsMapList = [];
@@ -819,12 +839,18 @@ class DBProvider {
             "t3.id as contractor_parent_id,"
             "t3.usn as contractor_parent_usn,"
             "t3.external_id as contractor_parent_external_id,"
-            "t3.name as contractor_parent_name"
+            "t3.name as contractor_parent_name,"
+            "t4.id as lifecycle_id,"
+            "t4.usn as lifecycle_usn,"
+            "t4.name as lifecycle_name,"
+            "t4.external_id as lifecycle_external_id"
             " FROM $tasksTable as t1 "
             " LEFT JOIN $contractorTable as t2"
             " ON t1.contractor = t2.id "
             " LEFT JOIN $contractorTable as t3"
             " ON t2.parent = t3.id "
+            " LEFT JOIN $taskLifeCycleTable as t4"
+            " ON t1.lifecycle = t4.id "
             " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.id DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
 
     final List<TaskModel> tasksList = [];
@@ -1468,6 +1494,18 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     return ts?.id;
   }
 
+  Future<TaskLifeCycleNodeModel> insertTaskLifeCycleNode(TaskLifeCycleNodeModel taskLifeCycle) async {
+    Database db = await this.database;
+    int id=0;
+    try{
+      id=await db.insert(taskLifeCycleNodeTable, taskLifeCycle.toMap());
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    taskLifeCycle.id=id;
+    return taskLifeCycle;
+  }
   Future<TaskLifeCycleModel> insertTaskLifeCycle(TaskLifeCycleModel taskLifeCycle) async {
     Database db = await this.database;
     int id=0;
@@ -1480,10 +1518,32 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     taskLifeCycle.id=id;
     return taskLifeCycle;
   }
+  Future<int> updateTaskLifeCycleNodeByServerId(TaskLifeCycleNodeModel taskLifeCycle) async{
+    Database db = await this.database;
+    return await db.update(taskLifeCycleNodeTable, taskLifeCycle.toMap(), where: 'external_id =?', whereArgs: [taskLifeCycle.serverId]);
+
+  }
+  Future<int> getTaskLifeCycleNodeByServerId(int serverId) async{
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(taskLifeCycleNodeTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+
+  }
+  Future<int> getTaskLifeCycleIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(taskLifeCycleTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
   Future<int> updateTaskLifeCycleByServerId(TaskLifeCycleModel taskLifeCycle) async{
     Database db = await this.database;
-    return await db.update(taskLifeCycleTable, taskLifeCycle.toMap(), where: 'external_id =?', whereArgs: [taskLifeCycle.serverId]);
+    int taskId = await getTaskLifeCycleIdByServerId(taskLifeCycle.serverId);
+    if(taskId!=0)
+      await db.update(taskLifeCycleTable, taskLifeCycle.toMap(), where: 'id =?', whereArgs: [taskId]);
+    //task.id=taskId;
+    return taskId;
 
+    //return await db.update(taskLifeCycleTable, taskLifeCycle.toMap(), where: 'external_id =?', whereArgs: [taskLifeCycle.serverId]);
   }
 
   Future<TaskFieldModel> insertTaskField(TaskFieldModel taskFieldModel) async {
@@ -1509,6 +1569,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     //task.id=taskId;
     return taskId;
   }
+
   Future<int> getTaskFieldIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(taskFieldTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);

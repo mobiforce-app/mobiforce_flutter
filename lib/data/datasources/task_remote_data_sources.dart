@@ -22,7 +22,7 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
-  Future<List<TaskStatusModel>>getTaskStatusGraph(int? id);
+  Future<List<TaskStatusModel>>getTaskStatusGraph(int? id, int? lifecycle);
   Future<FileModel>loadFileFromWeb(int id);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
   Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
@@ -48,9 +48,9 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
 
   @override
-  Future<List<TaskStatusModel>> getTaskStatusGraph(int ?id) async
+  Future<List<TaskStatusModel>> getTaskStatusGraph(int ?id, int? lifecycle) async
   {
-    return await db.getNextStatuses(id);
+    return await db.getNextStatuses(id, lifecycle);
   }
 
   @override

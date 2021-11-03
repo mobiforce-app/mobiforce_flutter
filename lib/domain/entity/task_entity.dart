@@ -3,6 +3,7 @@ import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
+import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
@@ -30,6 +31,7 @@ class TaskEntity extends Equatable{
   int? createdAt;
   int? plannedVisitTime;
   int? plannedEndVisitTime;
+  TaskLifeCycleModel? lifecycle;
   //String? verificationRequired;
   //String? addressRoom;
 
@@ -82,6 +84,7 @@ class TaskEntity extends Equatable{
     this.createdAt,
     this.plannedVisitTime,
     this.plannedEndVisitTime,
+    this.lifecycle
 
   });
 

@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/task_life_cycle_node_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_entity.dart';
@@ -25,30 +26,35 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TaskLifeCycleModel({required id,required usn,required serverId,required currentStatusServerId, required nextStatusServerId, required needResolutionGroup, nextStatus, currentStatus, resolutionGroupServerId}): super(
+  TaskLifeCycleModel({required id,required usn,required serverId,required name,node}): super(
       id:id,
       usn:usn,
       serverId:serverId,
-      currentStatusServerId:currentStatusServerId,
-      nextStatusServerId:nextStatusServerId,
-      needResolutionGroup:needResolutionGroup,
-      nextStatus:nextStatus,
-      currentStatus:currentStatus,
-      resolutionGroupServerId:resolutionGroupServerId,
-
+      name:name,
+      node:node,
   );
 
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
-    map['current_status'] = currentStatus;
-    map['next_status'] = nextStatus;
-    map['need_resolution'] = needResolutionGroup;
+    map['name'] = name;
     map['usn'] = usn;
     map['external_id'] = serverId;
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
-    TaskStatusModel? tsCurrent = await db.getTaskStatusByServerId(currentStatusServerId);
+    //if(resolutionGroupServerId>0)
+    //  needResolutionGroup = await db.getResolutionGroupIdByServerId(resolutionGroupServerId);
+    dynamic lifeCycle = await db.insertTaskLifeCycle(this);
+    if(lifeCycle.id==0){
+      lifeCycle.id = await db.updateTaskLifeCycleByServerId(this);
+      print (" lifeCycledb id == ${lifeCycle.toString()}");
+    }
+    print (" lifeCycledb id == ${lifeCycle.toString()}");
+    await Future.forEach(node!, (TaskLifeCycleNodeModel element) async {
+      element.lifeCycle=lifeCycle.id;
+      element.id = await element.insertToDB(db);
+    });
+    /*TaskStatusModel? tsCurrent = await db.getTaskStatusByServerId(currentStatusServerId);
     TaskStatusModel? tsNext = await db.getTaskStatusByServerId(nextStatusServerId);
 
     if(resolutionGroupServerId>0)
@@ -61,37 +67,34 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
       dynamic t1 = await db.updateTaskLifeCycleByServerId(this);
       print ("db id == ${t1.toString()}");
 
-    }
-    return 0;
+    }*/
+    return lifeCycle.id;
   }
   factory TaskLifeCycleModel.fromMap(Map<String, dynamic> map)
   {
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
+    print("TaskLifeCycleModel ${map.toString()}");
     return TaskLifeCycleModel(
         id: map['id'],
         usn: map['usn'],
         serverId: map['external_id'],
-        needResolutionGroup: map['need_resolution'],
-        nextStatus: map['next_status'],
-        currentStatus: map['current_status'],
-        nextStatusServerId: map['next'],
-        currentStatusServerId: map['current'],
+        name: map['name'],
     );
   }
   factory TaskLifeCycleModel.fromJson(Map<String, dynamic> json)
   {
     print('jsonjson ${json.toString()} ');
     //return TaskModel(id:0,externalId: 0, name: "");
+    final List<TaskLifeCycleNodeModel> nodes = json["nodes"]!=null?(json["nodes"] as List).map((selectionValue) => TaskLifeCycleNodeModel.fromJson(selectionValue)).toList():[];
+    //print("${json["usn"].runtimeType} ${json["id"].runtimeType}");
     return TaskLifeCycleModel(
         id: 0,
-        needResolutionGroup: 0,
-        usn: json["usn"]??0,
-        serverId: json["id"]??0,
-        nextStatusServerId: json["next"]??0,
-        currentStatusServerId: json["current"]??0,
-        resolutionGroupServerId: json["resolutionGroup"]??0,
+        usn: int.tryParse(json["usn"]??"0"),
+        serverId: int.tryParse(json["id"]??"0"),
+        name: json["name"]??"",
+        node: nodes,
     );
   }
   /*fromMap(Map<String, dynamic> map)
