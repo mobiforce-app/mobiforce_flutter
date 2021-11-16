@@ -17,6 +17,8 @@ import 'package:mobiforce_flutter/presentation/bloc/tasksearch_bloc/tasksearch_b
 import 'package:mobiforce_flutter/presentation/pages/login_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -65,6 +67,14 @@ class MyApp extends StatelessWidget {
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
       ], child: MaterialApp(
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              const Locale('ru', 'RU'),
+            ],
             theme: ThemeData.light().copyWith(
               backgroundColor: AppColors.mainBackground,
               scaffoldBackgroundColor: AppColors.mainBackground

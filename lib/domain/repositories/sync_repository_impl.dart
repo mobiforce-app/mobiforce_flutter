@@ -19,6 +19,7 @@ import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
+import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_entity.dart';
@@ -251,10 +252,19 @@ class SyncRepositoryImpl implements SyncRepository{
         }
         else if (element.type == "taskstatus") {
           //final Map<String,dynamic> send = {"id":element.object.serverId,"value":val};
+          final TasksStatusesModel ts=element.object;
           final Map<String, dynamic> send = {
-            "task": element.object.task.serverId,
-            "statusId": element.object.status.serverId,
-            "createdTime": element.object.createdTime
+            "task": ts.task.serverId,
+            "id":ts.serverId,
+            "statusId": ts.status.serverId,
+            "createdTime": ts.createdTime,
+            "manualTime": ts.manualTime,
+            "dateChanging": ts.dateChanging,
+            "timeChanging": ts.timeChanging,
+            "comment": ts.comment,
+            "commentInput": ts.commentInput,
+            "commentRequired": ts.commentRequired,
+            "resolution": ts.resolution?.serverId,
           };
           print("send: $send");
           int serverId = await updatesRemoteDataSources.sendUpdate(

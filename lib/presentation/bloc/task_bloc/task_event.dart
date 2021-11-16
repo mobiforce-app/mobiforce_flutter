@@ -27,10 +27,29 @@ class SetTaskReaded extends TaskEvent
 }
 class ChangeTaskStatus extends TaskEvent
 {
+  final int? id;
   final int status;
   final int? resolution;
+  String comment;
+  DateTime createdTime;
+  DateTime manualTime;
+  bool timeChanging;
+  bool dateChanging;
+  bool commentChanging;
+  bool commentRequired;
 
-  ChangeTaskStatus({required this.status, this.resolution});
+  ChangeTaskStatus({
+    this.id,
+    required this.status,
+    required this.comment,
+    required this.createdTime,
+    required this.manualTime,
+    this.resolution,
+    required this.timeChanging,
+    required this.dateChanging,
+    required this.commentChanging,
+    required this.commentRequired,
+  });
 }
 class ChangeSelectionFieldValue extends TaskEvent
 {

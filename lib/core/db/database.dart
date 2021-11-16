@@ -18,6 +18,7 @@ import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -181,9 +182,14 @@ class DBProvider {
             'usn INTEGER, '
             'name TEXT, '
             'life_cycle INTEGER,  '
+            'comment_input INTEGER, '
+            'comment_required INTEGER, '
+            'date_changing INTEGER, '
+            'time_changing INTEGER, '
             'current_status INTEGER,  '
+            'force_status_changing INTEGER,  '
             'next_status INTEGER,  '
-            'need_resolution INTEGER)');
+            'resolution_group INTEGER)');
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskLifeCycleTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -282,6 +288,12 @@ class DBProvider {
             'task_status INTEGER, '
             'created_time INTEGER, '
             'manual_time INTEGER, '
+            'comment TEXT, '
+            'comment_input INTEGER, '
+            'comment_required INTEGER, '
+            'resolution INTEGER, '
+            'date_changing INTEGER, '
+            'time_changing INTEGER, '
             'task INTEGER, '
             'lat TEXT, '
             'lon TEXT)');
@@ -539,7 +551,12 @@ class DBProvider {
     final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery(""
         "SELECT t1.*, "
         //"t4.external_id as resolution_external_id,t4.id as resolution_id,t4.name as resolution_name, "
-        "t2.name as taskstatus_name, t2.color as taskstatus_color, t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t3.external_id as task_external_id, t3.id as task_id "
+        "t2.name as taskstatus_name, "
+        "t2.color as taskstatus_color, "
+        "t2.external_id as taskstatus_external_id, "
+        "t2.id as taskstatus_id, "
+        "t3.external_id as task_external_id, "
+        "t3.id as task_id "
         "FROM $tasksStatusesTable as t1 "
         "LEFT JOIN $taskStatusTable as t2 "
         "ON t1.task_status = t2.id "
@@ -695,7 +712,22 @@ class DBProvider {
         "WHERE t1.task = ? ORDER BY t1.person ASC",[id]);
 
     final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
-    final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT t1.*, t2.name as taskstatus_name, t2.color as taskstatus_color,t2.external_id as taskstatus_external_id, t2.id as taskstatus_id, t1.task as task_id FROM $tasksStatusesTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.task_status = t2.id WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
+    final List<Map<String,dynamic>> tasksStatusesMapList = await db.rawQuery("SELECT "
+        "t1.*, "
+        "t2.name as taskstatus_name, "
+        "t2.color as taskstatus_color,"
+        "t2.external_id as taskstatus_external_id, "
+        "t2.id as taskstatus_id, "
+        "t3.name as resolution_name, "
+        "t3.external_id as resolution_external_id, "
+        "t3.id as resolution_id, "
+        "t1.task as task_id "
+        "FROM $tasksStatusesTable as t1 "
+        "LEFT JOIN $taskStatusTable as t2 "
+        "ON t1.task_status = t2.id "
+        "LEFT JOIN $resolutionTable as t3 "
+        "ON t1.resolution = t3.id "
+        "WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
     final List<Map<String,dynamic>> tasksFieldsSelectionValuesMapList = await db.rawQuery("SELECT "
           "t1.id, "
           "t1.external_id, "
@@ -757,20 +789,43 @@ class DBProvider {
         tasksFieldsFilesMap:tasksFieldsFilesMapList,
     );
   }
-  Future<List<TaskStatusModel>> getNextStatuses(int ?id, int? lifecycle) async {
+  Future<List<TaskLifeCycleNodeEntity>> getNextStatuses(int ?id, int? lifecycle) async {
     Database db = await this.database;
-    final List<TaskStatusModel> taskStatusesList = [];
-    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT t1.need_resolution, t2.* FROM $taskLifeCycleNodeTable as t1 LEFT JOIN $taskStatusTable as t2 ON t1.next_status = t2.id WHERE t1.current_status = ? and t1.life_cycle = ?",[id, lifecycle]);
+    final List<TaskLifeCycleNodeEntity> taskStatusesList = [];
+
+    /*commentInput: (map['comment_input'] == 1),
+    commentRequired: (map['comment_input'] == 1),
+    timeChanging: (map['time_changing'] == 1),
+    dateChanging: (map['date_changing'] == 1),
+*/
+    final List<Map<String,dynamic>> tasksMapList = await db.rawQuery("SELECT "
+        "t1.resolution_group, "
+        "t1.comment_input, "
+        "t1.comment_required, "
+        "t1.time_changing, "
+        "t1.date_changing, "
+        "t1.id as id, 0 as usn, 0 as external_id, "//0 as created_time, 0 as manual_time, '0' as lat, '0' as lon, 0 as task_id,"
+        "t1.current_status as current_status_id, "
+        "t2.id as next_status_id,"
+        "t2.external_id as next_status_external_id,"
+        "t2.name as next_status_name,"
+        "t2.color as next_status_color "
+        "FROM $taskLifeCycleNodeTable as t1 "
+        "LEFT JOIN $taskStatusTable as t2 "
+        "ON t1.next_status = t2.id "
+        "WHERE t1.current_status = ? and t1.life_cycle = ? and t1.deleted = ?",[id, lifecycle, 0]);
     await Future.forEach(tasksMapList, (Map<String,dynamic> element) async {
-      print("need_resolution ${element.toString()}");
+      print("resolution_group ${element.toString()}");
       List<Map<String,dynamic>> resolutionsMapList = [];
-      if(element["need_resolution"]>0){
+      if(element["resolution_group"]>0){
         resolutionsMapList = await db.rawQuery("SELECT t2.* FROM $resolutionGroup2ResolutionRelationTable as t1 "
-            "LEFT JOIN $resolutionTable as t2 ON t1.resolution=t2.id WHERE t1.resolution_group = ?",[element["need_resolution"]]);
+            "LEFT JOIN $resolutionTable as t2 ON t1.resolution=t2.id WHERE t1.resolution_group = ?",[element["resolution_group"]]);
 
       }
       print("element = ${element.toString()}");
-      taskStatusesList.add(TaskStatusModel.fromMap(map:element,mapResolutions: resolutionsMapList));
+    //  :{"id":map["taskstatus_id"],"external_id":map["taskstatus_external_id"],"name":map['taskstatus_name'],"color":map['taskstatus_color']});
+      taskStatusesList.add(TaskLifeCycleNodeModel.fromMap(map:element,mapResolutions: resolutionsMapList));
+    //  taskStatusesList.add(TaskStatusModel.fromMap(map:element,mapResolutions: resolutionsMapList));
     });
     //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
     //final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
@@ -1091,11 +1146,20 @@ class DBProvider {
       if(resolution!=null)
         upd["resolution"]=resolution;
       await db.update(tasksTable, upd, where: 'id =?', whereArgs: [ts.task.id]);
-      id=await db.insert(tasksStatusesTable, ts.toMap());
+      if(ts.id>0){
+        id=ts.id;
+        await await db.update(tasksStatusesTable, ts.toMap(), where: 'id =?', whereArgs: [ts.id]);
+        print("update id $id");
+      }
+      else{
+        id=await db.insert(tasksStatusesTable, ts.toMap());
+        print("insert id $id");
+      }
 
     }
     catch(e){
       //await db(tasksTable, task.toMap());
+      print("$e");
     }
     ts.id=id;
     return id;

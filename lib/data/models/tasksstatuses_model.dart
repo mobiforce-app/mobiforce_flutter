@@ -1,4 +1,5 @@
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -22,6 +23,12 @@ class TasksStatusesModel extends TasksStatusesEntity
     //required statusId,
     required dirty,
     required status,
+    comment,
+    commentInput,
+    commentRequired,
+    timeChanging,
+    dateChanging,
+    resolution,
   }): super(
       id: id,
       // statusId: statusId,
@@ -37,6 +44,12 @@ class TasksStatusesModel extends TasksStatusesEntity
       //name: name,
       dirty: dirty,
       status:status,
+      comment:comment,
+      commentInput:commentInput,
+      commentRequired:commentRequired,
+      timeChanging:timeChanging,
+      dateChanging:dateChanging,
+      resolution:resolution,
   );
 
   Map<String, dynamic> toMap(){
@@ -47,11 +60,20 @@ class TasksStatusesModel extends TasksStatusesEntity
     map['task'] = task.id;
     map['created_time'] = createdTime;
     map['manual_time'] = manualTime;
+    map['comment'] = (comment??"");
+    map['comment_required'] = (commentRequired??false)?1:0;
+    map['comment_input'] = (commentInput??false)?1:0;
+    map['time_changing'] = (timeChanging??false)?1:0;
+    map['date_changing'] = (dateChanging??false)?1:0;
+    if(resolution!=null)
+      map['resolution'] = resolution?.id;
     map['lat'] = lat;
     map['lon'] = lon;
-    map['external_id'] = serverId;
+    if(serverId!=null)
+      map['external_id'] = serverId;
     map['task_status'] = status.id;
     //map['color'] = color;
+    print ("task status map $map");
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
@@ -88,9 +110,15 @@ class TasksStatusesModel extends TasksStatusesEntity
         manualTime: map['manual_time'],
         lat: double.tryParse(map['lat']),
         lon: double.tryParse(map['lon']),
+        comment: map['comment'],
+        commentInput: (map['comment_input'] == 1),
+        commentRequired: (map['comment_required'] == 1),
+        timeChanging: (map['time_changing'] == 1),
+        dateChanging: (map['date_changing'] == 1),
         //color: map['color'],
         dirty: map['dirty']==1?true:false,
         status:status,
+        resolution: map['resolution_id']!=null?ResolutionModel(id: map['resolution_id'], usn: 0, serverId:  map['resolution_external_id'], name: map['resolution_name'], resolutionGroup: null):null,
         //color: map['color'],
         //name: map['name']
     );
@@ -111,10 +139,18 @@ class TasksStatusesModel extends TasksStatusesEntity
         serverId: int.parse(json["id"]??"0"),
         //serverStatusId: int.parse(json["statusId"]??"0"),
         createdTime: int.parse(json["time"]??"0"),
-        manualTime: int.parse(json["time"]??"0"),
+       // manualTime: int.parse(json["time"]??"0"),
         lat: double.tryParse(json["lat"]??"0.0")??0.0,
         lon: double.tryParse(json["lon"]??"0.0")??0.0,
         task: TaskModel(id:0,serverId: 0),
+        manualTime: int.parse(json["manualTime"]??"0"),
+        //lat: double.tryParse(map['lat']),
+        //lon: double.tryParse(map['lon']),
+        comment: json['comment'],
+        commentInput: json['commentInput']??false,
+        commentRequired: json['commentRequired']??false,
+        timeChanging: json['timeChanging']??false,
+        dateChanging: json['dateChanging']??false,
         status: status,
     );
   }

@@ -11,6 +11,8 @@ import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_comment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
@@ -29,12 +31,37 @@ class TaskRepositoryImpl implements TaskRepository{
       return Left(ServerFailure());
   }
   @override
-  Future<Either<Failure, TaskEntity>>setTaskStatus({required int status,required int task,int? resolution}) async {
+  Future<Either<Failure, TaskEntity>>setTaskStatus({
+    int? id,
+    required int status,
+    required int task,
+    int? resolution,
+    required String comment,
+    required DateTime createdTime,
+    required DateTime manualTime,
+    required bool timeChanging,
+    required bool dateChanging,
+    required bool commentChanging,
+    required bool commentRequired,
+  }) async {
     print("resolution1 $resolution");
-    return Right(await remoteDataSources.setTaskStatus(status:status, task:task, resolution:resolution));
+    return Right(await remoteDataSources.setTaskStatus(
+        id:id,
+        status:status,
+        task:task,
+        resolution:resolution,
+        comment:comment,
+        createdTime:createdTime,
+        manualTime:manualTime,
+        timeChanging:timeChanging,
+        dateChanging:dateChanging,
+        commentChanging:commentChanging,
+        commentRequired:commentRequired,
+
+    ));
   }
   @override
-  Future<Either<Failure, List<TaskStatusEntity>>>getTaskStatusGraph(int? id, int? lifecycle) async {
+  Future<Either<Failure, List<TaskLifeCycleNodeEntity>>>getTaskStatusGraph(int? id, int? lifecycle) async {
     return Right(await remoteDataSources.getTaskStatusGraph(id, lifecycle));
     //return Right(_r);
     //throw UnimplementedError();

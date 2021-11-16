@@ -1,5 +1,6 @@
 //import 'dart:html';
 
+import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
@@ -334,7 +335,7 @@ class TaskModel extends TaskEntity
     //print('jsonjson ${json[0]} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     print('json["task_statuses"] = ${json["task_statuses"]}');
-    print("ok1");
+    debugPrint("ok1 ${json.toString()}");
     var propsList = json["props"]!=null?(json["props"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,1)).toList():<TasksFieldsModel>[];
     print("ok2");
     var checkList = json["checklist"]!=null?(json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,2)).toList():<TasksFieldsModel>[];
@@ -369,7 +370,7 @@ class TaskModel extends TaskEntity
         createdAt:json["createdAt"]!=null?int.parse(json["createdAt"]??"0"):null,
         plannedVisitTime:json["plannedVisitTime"]!=null?int.parse(json["plannedVisitTime"]??"0"):null,
         plannedEndVisitTime:json["plannedEndVisitTime"]!=null?int.parse(json["plannedEndVisitTime"]??"0"):null,
-        lifecycle: json["lifecycle"]!=null?TaskLifeCycleModel.fromJson(json["lifecycle"]):null,
+        lifecycle: json["lifecycle"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TaskLifeCycleModel.fromJson(json["lifecycle"]):null,
       //(json["emplo"] as List).map((taskStatus) => TasksStatusesModel.fromJson(taskStatus)).toList(),
     );
   }

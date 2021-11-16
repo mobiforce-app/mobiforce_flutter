@@ -61,7 +61,7 @@ class ResolutionModel extends ResolutionEntity
         //client: map['client'],
         //address: map['address'],
         name: map['name'],
-        resolutionGroup: mapResolutionsList.map((person) =>ResolutionGroupModel.fromMap(person)).toList(),
+        resolutionGroup: mapResolutionsList.map((resolution) =>ResolutionGroupModel.fromMap(resolution)).toList(),
     );
   }
   factory ResolutionModel.fromJson(Map<String, dynamic> json)

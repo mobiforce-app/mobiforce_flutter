@@ -648,8 +648,20 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       yield StartLoadingTaskPage();
 
       Directory dir =  await getApplicationDocumentsDirectory();
-      print("SetTaskStatus ${event.status} ${task.id} ${event.resolution}");
-      final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status, resolution: event.resolution));
+      print("SetTaskStatus ${event.status} ${task.id} ${event.resolution} id:  ${event.id}");
+      final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(
+          id: event.id,
+          task: task.id,
+          status: event.status,
+          resolution: event.resolution,
+          manualTime: event.manualTime,
+          createdTime: event.createdTime,
+          comment: event.comment,
+          timeChanging:event.timeChanging,
+          dateChanging:event.dateChanging,
+          commentChanging:event.commentChanging,
+          commentRequired:event.commentRequired,
+      ));
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
         //this.task = task_readed;
         final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));

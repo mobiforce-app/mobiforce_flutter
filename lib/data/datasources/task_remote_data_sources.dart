@@ -5,13 +5,16 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 
@@ -22,10 +25,22 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
-  Future<List<TaskStatusModel>>getTaskStatusGraph(int? id, int? lifecycle);
+  Future<List<TaskLifeCycleNodeEntity>>getTaskStatusGraph(int? id, int? lifecycle);
   Future<FileModel>loadFileFromWeb(int id);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
-  Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution});
+  Future<TaskModel> setTaskStatus({
+    int? id,
+    required int status,
+    required int task,
+    int? resolution,
+    required String comment,
+    required DateTime createdTime,
+    required DateTime manualTime,
+    required bool timeChanging,
+    required bool dateChanging,
+    required bool commentChanging,
+    required bool commentRequired,
+  });
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
   Future<FileModel> deletePictureTaskField({required int taskFieldId,required int pictureId});
@@ -48,7 +63,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
 
   @override
-  Future<List<TaskStatusModel>> getTaskStatusGraph(int ?id, int? lifecycle) async
+  Future<List<TaskLifeCycleNodeEntity>> getTaskStatusGraph(int ?id, int? lifecycle) async
   {
     return await db.getNextStatuses(id, lifecycle);
   }
@@ -137,17 +152,42 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     return await db.newFileRecord();
   }
   @override
-  Future<TaskModel> setTaskStatus({required int status,required int task, int? resolution}) async{
+  Future<TaskModel> setTaskStatus({
+    int? id,
+    required int status,
+    required int task,
+    int? resolution,
+    required String comment,
+    required DateTime createdTime,
+    required DateTime manualTime,
+    required bool timeChanging,
+    required bool dateChanging,
+    required bool commentChanging,
+    required bool commentRequired,
+  }) async{
 
     var date = new DateTime.now();
-    int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
-    TasksStatusesModel ts = TasksStatusesModel(id:0,usn:0,serverId: null, status:TaskStatusModel(serverId: 0,id:status, color:"", name:"", usn: 0),
+    //int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
+    TasksStatusesModel ts = TasksStatusesModel(
+        id:id??0,
+        usn:0,
+        serverId: null,
+        comment: comment,
+        commentInput: commentChanging,
+        commentRequired: commentRequired,
+        timeChanging: timeChanging,
+        dateChanging: dateChanging,
+        resolution:resolution!=null?ResolutionModel(id: resolution, usn: 0, serverId: 0, name: "", resolutionGroup: null):null,
+        status:TaskStatusModel(serverId: 0,id:status, color:"", name:"", usn: 0),
         task:TaskModel(serverId:0,id:task),
-        createdTime: d, manualTime: d, lat: 0.0, lon:0.0, dirty:true);
+        createdTime: createdTime.millisecondsSinceEpoch~/1000,
+        manualTime: manualTime.millisecondsSinceEpoch~/1000,
+        lat: 0.0, lon:0.0, dirty:true);
     print("resolution $resolution");
     await db.addStatusToTask(ts:ts,resolution: resolution,update_usn: true);
     return await db.getTask(task);
   }
+
 
   @override
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField}) async{

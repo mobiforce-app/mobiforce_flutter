@@ -10,7 +10,7 @@ class ResolutionGroupModel extends ResolutionGroupEntity
     required address,
     required client,
     required subdivision
-  }) : super(
+  }) : super(☺
       id:id,
       name:name,
       address:address,
@@ -70,9 +70,9 @@ class ResolutionGroupModel extends ResolutionGroupEntity
   }
   factory ResolutionGroupModel.fromJson(Map<String, dynamic> json)
   {
-    //print('jsonjson ${json[0]} ');
+    print('ResolutionGroupModel jsonjson ${json.toString()} ');
     //return TaskModel(id:0,externalId: 0, name: "");
-    return ResolutionGroupModel(
+    ResolutionGroupModel r = ResolutionGroupModel(
         id: 0,
         usn: json["usn"]??0,
         serverId: json["id"]??0,
@@ -80,6 +80,8 @@ class ResolutionGroupModel extends ResolutionGroupEntity
         //client: json["client"]??"",
         //address: json["address"]??""
     );
+    print("ok");
+    return r;
   }
   /*fromMap(Map<String, dynamic> map)
   {
