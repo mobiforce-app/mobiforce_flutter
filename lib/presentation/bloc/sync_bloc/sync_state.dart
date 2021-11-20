@@ -24,7 +24,8 @@ class SyncWaitingServerAnswer extends SyncState{
 }
 class SyncInProgress extends SyncState{
   final double progress;
-  SyncInProgress({this.progress = 0});
+  final String? objectTypeName;
+  SyncInProgress({this.progress = 0,required this.objectTypeName});
 
   @override
   List<Object> get props => [progress];

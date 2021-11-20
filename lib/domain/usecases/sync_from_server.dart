@@ -19,7 +19,12 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
   Future<Either<Failure, SyncStatusEntity>> call(ListSyncParams params) async {
 
     if(syncRepository.isFullSyncStarted())
-      return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0, sendToken: false));
+      return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,
+          progress: 0,
+          complete: false,
+          dataLength: 0,
+          objectType: "",
+          sendToken: false));
     //return await syncRepository.getUpdates();
     //return await syncRepository.getUpdates();
     //if(params.fcmToken!=null) {
@@ -36,7 +41,13 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
         await db.clear();
         print("sync.lastSyncTime ${sync.lastSyncTime}");
         await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime);
-        return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,progress: 0,complete: false,dataLength: 0, sendToken: sendToken));
+        return Right(SyncStatusModel(
+            syncPhase: SyncPhase.fullSyncResume,
+            objectType: sync.objectType,
+            progress: 0,
+            complete: false,
+            dataLength: 0,
+            sendToken: sendToken));
       }
       else {
         if(sync.dataList.isEmpty) {
@@ -47,11 +58,13 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
                 complete: true,
                 dataLength: 0,
                 syncPhase: SyncPhase.normal,
+                objectType: sync.objectType,
                 sendToken:sendToken));
           else
             return Right(SyncStatusModel(progress: 0,
                 complete: false,
                 dataLength: 0,
+                objectType: sync.objectType,
                 syncPhase: SyncPhase.normal,
                 sendToken:sendToken
             ));
@@ -76,6 +89,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
           return Right(SyncStatusModel(progress: 0,
               complete: false,
               dataLength: 0,
+              objectType: sync.objectType,
               syncPhase: SyncPhase.normal,
               sendToken:sendToken));
           /*else if(sync.objectType=="resolution")

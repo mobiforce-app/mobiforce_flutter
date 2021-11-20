@@ -14,7 +14,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Tasks'),
         centerTitle: true,
-        actions: [
+        /*actions: [
           IconButton(
             icon: Icon(Icons.search),
             color:Colors.white,
@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
               showSearch(context: context, delegate: CustomSearchDelegate());
             },
           )
-        ],
+        ],*/
       ),
       body: TasksList(),
     );

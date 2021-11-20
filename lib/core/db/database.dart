@@ -446,7 +446,7 @@ class DBProvider {
             "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
             "LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
             "WHERE t1.id = ? and t3.link_object_type = ? AND t3.id IS NOT NULL ORDER BY t1.id DESC",[tf.id, 1]);
-        print("image files: ${tf.id} ${tasksFieldsFilesMapList.toString()}");
+        //print("image files: ${tf.id} ${tasksFieldsFilesMapList.toString()}");
         tf.fileValueList=tasksFieldsFilesMapList.map((files) => FileModel.fromMap(files)).toList();
       }
 
@@ -468,7 +468,7 @@ class DBProvider {
         "deleted":0,
         "link_object_type":1,
       };
-      print("to base ${map.toString()}, id: $pictureId");
+      //print("to base ${map.toString()}, id: $pictureId");
       await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
       usn = await getUSN();
       await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [taskFieldId]);
@@ -490,7 +490,7 @@ class DBProvider {
       dynamic map={
         "deleted":1,
       };
-      print("to base ${map.toString()}, id: $pictureId");
+      //print("to base ${map.toString()}, id: $pictureId");
       await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
       int usn = await getUSN();
       await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [taskFieldId]);
@@ -516,7 +516,7 @@ class DBProvider {
         "deleted":0,
         "link_object_type":2,
       };
-      print("to base ${map.toString()}, id: $pictureId");
+      //print("to base ${map.toString()}, id: $pictureId");
       if(pictureId!=null) {
         await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
         await db.update(fileTable, map, where: 'id =?', whereArgs: [pictureId]);
@@ -581,12 +581,12 @@ class DBProvider {
         //"LEFT JOIN $resolutionTable as t4 "
         //"ON t1.resolution = t4.id "
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
-    print("tasksCommentsMapList ${tasksCommentsMapList.toString()} $localUSN");
+    //print("tasksCommentsMapList ${tasksCommentsMapList.toString()} $localUSN");
     return tasksCommentsMapList.map((taskcomment) => TaskCommentModel.fromMap(taskcomment)).toList();
   }
   Future<FileModel> readFile(int id) async{
     Database db = await this.database;
-    print("readFile $id");
+    //print("readFile $id");
     final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
     //"t2.id as field_id, "
     //"t2.external_id as field_external_id, "
@@ -625,7 +625,7 @@ class DBProvider {
         //"LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
         "WHERE t1.usn > ? ORDER BY t1.usn ASC",[localFileUSN]);
 
-    print("image files localFileUSN> ${localFileUSN} ${tasksFieldsFilesMapList.toString()}");
+    //print("image files localFileUSN> ${localFileUSN} ${tasksFieldsFilesMapList.toString()}");
 
     //tf.fileValueList=tasksFieldsFilesMapList.map((files) => FileModel.fromMap(files)).toList();
     return tasksFieldsFilesMapList.map((taskfile) => FileModel.fromMap(taskfile)).toList();
@@ -692,6 +692,8 @@ class DBProvider {
             "t2.usn as contractor_usn,"
             "t2.external_id as contractor_external_id,"
             "t2.name as contractor_name,"
+            "t5.id as template_id,"
+            "t5.name as template_name,"
             "t3.id as contractor_parent_id,"
             "t3.usn as contractor_parent_usn,"
             "t3.external_id as contractor_parent_external_id"
@@ -702,6 +704,8 @@ class DBProvider {
             " ON t2.parent = t3.id "
             " LEFT JOIN $taskLifeCycleTable as t4 "
             " ON t1.lifecycle = t4.id "
+            " LEFT JOIN $tasksTemplateTable as t5 "
+            " ON t1.template = t5.id "
             " WHERE t1.id=? AND t1.deleted != 1",[id]);
 //        orderBy: "id desc",limit: 1,where: 'id =? AND deleted != 1', whereArgs: [id]);
 
@@ -753,7 +757,7 @@ class DBProvider {
       "LEFT JOIN $taskSelectionValuesRelationTable as t3 ON t1.id = t3.tasks_fields "
       "LEFT JOIN $taskSelectionValuesTable as t4 ON t3.tasks_selection_values = t4.id "
       "LEFT JOIN $taskValuesTable as t5 ON t1.id = t5.tasks_fields "
-        "WHERE t1.task = ? ORDER BY t1.id DESC",[id]);
+        "WHERE t1.task = ? ORDER BY t1.sort ASC",[id]);
 
     final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
       //"t1.task as task_id, "
@@ -778,7 +782,8 @@ class DBProvider {
       "LEFT JOIN $taskFieldTable as t2 ON t1.task_field = t2.id "
       "LEFT JOIN $fileTable as t3 ON t1.id = t3.link_object "
       "WHERE t1.task = ? and deleted = 0 and t3.link_object_type = ? AND t3.id IS NOT NULL ORDER BY t1.id DESC",[id, 1]);
-    print("tasksFieldsFilesMapList: ${tasksFieldsFilesMapList.toString()}");
+    //print("tasksFieldsFilesMapList: ${tasksFieldsFilesMapList.toString()}");
+    print("tasksFieldsFilesMapList $tasksFieldsFilesMapList");
     return TaskModel.fromMap(
         taskMap:tasksMapList.first,
         statusMap:taskStatusMapList.first,
@@ -815,14 +820,14 @@ class DBProvider {
         "ON t1.next_status = t2.id "
         "WHERE t1.current_status = ? and t1.life_cycle = ? and t1.deleted = ?",[id, lifecycle, 0]);
     await Future.forEach(tasksMapList, (Map<String,dynamic> element) async {
-      print("resolution_group ${element.toString()}");
+      //print("resolution_group ${element.toString()}");
       List<Map<String,dynamic>> resolutionsMapList = [];
       if(element["resolution_group"]>0){
         resolutionsMapList = await db.rawQuery("SELECT t2.* FROM $resolutionGroup2ResolutionRelationTable as t1 "
             "LEFT JOIN $resolutionTable as t2 ON t1.resolution=t2.id WHERE t1.resolution_group = ?",[element["resolution_group"]]);
 
       }
-      print("element = ${element.toString()}");
+      //print("element = ${element.toString()}");
     //  :{"id":map["taskstatus_id"],"external_id":map["taskstatus_external_id"],"name":map['taskstatus_name'],"color":map['taskstatus_color']});
       taskStatusesList.add(TaskLifeCycleNodeModel.fromMap(map:element,mapResolutions: resolutionsMapList));
     //  taskStatusesList.add(TaskStatusModel.fromMap(map:element,mapResolutions: resolutionsMapList));
@@ -863,7 +868,7 @@ class DBProvider {
   }
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
-    print("limit $limit, offset $page");
+    //print("limit $limit, offset $page");
     //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: limit,offset: limit*page, where: "deleted != 1");
     final List<Map<String,dynamic>> tasksMapList = await db.rawQuery(
         "SELECT t1.id,"
@@ -898,7 +903,9 @@ class DBProvider {
             "t4.id as lifecycle_id,"
             "t4.usn as lifecycle_usn,"
             "t4.name as lifecycle_name,"
-            "t4.external_id as lifecycle_external_id"
+            "t4.external_id as lifecycle_external_id,"
+            "t5.id as template_id,"
+            "t5.name as template_name"
             " FROM $tasksTable as t1 "
             " LEFT JOIN $contractorTable as t2"
             " ON t1.contractor = t2.id "
@@ -906,6 +913,8 @@ class DBProvider {
             " ON t2.parent = t3.id "
             " LEFT JOIN $taskLifeCycleTable as t4"
             " ON t1.lifecycle = t4.id "
+            " LEFT JOIN $tasksTemplateTable as t5 "
+            " ON t1.template = t5.id "
             " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.id DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
 
     final List<TaskModel> tasksList = [];
@@ -914,7 +923,7 @@ class DBProvider {
       //await getTaskStatus(?taskMap["status"]);
       //tasksList.add(TaskModel.fromMap(taskMap));
     //});
-    print("tasksMapList ${tasksMapList.toString()}");
+    //print("tasksMapList ${tasksMapList.toString()}");
     for (Map<String,dynamic> taskMap in tasksMapList)
     {
       //int statusId = taskMap['status'];
@@ -924,7 +933,7 @@ class DBProvider {
         tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first));
       }
     }
-    print("tasksMapList ${tasksList.toString()}");
+    //print("tasksMapList ${tasksList.toString()}");
 
     return tasksList;
   }
@@ -945,7 +954,7 @@ class DBProvider {
     Database db = await this.database;
     int id=0;
     try{
-      print("file.toMap() ${file.toMap()}");
+      //print("file.toMap() ${file.toMap()}");
       id=await db.insert(fileTable, file.toMap());
     }
     catch(e){
@@ -967,10 +976,22 @@ class DBProvider {
     return true;
   }
   Future<bool> deleteAllTaskStatuses(int taskId) async{
-    print ("task Id: $taskId");
+    //print ("task Id: $taskId");
     Database db = await this.database;
     try{
       await db.delete(tasksStatusesTable, where: 'task =?', whereArgs: [taskId]);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+      return false;
+    }
+    return true;
+  }
+  Future<bool> deleteAllFieldsByTaskId(int taskId) async{
+    print ("task Id: $taskId");
+    Database db = await this.database;
+    try{
+      await db.delete(tasksFieldsTable, where: 'task =?', whereArgs: [taskId]);
     }
     catch(e){
       //await db(tasksTable, task.toMap());
@@ -1030,7 +1051,7 @@ class DBProvider {
     Database db = await this.database;
     try{
       int usn = await db.insert(usnCountersTable,{"object_type":"task_option"});
-      print("usnresult: ${usn}");
+      //print("usnresult: ${usn}");
       return usn;
     }
     catch(e){
@@ -1041,7 +1062,7 @@ class DBProvider {
     Database db = await this.database;
     try{
       int usn = await db.insert(usnCountersFileTable,{"object_type":"task_file"});
-      print("usnresult: ${usn}");
+      //print("usnresult: ${usn}");
       return usn;
     }
     catch(e){
@@ -1098,7 +1119,7 @@ class DBProvider {
           "tasks_fields": taskFieldId,
           "value": taskFieldValue
         });
-        print(":: $taskFieldValue");
+        //print(":: $taskFieldValue");
 
       }
       catch (e) {
@@ -1111,7 +1132,7 @@ class DBProvider {
     Database db = await this.database;
     int id=0;
     try{
-      print('${tasksStatuses.toMap().toString()}');
+      //print('${tasksStatuses.toMap().toString()}');
       id=await db.insert(tasksStatusesTable, tasksStatuses.toMap());
     }
     catch(e){
@@ -1124,7 +1145,7 @@ class DBProvider {
     Database db = await this.database;
     int id=0;
     try{
-      print('${tasksComment.toMap().toString()}');
+      //print('${tasksComment.toMap().toString()}');
       id=await db.insert(taskCommentTable, tasksComment.toMap());
     }
     catch(e){
@@ -1149,17 +1170,17 @@ class DBProvider {
       if(ts.id>0){
         id=ts.id;
         await await db.update(tasksStatusesTable, ts.toMap(), where: 'id =?', whereArgs: [ts.id]);
-        print("update id $id");
+        //print("update id $id");
       }
       else{
         id=await db.insert(tasksStatusesTable, ts.toMap());
-        print("insert id $id");
+        //print("insert id $id");
       }
 
     }
     catch(e){
       //await db(tasksTable, task.toMap());
-      print("$e");
+      //print("$e");
     }
     ts.id=id;
     return id;
@@ -1332,7 +1353,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
   Future<EmployeeModel?> getEmployee(int id) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [id]);
-    print("employeeMapList.first ${employeeMapList.first}");
+    //print("employeeMapList.first ${employeeMapList.first}");
     return employeeMapList.first!=null?EmployeeModel.fromMap(employeeMapList.first):null;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
 
@@ -1447,7 +1468,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     Database db = await this.database;
 
     int taskId = await getTaskIdByServerId(task.serverId);
-    print("address: ${task.address}");
+    //print("address: ${task.address}");
     if(taskId!=0)
       await db.update(tasksTable, task.toMap(), where: 'id =?', whereArgs: [taskId]);
     //task.id=taskId;
@@ -1498,14 +1519,14 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
   }
   Future<int> getTaskStatusIdByServerId(int serverId) async {
     Database db = await this.database;
-    print("TaskStatus serverId = $serverId");
+    //("TaskStatus serverId = $serverId");
 
     final List<Map<String,dynamic>> tasksStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return tasksStatusMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
   Future<int> getTasksStatusesIdByServerId(int? serverId) async {
     Database db = await this.database;
-    print("serverId = $serverId");
+    //print("serverId = $serverId");
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksStatusesTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
@@ -1524,7 +1545,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
       id=await db.insert(taskStatusTable, taskStatus.toMap());
     }
     catch(e){
-      print("$e");
+      //print("$e");
       //await db(tasksTable, task.toMap());
     }
     taskStatus.id=id;
@@ -1532,7 +1553,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
   }
 
   Future<int> insertTaskField2taskSelectionValueRelation(fieldId,id) async {
-    print("insertTaskField2taskSelectionValueRelation");
+    //print("insertTaskField2taskSelectionValueRelation");
     Database db = await this.database;
     int rid=0;
     try{
@@ -1540,7 +1561,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
       rid=await db.insert(taskSelectionValuesRelationTable, {"tasks_fields": fieldId,"tasks_selection_values":id});
     }
     catch(e){
-      print("$e");
+      //print("$e");
       //await db(tasksTable, task.toMap());
     }
     //taskStatus.id=id;
@@ -1552,7 +1573,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     Database db = await this.database;
 
     TaskStatusModel? ts = await getTaskStatusByServerId(taskStatus.serverId);
-    print("TaskStatusModel: serverId: ${taskStatus.serverId}, id: ${ts?.id}");
+    //print("TaskStatusModel: serverId: ${taskStatus.serverId}, id: ${ts?.id}");
     if(ts?.serverId!=null)
       await db.update(taskStatusTable, taskStatus.toMap(), where: 'id =?', whereArgs: [ts?.id]);
     return ts?.id;

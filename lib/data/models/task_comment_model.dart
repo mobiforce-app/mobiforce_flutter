@@ -78,10 +78,10 @@ class TaskCommentModel extends TaskCommentEntity
       file?.id = await file!.insertToDB(db);
     }
     TaskCommentModel comment = await db.insertTaskComment(this);
-    print ("db id == ${comment.id}");
+    //print ("db id == ${comment.id}");
     if(comment.id==0){
       comment = await db.updateTaskCommntByServerId(this);
-      print ("db id == ${comment.toString()}");
+      //print ("db id == ${comment.toString()}");
     }
 
     return comment.id;

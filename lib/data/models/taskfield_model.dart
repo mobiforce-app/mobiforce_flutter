@@ -49,16 +49,16 @@ class TaskFieldModel extends TaskFieldEntity
   }
   Future<int> insertToDB(DBProvider db) async {
     dynamic t = await db.insertTaskField(this);
-    print ("db id == ${t.id}");
+    //print ("db id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTaskFieldByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
-    print("selectionValues = $selectionValues");
+    //print("selectionValues = $selectionValues");
     if(selectionValues?.isNotEmpty??false)
     {
       await Future.forEach(selectionValues!,(SelectionValueModel element) async {
-        print("SelectionValueModel Id = ${element.serverId}");
+        //print("SelectionValueModel Id = ${element.serverId}");
         element.taskFieldId = t.id;
         await element.insertToDB(db);
       });
@@ -71,7 +71,7 @@ class TaskFieldModel extends TaskFieldEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
-    print("SelectionValueModel = $values");
+    //print("SelectionValueModel = $values");
     final List<SelectionValueModel> sv = values.map((selectionValue) => SelectionValueModel.fromMap(selectionValue)).toList();
 
     return TaskFieldModel(
@@ -86,12 +86,12 @@ class TaskFieldModel extends TaskFieldEntity
   factory TaskFieldModel.fromJson(Map<String, dynamic> json)
   {
 
-    print('jsonjsonTaskFieldModel ${json} ');
+    //print('jsonjsonTaskFieldModel ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     //if(json["selectionValues"]!=null)
     //{
       final List<SelectionValueModel> sv = json["selectionValues"]!=null?(json["selectionValues"] as List).map((selectionValue) => SelectionValueModel.fromJson(selectionValue)).toList():[];
-    print('jsonjsonTaskFieldModel ${json} ${json["selectionValues"].runtimeType} ');
+    //print('jsonjsonTaskFieldModel ${json} ${json["selectionValues"].runtimeType} ');
     //}
     return TaskFieldModel(
         id: 0,

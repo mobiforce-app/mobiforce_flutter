@@ -77,7 +77,7 @@ class TaskLifeCycleNodeModel extends TaskLifeCycleNodeEntity
     if(element.nextStatus.id==0)
       element.nextStatus.id = await db.getTaskLifeCycleNodeByServerId(element.nextStatus.serverId);
 */
-  print("insert");
+  //print("insert");
     TaskStatusModel? tsCurrent = await db.getTaskStatusByServerId(currentStatus.serverId);
     TaskStatusModel? tsNext = await db.getTaskStatusByServerId(nextStatus.serverId);
 
@@ -86,10 +86,10 @@ class TaskLifeCycleNodeModel extends TaskLifeCycleNodeEntity
     nextStatus.id = tsNext?.id??0;
     currentStatus.id = tsCurrent?.id??0;
     dynamic t = await db.insertTaskLifeCycleNode(this);
-    print ("LifeCycle node db id == ${t.id}");
+    //print ("LifeCycle node db id == ${t.id}");
     if(t.id==0){
       dynamic t1 = await db.updateTaskLifeCycleNodeByServerId(this);
-      print ("db id == ${t1.toString()}");
+      //print ("db id == ${t1.toString()}");
       return t1;
     }
     return t.id;
@@ -119,7 +119,7 @@ class TaskLifeCycleNodeModel extends TaskLifeCycleNodeEntity
   }
   factory TaskLifeCycleNodeModel.fromJson(Map<String, dynamic> json)
   {
-    print('jsonjson ${json.toString()} ${json["id"].runtimeType}');
+    //print('jsonjson ${json.toString()} ${json["id"].runtimeType}');
     //return TaskModel(id:0,externalId: 0, name: "");
     return TaskLifeCycleNodeModel(
       id: 0,

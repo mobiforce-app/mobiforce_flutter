@@ -6,7 +6,7 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 
-class WaitDealys10{
+/*class WaitDealys10{
   final Model model;
   WaitDealys10({required this.model});
   Future<void> call()  async{
@@ -22,3 +22,4 @@ class WaitDealys10{
   //Future<Either<Failure, List<TaskEntity>>> call(ListTaskParams params) async => await taskRepository.getAllTasks(params.page);
 }
 
+*/  

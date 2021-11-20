@@ -49,7 +49,7 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
           if (item.complete)
             this.add(FullSyncingComplete());
           else
-            this.add(FullSyncingInProgress(item.progress));
+            this.add(FullSyncingInProgress(progress:item.progress,objectTypeName: item.syncNameStr));
         });
 
       }
@@ -68,7 +68,7 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
     else if(event is FullSyncingInProgress){
       print ("event progress=${event.progress.toDouble()}");
       //if(event.progress%20==0)
-        yield SyncInProgress(progress: event.progress.toDouble());
+        yield SyncInProgress(progress: event.progress.toDouble(),objectTypeName: event.objectTypeName);
       //else
         //yield SyncWaitingServerAnswer();
     }

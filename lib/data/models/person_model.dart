@@ -48,20 +48,20 @@ class PersonModel extends PersonEntity
     PersonModel t = await db.insertPerson(this);
     if(t.id==0){
       t = await db.updatePersonByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
 
     if(phones != null&&t.id>0)
     {
-      print("phonenotnull");
+      //print("phonenotnull");
       await db.deleteAllPersonPhones(t.id);
       await Future.forEach(phones!,(PhoneModel element) async {
-        print("phones Id = ${element.serverId}");
+        //print("phones Id = ${element.serverId}");
         //element.task = taskId;
         element.personId=t.id;
         element.taskId=t.taskId;
         int phoneId = await element.insertToDB(db);
-        print("phonenotnull $phoneId");
+        //print("phonenotnull $phoneId");
 
         //if(employeeId>0){
         //  await db.addTaskEmployee(taskId,employeeId);
@@ -69,7 +69,7 @@ class PersonModel extends PersonEntity
       });
     }
 
-    print ("employee db id == ${t.id}");
+    //print ("employee db id == ${t.id}");
     return t.id;
   }
   factory PersonModel.fromMap(Map<String, dynamic> map)
@@ -90,7 +90,7 @@ class PersonModel extends PersonEntity
   factory PersonModel.fromJson(Map<String, dynamic> json)
   {
     //print('employeejsonjson ${json} ');
-    print('PersonModeljsonjson ${json} ');
+    //print('PersonModeljsonjson ${json} ');
 
     //return TaskModel(id:0,externalId: 0, name: "");
     return PersonModel(

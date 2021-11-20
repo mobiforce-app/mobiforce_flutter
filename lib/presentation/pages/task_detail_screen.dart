@@ -69,16 +69,20 @@ class TaskDetailPage extends StatelessWidget {
           isText: true,
           val: element.stringValue ?? "");
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.number) {
-      return TaskFieldTextCard(
+      return Padding(
+          padding: const EdgeInsets.only(left:16.0, right:8.0),
+          child:TaskFieldTextCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
           isText: false,
-          val: "${element.doubleValue ?? 0.0}");
+          val: "${element.doubleValue ?? 0.0}"));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.checkbox) {
-      return TaskFieldCheckboxCard(
+      return Padding(
+          padding: const EdgeInsets.only(left:16.0, right:8.0),
+          child:TaskFieldCheckboxCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
-          val: element.boolValue ?? false);
+          val: element.boolValue ?? false));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.picture) {
       return TaskFieldPictureCard(
           name: element.taskField?.name ?? "",
@@ -86,17 +90,165 @@ class TaskDetailPage extends StatelessWidget {
           files: element.fileValueList,
           appFilesDirectory: appFilesDirectory);
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.signature) {
-      return TaskFieldSignatureCard(
+      return Padding(
+        padding: const EdgeInsets.only(left:16.0, right:16.0),
+        child:TaskFieldSignatureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
           files: element.fileValueList,
-          appFilesDirectory: appFilesDirectory);
+          appFilesDirectory: appFilesDirectory),
+      );
     } else
       return Text(
         "${element.taskField?.name}",
         style: TextStyle(
             fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600),
       );
+  }
+  List<Widget> getTaskFieldElementPassive(
+      TasksFieldsEntity element, String appFilesDirectory) {
+    if (element.taskField?.type.value == TaskFieldTypeEnum.optionlist) {
+
+      return [
+      Padding(
+          padding: const EdgeInsets.only(left:16.0),
+          child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(element.taskField?.name ?? "",
+              style: TextStyle(
+              fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600))
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left:16.0),
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+              element.selectionValue?.name ?? "",
+              style: TextStyle(
+                  fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ];
+        /*(
+        name: element.taskField?.name ?? "",
+        fieldId: element.id,
+        val: element.selectionValue,
+        items: ddmi,
+      );*/
+    } else if (element.taskField?.type.value == TaskFieldTypeEnum.text) {
+      return [
+        Padding(
+          padding: const EdgeInsets.only(left:16.0),
+          child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(element.taskField?.name ?? "",
+                  style: TextStyle(
+                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600))),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left:16.0,top:4),
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: (element.stringValue ?? "").length>0?Text(element.stringValue ?? "",
+              style: TextStyle(
+                  fontSize: 16, color: Colors.black),
+            ):
+            Text("Не заполнено",
+              style: TextStyle(
+                  fontSize: 16, color: Colors.grey),
+            ),
+          ),
+        )
+      ];
+      /*
+      return TaskFieldTextCard(
+          name: element.taskField?.name ?? "",
+          fieldId: element.id,
+          isText: true,
+          val: element.stringValue ?? "");*/
+    } else if (element.taskField?.type.value == TaskFieldTypeEnum.number) {
+      return [
+        Padding(
+          padding: const EdgeInsets.only(left:16.0),
+          child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(element.taskField?.name ?? "",
+                  style: TextStyle(
+                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600))
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left:16.0,top:4),
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Text("${element.doubleValue ?? 0.0}",
+              style: TextStyle(
+                  fontSize: 16, color: Colors.black),
+            ),
+          ),
+        )
+      ];
+   /*   return TaskFieldTextCard(
+          name: element.taskField?.name ?? "",
+          fieldId: element.id,
+          isText: false,
+          val: "${element.doubleValue ?? 0.0}");*/
+    } else if (element.taskField?.type.value == TaskFieldTypeEnum.checkbox) {
+      return [Padding(
+          padding: const EdgeInsets.only(left:16.0),
+          child: Align(
+          alignment: Alignment.topLeft,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(element.taskField?.name ?? "",
+                  style: TextStyle(
+                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+              Checkbox(
+                tristate: true,
+                value: element.boolValue ?? false,
+                onChanged: null,
+              ),
+
+            ],
+          )))];
+    /*  return TaskFieldCheckboxCard(
+          name: element.taskField?.name ?? "",
+          fieldId: element.id,
+          val: element.boolValue ?? false);*/
+    } else if (element.taskField?.type.value == TaskFieldTypeEnum.picture) {
+      return [Padding(
+        padding: const EdgeInsets.only(left:16.0),
+        child: Align(
+            alignment: Alignment.topLeft,
+            child: Text(element.taskField?.name ?? "")),
+      )];
+     /* return TaskFieldPictureCard(
+          name: element.taskField?.name ?? "",
+          fieldId: element.id,
+          files: element.fileValueList,
+          appFilesDirectory: appFilesDirectory);*/
+    } else if (element.taskField?.type.value == TaskFieldTypeEnum.signature) {
+      return [Padding(
+        padding: const EdgeInsets.only(left:16.0),
+        child: Align(
+            alignment: Alignment.topLeft,
+            child: Text(element.taskField?.name ?? "")),
+      )];
+     /* return TaskFieldSignatureCard(
+          name: element.taskField?.name ?? "",
+          fieldId: element.id,
+          files: element.fileValueList,
+          appFilesDirectory: appFilesDirectory);*/
+    } else
+        return [Padding(
+          padding: const EdgeInsets.only(left:16.0),
+          child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(element.taskField?.name ?? "")),
+        )];
   }
 
   Widget buildSheet(List<Widget> list) {
@@ -123,17 +275,19 @@ class TaskDetailPage extends StatelessWidget {
       if (element.parentLocalId == id && element.tab == tab) {
         l.add(
           SizedBox(
-            height: 24,
+            height: 16,
           ),
         );
-        l.add(getTaskFieldElement(element, appFilesDirectory));
+        if((element.tab ?? 0) == 2)
+          l.add(getTaskFieldElement(element, appFilesDirectory));
+        else
+          l.addAll(getTaskFieldElementPassive(element, appFilesDirectory));
       }
     });
 
     print("${l.toString()}");
     return l;
   }
-
   DraggableScrollableSheet _buildDraggableScrollableSheet() {
     return DraggableScrollableSheet(
       initialChildSize: 0.2,
@@ -212,452 +366,442 @@ class TaskDetailPage extends StatelessWidget {
           });
 
           List<List<Widget>> _kTabPages = [[], [], []];
-          final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
+          final DateFormat formatter = DateFormat('dd.MM.yyyy HH:mm');
 
           var plannedVisitTimeString = state.task.plannedVisitTime != null
               ? formatter.format(new DateTime.fromMillisecondsSinceEpoch(
                   1000 * (state.task.plannedVisitTime ?? 0)))
-              : "без даты";
+              : "Без даты";
           var date = new DateTime.fromMillisecondsSinceEpoch(
               (state.task.statuses?.first.manualTime??0) * 1000);
           final String statusDateFormatted = state.task.statuses?.first.manualTime!=null?formatter.format(date):"без даты";
 
-          final Widget statusField = Row(
-            children: [
+          final Widget statusField =
               Container(
-                height: 8,
-                width: 8,
+                //height: 16,
+                //width: 16,
                 decoration: BoxDecoration(
                     color: HexColor.fromHex("${state.task.statuses?.first.status.color}"),
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              SizedBox(
-                width: 8,
-              ),
-              Text(
-                "${state.task.statuses?.first.status.name} $statusDateFormatted",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600),
-              ),
-            ],
-          );
-
-
-
-          var list = [
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              "${state.task.name}",
-              style: TextStyle(
-                  fontSize: 28,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            Text(
-              "Назначена: ${plannedVisitTimeString} ",
-              style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            InkWell(
-              onTap: (){
-                List<Widget> buttons = [
-                ];
-                buttons.addAll([
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Text(
-                        "${state.task.lifecycle?.name} ",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
+                    borderRadius: BorderRadius.circular(16),
+                    /*boxShadow:<BoxShadow>[
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(1.0, 1.0),
+                        blurRadius: 4.0,
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 24,
-                  ),
-                ]
-                );
-                state.task.statuses?.forEach((element) {
-                  var date = new DateTime.fromMillisecondsSinceEpoch(
-                      element.manualTime * 1000);
-                  //.fromMicrosecondsSinceEpoch(element.createdTime);
-                  final String formatted = formatter.format(date);
-
-                  /*list.add(
-                  SizedBox(
-                    height: 24,
-                  ),
-                );*/
-                  buttons.add(
-                    InkWell(
-                      onTap: () {
-                        /*print("element.commentInput: ${element.commentInput},"
-                            "element.timeChanging: ${element.timeChanging}||"
-                            "element.commentRequired: ${element.commentRequired}||"
-                            "element.dateChanging: ${element.dateChanging}||"
-                            "element.comment: ${element.comment} "
-                            "element.comment: ${element.manualTime} "
-                            "");
-                        List<Widget> wlist = [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("${element.status.name}",style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
-                          )
-                        ];
-                        //if(element.timeChanging==true||element.dateChanging==true)
-                          wlist.add(DateTimeInput(val:date,timeChanging:element.timeChanging??false,dateChanging:element.dateChanging??false)
-                          );
-
-                        if(element.commentInput==true) {
-                          wlist.add(Padding(
-                            padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,0.0),
-                            child: Row(
-                              children: [
-                                Text("Комментарий"),
-                                element.commentRequired == true
-                                    ? Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                )
-                                    : Text("")
-                              ],
-                              //
-                            ),
-                          ));
-                          wlist.add(
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(8.0,0.0,8.0,8.0),
-                                child: TextField(
-                                  //decoration: InputDecoration(
-                                  //  labelText: "Введите комментарий",
-                                  //  border: OutlineInputBorder(),
-                                  //)  ,
-                                  maxLines: null,
-                                  //controller: _controller,
-                                  keyboardType: TextInputType.multiline,
-                                  //onChanged: (String s){setState(() {
-
-                                  //});},
-                                  //.numberWithOptions(),
-                                ),
-                              )
-                          );
-                        }
-
-                        wlist.add(Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                /*BlocProvider.of<TaskBloc>(context)
-                                  ..add(EditTaskStatus(
-                                    status:element.nextStatus.id,
-                                    comment:"",
-                                    createdTime:date,
-                                    manualTime:date,
-                                    timeChanging:element.timeChanging??false,
-                                    dateChanging:element.dateChanging??false,
-                                    commentChanging:element.commentInput??false,
-                                    commentRequired:element.commentRequired??false,
-                                  ));
-                                Navigator.pop(context);*/
-                                Navigator.pop(context);
-                              },
-                              child:
-                              Text(
-                                  "Сохранить"
-                              ),
-                            ),
-                            SizedBox(
-                              width: 24,
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                  "Отмена"
-                              ),
-                            )
-                          ],)
-                        );*/
-
-                        showModalBottomSheet(
-                            isScrollControlled: true,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            context: context,
-                            builder: (context) => StatusEditor(
-                                manualTime: DateTime.fromMillisecondsSinceEpoch(
-                                    element.manualTime * 1000),
-                                commentInput: element.commentInput,
-                                timeChanging: element.timeChanging,
-                                commentRequired: element.commentRequired,
-                                dateChanging: element.dateChanging,
-                                comment: element.comment ?? "",
-                                acceptButton: "Сохранить",
-                                acceptCallback: (
-                                    {required DateTime time,
-                                      required DateTime manualTime,
-                                      required String comment}) {
-                                  print(
-                                      "time $time, manualTime $manualTime, comment $comment");
-                                  BlocProvider.of<TaskBloc>(context)
-                                    ..add(ChangeTaskStatus(
-                                      id: element.id,
-                                      status: element.status.id,
-                                      comment: comment,
-                                      createdTime:
-                                      DateTime.fromMillisecondsSinceEpoch(
-                                          element.createdTime * 1000),
-                                      manualTime: manualTime,
-                                      timeChanging: element.timeChanging ?? false,
-                                      dateChanging: element.dateChanging ?? false,
-                                      commentChanging: element.commentInput ?? false,
-                                      commentRequired:
-                                      element.commentRequired ?? false,
-                                    ));
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                }));
-                        //"element.resolutionGroup: ${element.resolutionGroup}"
-                        //"element.resolutionList: ${element.resolutions}");
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 8,
-                              width: 8,
-                              decoration: BoxDecoration(
-                                  color: HexColor.fromHex("${element.status.color}"),
-                                  borderRadius: BorderRadius.circular(8)),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Text(
-                              "${element.status.name} $formatted",
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                });
-                showModalBottomSheet(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    context: context,
-                builder: (BuildContext context) {
-                return SafeArea(
-                child: SingleChildScrollView(
-                child: Container(
-                child: Wrap(
-                children: buttons))));});
-
-    },
-              child: statusField
-            ),
-            /*SizedBox(height: 18,),
-                                  Text(
-                                    task.address,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600
-                                    ),
-                                  ),*/
-          ];
-          if (state.task.externalLink != null) {
-            list.addAll([
-              SizedBox(
-                height: 24,
-              ),
-              InkWell(
-                  child: new Text(
-                    '${state.task.externalLinkName}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.blueAccent,
-                      //fontWeight: FontWeight.w600
-                      //fontStyle: FontStyle(a)
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                  onTap: () => launch('${state.task.externalLink}'))
-            ]);
-          }
-
-          if (state.task.contractor != null) {
-            list.addAll([
-              SizedBox(
-                height: 24,
-              ),
-              Text(
-                "${state.task.contractor?.parent?.name} ${state.task.contractor?.name} ",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600),
-              )
-            ]);
-          }
-          int phoneCount=0;
-          List<Widget> phonesWidget=[];
-          if ((state.task.phones?.length??0) != 0) {
-            phonesWidget.add(Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  "Общие телефоны",
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      ),
+                    ],*/
                 ),
-              ),
-            )
+                child: Padding(
+                padding: const EdgeInsets.fromLTRB(12.0,4.0,12.0,4.0,),
+                child:Text(
+                  "${(state.task.statuses?.first.status.name??"").toUpperCase()}",
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600
+                      ),
+                ),)
             );
 
-            phoneCount+=(state.task.phones?.length??0);
-            List<Widget> phones = state.task.phones!.map((e) => InkWell(
-              onTap: (){
-                launch("tel://${e.name}");
-              },
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0,8.0,8.0,8.0),
-                  child: Text(
-                    "${e.name} ",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            )).toList();
 
-            phonesWidget.addAll(phones);
-          }
-          if (state.task.persons != null) {
-            state.task.persons?.forEach((element) {
-              phoneCount+=(element.phones?.length??0);
-              String? phoneStr = element.phones?.map((e) => e.name).join(", ");
-              phonesWidget.add(Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    "${element.name} ",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        ),
-                  ),
-                ),
-              )
-              );
-              if((element.phones?.length??0)!=0) {
-                List<Widget> phones = element.phones!.map((e) =>
-                    InkWell(
-                      onTap: (){
-                        launch("tel://${e.name}");
-                      },
-                      child: Container(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0,8.0,8.0,8.0),
-                          child: Text(
-                            "${e.name} ",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ),
-                    )).toList();
-                phonesWidget.addAll(phones);
-              }
-              else{
-                phonesWidget.add(
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0,8.0,8.0,8.0),
-                      child: Text(
-                        "Телефоны не указаны",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    )
-                );
-              }
-            });
-          }
-          const List<Widget> n =[];
-          if(phoneCount>0){
-            list.addAll([
-              SizedBox(
-                height: 24,
-              ),
-              InkWell(
-                onTap: (){
-                  showModalBottomSheet(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SafeArea(
-                            child: SingleChildScrollView(
-                                child: Container(
-                                    child:  Column(
-                                          crossAxisAlignment:CrossAxisAlignment.start,
-                                          children: phonesWidget,
-                                        ))));});
 
-                },
+
+          List<Widget> list = [
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: Text(
-                  "Телефоны (${phoneCount}) ",
+                  "${plannedVisitTimeString} ",
                   style: TextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.w600),
                 ),
-              )
-            ]);
-          }
-          list.addAll([
+              ),
+              Padding(
+                //alignment:Alignment.topRight,
+                //color: const Color(0xffe67e22),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: InkWell(
+                    onTap: (){
+                      List<Widget> buttons = [
+                      ];
+                      buttons.addAll([
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                            child: Text(
+                              "${state.task.lifecycle?.name} ",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 24,
+                        ),
+                      ]
+                      );
+                      state.task.statuses?.forEach((element) {
+                        var date = new DateTime.fromMillisecondsSinceEpoch(
+                            element.manualTime * 1000);
+                        //.fromMicrosecondsSinceEpoch(element.createdTime);
+                        final String formatted = formatter.format(date);
+
+                        /*list.add(
+                      SizedBox(
+                        height: 24,
+                      ),
+                    );*/
+                        buttons.add(
+                          InkWell(
+                            onTap: () {
+                              showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  context: context,
+                                  builder: (context) => StatusEditor(
+                                      manualTime: DateTime.fromMillisecondsSinceEpoch(
+                                          element.manualTime * 1000),
+                                      commentInput: element.commentInput,
+                                      timeChanging: element.timeChanging,
+                                      commentRequired: element.commentRequired,
+                                      dateChanging: element.dateChanging,
+                                      comment: element.comment ?? "",
+                                      acceptButton: "Сохранить",
+                                      acceptCallback: (
+                                          {required DateTime time,
+                                            required DateTime manualTime,
+                                            required String comment}) {
+                                        print(
+                                            "time $time, manualTime $manualTime, comment $comment");
+                                        BlocProvider.of<TaskBloc>(context)
+                                          ..add(ChangeTaskStatus(
+                                            id: element.id,
+                                            status: element.status.id,
+                                            comment: comment,
+                                            createdTime:
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                                element.createdTime * 1000),
+                                            manualTime: manualTime,
+                                            timeChanging: element.timeChanging ?? false,
+                                            dateChanging: element.dateChanging ?? false,
+                                            commentChanging: element.commentInput ?? false,
+                                            commentRequired:
+                                            element.commentRequired ?? false,
+                                          ));
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      }));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 16,
+                                    width:16,
+                                    decoration: BoxDecoration(
+                                        color: HexColor.fromHex("${element.status.color}"),
+                                        borderRadius: BorderRadius.circular(16)),
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    "${element.status.name} $formatted",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                      showModalBottomSheet(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SafeArea(
+                                child: SingleChildScrollView(
+                                    child: Container(
+                                        child: Wrap(
+                                            children: buttons))));});
+
+                    },
+                    child: statusField
+                ),
+              ),
+            ]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Text(
+                "${state.task.template?.name}",
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                //    fontWeight: FontWeight.w600
+                ),
+              ),
+            ),
+            ];
+            /*SizedBox(
+              height: 10,
+            ),
+            Container(
+              //color: const Color(0xffe60000),
+              child: Row(
+                //mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  (state.task.externalLink?.length??0) == 0 ?Text(
+                    "${state.task.name}",
+                    style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600),
+                  ):InkWell(
+                    onTap: () => launch('${state.task.externalLink}'),
+                    child: Text(
+                      "${state.task.name}",
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blueAccent,
+                          decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment:Alignment.topRight,
+                    //color: const Color(0xffe67e22),
+                    child: InkWell(
+                        onTap: (){
+                          List<Widget> buttons = [
+                          ];
+                          buttons.addAll([
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                child: Text(
+                                  "${state.task.lifecycle?.name} ",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 24,
+                            ),
+                          ]
+                          );
+                          state.task.statuses?.forEach((element) {
+                            var date = new DateTime.fromMillisecondsSinceEpoch(
+                                element.manualTime * 1000);
+                            //.fromMicrosecondsSinceEpoch(element.createdTime);
+                            final String formatted = formatter.format(date);
+
+                            /*list.add(
+                      SizedBox(
+                        height: 24,
+                      ),
+                    );*/
+                            buttons.add(
+                              InkWell(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      context: context,
+                                      builder: (context) => StatusEditor(
+                                          manualTime: DateTime.fromMillisecondsSinceEpoch(
+                                              element.manualTime * 1000),
+                                          commentInput: element.commentInput,
+                                          timeChanging: element.timeChanging,
+                                          commentRequired: element.commentRequired,
+                                          dateChanging: element.dateChanging,
+                                          comment: element.comment ?? "",
+                                          acceptButton: "Сохранить",
+                                          acceptCallback: (
+                                              {required DateTime time,
+                                                required DateTime manualTime,
+                                                required String comment}) {
+                                            print(
+                                                "time $time, manualTime $manualTime, comment $comment");
+                                            BlocProvider.of<TaskBloc>(context)
+                                              ..add(ChangeTaskStatus(
+                                                id: element.id,
+                                                status: element.status.id,
+                                                comment: comment,
+                                                createdTime:
+                                                DateTime.fromMillisecondsSinceEpoch(
+                                                    element.createdTime * 1000),
+                                                manualTime: manualTime,
+                                                timeChanging: element.timeChanging ?? false,
+                                                dateChanging: element.dateChanging ?? false,
+                                                commentChanging: element.commentInput ?? false,
+                                                commentRequired:
+                                                element.commentRequired ?? false,
+                                              ));
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          }));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 16,
+                                        width:16,
+                                        decoration: BoxDecoration(
+                                            color: HexColor.fromHex("${element.status.color}"),
+                                            borderRadius: BorderRadius.circular(16)),
+                                      ),
+                                      SizedBox(
+                                        width: 8,
+                                      ),
+                                      Text(
+                                        "${element.status.name} $formatted",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                          showModalBottomSheet(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SafeArea(
+                                    child: SingleChildScrollView(
+                                        child: Container(
+                                            child: Wrap(
+                                                children: buttons))));});
+
+                        },
+                        child: statusField
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
             SizedBox(
               height: 24,
             ),
+            Text(
+              "${plannedVisitTimeString} ",
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600),
+            ),
+          ];
+          list.add(
+          SizedBox(
+          height: 24,
+          ),);*/
+        if (state.task.contractor?.id != null) {
+          final String contractorParent = (state.task.contractor?.parent?.name??"").trim();
+          final String contractorName = (state.task.contractor?.name??"").trim();
+            list.add(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Text(
+                  ("$contractorParent${contractorParent.length>0?",":""} $contractorName").trim(),
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                  //    fontWeight: FontWeight.w600
+                  ),
+                ),
+              )
+            );
+          }
+          else{
+            list.add(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Text(
+                    "Клиент не указан",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                    //    fontWeight: FontWeight.w600
+                    ),
+                  ),
+                )
+            );
+          }
+          final String adressStr= "${state.task.address ?? ""} ${state.task.addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task.addressRoom ?? ""} ${state.task.addressInfo ?? ""} ".trim();
+          if(adressStr.length>0)
+            list.add(Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                adressStr,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                  //    fontWeight: FontWeight.w600
+                ),
+              ),
+            ));
+          else
+            list.add(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  "Адрес не указан",
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600),
+                ),
+              )
+            );
+          print("state.task.lat!=null ${(state.task.lat!=null&&state.task.lon!=null)?1:0}");
+            final int mapButtonType=(state.task.lat!=null&&state.task.lon!=null&&state.task.lat!=0.0&&state.task.lon!=0.0)?1:((adressStr.length>0)?2:0);
+            final Widget mapBottonWidget=Padding(
+                padding: const EdgeInsets.all(16.0),
+                child:Column(
+              children: [
+                Icon(Icons.directions),
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text("Маршрут"),
+                )
+              ],
+            ));
+            final Widget mapWidget= (mapButtonType>0)?
+          //   SizedBox(
+          //     height: 8,
+          //   ),
             InkWell(
               onTap: () async {
-               /* try {
+                /* try {
                   final coords = Coords(37.759392, -122.5107336);
                   final title = "Ocean Beach";
                   final availableMaps = await MapLauncher.installedMaps;
@@ -700,15 +844,152 @@ class TaskDetailPage extends StatelessWidget {
 
                 await launch(encodedURl);
               },
-              child: Text(
-                "${state.task.address ?? ""} ${state.task.addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task.addressRoom ?? ""} ${state.task.addressInfo ?? ""} ",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600),
+              child: mapBottonWidget,
+            ):
+            Opacity(opacity: 0.5,
+                child:mapBottonWidget)
+          ;
+          // ]);
+          int phoneCount=0;
+          List<Widget> phonesWidget=[];
+          if ((state.task.phones?.length??0) != 0) {
+            phonesWidget.add(
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Общие телефоны",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        ),
+                  ),
+                ),
+              )
+            );
+
+            phoneCount+=(state.task.phones?.length??0);
+            List<Widget> phones = state.task.phones!.map((e) => InkWell(
+              onTap: (){
+                launch("tel://${e.name}");
+              },
+              child: Align(
+                alignment: Alignment.topLeft,//(
+                //color:Colors.green,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
+                  child: Text(
+                    "${e.name} ",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-            )
-          ]);
+            )).toList();
+
+            phonesWidget.addAll(phones);
+          }
+          if (state.task.persons != null) {
+            state.task.persons?.forEach((element) {
+              phoneCount+=(element.phones?.length??0);
+              String? phoneStr = element.phones?.map((e) => e.name).join(", ");
+              phonesWidget.add(Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "${element.name} ",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        ),
+                  ),
+                ),
+              )
+              );
+              if((element.phones?.length??0)!=0) {
+                List<Widget> phones = element.phones!.map((e) =>
+                    InkWell(
+                      onTap: (){
+                        launch("tel://${e.name}");
+                      },
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
+                          child: Text(
+                            "${e.name} ",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    )).toList();
+                phonesWidget.addAll(phones);
+              }
+              else{
+                phonesWidget.add(
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
+                      child: Text(
+                        "Телефоны не указаны",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    )
+                );
+              }
+            });
+          }
+          final Widget contactsButtonWidget = Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [Icon(Icons.contact_phone), Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text("Контакты"),
+                )],
+              ));
+          print ("phoneCount $phoneCount");
+          final Widget phoneWidget= (phoneCount>0)?
+          //   SizedBox(
+          //     height: 8,
+          //   ),
+          InkWell(
+            onTap: () async {
+              showModalBottomSheet(
+                //isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  context: context,
+                  builder: (BuildContext context) => SafeArea(
+                      child: SingleChildScrollView(
+                          child: Container(
+                              child: Wrap(
+                                  children: phonesWidget)))));
+
+            },
+            child: contactsButtonWidget,
+
+          ):
+          Opacity(opacity: 0.5,
+              child:contactsButtonWidget)
+          ;
+
+          list.add(Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children:[mapWidget,phoneWidget]
+            ),
+          ));
+
+          //const List<Widget> n =[];
           /*if (state.task.persons != null) {
             state.task.persons?.forEach((element) {
               list.addAll([
@@ -964,35 +1245,25 @@ class TaskDetailPage extends StatelessWidget {
 */          //final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
 
 
-          if (state.task.propsList != null) {
-            list.addAll([
-              SizedBox(
-                height: 24,
-              ),
-              Text(
-                "Дополнительные поля:",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600),
-              )
-            ]);
-          }
           //
           //Map<int,Widget> groups={};
           _kTabPages[0] = list;
 
+          List<List<Widget>> propsLists =[[],[]];
+          int propsCounter=0;
           state.task.propsList?.forEach((element) {
             //          if(element.tab==1)
             //        {
             {
               print("element.tab ${element.tab}");
-              final List<Widget> lst = _kTabPages[(element.tab ?? 1) - 1];
+              if((element.tab ?? 1) - 1 == 0)
+                propsCounter++;
+              final List<Widget> lst = propsLists[(element.tab ?? 1) - 1];
 
               if (element.taskField?.type.value == TaskFieldTypeEnum.group) {
                 lst.add(
                   SizedBox(
-                    height: 24,
+                    height: 8,
                   ),
                 );
 
@@ -1018,11 +1289,13 @@ class TaskDetailPage extends StatelessWidget {
                   element.taskField?.type.value != TaskFieldTypeEnum.group) {
                 lst.add(
                   SizedBox(
-                    height: 24,
+                    height: 16,
                   ),
                 );
-
-                lst.add(getTaskFieldElement(element, state.appFilesDirectory));
+                if((element.tab ?? 0) == 2)
+                  lst.add(getTaskFieldElement(element, state.appFilesDirectory));
+                else
+                  lst.addAll(getTaskFieldElementPassive(element, state.appFilesDirectory));
               }
             }
           });
@@ -1050,6 +1323,18 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                   ),
                 );*/
+          if (propsCounter>0) {
+            list.add(
+                 Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  color: Colors.black12,
+                  height: 1.0,
+                ),
+              
+            );
+          }
+          _kTabPages[0].addAll(propsLists[0]);
+          _kTabPages[1].addAll(propsLists[1]);
           _kTabPages[0].add(
             SizedBox(
               height: 80,
@@ -1213,21 +1498,15 @@ class TaskDetailPage extends StatelessWidget {
           ];
           final _kTabPages1 = <Widget>[
             SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
+              child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: _kTabPages[0]),
-              ),
             ),
             SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: _kTabPages[1]),
-              ),
-            ),
+           ),
             // SingleChildScrollView(
             //   child: Padding(
             //   padding: EdgeInsets.all(8.0),
@@ -1260,6 +1539,7 @@ class TaskDetailPage extends StatelessWidget {
               tabs: _kTabs,
               tabsBody: _kTabPages1,
               keyboardVisible: _keyboardVisible,
+              taskNumber: state.task.name??"",
               floatButton: floatButton,
               buttons: buttons);
           // return DefaultTabController(

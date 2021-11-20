@@ -190,7 +190,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
           await sharedPreferences.setInt("last_update_count_${remoteData.objectType}", remoteData.lastUpdateCount);
         }
         if(remoteData.dataList.isNotEmpty){
-          print("new fullSyncUpdateId = ${remoteData.dataList.last.serverId}");
+          //print("new fullSyncUpdateId = ${remoteData.dataList.last.serverId}");
           fullSyncUpdateId=remoteData.dataList.last.serverId;
           syncDataProgress=syncDataProgress+remoteData.dataList.length;
         }
@@ -225,7 +225,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
         //return Left(ServerFailure());
       }
       on ServerException{
-        await Future.delayed(const Duration(seconds: 2), (){});
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
         return Left(ServerFailure());
       }
     }

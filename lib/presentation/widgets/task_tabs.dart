@@ -13,6 +13,7 @@ class TaskTabs extends StatefulWidget {
   //final String name;
   final List<Widget> tabs;
   final List<Widget> tabsBody;
+  final String taskNumber;
   final List<Widget> floatButton;
   final List<Widget> buttons;
   final bool keyboardVisible;
@@ -20,7 +21,7 @@ class TaskTabs extends StatefulWidget {
   //final bool isText;
   //String val;
 
-  TaskTabs({required this.tabs,required this.tabsBody,required this.keyboardVisible,required this.floatButton, required this.buttons, });
+  TaskTabs({required this.tabs,required this.tabsBody,required this.keyboardVisible,required this.floatButton, required this.buttons, required this.taskNumber, });
 
   @override
   State<StatefulWidget> createState() {
@@ -45,8 +46,18 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
         length: widget.tabs.length,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('Task'),
-            centerTitle: true,
+
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+              Text('Task'),
+              Text('${widget.taskNumber}',
+                  style: TextStyle(
+                      fontSize: 12,)
+              )
+            ],
+            ),
+            //centerTitle: true,
             bottom:TabBar(isScrollable:true,tabs: widget.tabs,controller: _tabController,
             ),
           ),

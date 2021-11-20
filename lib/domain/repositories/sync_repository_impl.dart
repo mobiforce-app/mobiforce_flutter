@@ -362,7 +362,7 @@ class SyncRepositoryImpl implements SyncRepository{
             // await sharedPreferences.setInt("full_sync_update_id", 0);
             // await sharedPreferences.setInt("full_sync_objects_type_id", 0);
           if(remoteData.dataList.isNotEmpty){
-            print("new fullSyncUpdateId = ${remoteData.dataList.last.usn}");
+            //print("new fullSyncUpdateId = ${remoteData.dataList.last.usn}");
             objectsTypeLastUpdateId[syncObjectsTypeId]=remoteData.dataList.last.usn;
             //fullSyncUpdateId=remoteData.dataList.last.usn;
             //syncDataProgress=syncDataProgress+remoteData.dataList.length;
@@ -374,7 +374,7 @@ class SyncRepositoryImpl implements SyncRepository{
           //  return Right(remoteAuth);//SyncStatusModel(syncPhase: SyncPhase.normalfullSyncComplete,progress: 0,complete: false,dataLength: 0));
         }
         on ServerException{
-          await Future.delayed(const Duration(seconds: 2), (){});
+          //!!await Future.delayed(const Duration(seconds: 2), (){});
           return Left(ServerFailure());
         }
       }

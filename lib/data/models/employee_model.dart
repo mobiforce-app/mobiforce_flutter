@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
@@ -46,13 +48,16 @@ class EmployeeModel extends EmployeeEntity
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
+    Timeline.startSync('Employee Insert To DB');
+
     dynamic t = await db.insertEmployee(this);
     if(t.id==0){
       t = await db.updateEmployeeByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
 
-    print ("employee db id == ${t.id}");
+    //print ("employee db id == ${t.id}");
+    Timeline.finishSync();
     return t.id;
   }
   factory EmployeeModel.fromMap(Map<String, dynamic> map)
@@ -73,7 +78,7 @@ class EmployeeModel extends EmployeeEntity
   }
   factory EmployeeModel.fromJson(Map<String, dynamic> json)
   {
-    print('employeejsonjson ${json} ');
+    //print('employeejsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return EmployeeModel(
         id: 0,

@@ -15,8 +15,10 @@ class SyncStatusEntity{
   int progress;
   int dataLength;
   bool sendToken;
+  String objectType;
   //List<SyncObjectEntity> dataList;
   SyncStatusEntity({
+    required this.objectType,
     required this.syncPhase,
     required this.complete,
     required this.progress,

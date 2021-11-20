@@ -47,10 +47,10 @@ class SelectionValueModel extends SelectionValueEntity
   }
   Future<int> insertToDB(db) async {
     dynamic t = await db.insertTaskSelection(this);
-    print ("insertSelection id == ${t.id}");
+    //print ("insertSelection id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTaskSelectionByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
     return t.id;
   }
@@ -65,7 +65,7 @@ class SelectionValueModel extends SelectionValueEntity
     if(id!=0)
     {
       dynamic tid = await db.insertTaskField2taskSelectionValueRelation(fieldId,id);
-      print ("insertTaskField2taskSelectionValueRelation id == ${tid}");
+      //print ("insertTaskField2taskSelectionValueRelation id == ${tid}");
     }
     return 0;
 
@@ -89,7 +89,7 @@ class SelectionValueModel extends SelectionValueEntity
   }
   factory SelectionValueModel.fromJson(Map<String, dynamic> json)
   {
-    print("SelectionValueModel $json");
+    //print("SelectionValueModel $json");
     return SelectionValueModel(
         id: 0,
         serverId: int.parse(json["id"]??"0"),

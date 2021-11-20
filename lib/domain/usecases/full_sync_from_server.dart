@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
@@ -31,16 +33,18 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                 //await sharedPreferences.getBool("full_sync")??false;
                 if(await fullSyncRepository.setComplete()) {
                   syncRepository.realoadUSN();
-                  return Right(SyncStatusModel(progress: 0,
+                  return Right(SyncStatusModel(progress: 100,
                       complete: true,
+                      objectType: sync.objectType,
                       dataLength: 0,
                       syncPhase: SyncPhase.fullSyncStart,
                       sendToken:false,
                   ));
                 }
                 else
-                  return Right(SyncStatusModel(progress: 0,
+                  return Right(SyncStatusModel(progress: 100,
                       complete: false,
+                      objectType: sync.objectType,
                       dataLength: 0,
                       syncPhase: SyncPhase.fullSyncStart,
                       sendToken:false,
@@ -53,8 +57,13 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                   for(dynamic object in sync.dataList) {
                     //id = task.serverId;
                     print("ObjectModel.externalId = ${object.serverId}");
-                    print("ObjectModel = ${object.toString()}");
+                    //DateTime d1 = DateTime.now();
+                    //Timeline.startSync('Task Insert To DB');
+                    //print("ObjectModel = ${object.toString()}");
                     await object.insertToDB(db);
+                    //DateTime d2 = DateTime.now();
+                    //Timeline.finishSync();
+                    //print("Time = ${d2.difference(d1)}");
                   }
                   await fullSyncRepository.commit();
 
@@ -66,9 +75,11 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                   }*/
                 //fullSyncRepository.saveProgress(sync.dataProgress+sync.dataList.length,id);
                 //await sharedPreferences.getBool("full_sync")??false;
-                return Right(SyncStatusModel(progress: sync.dataProgress,
+                return Right(SyncStatusModel(
+                    progress: sync.dataProgress,
                     complete: false,
                     dataLength: sync.dataLength,
+                    objectType: sync.objectType,
                     syncPhase: SyncPhase.fullSyncStart,
                     sendToken:false,
                 ));

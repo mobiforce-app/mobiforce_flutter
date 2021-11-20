@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
@@ -13,6 +14,74 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String addressStr='${task.contractor?.parent?.name}${(task.contractor?.parent?.name??"").length>0?",":""} ${task.contractor?.name}'.trim();
+    final Widget address=(addressStr.length>0)?Text(addressStr):Text("Клиент не указан", style: TextStyle(
+        //fontSize: 18,
+        color: Colors.grey,
+        ),
+    );
+    final DateFormat formatter = DateFormat('dd.MM.yyyy HH:mm');
+    var plannedVisitTimeString = task.plannedVisitTime != null
+        ? formatter.format(new DateTime.fromMillisecondsSinceEpoch(
+        1000 * (task.plannedVisitTime ?? 0)))
+        : "Без даты";
+    final Widget statusField = Row(
+      children: [
+        /*Text(
+          "${task.status?.name}",
+          style: TextStyle(
+              fontSize: 14,
+              color: Colors.black,
+              fontWeight: FontWeight.w600),
+        ),
+        SizedBox(
+          width: 4,
+        ),
+        Container(
+          height: 10,
+          width: 10,
+          decoration: BoxDecoration(
+            color: HexColor.fromHex("${task.status?.color??"#FFFFFF"}"),
+            borderRadius: BorderRadius.circular(12),
+            /*boxShadow:<BoxShadow>[
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(1.0, 1.0),
+                        blurRadius: 4.0,
+                      ),
+                    ],*/
+          ),
+        ),*/
+        Container(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8.0,4.0,8.0,4.0,),
+            child: Text(
+    "${task.status?.name}",
+      style: TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+            fontWeight: FontWeight.w600),
+    ),
+          ),
+          //height: 10,
+          //width: 10,
+          decoration: BoxDecoration(
+            color: HexColor.fromHex("${task.status?.color??"#FFFFFF"}"),
+            borderRadius: BorderRadius.circular(12),
+            /*boxShadow:<BoxShadow>[
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(1.0, 1.0),
+                        blurRadius: 4.0,
+                      ),
+                    ],*/
+          ),
+        ),
+
+      ],
+    );
+
+
     return InkWell(
       onTap: () {
         BlocProvider.of<TaskBloc>(context).add(
@@ -37,16 +106,49 @@ class TaskCard extends StatelessWidget {
         //shadowColor: Colors.red,
         child:
         Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
               children:[
-                Text('${task.name}', style: TextStyle(color: Colors.black),),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                  children:[
+                    Text('$plannedVisitTimeString', style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        ),),
+                    statusField
+                  ],),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children:[
+                    Text('#${task.name}',style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600)),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text('${task.template?.name}',style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600)),
+                    //statusField
+                  ],),
+                SizedBox(
+                  height: 8,
+                ),
+
                 //Text(task.name, style: TextStyle(color: Colors.black),),
                 //Text(task.name, style: TextStyle(color: Colors.black),),
-                Text('${task.contractor?.parent?.name} ${task.contractor?.name}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),
-                Text('${task.status?.name}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),),
-                Text('${task.address}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
+                address,
+                ((task.address?.length??0)>0)?
+                  Text('${task.address}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
+                  :Text('Адрес не указан',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey),),
+
               ]
           ),
         )

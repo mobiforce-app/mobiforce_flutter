@@ -136,12 +136,13 @@ class TasksList extends StatelessWidget {
                                 return _loadingIndicator();
                             },
                             separatorBuilder: (context, index) {
-                              return Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Divider(height: 1,
-                                    color: Colors.grey,
-                                    thickness: 1,)
-                              );
+                              return //Padding(
+                                  //padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              //    child:
+                              Divider(height: 1,
+                                    color: Colors.black12,
+                                    thickness: 1,);
+                              //);
                             },
                             itemCount: tasks.length + (isLoading ? 1 : 0)
 

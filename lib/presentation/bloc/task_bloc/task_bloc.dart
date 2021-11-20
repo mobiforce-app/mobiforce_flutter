@@ -470,7 +470,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       );
       print("readFile ${id}");
       final faiureOrLoading = await loadFile(LoadFileParams(id));
-      await Future.delayed(Duration(seconds: 3));
+      //!!await Future.delayed(Duration(seconds: 3));
       yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
 
         final task = (state as TaskLoaded).task;
@@ -523,7 +523,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       );
       print("readFile ${id}");
       final faiureOrLoading = await loadFile(LoadFileParams(id));
-      await Future.delayed(Duration(seconds: 3));
+      //!!await Future.delayed(Duration(seconds: 3));
       yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
 
         final task = (state as TaskLoaded).task;

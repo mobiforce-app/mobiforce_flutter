@@ -49,7 +49,7 @@ class ResolutionModel extends ResolutionEntity
       int resolutionGroupId = await element.insertToDB(db);
       await db.insertResolutuionGroupRelation(t.id,resolutionGroupId);
     });
-    print ("db id == ${t.id}");
+    //print ("db id == ${t.id}");
     return 0;
   }
   factory ResolutionModel.fromMap({required Map<String, dynamic> map, List<Map<String, dynamic>> mapResolutionsList = const[]})

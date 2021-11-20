@@ -47,10 +47,10 @@ class PhoneModel extends PhoneEntity
     dynamic t = await db.insertPhone(this);
     if(t.id==0){
       t = await db.updatePhoneByServerId(this);
-      print ("db id == ${t.toString()}");
+      ///print ("db id == ${t.toString()}");
     }
 
-    print ("employee db id == ${t.id}");
+    //print ("employee db id == ${t.id}");
     return t.id;
   }
   factory PhoneModel.fromMap(Map<String, dynamic> map)
@@ -68,7 +68,7 @@ class PhoneModel extends PhoneEntity
   }
   factory PhoneModel.fromJson(Map<String, dynamic> json)
   {
-    print('PhoneModeljsonjson ${json} ');
+    //print('PhoneModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return PhoneModel(
         id: 0,

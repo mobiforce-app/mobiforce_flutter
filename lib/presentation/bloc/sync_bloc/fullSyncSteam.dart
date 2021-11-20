@@ -5,13 +5,14 @@ import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_event.dart';
 class FullSyncStatus
 {
+  String? syncNameStr;
   double progress;
   //int max;
   bool complete;
   //int lastUpdateCount;
   //int lastSyncTime;
   //bool isFirstSync;
-  FullSyncStatus({required this.progress,required this.complete});
+  FullSyncStatus({required this.progress,required this.complete,required this.syncNameStr});
 }
 abstract class FullSync{
   Stream<dynamic> get counterUpdates;
@@ -19,10 +20,17 @@ abstract class FullSync{
 }
 class FullSyncImpl implements FullSync{
   int _counter = 0;
+  final Map<String,String> objectsTypeToName={
+    "taskfield":"Дополнительные поля",
+    "taskstatus":"Статусы",
+    "resolution":"Причины завершения",
+    "tasklifecycle":"Жизненные циклы",
+    "task":"Задачи",
+    "comments":"Комментарии"};
   final FullSyncFromServer fullSyncFromServer;
   FullSyncImpl({required this.fullSyncFromServer});
 
-  FullSyncStatus s = FullSyncStatus(progress: 0,complete:false);
+  FullSyncStatus s = FullSyncStatus(progress: 0,complete:false,syncNameStr:"");
   //var controller = new StreamController<String>();
   StreamController _streamController = new StreamController<FullSyncStatus>();
 
@@ -39,16 +47,16 @@ class FullSyncImpl implements FullSync{
         syncId=sync.progress;
         print("progress ${sync.progress} ${sync.dataLength}");
         // open full sync page
-        double progress=0.0;
+        double progress=100.0;
         if(sync.dataLength>0)
           progress=(10000.0*sync.progress/sync.dataLength).roundToDouble()/100;
         print("fullSync progress ${sync.progress}");
         if(sync.complete){
           complete=false;
-          _streamController.add(FullSyncStatus(complete: true, progress: progress));
+          _streamController.add(FullSyncStatus(complete: true, progress: progress,syncNameStr:objectsTypeToName[sync.objectType]));
         }
         else{
-          _streamController.add(FullSyncStatus(complete: false, progress: progress));
+          _streamController.add(FullSyncStatus(complete: false, progress: progress,syncNameStr:objectsTypeToName[sync.objectType]));
         }
         //_streamController.add(FullSyncStatus(max:0,progress: 0,complete: true));
         //if(sync.fullSync)

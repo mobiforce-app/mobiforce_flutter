@@ -65,7 +65,7 @@ class SyncPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Center(child: CircularProgressIndicator(),),
-                      Text("Загружено: ${state.progress}%")
+                      Text("${state.objectTypeName}: ${state.progress}%")
                     ]
                   ),
                 ),

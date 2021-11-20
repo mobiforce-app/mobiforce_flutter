@@ -6,12 +6,14 @@ class SyncStatusModel extends SyncStatusEntity
 {
   SyncStatusModel({
     required complete,
+    required objectType,
     required progress,
     required dataLength,
     required syncPhase,
     required sendToken,
   }) : super(
       complete:complete,
+      objectType:objectType,
       syncPhase:syncPhase,
       progress:progress,
       dataLength:dataLength,

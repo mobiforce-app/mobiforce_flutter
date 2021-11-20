@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -45,14 +47,17 @@ class TaskStatusModel extends TaskStatusEntity
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
+    Timeline.startSync('Status Insert To DB');
+
     dynamic t = await db.insertTaskStatus(this);
 
-    print ("db id == ${t.id}");
+    //print ("db id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTaskStatusByServerId(this);
-      print ("updateTaskStatusByServerId db id == ${t.id}");
+//      print ("updateTaskStatusByServerId db id == ${t.id}");
 
     }
+    Timeline.finishSync();
     return t.id;
   }
   factory TaskStatusModel.fromMap({required Map<String, dynamic> map, List<Map<String, dynamic>> mapResolutions = const[]})

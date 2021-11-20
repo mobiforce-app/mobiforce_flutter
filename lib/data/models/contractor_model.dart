@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/domain/entity/contractor_entity.dart';
@@ -63,19 +65,21 @@ class ContractorModel extends ContractorEntity
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
-    print("save contractor");
+    Timeline.startSync('Contractor Insert To DB');
+
+    //print("save contractor");
     //int? parentId;
     if(parent!=null&&parent?.id==0){
       parent!.id = await parent?.insertToDB(db);
-      print ("parent contractor db id == ${parent?.id}");
+      //print ("parent contractor db id == ${parent?.id}");
     }
     dynamic t = await db.insertContractor(this);
     if(t.id==0){
       t = await db.updateContractorByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
-
-    print ("contractor db id == ${t.id}");
+    Timeline.finishSync();
+    //print ("contractor db id == ${t.id}");
     return t.id;
   }
   factory ContractorModel.fromMap(Map<String, dynamic> map)
@@ -83,7 +87,7 @@ class ContractorModel extends ContractorEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
-    print("ContractorModel ${map.toString()}");
+    //print("ContractorModel ${map.toString()}");
     return ContractorModel(
         id: map['id'],
         usn: map['usn'],
@@ -101,8 +105,8 @@ class ContractorModel extends ContractorEntity
   }
   factory ContractorModel.fromJson(Map<String, dynamic> json)
   {
-    print('Contractor jsonjson ${json} ');
-    print ('parent contractor ${json["parent"]} ${json["parent"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?"ok":"!ok"}');
+    //print('Contractor jsonjson ${json} ');
+    //print ('parent contractor ${json["parent"]} ${json["parent"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?"ok":"!ok"}');
     //return TaskModel(id:0,externalId: 0, name: "");
     return ContractorModel(
         id:0,

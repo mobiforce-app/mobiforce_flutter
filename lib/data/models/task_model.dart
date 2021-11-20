@@ -1,5 +1,7 @@
 //import 'dart:html';
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
@@ -80,6 +82,8 @@ class TaskModel extends TaskEntity
     return map;
   }
   Future<int> insertToDB(db) async {
+    Timeline.startSync('Task Insert To DB');
+
     if(status != null)
     {
       status?.id = await status!.insertToDB(db);
@@ -105,23 +109,25 @@ class TaskModel extends TaskEntity
     {
       lifecycle?.id = await lifecycle!.insertToDB(db);
     }
-    print("lifecycle?.id ${lifecycle?.id}");
+    //print("lifecycle?.id ${lifecycle?.id}");
 
     //else
     //  id=0;
-    print ("INSERT Status id = $id");
+    //print ("INSERT Status id = $id");
     dynamic t = await db.insertTask(this);
     int taskId=t.id;
-    print ("db id == ${t.id}");
+    //print ("db id == ${t.id}");
     if(taskId==0){
       taskId = await db.updateTaskByServerId(this);
-      print ("db id == ${taskId}");
+      //print ("db id == ${taskId}");
     }
+    Timeline.finishSync();
+    Timeline.startSync('Task Employee');
     if(employees != null)
     {
       await db.deleteAllTaskEmployees(taskId);
       await Future.forEach(employees!,(EmployeeModel element) async {
-        print("employees Id = ${element.serverId}");
+        //print("employees Id = ${element.serverId}");
         //element.task = taskId;
         int employeeId = await element.insertToDB(db);
         if(employeeId>0){
@@ -129,11 +135,13 @@ class TaskModel extends TaskEntity
         }
       });
     }
+    Timeline.finishSync();
+    Timeline.startSync('Task Phone');
     if(phones != null)
     {
       await db.deleteAllTaskPhones(taskId);
       await Future.forEach(phones!,(PhoneModel element) async {
-        print("phones Id = ${element.serverId}");
+        //print("phones Id = ${element.serverId}");
         //element.task = taskId;
         element.taskId=taskId;
         int employeeId = await element.insertToDB(db);
@@ -142,11 +150,13 @@ class TaskModel extends TaskEntity
         //}
       });
     }
+    Timeline.finishSync();
+    Timeline.startSync('Task person');
     if(persons != null)
     {
       await db.deleteAllTaskPersons(taskId);
       await Future.forEach(persons!,(PersonModel element) async {
-        print("persons Id = ${element.serverId}");
+        //print("persons Id = ${element.serverId}");
         //element.task = taskId;
         element.taskId=taskId;
         int employeeId = await element.insertToDB(db);
@@ -155,27 +165,33 @@ class TaskModel extends TaskEntity
         //}
       });
     }
+    Timeline.finishSync();
+    Timeline.startSync('Task statuses');
     if(statuses != null)
     {
       await db.deleteAllTaskStatuses(taskId);
       await Future.forEach(statuses!,(TasksStatusesModel element) async {
-        print("status Id = ${element.serverId}");
+        //print("status Id = ${element.serverId}");
         element.task.id = taskId;
         await element.insertToDB(db);
       });
     }
     else
       id=0;
-    print("checkList = ${checkList.toString()}");
+    //print("checkList = ${checkList.toString()}");
+    Timeline.finishSync();
+    Timeline.startSync('Task checklist');
+    await db.deleteAllFieldsByTaskId(taskId);
+
     if(checkList != null)
     {
       await Future.forEach(checkList!,(TasksFieldsModel element) async {
-        print("TasksFieldsModel checkList Id = ${element.serverId}");
+        //print("TasksFieldsModel checkList Id = ${element.serverId}");
         element.task = TaskModel(id:taskId,serverId: 0);
         await element.insertToDB(db);
         if (element.childrens!=null&&element.childrens!.length>0){
           await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
-            print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
+            //print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
             elementChildren.task = TaskModel(id:taskId,serverId: 0);
             await elementChildren.insertToDB(db);
           });
@@ -184,15 +200,17 @@ class TaskModel extends TaskEntity
     }
     else
       id=0;
+    Timeline.finishSync();
+    Timeline.startSync('Task props');
     if(propsList != null)
     {
       await Future.forEach(propsList!,(TasksFieldsModel element) async {
-        print("TasksFieldsModel checkList Id = ${element.serverId}");
+        //print("TasksFieldsModel checkList Id = ${element.serverId}");
         element.task = TaskModel(id:taskId,serverId: 0);
         await element.insertToDB(db);
         if (element.childrens!=null&&element.childrens!.length>0){
           await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
-            print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
+            //print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
             elementChildren.task = TaskModel(id:taskId,serverId: 0);
             await elementChildren.insertToDB(db);
           });
@@ -201,7 +219,7 @@ class TaskModel extends TaskEntity
     }
     else
       id=0;
-
+    Timeline.finishSync();
     /*if(propsList != null)
     {
       await Future.forEach(propsList!,(TasksFieldsModel element) async {
@@ -212,6 +230,7 @@ class TaskModel extends TaskEntity
     }
     else
       id=0;*/
+    //print("ObjectModel = ${object.toString()}");
 
     return 0;
   }
@@ -230,8 +249,8 @@ class TaskModel extends TaskEntity
    // name = map['name'];
     Map<String,dynamic> lifeCycleMap={"id":taskMap['lifecycle_id'],"usn":taskMap['lifecycle_usn'],"name":taskMap['lifecycle_name'],"external_id":taskMap['lifecycle_external_id']};
 
-    print("taskMap = ${taskMap.toString()}");
-    print("lifeCycleMap = ${lifeCycleMap.toString()}");
+    debugPrint("taskMap = ${taskMap.toString()}");
+    //print("lifeCycleMap = ${lifeCycleMap.toString()}");
 
     //List<PhoneModel> phones = [];
     List<Map<String, dynamic>> phonesMap = [];
@@ -269,7 +288,7 @@ class TaskModel extends TaskEntity
     });
     if(personId>0)
       persons.add(person!);
-    print("personsListMap: ${persons} $phonesMap");
+    //print("personsListMap: ${persons} $phonesMap");
 
     var contractor = ContractorModel.fromMap({
       "id":taskMap['contractor_id'],
@@ -283,26 +302,27 @@ class TaskModel extends TaskEntity
         "name":taskMap['contractor_parent_name']??""
       }
     });
-    print("tasksFieldsFilesMap!: $tasksFieldsFilesMap");
+    //tasksFieldsFilesMap!: $tasksFieldsFilesMap");
     final List<FileModel> files = tasksFieldsFilesMap.map((files) => FileModel.fromMap(files)).toList();
-    print("files!: $files");
+    //print("files!: $files");
     var fieldList=tasksFieldsMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,tasksFieldsSelectionValuesMap)).toList();
 
     fieldList.forEach((element) {
+      print("fieldList: ${element.id} ${element.taskField?.name} ${element.taskField?.id}");
       if(element.taskField?.type.value==TaskFieldTypeEnum.picture||element.taskField?.type.value==TaskFieldTypeEnum.signature){
-        print("TaskFieldTypeEnum.picture");
+        //print("TaskFieldTypeEnum.picture");
         files.forEach((file) {
-          print("TaskFieldTypeEnum.picture ${file.parent.id} && ${element.id}");
+          //print("TaskFieldTypeEnum.picture ${file.parent.id} && ${element.id}");
           if(file.parent?.id!=null&&file.parent.id==element.id) {
             element.fileValueList?.add(file);
-            print("add files ${file.parent.id} && ${element.id}");
+            //print("add files ${file.parent.id} && ${element.id}");
           }
         });
       }
     });
         //var fieldList1=tasksFieldsFilesMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,{})).toList();
 
-    print("statusMap = ${statusMap.toString()}");
+    //print("statusMap = ${statusMap.toString()}");
     return TaskModel(
         id: taskMap['id'],
         isChanged:false,
@@ -322,6 +342,7 @@ class TaskModel extends TaskEntity
         plannedVisitTime: taskMap['planned_visit_time'],
         name: taskMap['name'],
         contractor: contractor,
+        template: TemplateModel(id: taskMap['template_id']??0, usn: 0, serverId: 0, name: taskMap['template_name']??""),
         status:statusMap!=null?TaskStatusModel.fromMap(map:statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
@@ -334,13 +355,13 @@ class TaskModel extends TaskEntity
   {
     //print('jsonjson ${json[0]} ');
     //return TaskModel(id:0,externalId: 0, name: "");
-    print('json["task_statuses"] = ${json["task_statuses"]}');
-    debugPrint("ok1 ${json.toString()}");
+    //print('json["task_statuses"] = ${json["task_statuses"]}');
+    //debugPrint("ok1 ${json.toString()}");
     var propsList = json["props"]!=null?(json["props"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,1)).toList():<TasksFieldsModel>[];
-    print("ok2");
+    //print("ok2");
     var checkList = json["checklist"]!=null?(json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,2)).toList():<TasksFieldsModel>[];
     propsList.addAll(checkList);
-    print("ok3 ${json["contractor"]} ${json["contractor"].runtimeType.toString()} ${json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'}");
+    //print("ok3 ${json["contractor"]} ${json["contractor"].runtimeType.toString()} ${json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'}");
     ContractorModel? contractor;
     return TaskModel(
         id: 0,

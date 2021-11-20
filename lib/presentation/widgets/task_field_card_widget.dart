@@ -79,39 +79,42 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
   }
   @override
   Widget build(BuildContext context) {
-     return TextField(
-        decoration: InputDecoration(
-          labelText: widget.name,
-          border: OutlineInputBorder(),
-          suffixIcon: _controller.text.length>0?IconButton(
-            icon: Icon(Icons.cancel),
-            onPressed: (){
-              //  setState((){element.selectionValue=null;});
-              print("press");
-              setState(()=>
-                _controller.clear()
-              );
+     return Padding(
+       padding: const EdgeInsets.only(left:16.0,right:16.0),
+       child: TextField(
+          decoration: InputDecoration(
+            labelText: widget.name,
+            border: UnderlineInputBorder(),
+            suffixIcon: _controller.text.length>0?IconButton(
+              icon: Icon(Icons.cancel),
+              onPressed: (){
+                //  setState((){element.selectionValue=null;});
+                print("press");
+                setState(()=>
+                  _controller.clear()
+                );
 //              widget.val  = "";
 
-              /*BlocProvider.of<TaskBloc>(context).add(
-                ChangeTextFieldValue(fieldId:widget.fieldId,value:""),
-              );*/
+                /*BlocProvider.of<TaskBloc>(context).add(
+                  ChangeTextFieldValue(fieldId:widget.fieldId,value:""),
+                );*/
 
-            },
-          ):null,
-        ),
-        controller: _controller,
-        //maxLines: 3,
-        keyboardType: widget.isText?TextInputType.text:TextInputType.phone,//.numberWithOptions(),
+              },
+            ):null,
+          ),
+          controller: _controller,
+          maxLines: null,
+          keyboardType: widget.isText?TextInputType.text:TextInputType.phone,//.numberWithOptions(),
   /*      onChanged: (data)
-        {
-          setState(()=>{});
-          BlocProvider.of<TaskBloc>(context).add(
-            ChangeTextFieldValue(fieldId:widget.fieldId,value:data),
-          );
-        },//maxLines: 3,*/
-        onChanged: _onChanged,
-      );
+          {
+            setState(()=>{});
+            BlocProvider.of<TaskBloc>(context).add(
+              ChangeTextFieldValue(fieldId:widget.fieldId,value:data),
+            );
+          },//maxLines: 3,*/
+          onChanged: _onChanged,
+        ),
+     );
   }
 }
 
@@ -175,7 +178,14 @@ class _taskFieldCheckboxState extends State<TaskFieldCheckboxCard> {
   @override
   Widget build(BuildContext context) {
      return Row(
+       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+       //mainAxisSize: ,
        children: [
+         Flexible(
+           child: Text("${widget.name}",
+               softWrap:true,
+           ),
+         ),
          Checkbox(
             value: _oldValue,
             /*decoration: InputDecoration(
@@ -212,7 +222,6 @@ class _taskFieldCheckboxState extends State<TaskFieldCheckboxCard> {
               //setState((){_oldValue=t!;});
             //},
           ),
-           Text("${widget.name}"),
 
        ],
      );
@@ -472,6 +481,7 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
     ).toList();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("${widget.name}"),
         SizedBox(height: 8,),

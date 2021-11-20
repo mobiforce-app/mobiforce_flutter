@@ -47,10 +47,10 @@ class ResolutionGroupModel extends ResolutionGroupEntity
 
 
     dynamic t = await db.insertResolutionGroup(this);
-    print ("status db id == ${t.id}");
+    //print ("status db id == ${t.id}");
     if(t.id==0){
       t = await db.updateResolutionGroupByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
     return t.id;
   }
@@ -70,7 +70,7 @@ class ResolutionGroupModel extends ResolutionGroupEntity
   }
   factory ResolutionGroupModel.fromJson(Map<String, dynamic> json)
   {
-    print('ResolutionGroupModel jsonjson ${json.toString()} ');
+    //print('ResolutionGroupModel jsonjson ${json.toString()} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     ResolutionGroupModel r = ResolutionGroupModel(
         id: 0,
@@ -80,7 +80,7 @@ class ResolutionGroupModel extends ResolutionGroupEntity
         //client: json["client"]??"",
         //address: json["address"]??""
     );
-    print("ok");
+    //print("ok");
     return r;
   }
   /*fromMap(Map<String, dynamic> map)

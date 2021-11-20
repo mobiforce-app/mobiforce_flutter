@@ -47,9 +47,9 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
     dynamic lifeCycle = await db.insertTaskLifeCycle(this);
     if(lifeCycle.id==0){
       lifeCycle.id = await db.updateTaskLifeCycleByServerId(this);
-      print (" lifeCycledb id == ${lifeCycle.toString()}");
+      //print (" lifeCycledb id == ${lifeCycle.toString()}");
     }
-    print (" lifeCycledb id == ${lifeCycle.toString()}");
+    //print (" lifeCycledb id == ${lifeCycle.toString()}");
     await Future.forEach(node!, (TaskLifeCycleNodeModel element) async {
       element.lifeCycle=lifeCycle.id;
       element.id = await element.insertToDB(db);
@@ -75,7 +75,7 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
-    print("TaskLifeCycleModel ${map.toString()}");
+    //print("TaskLifeCycleModel ${map.toString()}");
     return TaskLifeCycleModel(
         id: map['id'],
         usn: map['usn'],
@@ -85,7 +85,7 @@ class TaskLifeCycleModel extends TaskLifeCycleEntity
   }
   factory TaskLifeCycleModel.fromJson(Map<String, dynamic> json)
   {
-    print('jsonjson ${json.toString()} ');
+    //print('jsonjson ${json.toString()} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     final List<TaskLifeCycleNodeModel> nodes = json["nodes"]!=null?(json["nodes"] as List).map((selectionValue) => TaskLifeCycleNodeModel.fromJson(selectionValue)).toList():[];
     //print("${json["usn"].runtimeType} ${json["id"].runtimeType}");

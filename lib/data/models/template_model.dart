@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
@@ -39,13 +41,16 @@ class TemplateModel extends TemplateEntity
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
+    Timeline.startSync('Template Insert To DB');
+
     dynamic t = await db.insertTemplate(this);
     if(t.id==0){
       t = await db.updateTemplateByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
 
-    print ("template db id == ${t.id}");
+    //print ("template db id == ${t.id}");
+    Timeline.finishSync();
     return t.id;
   }
   factory TemplateModel.fromMap(Map<String, dynamic> map)
@@ -62,7 +67,7 @@ class TemplateModel extends TemplateEntity
   }
   factory TemplateModel.fromJson(Map<String, dynamic> json)
   {
-    print('employeejsonjson ${json} ');
+    //print('employeejsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return TemplateModel(
         id: 0,

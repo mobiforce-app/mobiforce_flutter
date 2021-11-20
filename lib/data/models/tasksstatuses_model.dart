@@ -73,7 +73,7 @@ class TasksStatusesModel extends TasksStatusesEntity
       map['external_id'] = serverId;
     map['task_status'] = status.id;
     //map['color'] = color;
-    print ("task status map $map");
+    //print ("task status map $map");
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
@@ -83,10 +83,10 @@ class TasksStatusesModel extends TasksStatusesEntity
       status.id = await status.insertToDB(db);
 
     dynamic t = await db.insertTasksStatuses(this);
-    print ("status db id == ${t.id}");
+    //print ("status db id == ${t.id}");
     if(t.id==0){
       t = await db.updateTasksStatusesByServerId(this);
-      print ("db id == ${t.toString()}");
+      //print ("db id == ${t.toString()}");
     }
     return t.id;
   }
@@ -95,7 +95,7 @@ class TasksStatusesModel extends TasksStatusesEntity
    // id = map['id'];
    // externalId = map['externalId'];
    // name = map['name'];
-    print("TasksStatusesModel MAP ${map.toString()}");
+    //print("TasksStatusesModel MAP ${map.toString()}");
     TaskStatusModel status = TaskStatusModel.fromMap(map:{"id":map["taskstatus_id"],"external_id":map["taskstatus_external_id"],"name":map['taskstatus_name'],"color":map['taskstatus_color']});
 
     return TasksStatusesModel(
@@ -125,7 +125,7 @@ class TasksStatusesModel extends TasksStatusesEntity
   }
   factory TasksStatusesModel.fromJson(Map<String, dynamic> json)
   {
-    print('TasksStatusesModeljsonjson ${json} ');
+    //print('TasksStatusesModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     TaskStatusModel status = TaskStatusModel.fromJson({"id":json["taskStatusId"],"name":json['description'],"color":json['color']});
 
