@@ -1360,12 +1360,12 @@ class TaskDetailPage extends StatelessWidget {
                 // Expanded(
                 //   child:
                 Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                   Expanded(
-                    child: ListView.separated(
+                    child: ListView.builder(
                         reverse: true,
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
@@ -1380,83 +1380,148 @@ class TaskDetailPage extends StatelessWidget {
                           //int i= (100/200).toInt();
                           final size =
                               (state.comments[index].file?.size ?? 0) ~/ 1024;
+                          Widget element = state.comments[index].file?.id != null
+                              ?Container(
+                             // width: 160,
+                              height: 160,
+                              padding: const EdgeInsets.symmetric(vertical:8.0),
+                              child: state.comments[index].file
+                                  ?.downloaded ==
+                                  true
+                                  ? Image.file(File(
+                                  '${state.appFilesDirectory}/photo_${state.comments[index].file?.id}.jpg'))
+                                  : (state.comments[index].file
+                                  ?.downloading ==
+                                  true
+                                  ? Padding(
+                                  padding:
+                                  const EdgeInsets.all(
+                                      8.0),
+                                  child: Center(
+                                    child:
+                                    CircularProgressIndicator(),
+                                  ))
+                                  : InkWell(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .center,
+                                    children: [
+                                      Icon(Icons
+                                          .now_wallpaper),
+                                      Text(
+                                          "Изображение не загружено ($size Кб)}",
+                                          textAlign: TextAlign
+                                              .center),
+                                      Text("Загрузить?")
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    BlocProvider.of<TaskBloc>(
+                                        context)
+                                      ..add(
+                                          CommentFileDownload(
+                                              file: state
+                                                  .comments[
+                                              index]
+                                                  .file
+                                                  ?.id));
+                                  })))
+                              : Linkify(
+                              text: "${state.comments[index].message}",
+                              onOpen: (link) async {
+                                if (await canLaunch(link.url)) {
+                                  await launch(link.url);
+                                } else {
+                                  throw 'Could not launch $link';
+                                }
+                              });
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Column(
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Linkify(
-                                    text: "${state.comments[index].message}",
-                                    onOpen: (link) async {
-                                      if (await canLaunch(link.url)) {
-                                        await launch(link.url);
-                                      } else {
-                                        throw 'Could not launch $link';
-                                      }
-                                    }),
-                                state.comments[index].file?.id != null
-                                    ? Container(
-                                        width: 160,
-                                        height: 160,
-                                        child: state.comments[index].file
-                                                    ?.downloaded ==
-                                                true
-                                            ? Image.file(File(
-                                                '${state.appFilesDirectory}/photo_${state.comments[index].file?.id}.jpg'))
-                                            : (state.comments[index].file
-                                                        ?.downloading ==
-                                                    true
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    ))
-                                                : InkWell(
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Icon(Icons
-                                                            .now_wallpaper),
-                                                        Text(
-                                                            "Изображение не загружено ($size Кб)}",
-                                                            textAlign: TextAlign
-                                                                .center),
-                                                        Text("Загрузить?")
-                                                      ],
-                                                    ),
-                                                    onTap: () {
-                                                      BlocProvider.of<TaskBloc>(
-                                                          context)
-                                                        ..add(
-                                                            CommentFileDownload(
-                                                                file: state
-                                                                    .comments[
-                                                                        index]
-                                                                    .file
-                                                                    ?.id));
-                                                    })))
-                                    : Text(
-                                        "${state.comments[index].author?.name}, ${formatted}",
+                              //mainAxisAlignment: MainAxisAlignment.,
+                            children: [
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black26,
+                                  //border: Border.all(color: Colors.blue, width: 2),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(16.0),
+                                  ),
+                                ),
+                                height: 32.0,
+                                width: 32.0,
+                                //color: Colors.black12,
+                                margin: const EdgeInsets.only(left: 8.0, right: 8.0),
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 32.0,
+                                )
+                              ),
+                              Expanded(
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                                    children: [
+
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          color: Color.fromRGBO(238, 238, 238, 1),
+                                          //border: Border.all(color: Colors.blue, width: 2),
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(16.0),
+                                          ),
+                                        ),
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                                        margin: const EdgeInsets.only(right: 8.0,bottom: 8.0),
+                                        child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children:[
+                                            Text(
+                                              "${state.comments[index].author?.name}",
+                                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                            ),
+                                            element
+                                          ]),
+                                        //margin: const EdgeInsets.only(),
+                                      ),
+                                      Text(
+                                        "${formatted}",
                                         style: TextStyle(color: Colors.grey),
                                       )
-                              ],
-                            ),
+                                ]),
+                              )
+                            ],
+                            // Column(
+                            //   crossAxisAlignment: CrossAxisAlignment.start,
+                            //   children: [
+                            //     Linkify(
+                            //         text: "${state.comments[index].message}",
+                            //         onOpen: (link) async {
+                            //           if (await canLaunch(link.url)) {
+                            //             await launch(link.url);
+                            //           } else {
+                            //             throw 'Could not launch $link';
+                            //           }
+                            //         }),
+                            //     element
+                            //   ],
+                            // ),
+                            )
                           );
                         },
-                        separatorBuilder: (context, index) {
-                          return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Divider(
-                                height: 1,
-                                color: Colors.grey,
-                                thickness: 1,
-                              ));
-                        },
+                        // separatorBuilder: (context, index) {
+                        //   return Padding(
+                        //       padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        //       child: Divider(
+                        //         height: 1,
+                        //         color: Colors.grey,
+                        //         thickness: 1,
+                        //       ));
+                        // },
                         itemCount: state.comments.length),
                   ),
                   //Expanded(

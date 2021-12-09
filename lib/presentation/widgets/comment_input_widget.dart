@@ -57,37 +57,46 @@ class _commentFieldTextState extends State<CommentInput> {
   }
   @override
   Widget build(BuildContext context) {
-     return TextField(
-       decoration: InputDecoration(
-         labelText: "Введите комментарий",
-         border: OutlineInputBorder(),
-         suffixIcon: _controller.text.length>0?IconButton(
-           icon: Icon(Icons.send),
-           onPressed: (){
-             BlocProvider.of<TaskBloc>(context).add(
-               AddComment(value:_controller.text),
-             );
-             setState(() {
-               _controller.clear();
-             });
-           },
-         ):IconButton(
-           icon: Icon(Icons.attach_file),
-           onPressed: (){
-             BlocProvider.of<TaskBloc>(context).add(
-               AddPhotoToComment(),
-             );
-           },
-         ),
+     return Container(
+       decoration: BoxDecoration(
+         border: Border.all(color: Colors.black12, width: 1),
        ),
-       //expands: true,
-       maxLines: null,
-       controller: _controller,
-       keyboardType: TextInputType.multiline,
-       onChanged: (String s){setState(() {
+       padding: const EdgeInsets.only(left: 8.0),
 
-       });},
-       //.numberWithOptions(),
+       child: TextField(
+         decoration: InputDecoration(
+          // labelText: "Введите комментарий",
+           hintText: "Введите комментарий",
+           //border: OutlineInputBorder(),
+           border: InputBorder.none,
+           suffixIcon: _controller.text.length>0?IconButton(
+             icon: Icon(Icons.send),
+             onPressed: (){
+               BlocProvider.of<TaskBloc>(context).add(
+                 AddComment(value:_controller.text),
+               );
+               setState(() {
+                 _controller.clear();
+               });
+             },
+           ):IconButton(
+             icon: Icon(Icons.attach_file),
+             onPressed: (){
+               BlocProvider.of<TaskBloc>(context).add(
+                 AddPhotoToComment(),
+               );
+             },
+           ),
+         ),
+         //expands: true,
+         maxLines: null,
+         controller: _controller,
+         keyboardType: TextInputType.multiline,
+         onChanged: (String s){setState(() {
+
+         });},
+         //.numberWithOptions(),
+       ),
      );
         //maxLines: 3,
        // onChanged: _onChanged,
