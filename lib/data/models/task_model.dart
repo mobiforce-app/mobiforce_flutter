@@ -181,7 +181,7 @@ class TaskModel extends TaskEntity
     //print("checkList = ${checkList.toString()}");
     Timeline.finishSync();
     Timeline.startSync('Task checklist');
-    await db.deleteAllFieldsByTaskId(taskId);
+    //await db.deleteAllFieldsByTaskId(taskId);
 
     if(checkList != null)
     {

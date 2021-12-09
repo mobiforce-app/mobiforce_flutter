@@ -112,9 +112,16 @@ class _dateTimeInputState extends State<DateTimeInput> {
                  initialTime: TimeOfDay.fromDateTime(widget.val),
                );
                setState(() {
-                 if(txd!.hour!=null)
-                   dt = DateTime.utc(dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);//txd!.hour!;
-                   widget.onChange(dt!);
+                 if(txd!.hour!=null) {
+                    dt = DateTime.utc(
+                        dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);
+                    print("${DateTime.now().timeZoneOffset}");
+                    dt = dt?.subtract((DateTime.now().timeZoneOffset)).toLocal();
+                    //.toLocal();//txd!.hour!;
+                    print("manual dt $dt");
+                  }
+
+              widget.onChange(dt!);
                });
 
              }

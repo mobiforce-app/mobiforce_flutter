@@ -101,7 +101,7 @@ class _StatusEditorState extends State<StatusEditor> {
           DateTimeInput(
               //controller:_manualTimeController,
               onChange: (DateTime time){
-                print("$time");
+                print("time: $time");
                 manualTime=time;
               },
               val:manualTime,
