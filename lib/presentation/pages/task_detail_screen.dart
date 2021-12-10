@@ -850,20 +850,19 @@ class TaskDetailPage extends StatelessWidget {
                 child:mapBottonWidget)
           ;
           // ]);
+          RegExp exp = RegExp(r"[^+ 0-9]+");
           int phoneCount=0;
           List<Widget> phonesWidget=[];
           if ((state.task.phones?.length??0) != 0) {
             phonesWidget.add(
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "Общие телефоны",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        ),
-                  ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
+                child: Text(
+                  "Телефоны",
+                  style: TextStyle(
+                      fontSize: 16,
+                      //color: Colors.black,
+                      ),
                 ),
               )
             );
@@ -871,19 +870,27 @@ class TaskDetailPage extends StatelessWidget {
             phoneCount+=(state.task.phones?.length??0);
             List<Widget> phones = state.task.phones!.map((e) => InkWell(
               onTap: (){
-                launch("tel://${e.name}");
+                launch("tel://${e.name.replaceAll(exp, '')}");
               },
               child: Align(
                 alignment: Alignment.topLeft,//(
                 //color:Colors.green,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
-                  child: Text(
-                    "${e.name} ",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600),
+                  padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
+                        child: Icon(Icons.phone)
+                      ),
+                      Text(
+                        "${e.name} ",
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -896,15 +903,13 @@ class TaskDetailPage extends StatelessWidget {
               phoneCount+=(element.phones?.length??0);
               String? phoneStr = element.phones?.map((e) => e.name).join(", ");
               phonesWidget.add(Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    "${element.name} ",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        ),
-                  ),
+                padding:  const EdgeInsets.fromLTRB(16.0,8.0,16.0,0.0),
+                child: Text(
+                  "${element.name} ",
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      ),
                 ),
               )
               );
@@ -917,13 +922,21 @@ class TaskDetailPage extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.topLeft,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
-                          child: Text(
-                            "${e.name} ",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600),
+                          padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
+                          child: Row(
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
+                                  child: Icon(Icons.phone)
+                              ),
+                              Text(
+                                "${e.name.replaceAll(exp, '')} ",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -1410,7 +1423,7 @@ class TaskDetailPage extends StatelessWidget {
                                       Icon(Icons
                                           .now_wallpaper),
                                       Text(
-                                          "Изображение не загружено ($size Кб)}",
+                                          "Изображение не загружено ($size Кб)",
                                           textAlign: TextAlign
                                               .center),
                                       Text("Загрузить?")
