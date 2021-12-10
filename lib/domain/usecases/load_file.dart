@@ -24,7 +24,7 @@ class LoadFile extends UseCase<int, LoadFileParams>{
   Future<Either<Failure, int>> call(LoadFileParams params) async
   {
     print("readFile param ${params.id}");
-    fileRepository.loadFromWebPicture(params.id);
+    await fileRepository.loadFromWebPicture(params.id);
     return Right(1);
   }
 }

@@ -523,6 +523,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       );
       print("readFile ${id}");
       final faiureOrLoading = await loadFile(LoadFileParams(id));
+      //print("readFile+ ${id}");
       //!!await Future.delayed(Duration(seconds: 3));
       yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
 

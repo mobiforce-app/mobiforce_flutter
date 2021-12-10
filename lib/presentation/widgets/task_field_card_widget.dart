@@ -473,13 +473,38 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
 
 
 
-    final List<Widget>? photos = widget.files?.map((e) => Container(
-        width: 160,
-        height: 160,
-        child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
-    )
-    ).toList();
+    // final List<Widget>? photos = widget.files?.map((e) => Container(
+    //     width: 160,
+    //     height: 160,
+    //     child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
+    // )
+    // ).toList();
 
+    final List<Widget>? photos = widget.files?.map((e) {
+      final size=(e.size)~/1024;
+      return Container(
+          width: 160,
+          height: 160,
+          child:
+          e.downloaded==true?
+          Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')):(
+              e.downloading==true||e.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
+                  child: Center(child: CircularProgressIndicator(),))
+                  :
+              InkWell(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено ($size Кб)",textAlign:TextAlign.center),Text("Загрузить?")],),
+                  onTap: ()  {
+                    BlocProvider.of<TaskBloc>(context)
+                      ..add(FieldFileDownload(file:e.id));
+                  }
+              ))
+        // Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
+      );
+    }
+    ).toList();
+    print("signature ${widget.files?.first.id}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -505,7 +530,22 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
         child: Container(
             width: 160,
             height: 160,
-            child: Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg'))
+            child:
+              widget.files?.first.downloaded==true?
+              Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg')):(
+              widget.files?.first.downloading==true||widget.files?.first.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
+              child: Center(child: CircularProgressIndicator(),))
+                  :
+              InkWell(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено (${(widget.files?.first.size??0)~/1024} Кб)",textAlign:TextAlign.center),Text("Загрузить?")],),
+                  onTap: ()  {
+                    BlocProvider.of<TaskBloc>(context)
+                      ..add(FieldFileDownload(file:widget.files?.first.id));
+                  }
+              ))
+    //
         ),
           onTap: (){
             Navigator.push(context,

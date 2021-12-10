@@ -111,6 +111,17 @@ class TasksFieldsModel extends TasksFieldsEntity
 
         });
       }
+      else if(t.taskField?.type.value==TaskFieldTypeEnum.signature)
+      {
+        //print("add files to base");
+        await Future.forEach(fileValueList!, (FileModel element) async {
+          element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0);
+          //print("file extId ${element.serverId}");
+          //element.
+          await element.insertToDB(db);
+
+        });
+      }
         //await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:"${t.doubleValue}",update_usn: false);
       else if(t.taskField?.type.value==TaskFieldTypeEnum.checkbox)
         await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:t.boolValue==true?"1":"0",update_usn: false);
@@ -182,7 +193,7 @@ class TasksFieldsModel extends TasksFieldsEntity
   }
   factory TasksFieldsModel.fromJson(Map<String, dynamic> json,int? tabServerId)
   {
-    //print("json[fieldId] = ${json["fieldId"]}");
+    print("json[fieldId] = ${json.toString()}");
     var taskField = TaskFieldModel.fromJson(json["fieldId"]);
 
     //print("optionList = ${json["value"].runtimeType}");
@@ -198,6 +209,18 @@ class TasksFieldsModel extends TasksFieldsEntity
     //print("TasksFieldsModel = ${json.toString()})");
     //print("${taskField}");
     if(taskField.type.value==TaskFieldTypeEnum.picture) {
+      //print('json["value"] ${json["value"]}');
+      try {
+        fileVL =
+        (json["value"] as List).map((e) {
+          //print('map file ${e.toString()}');
+          return FileModel.fromJson({"id":e["pictureId"],"size":e["size"],"name":e["name"],"decription":e["decription"]});
+        }).toList();
+        //SelectionValueModel.fromJson(json["value"]);
+      }
+      catch (e) {}
+    }
+    if(taskField.type.value==TaskFieldTypeEnum.signature) {
       //print('json["value"] ${json["value"]}');
       try {
         fileVL =
