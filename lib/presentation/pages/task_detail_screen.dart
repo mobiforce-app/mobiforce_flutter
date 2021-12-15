@@ -7,6 +7,7 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:map_launcher/map_launcher.dart';
+import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
@@ -428,24 +429,36 @@ class TaskDetailPage extends StatelessWidget {
                     onTap: (){
                       List<Widget> buttons = [
                       ];
-                      buttons.addAll([
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Text(
-                              "${state.task.lifecycle?.name} ",
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600),
-                            ),
+                      buttons.addAll([Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                            children:[
+                        Text(
+                            "История",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
                           ),
-                        ),
-                        SizedBox(
-                          height: 24,
-                        ),
-                      ]
-                      );
+                         Text(
+                            "Workflow: ${state.task.lifecycle?.name} ",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black45,
+                                ),
+                          ),
+                        ])
+                      ),
+                        Divider(
+                          color: Colors.black12, //color of divider
+                          height: 1, //height spacing of divider
+                          //thickness: 3, //thickness of divier line
+                         // indent: 16, //spacing at the start of divider
+                          //endIndent: 25, //spacing at the end of divider
+                        )
+
+                      ]);
                       state.task.statuses?.forEach((element) {
                         var date = new DateTime.fromMillisecondsSinceEpoch(
                             element.manualTime * 1000);
@@ -469,6 +482,7 @@ class TaskDetailPage extends StatelessWidget {
                                   builder: (context) => StatusEditor(
                                       manualTime: DateTime.fromMillisecondsSinceEpoch(
                                           element.manualTime * 1000),
+                                      name: element.status.name,
                                       commentInput: element.commentInput,
                                       timeChanging: element.timeChanging,
                                       commentRequired: element.commentRequired,
@@ -478,6 +492,7 @@ class TaskDetailPage extends StatelessWidget {
                                       acceptCallback: (
                                           {required DateTime time,
                                             required DateTime manualTime,
+                                            ResolutionEntity? resolution,
                                             required String comment}) {
                                         print(
                                             "time $time, manualTime $manualTime, comment $comment");
@@ -490,6 +505,7 @@ class TaskDetailPage extends StatelessWidget {
                                             DateTime.fromMillisecondsSinceEpoch(
                                                 element.createdTime * 1000),
                                             manualTime: manualTime,
+                                            resolution: resolution?.id,
                                             timeChanging: element.timeChanging ?? false,
                                             dateChanging: element.dateChanging ?? false,
                                             commentChanging: element.commentInput ?? false,
@@ -502,29 +518,109 @@ class TaskDetailPage extends StatelessWidget {
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    height: 16,
-                                    width:16,
-                                    decoration: BoxDecoration(
-                                        color: HexColor.fromHex("${element.status.color}"),
-                                        borderRadius: BorderRadius.circular(16)),
-                                  ),
-                                  SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    "${element.status.name} $formatted",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600),
-                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 16,
+                                        width:16,
+                                        decoration: BoxDecoration(
+                                            color: HexColor.fromHex("${element.status.color}"),
+                                            borderRadius: BorderRadius.circular(16)),
+                                        margin: const EdgeInsets.only(right: 8.0),
+                                      ),
+
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${element.status.name}",
+                                            //textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              //color: Colors.black,
+                                              //    fontWeight: FontWeight.w600
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 2.0,
+                                          ),
+                                          Text(
+                                            "$formatted",
+                                            //textAlign: TextAlign.start,
+                                            style: TextStyle(
+
+                                              fontSize: 16,
+                                              color: Colors.black45,
+                                              //    fontWeight: FontWeight.w600
+                                            ),
+                                          ),
+
+                                        ],
+                                      ),
+                                      Expanded(
+                                        child: Container(),
+                                        //width: 8,
+                                      ),
+                                      ElevatedButton(
+                                        // style: ButtonStyle(
+                                        //   padding: MaterialStateProperty.all<EdgeInsets>(
+                                        //       EdgeInsets.all(2)),
+                                        // ),
+                                        onPressed: () {
+
+                                        },
+                                          child: Text(
+                                              "Редактировать"
+                                          ),
+                                        ),
+
+
+
+                                    ],
+                                  ),(element.resolution?.name?.length??0)>0?
+                                  Padding(
+                                      padding: const EdgeInsets.only(left:24.0),
+                                      child: Text(
+
+                                  "${element.resolution?.name}",style: TextStyle(
+
+
+                                        fontSize: 16,
+                                        //color: Colors.black45,
+                                        //    fontWeight: FontWeight.w600
+                                      ),)):Container(),
+                                  (element.comment?.length??0)>0?Padding(
+                                    padding: const EdgeInsets.only(left:24.0),
+                                    child: Text(
+
+                                      "${element.comment}",
+
+                                      //textAlign: TextAlign.start,
+                                      style: TextStyle(
+
+
+                                        fontSize: 16,
+                                        color: Colors.black45,
+                                        //    fontWeight: FontWeight.w600
+                                      ),
+                                    ),
+                                  ):Container(),
                                 ],
                               ),
                             ),
                           ),
+                        );
+                        buttons.add(
+                            Divider(
+                              color: Colors.black12, //color of divider
+                              height: 1, //height spacing of divider
+                              //thickness: 3, //thickness of divier line
+                              indent: 16, //spacing at the start of divider
+                              //endIndent: 25, //spacing at the end of divider
+                            )
                         );
                       });
                       showModalBottomSheet(
@@ -1026,10 +1122,19 @@ class TaskDetailPage extends StatelessWidget {
           buttons.add(Align(
             alignment: Alignment.topLeft,
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text("Перевести задачу в статус",
-                  style: TextStyle(fontSize: 18, color: Colors.black)),
+              padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
+              child: Text("Выберите новый статус",
+                  style: TextStyle(fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black)),
             ),
+          ));
+          buttons.add(Divider(
+            color: Colors.black12, //color of divider
+            height: 1, //height spacing of divider
+            //thickness: 3, //thickness of divier line
+            //indent: 25, //spacing at the start of divider
+            //endIndent: 25, //spacing at the end of divider
           ));
 
           state.nextTaskStatuses?.forEach((element) {
@@ -1061,10 +1166,11 @@ class TaskDetailPage extends StatelessWidget {
                               commentRequired: element.commentRequired,
                               dateChanging: element.dateChanging,
                               resolutions: element.resolutions,
-                              acceptButton: "Перейти",
+                              acceptButton: "Перевести",
                               acceptCallback: (
                                   {required DateTime time,
                                   required DateTime manualTime,
+                                  ResolutionEntity? resolution,
                                   required String comment}) {
                                 print(
                                     "createdTime $time, manualTime $manualTime");
@@ -1074,6 +1180,7 @@ class TaskDetailPage extends StatelessWidget {
                                     comment: comment,
                                     createdTime: time,
                                     manualTime: manualTime,
+                                    resolution: resolution?.id,
                                     timeChanging: element.timeChanging ?? false,
                                     dateChanging: element.dateChanging ?? false,
                                     commentChanging:
@@ -1230,15 +1337,42 @@ class TaskDetailPage extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Text("${element.nextStatus.name}",
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.black)),
+                      padding: const EdgeInsets.all(16.0),
+                      child:
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                              Container(
+                              height: 16,
+                              width: 16,
+                              decoration: BoxDecoration(
+                              color: HexColor.fromHex("${element.nextStatus.color}"),
+                            borderRadius: BorderRadius.circular(16),
+
+                          ),
+                                  margin: const EdgeInsets.only(right: 8.0),
+                        ),
+                            Text("${element.nextStatus.name}",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black)),
+                            Expanded(child: Container()),
+                            Icon(Icons
+                                .navigate_next)
+                          ],
+                        ),
                     ),
                   )),
             );
+            buttons.add(Divider(
+              color: Colors.black12, //color of divider
+              height: 1, //height spacing of divider
+              //thickness: 3, //thickness of divier line
+              indent: 16, //spacing at the start of divider
+              //endIndent: 25, //spacing at the end of divider
+            ));
+
+
           });
 
 /*          if (state.nextTaskStatuses != null) {

@@ -5,6 +5,7 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
@@ -177,7 +178,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
         commentRequired: commentRequired,
         timeChanging: timeChanging,
         dateChanging: dateChanging,
-        resolution:resolution!=null?ResolutionModel(id: resolution, usn: 0, serverId: 0, name: "", resolutionGroup: null):null,
+        resolution:resolution!=null?ResolutionModel(id: resolution, usn: 0, serverId: 0, name: "", resolutionGroup: <ResolutionGroupModel>[]):null,
         status:TaskStatusModel(serverId: 0,id:status, color:"", name:"", usn: 0),
         task:TaskModel(serverId:0,id:task),
         createdTime: createdTime.millisecondsSinceEpoch~/1000,
