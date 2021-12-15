@@ -95,7 +95,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   @override
   Stream<TaskState> mapEventToState(TaskEvent event) async* {
-    print("tasklist bloc map event " + event.toString());
+    print("tasklist bloc map event " + event.toString()+ " ${state.runtimeType }");
     if (event is ShowTaskComment&&(state.runtimeType == TaskLoaded)){
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
@@ -118,6 +118,15 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           );
         });
       }
+      else
+        {
+          yield TaskLoaded(isChanged: isChanged,
+              task: task,
+              nextTaskStatuses: nextTaskStatuses,
+              appFilesDirectory: dir,
+              comments: comments,
+            );
+        }
     }
     if (event is ChangeSelectionFieldValue) {
       //getTask.
