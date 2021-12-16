@@ -268,6 +268,7 @@ class SyncRepositoryImpl implements SyncRepository{
           final Map<String, dynamic> send = {
             "task": ts.task.serverId,
             "id":ts.serverId,
+            "localId":ts.id,
             "statusId": ts.status.serverId,
             "createdTime": ts.createdTime,
             "manualTime": ts.manualTime,
