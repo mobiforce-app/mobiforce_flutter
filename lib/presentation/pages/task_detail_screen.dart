@@ -580,7 +580,7 @@ class TaskDetailPage extends StatelessWidget {
 
 
                                   ],
-                                ),(element.resolution?.name?.length??0)>0?
+                                ),(element.resolution?.name.length??0)>0?
                                 Padding(
                                     padding: const EdgeInsets.only(left:24.0),
                                     child: Text(

@@ -74,6 +74,7 @@ class MyApp extends StatelessWidget {
             ],
             supportedLocales: [
               const Locale('ru', 'RU'),
+              const Locale('en', 'EN'),
             ],
             theme: ThemeData.light().copyWith(
               backgroundColor: AppColors.mainBackground,
