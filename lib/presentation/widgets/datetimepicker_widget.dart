@@ -68,146 +68,100 @@ class _dateTimeInputState extends State<DateTimeInput> {
      final DateFormat formatterTime = DateFormat('HH:mm');
 
       //if(widget.dateChanging==true)
+    final Widget dateWidget = Container(
+      decoration: BoxDecoration(
+          border: Border(right: BorderSide(width: 1.0, color: Colors.black12),)
+      ),
+      //alignment: Alignment.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("Дата", style: TextStyle(color:Colors.black45)),
+            Text("${formatterDays.format(dt!)}",
+              style: TextStyle(fontSize: 24, ),
+            ),
+            widget.dateChanging==true?Text("Редактировать", style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline))
+            :Container(),
+          ],
+        ),
+        //Icon(Icons.navigate_next)
+      ),
+    );
+    final Widget timeWidget = Container(
+      decoration: BoxDecoration(
+          border: Border(right: BorderSide(width: 1.0, color: Colors.black12),)
+      ),
+      //alignment: Alignment.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("Дата", style: TextStyle(color:Colors.black45)),
+            Text("${formatterTime.format(dt!)}",
+              style: TextStyle(fontSize: 24, ),
+            ),
+            widget.timeChanging==true?Text("Редактировать", style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline))
+            :Container(),
+          ],
+        ),
+        //Icon(Icons.navigate_next)
+      ),
+    );
        timesList.add(
          Expanded(
-         child: Container(
-           decoration: BoxDecoration(
-               border: Border(right: BorderSide(width: 1.0, color: Colors.black12),)
-           ),
-           //alignment: Alignment.topCenter,
-           child: Padding(
-             padding: const EdgeInsets.all(8.0),
-             child: Row(
-               mainAxisAlignment: MainAxisAlignment.spaceAround,
-               children: [
-                 Column(
-                   crossAxisAlignment: CrossAxisAlignment.center,
-                   children: [
-                     Text("Дата", style: TextStyle(color:Colors.black45)),
-                     //Padding(
-                       //padding: const EdgeInsets.all(16.0),
-                       //child:
-                       Text("${formatterDays.format(dt!)}",
-                       style: TextStyle(fontSize: 24, ),
-
-
-                       ),
-                     Text("Редактировать", style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline)),
-                     /*ElevatedButton(
-                       onPressed: () async {
-                         if(widget.dateChanging==true) {
-                           DateTime? xdt = await showDatePicker(
-                               locale: const Locale('ru'),
-                               context: context,
-                               initialDate: widget.val,
-                               firstDate: DateTime(2000),
-                               lastDate: DateTime(2100)
-                           );
-                           setState(() {
-                             //   dt=xdt;
-                             dt = DateTime.utc(xdt!.year, xdt.month, xdt.day, dt!.hour,
-                                 dt!.minute); //txd!.hour!;
-                             widget.onChange(dt!);
-                           });
-                         }
-                         else {
-                           Fluttertoast.showToast(
-                               msg: "Нельзя изменить",
-                               toastLength: Toast.LENGTH_SHORT,
-                               gravity: ToastGravity.CENTER,
-                               timeInSecForIosWeb: 1,
-                               fontSize: 16.0
-                           );
-                         }
-
-                       },
-                       child: Text(
-                           "Изменить"
-                       ),
-                     ),*/
-                   ],
-                 ),
-                //Icon(Icons.navigate_next)
-               ],
-             ),
-           ),
-         ),
+         child: widget.dateChanging==true?InkWell(
+           onTap: () async {
+             DateTime? xdt = await showDatePicker(
+                 locale: const Locale('ru'),
+                 context: context,
+                 initialDate: widget.val,
+                 firstDate: DateTime(2000),
+                 lastDate: DateTime(2100)
+             );
+             setState(() {
+               //   dt=xdt;
+               dt = DateTime.utc(xdt!.year, xdt.month, xdt.day, dt!.hour,
+                   dt!.minute); //txd!.hour!;
+               widget.onChange(dt!);
+             });
+           },
+           child: dateWidget
+         ):dateWidget,
        )
        );
-       //timesList.add(
-       //    VerticalDivider(color: Colors.red)
-       //);
-       timesList.add(
-           Expanded(
-             child: Container(
-               //alignment: Alignment.topCenter,
-               child: Padding(
-                   padding: const EdgeInsets.all(8.0),
-                   child: Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                     children: [
-                       Column(
-                           crossAxisAlignment: CrossAxisAlignment.center,
-                           //mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                           Text("Время",
-                               style: TextStyle(color:Colors.black45)
-                           ),
-                       //Padding(
-                       //padding: const EdgeInsets.all(16.0),
-                       //child:
-                       Text("${formatterTime.format(dt!)}",
-                         style: TextStyle(fontSize: 24),
-                       ),
-                             Text("Редактировать", style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline)),
 
-                             /*
-                       ElevatedButton(
-                         onPressed: () async {
-                           if(widget.timeChanging==true){
-                             TimeOfDay? txd = await showTimePicker(
-                               context: context,
-                               //locale: const Locale('ru'),
-                               initialTime: TimeOfDay.fromDateTime(widget.val),
-                             );
-                             setState(() {
-                               if(txd!.hour!=null) {
-                                 dt = DateTime.utc(
-                                     dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);
-                                 print("${DateTime.now().timeZoneOffset}");
-                                 dt = dt?.subtract((DateTime.now().timeZoneOffset)).toLocal();
-                                 //.toLocal();//txd!.hour!;
-                                 print("manual dt $dt");
-                               }
 
-                               widget.onChange(dt!);
-                             });
+     timesList.add(
+         Expanded(
+           child: widget.dateChanging==true?InkWell(
+               onTap: () async {
+                 TimeOfDay? txd = await showTimePicker(
+                   context: context,
+                   //locale: const Locale('ru'),
+                   initialTime: TimeOfDay.fromDateTime(widget.val),
+                 );
+                 setState(() {
+                   if(txd!.hour!=null) {
+                     dt = DateTime.utc(
+                         dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);
+                     print("${DateTime.now().timeZoneOffset}");
+                     dt = dt?.subtract((DateTime.now().timeZoneOffset)).toLocal();
+                     //.toLocal();//txd!.hour!;
+                     print("manual dt $dt");
+                   }
 
-                           }
-                           else{
-                             print("ShowToast");
-                             Fluttertoast.showToast(
-                                 msg: "Нельзя изменить",
-                                 toastLength: Toast.LENGTH_SHORT,
-                                 gravity: ToastGravity.CENTER,
-                                 timeInSecForIosWeb: 1,
-                                 fontSize: 16.0
-                             );
-
-                           }
-
-                         },
-                         child: Text(
-                             "Изменить"
-                         ),
-                       ),*/
-                           ]),
-                       //Icon(Icons.navigate_next)
-                     ],
-                   )),
-             ),
-           )
-       );
+                   widget.onChange(dt!);
+                 });
+               },
+               child: timeWidget
+           ):timeWidget,
+         )
+     );
       return Row(
          mainAxisAlignment: MainAxisAlignment.start,
          crossAxisAlignment: CrossAxisAlignment.start,

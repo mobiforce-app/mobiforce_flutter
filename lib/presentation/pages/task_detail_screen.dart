@@ -471,145 +471,144 @@ class TaskDetailPage extends StatelessWidget {
                       ),
                     );*/
                         buttons.add(
-                          InkWell(
-                            onTap: () {
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  context: context,
-                                  builder: (context) => StatusEditor(
-                                      manualTime: DateTime.fromMillisecondsSinceEpoch(
-                                          element.manualTime * 1000),
-                                      name: element.status.name,
-                                      commentInput: element.commentInput,
-                                      timeChanging: element.timeChanging,
-                                      commentRequired: element.commentRequired,
-                                      dateChanging: element.dateChanging,
-                                      comment: element.comment ?? "",
-                                      acceptButton: "Сохранить",
-                                      acceptCallback: (
-                                          {required DateTime time,
-                                            required DateTime manualTime,
-                                            ResolutionEntity? resolution,
-                                            required String comment}) {
-                                        print(
-                                            "time $time, manualTime $manualTime, comment $comment");
-                                        BlocProvider.of<TaskBloc>(context)
-                                          ..add(ChangeTaskStatus(
-                                            id: element.id,
-                                            status: element.status.id,
-                                            comment: comment,
-                                            createdTime:
-                                            DateTime.fromMillisecondsSinceEpoch(
-                                                element.createdTime * 1000),
-                                            manualTime: manualTime,
-                                            resolution: resolution?.id,
-                                            timeChanging: element.timeChanging ?? false,
-                                            dateChanging: element.dateChanging ?? false,
-                                            commentChanging: element.commentInput ?? false,
-                                            commentRequired:
-                                            element.commentRequired ?? false,
-                                          ));
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
-                                      }));
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        height: 16,
-                                        width:16,
-                                        decoration: BoxDecoration(
-                                            color: HexColor.fromHex("${element.status.color}"),
-                                            borderRadius: BorderRadius.circular(16)),
-                                        margin: const EdgeInsets.only(right: 8.0),
-                                      ),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      height: 16,
+                                      width:16,
+                                      decoration: BoxDecoration(
+                                          color: HexColor.fromHex("${element.status.color}"),
+                                          borderRadius: BorderRadius.circular(16)),
+                                      margin: const EdgeInsets.only(right: 8.0),
+                                    ),
 
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "${element.status.name}",
-                                            //textAlign: TextAlign.start,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              //color: Colors.black,
-                                              //    fontWeight: FontWeight.w600
-                                            ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "${element.status.name}",
+                                          //textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            //color: Colors.black,
+                                            //    fontWeight: FontWeight.w600
                                           ),
-                                          SizedBox(
-                                            height: 2.0,
-                                          ),
-                                          Text(
-                                            "$formatted",
-                                            //textAlign: TextAlign.start,
-                                            style: TextStyle(
+                                        ),
+                                        SizedBox(
+                                          height: 2.0,
+                                        ),
+                                        Text(
+                                          "$formatted",
+                                          //textAlign: TextAlign.start,
+                                          style: TextStyle(
 
-                                              fontSize: 16,
-                                              color: Colors.black45,
-                                              //    fontWeight: FontWeight.w600
-                                            ),
-                                          ),
-
-                                        ],
-                                      ),
-                                      Expanded(
-                                        child: Container(),
-                                        //width: 8,
-                                      ),
-                                      ElevatedButton(
-                                        // style: ButtonStyle(
-                                        //   padding: MaterialStateProperty.all<EdgeInsets>(
-                                        //       EdgeInsets.all(2)),
-                                        // ),
-                                        onPressed: () {
-
-                                        },
-                                          child: Text(
-                                              "Редактировать"
+                                            fontSize: 16,
+                                            color: Colors.black45,
+                                            //    fontWeight: FontWeight.w600
                                           ),
                                         ),
 
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child: Container(),
+                                      //width: 8,
+                                    ),
+                                    ((element.commentInput??false)||
+                                        (element.timeChanging??false)||
+                                    (element.dateChanging??false))?
+                                    ElevatedButton(
+                                      // style: ButtonStyle(
+                                      //   padding: MaterialStateProperty.all<EdgeInsets>(
+                                      //       EdgeInsets.all(2)),
+                                      // ),
+                                      onPressed: () {
+                                        showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            //fullscreenDialog: true,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                            ),
+                                            context: context,
+                                            builder: (context) => StatusEditor(
+                                                manualTime: DateTime.fromMillisecondsSinceEpoch(
+                                                    element.manualTime * 1000),
+                                                name: element.status.name,
+                                                commentInput: element.commentInput,
+                                                timeChanging: element.timeChanging,
+                                                commentRequired: element.commentRequired,
+                                                dateChanging: element.dateChanging,
+                                                comment: element.comment ?? "",
+                                                acceptButton: "Сохранить",
+                                                acceptCallback: (
+                                                    {required DateTime time,
+                                                      required DateTime manualTime,
+                                                      ResolutionEntity? resolution,
+                                                      required String comment}) {
+                                                  print(
+                                                      "time $time, manualTime $manualTime, comment $comment");
+                                                  BlocProvider.of<TaskBloc>(context)
+                                                    ..add(ChangeTaskStatus(
+                                                      id: element.id,
+                                                      status: element.status.id,
+                                                      comment: comment,
+                                                      createdTime:
+                                                      DateTime.fromMillisecondsSinceEpoch(
+                                                          element.createdTime * 1000),
+                                                      manualTime: manualTime,
+                                                      resolution: resolution?.id,
+                                                      timeChanging: element.timeChanging ?? false,
+                                                      dateChanging: element.dateChanging ?? false,
+                                                      commentChanging: element.commentInput ?? false,
+                                                      commentRequired:
+                                                      element.commentRequired ?? false,
+                                                    ));
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                }));
+                                      },
+                                        child: Text(
+                                            "Редактировать"
+                                        ),
+                                      ):Container(),
 
 
-                                    ],
-                                  ),(element.resolution?.name?.length??0)>0?
-                                  Padding(
-                                      padding: const EdgeInsets.only(left:24.0),
-                                      child: Text(
 
-                                  "${element.resolution?.name}",style: TextStyle(
-
-
-                                        fontSize: 16,
-                                        //color: Colors.black45,
-                                        //    fontWeight: FontWeight.w600
-                                      ),)):Container(),
-                                  (element.comment?.length??0)>0?Padding(
+                                  ],
+                                ),(element.resolution?.name?.length??0)>0?
+                                Padding(
                                     padding: const EdgeInsets.only(left:24.0),
                                     child: Text(
 
-                                      "${element.comment}",
-
-                                      //textAlign: TextAlign.start,
-                                      style: TextStyle(
+                                "${element.resolution?.name}",style: TextStyle(
 
 
-                                        fontSize: 16,
-                                        color: Colors.black45,
-                                        //    fontWeight: FontWeight.w600
-                                      ),
+                                      fontSize: 16,
+                                      //color: Colors.black45,
+                                      //    fontWeight: FontWeight.w600
+                                    ),)):Container(),
+                                (element.comment?.length??0)>0?Padding(
+                                  padding: const EdgeInsets.only(left:24.0),
+                                  child: Text(
+
+                                    "${element.comment}",
+
+                                    //textAlign: TextAlign.start,
+                                    style: TextStyle(
+
+
+                                      fontSize: 16,
+                                      color: Colors.black45,
+                                      //    fontWeight: FontWeight.w600
                                     ),
-                                  ):Container(),
-                                ],
-                              ),
+                                  ),
+                                ):Container(),
+                              ],
                             ),
                           ),
                         );
@@ -627,13 +626,15 @@ class TaskDetailPage extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
+                          isScrollControlled: true,
                           context: context,
                           builder: (BuildContext context) {
-                            return SafeArea(
-                                child: SingleChildScrollView(
-                                    child: Container(
+                            return //SafeArea(
+                                //child: SingleChildScrollView(
+                                    //child:
+                                Container(
                                         child: Wrap(
-                                            children: buttons))));});
+                                            children: buttons));});
 
                     },
                     child: statusField
