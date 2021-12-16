@@ -10,6 +10,7 @@ class TaskCommentEntity{
   int? serverId;
   TaskModel task;
   int createdTime;
+  int? readedTime;
   double? lat;
   double? lon;
   String? message;
@@ -27,6 +28,7 @@ class TaskCommentEntity{
     required this.createdTime,
     this.lat,
     this.lon,
+    this.readedTime,
     required this.dirty,
     required this.serverId,
     this.message,

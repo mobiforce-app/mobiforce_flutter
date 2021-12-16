@@ -43,6 +43,7 @@ class ModelImpl implements Model{
         lastUpdateCount: 0,
           fcmToken: fcmTokenNotSync?fcm.token:null
       ));
+      print("serversync");
       bool complete=faiureOrLoading.fold((failure) {
         print ("*");
         return false;

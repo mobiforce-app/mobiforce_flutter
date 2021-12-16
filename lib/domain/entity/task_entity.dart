@@ -31,6 +31,7 @@ class TaskEntity extends Equatable{
   int? createdAt;
   int? plannedVisitTime;
   int? plannedEndVisitTime;
+  int? unreadedComments;
   TaskLifeCycleModel? lifecycle;
   //String? verificationRequired;
   //String? addressRoom;
@@ -84,6 +85,7 @@ class TaskEntity extends Equatable{
     this.createdAt,
     this.plannedVisitTime,
     this.plannedEndVisitTime,
+    this.unreadedComments,
     this.lifecycle
 
   });

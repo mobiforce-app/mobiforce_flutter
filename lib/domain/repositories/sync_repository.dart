@@ -13,6 +13,8 @@ abstract class SyncRepository{
   Future<bool> sendToken(String? fcmToken);
   Future<Either<Failure, int>>sendUpdates(DBProvider db);
   bool isFullSyncStarted();
+  bool dbCheckVersion(int dbVersion);
+  Future<bool> dbSetVersion(int dbVersion);
   Future<bool>setComplete();
   Future<bool>commit();
   void realoadUSN();

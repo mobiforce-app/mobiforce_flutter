@@ -17,14 +17,31 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
   final FullSyncRepository fullSyncRepository;
   SyncFromServer(this.syncRepository, this.db, this.fullSyncRepository);
   Future<Either<Failure, SyncStatusEntity>> call(ListSyncParams params) async {
-
-    if(syncRepository.isFullSyncStarted())
+    if (syncRepository.isFullSyncStarted())
       return Right(SyncStatusModel(syncPhase: SyncPhase.fullSyncResume,
           progress: 0,
           complete: false,
           dataLength: 0,
           objectType: "",
           sendToken: false));
+
+    if (syncRepository.dbCheckVersion(db.dbVersion))
+    {
+
+      print("serversync START rebase!");
+
+      await db.clear();
+      //print("sync.lastSyncTime ${sync.lastSyncTime}");
+      await fullSyncRepository.restartFullSync(lastSyncTime:0);
+      await syncRepository.dbSetVersion(db.dbVersion);
+      return Right(SyncStatusModel(
+          syncPhase: SyncPhase.fullSyncResume,
+          objectType: "",
+          progress: 0,
+          complete: false,
+          dataLength: 0,
+          sendToken: false));
+    }
     //return await syncRepository.getUpdates();
     //return await syncRepository.getUpdates();
     //if(params.fcmToken!=null) {

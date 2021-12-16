@@ -22,7 +22,8 @@ class TaskModel extends TaskEntity
 {
 
   TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
-              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,lifecycle,
+              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
+              externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,
   }): super(
       isChanged:isChanged,
       id:id,
@@ -52,6 +53,7 @@ class TaskModel extends TaskEntity
       createdAt:createdAt,
       plannedVisitTime:plannedVisitTime,
       plannedEndVisitTime:plannedEndVisitTime,
+      unreadedComments:unreadedComments,
       lifecycle:lifecycle,
   );
 
@@ -242,6 +244,7 @@ class TaskModel extends TaskEntity
     Map<int, dynamic> tasksFieldsSelectionValuesMap = const {},
     List<Map<String, dynamic>> taskPhoneMap = const [],
     List<Map<String, dynamic>> tasksFieldsFilesMap = const [],
+    int unreadedComments = 0,
   })
   {
    // id = map['id'];
@@ -346,6 +349,7 @@ class TaskModel extends TaskEntity
         status:statusMap!=null?TaskStatusModel.fromMap(map:statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
+        unreadedComments:unreadedComments,
         lifecycle: lifeCycleMap['id']!=null?TaskLifeCycleModel.fromMap(lifeCycleMap):null,
         persons: persons.map((person) =>PersonModel.fromMap(person)).toList(),
         phones: phonesMap.map((phone) =>PhoneModel.fromMap(phone)).toList(),

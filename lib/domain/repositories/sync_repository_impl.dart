@@ -95,6 +95,18 @@ class SyncRepositoryImpl implements SyncRepository{
   {
     return sharedPreferences.getBool("full_sync")??false;
   }
+  @override
+  bool dbCheckVersion(int dbVersion)
+  {
+    print("dbVersion ## ${sharedPreferences.getInt("db_version")} $dbVersion");
+    return dbVersion!=(sharedPreferences.getInt("db_version")??0);
+  }
+  @override
+  Future<bool> dbSetVersion(int dbVersion) async
+  {
+    return await sharedPreferences.setInt("db_version",dbVersion);
+  }
+
 
   @override
   void realoadUSN()

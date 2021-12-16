@@ -121,6 +121,7 @@ class DBProvider {
             'usn INTEGER, '
             'file INTEGER, '
             'created_at INTEGER,'
+            'readed_at INTEGER,'
             'message TEXT)');
 
     await db.execute(
@@ -228,6 +229,7 @@ class DBProvider {
         'CREATE TABLE IF NOT EXISTS  $resolutionTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             'dirty INTEGER, '
+            'color TEXT, '
             'external_id INTEGER UNIQUE, '
             'name TEXT)');
 
@@ -725,6 +727,7 @@ class DBProvider {
         "t3.name as resolution_name, "
         "t3.external_id as resolution_external_id, "
         "t3.id as resolution_id, "
+        "t3.color as resolution_color, "
         "t1.task as task_id "
         "FROM $tasksStatusesTable as t1 "
         "LEFT JOIN $taskStatusTable as t2 "
@@ -784,6 +787,10 @@ class DBProvider {
       "WHERE t1.task = ? and deleted = 0 and t3.link_object_type = ? AND t3.id IS NOT NULL ORDER BY t1.id DESC",[id, 1]);
     //print("tasksFieldsFilesMapList: ${tasksFieldsFilesMapList.toString()}");
     print("tasksFieldsFilesMapList $tasksFieldsFilesMapList");
+    List<Map<String,dynamic>> unreadedComments = await db.query(taskCommentTable, orderBy: "id desc",where: 'task =? AND readed_at IS NULL', whereArgs: [tasksMapList.first['id']]);
+    //taskMap['unreadedComments']=unreadedComments.length;
+//    tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first, unreadedComments:unreadedComments.length));
+
     return TaskModel.fromMap(
         taskMap:tasksMapList.first,
         statusMap:taskStatusMapList.first,
@@ -792,6 +799,7 @@ class DBProvider {
         tasksFieldsSelectionValuesMap:reMapTasksFieldsSelectionValues(tasksFieldsSelectionValuesMapList),
         taskPhoneMap:taskPhoneMapList,
         tasksFieldsFilesMap:tasksFieldsFilesMapList,
+        unreadedComments:unreadedComments.length,
     );
   }
   Future<List<TaskLifeCycleNodeEntity>> getNextStatuses(int ?id, int? lifecycle) async {
@@ -843,6 +851,7 @@ class DBProvider {
         "t1.usn, "
         "t1.external_id, "
         "t1.created_at, "
+        "t1.readed_at, "
         "t1.message, "
         "t4.id as file_id, "
         "t4.downloaded as file_downloaded, "
@@ -930,7 +939,10 @@ class DBProvider {
       //TaskStatusModel? ts = await getTaskStatus(taskMap["status"]);
       if(taskMap['status']!=null){
         List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [taskMap['status']]);
-        tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first));
+
+        List<Map<String,dynamic>> unreadedComments = await db.query(taskCommentTable, orderBy: "id desc",where: 'task =? AND readed_at IS NULL', whereArgs: [taskMap['id']]);
+        //taskMap['unreadedComments']=unreadedComments.length;
+        tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first, unreadedComments:unreadedComments.length));
       }
     }
     //print("tasksMapList ${tasksList.toString()}");

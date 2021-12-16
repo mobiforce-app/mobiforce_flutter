@@ -120,7 +120,7 @@ class TasksStatusesModel extends TasksStatusesEntity
         //color: map['color'],
         dirty: map['dirty']==1?true:false,
         status:status,
-        resolution: map['resolution_id']!=null?ResolutionModel(id: map['resolution_id'], usn: 0, serverId:  map['resolution_external_id'], name: map['resolution_name'], resolutionGroup: <ResolutionGroupModel>[]):null,
+        resolution: map['resolution_id']!=null?ResolutionModel(id: map['resolution_id'],color: map['resolution_color'], usn: 0, serverId:  map['resolution_external_id'], name: map['resolution_name'], resolutionGroup: <ResolutionGroupModel>[]):null,
         //color: map['color'],
         //name: map['name']
     );

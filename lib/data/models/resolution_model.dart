@@ -23,11 +23,12 @@ class ResolutionModel extends ResolutionEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  ResolutionModel({required id,required usn,required serverId,required name, client, address, required resolutionGroup}): super(
+  ResolutionModel({required id,required usn,required serverId,required name, client, color, required resolutionGroup}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
+      color:color,
       resolutionGroup:resolutionGroup,
       //client:client,
       //address:address
@@ -58,6 +59,7 @@ class ResolutionModel extends ResolutionEntity
         id: map['id'],
         usn: map['usn']??0,
         serverId: map['external_id'],
+        color: map['color'],
         //client: map['client'],
         //address: map['address'],
         name: map['name'],
@@ -73,6 +75,7 @@ class ResolutionModel extends ResolutionEntity
         usn: json["usn"]??0,
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
+        color: json["color"]??"",
         resolutionGroup:json["resolutionGroups"]!=null?(json["resolutionGroups"] as List).map((person) => ResolutionGroupModel.fromJson(person)).toList():<ResolutionGroupModel>[],
         //client: json["client"]??"",
         //address: json["address"]??""

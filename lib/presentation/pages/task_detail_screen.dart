@@ -966,7 +966,7 @@ class TaskDetailPage extends StatelessWidget {
             phoneCount+=(state.task.phones?.length??0);
             List<Widget> phones = state.task.phones!.map((e) => InkWell(
               onTap: (){
-                launch("tel://${e.name.replaceAll(exp, '')}");
+                launch("tel:${e.name.replaceAll(exp, '')}");
               },
               child: Align(
                 alignment: Alignment.topLeft,//(
@@ -1012,8 +1012,8 @@ class TaskDetailPage extends StatelessWidget {
               if((element.phones?.length??0)!=0) {
                 List<Widget> phones = element.phones!.map((e) =>
                     InkWell(
-                      onTap: (){
-                        launch("tel://${e.name}");
+                      onTap: (){//${e.name.replaceAll(exp, '')
+                        launch("tel:${e.name.replaceAll(exp, '')}");
                       },
                       child: Align(
                         alignment: Alignment.topLeft,
@@ -1702,11 +1702,12 @@ class TaskDetailPage extends StatelessWidget {
                   )
                 );*/
           }
-
+          int unreadedCommentCount=state.task.unreadedComments??0;
+          final String unreadedComment="Комментарии"+(unreadedCommentCount>0?" ($unreadedCommentCount)":"");
           final _kTabs = <Tab>[
             const Tab(text: "Основное"),
             const Tab(text: "Отчет"),
-            const Tab(text: "Комментарии"),
+            Tab(text: unreadedComment),
           ];
           final _kTabPages1 = <Widget>[
             SingleChildScrollView(
