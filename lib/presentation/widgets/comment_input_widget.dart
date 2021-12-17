@@ -12,6 +12,7 @@ import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CommentInput extends StatefulWidget {
   //final String name;
@@ -65,8 +66,7 @@ class _commentFieldTextState extends State<CommentInput> {
 
        child: TextField(
          decoration: InputDecoration(
-          // labelText: "Введите комментарий",
-           hintText: "Введите комментарий",
+           hintText: AppLocalizations.of(context)!.commentInputHint,
            //border: OutlineInputBorder(),
            border: InputBorder.none,
            suffixIcon: _controller.text.length>0?IconButton(

@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SyncPage extends StatelessWidget {
 
@@ -50,11 +51,10 @@ class SyncPage extends StatelessWidget {
             //}
           if (state is SyncInProgress) {
             //tasks = state.tasksList;
-            print("Загружено: ${state.progress}%");
             return
               Scaffold(
                 appBar: AppBar(
-                  title: Text('Синхронизация'),
+                  title: Text(AppLocalizations.of(context)!.syncPageHeader),
                   centerTitle: true,
                 ),
                 body: Padding(padding: const EdgeInsets.all(8.0),
@@ -77,7 +77,7 @@ class SyncPage extends StatelessWidget {
             return
               Scaffold(
                 appBar: AppBar(
-                  title: Text('Синхронизация'),
+                  title: Text(AppLocalizations.of(context)!.syncPageHeader),
                   centerTitle: true,
                 ),
                 body: Container(),

@@ -8,6 +8,7 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_event.dart'
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_state.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginPage extends StatelessWidget {
 
@@ -30,7 +31,7 @@ class LoginPage extends StatelessWidget {
           return
             Scaffold(
               appBar: AppBar(
-                title: Text('МОБИФОРС'),
+                title: Text(AppLocalizations.of(context)!.mobiforce),
                 centerTitle: true,
               ),
               body: Form(
@@ -49,22 +50,22 @@ class LoginPage extends StatelessWidget {
                     children: [
                       TextFormField(
                         controller: _domainContorller,
-                        validator: (val) => val!.isEmpty ?"Необходимо ввести домен": null,
+                        validator: (val) => val!.isEmpty ?AppLocalizations.of(context)!.loginPageDomainNeeded: null,
                         decoration: InputDecoration(
-                          labelText: 'Домен компании',
+                          labelText: AppLocalizations.of(context)!.loginPageDomainLabel,
                           hintText: "https://demo.mobiforce.ru"),
                       ),
                       TextFormField(
-                        validator: (val) => val!.isEmpty ?"Необходимо ввести логин": null,
+                        validator: (val) => val!.isEmpty ?AppLocalizations.of(context)!.loginPageLoginNeeded: null,
                         controller: _loginContorller,
-                        decoration: InputDecoration(labelText: 'Логин'),),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.loginPageLoginLabel),),
                       TextFormField(
-                        validator: (val) => val!.isEmpty ?"Необходимо ввести пароль": null,
+                        validator: (val) => val!.isEmpty ?AppLocalizations.of(context)!.loginPagePassLabel: null,
                         controller: _passContorller,
-                        decoration: InputDecoration(labelText: 'Пароль'),obscureText: true,),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.loginPagePassLabel),obscureText: true,),
                       (state is LoginError?Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text("Ошибка авторизации",style: TextStyle(color: Colors.red),),
+                        child: Text(AppLocalizations.of(context)!.loginPageAutorizationErrorMessage,style: TextStyle(color: Colors.red),),
                       ):Container()),
                       (state is LoginWaitingServerAnswer?Padding(padding: const EdgeInsets.all(8.0),
                         child: Center(child: CircularProgressIndicator(),),):
@@ -93,7 +94,7 @@ class LoginPage extends StatelessWidget {
                               ));
                         }
                       },
-                        child: Text('Войти'),))
+                        child: Text(AppLocalizations.of(context)!.loginButtonText),))
                     ],
                     //),
                   ),

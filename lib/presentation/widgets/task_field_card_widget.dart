@@ -15,6 +15,7 @@ import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TaskFieldTextCard extends StatefulWidget {
   final String name;
@@ -353,7 +354,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
               InkWell(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено ($size Кб)",textAlign:TextAlign.center),Text("Загрузить?")],),
+                    children: [Icon(Icons.now_wallpaper),Text("${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",textAlign:TextAlign.center),Text(AppLocalizations.of(context)!.downloadQuestion)],),
                   onTap: ()  {
                     BlocProvider.of<TaskBloc>(context)
                       ..add(FieldFileDownload(file:e.id));
@@ -371,7 +372,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
         SingleChildScrollView(
           reverse: true,
           scrollDirection: Axis.horizontal,
-          child: Row(children: photos==null||photos.length==0?[Text("Нет фоточек")]:photos,),
+          child: Row(children: photos==null||photos.length==0?[Text(AppLocalizations.of(context)!.pictureWidgetEmpty)]:photos,),
         ),
         SizedBox(height: 8,),
         ElevatedButton(
@@ -389,7 +390,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
                       alignment: Alignment.topLeft,
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
-                        child: Text("Загрузить изображение", style: TextStyle(fontSize:18, color: Colors.black)),
+                        child: Text(AppLocalizations.of(context)!.downloadImageCaption, style: TextStyle(fontSize:18, color: Colors.black)),
                       ),
                     ),
                     InkWell(
@@ -403,10 +404,10 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
                         alignment: Alignment.topLeft,
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
-                          child: Text("Камера", style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
+                          child: Text(AppLocalizations.of(context)!.camera, style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
                         ),
                       )
-                  ),
+                    ),
                     InkWell(
                       onTap: () {
                         Navigator.pop(context);
@@ -418,7 +419,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
                         alignment: Alignment.topLeft,
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
-                          child: Text("Галерея", style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
+                          child: Text(AppLocalizations.of(context)!.galery, style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
                         ),
                       )
                   ),
@@ -430,7 +431,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
           child:
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text("Добавить фото"),
+            child: Text(AppLocalizations.of(context)!.addPhoto),
           )
       ),
       ]
@@ -500,7 +501,8 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
               InkWell(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено ($size Кб)",textAlign:TextAlign.center),Text("Загрузить?")],),
+                    children: [Icon(Icons.now_wallpaper),Text("${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",textAlign:TextAlign.center),Text(AppLocalizations.of(context)!.downloadQuestion)],),
+
                   onTap: ()  {
                     BlocProvider.of<TaskBloc>(context)
                       ..add(FieldFileDownload(file:e.id));
@@ -511,6 +513,7 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
     }
     ).toList();
     //print("signature ${widget.files?.first?.id}");
+    final int size = (widget.files?.first.size??0)~/1024;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -530,7 +533,7 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
           child:
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text("Ввести подпись"),
+            child: Text(AppLocalizations.of(context)!.signatureWidgetEnterButton),
           )
       ):InkWell(
         child: Container(
@@ -545,7 +548,8 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
               InkWell(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Icon(Icons.now_wallpaper),Text("Изображение не загружено (${(widget.files?.first.size??0)~/1024} Кб)",textAlign:TextAlign.center),Text("Загрузить?")],),
+
+                  children: [Icon(Icons.now_wallpaper),Text("${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",textAlign:TextAlign.center),Text(AppLocalizations.of(context)!.downloadQuestion)],),
                   onTap: ()  {
                     BlocProvider.of<TaskBloc>(context)
                       ..add(FieldFileDownload(file:widget.files?.first.id));

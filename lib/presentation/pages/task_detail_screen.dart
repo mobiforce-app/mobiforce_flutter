@@ -22,6 +22,7 @@ import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.da
 import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
@@ -107,7 +108,7 @@ class TaskDetailPage extends StatelessWidget {
       );
   }
   List<Widget> getTaskFieldElementPassive(
-      TasksFieldsEntity element, String appFilesDirectory) {
+      TasksFieldsEntity element, String appFilesDirectory, BuildContext context) {
     if (element.taskField?.type.value == TaskFieldTypeEnum.optionlist) {
 
       return [
@@ -156,7 +157,7 @@ class TaskDetailPage extends StatelessWidget {
               style: TextStyle(
                   fontSize: 16, color: Colors.black),
             ):
-            Text("Не заполнено",
+            Text(AppLocalizations.of(context)!.taskFieldDisabledEmpty,
               style: TextStyle(
                   fontSize: 16, color: Colors.grey),
             ),
@@ -268,7 +269,7 @@ class TaskDetailPage extends StatelessWidget {
   }
 
   List<Widget> getFieldListByParent(int id, int tab,
-      List<TasksFieldsEntity>? props, String appFilesDirectory) {
+      List<TasksFieldsEntity>? props, String appFilesDirectory, BuildContext context) {
     List<Widget> l = [];
     props?.forEach((element) {
       print(
@@ -282,7 +283,7 @@ class TaskDetailPage extends StatelessWidget {
         if((element.tab ?? 0) == 2)
           l.add(getTaskFieldElement(element, appFilesDirectory));
         else
-          l.addAll(getTaskFieldElementPassive(element, appFilesDirectory));
+          l.addAll(getTaskFieldElementPassive(element, appFilesDirectory, context));
       }
     });
 
@@ -372,10 +373,11 @@ class TaskDetailPage extends StatelessWidget {
           var plannedVisitTimeString = state.task.plannedVisitTime != null
               ? formatter.format(new DateTime.fromMillisecondsSinceEpoch(
                   1000 * (state.task.plannedVisitTime ?? 0)))
-              : "Без даты";
+              : AppLocalizations.of(context)!.taskNoPlannedVisitTime;
           var date = new DateTime.fromMillisecondsSinceEpoch(
               (state.task.statuses?.first.manualTime??0) * 1000);
-          final String statusDateFormatted = state.task.statuses?.first.manualTime!=null?formatter.format(date):"без даты";
+          final String statusDateFormatted = state.task.statuses?.first.manualTime!=null?formatter.format(date)
+              : AppLocalizations.of(context)!.taskNoStatusManualTime;
 
           final Widget statusField =
               Container(
@@ -435,7 +437,7 @@ class TaskDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                             children:[
                         Text(
-                            "История",
+                            AppLocalizations.of(context)!.taskStatusHistory,
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
@@ -544,7 +546,7 @@ class TaskDetailPage extends StatelessWidget {
                                                 commentRequired: element.commentRequired,
                                                 dateChanging: element.dateChanging,
                                                 comment: element.comment ?? "",
-                                                acceptButton: "Сохранить",
+                                                acceptButton: AppLocalizations.of(context)!.taskEditStatusSave,
                                                 acceptCallback: (
                                                     {required DateTime time,
                                                       required DateTime manualTime,
@@ -573,7 +575,7 @@ class TaskDetailPage extends StatelessWidget {
                                                 }));
                                       },
                                         child: Text(
-                                            "Редактировать"
+                                            AppLocalizations.of(context)!.taskEditStatusEdit
                                         ),
                                       ):Container(),
 
@@ -653,174 +655,6 @@ class TaskDetailPage extends StatelessWidget {
               ),
             ),
             ];
-            /*SizedBox(
-              height: 10,
-            ),
-            Container(
-              //color: const Color(0xffe60000),
-              child: Row(
-                //mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  (state.task.externalLink?.length??0) == 0 ?Text(
-                    "${state.task.name}",
-                    style: TextStyle(
-                        fontSize: 28,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600),
-                  ):InkWell(
-                    onTap: () => launch('${state.task.externalLink}'),
-                    child: Text(
-                      "${state.task.name}",
-                      style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blueAccent,
-                          decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment:Alignment.topRight,
-                    //color: const Color(0xffe67e22),
-                    child: InkWell(
-                        onTap: (){
-                          List<Widget> buttons = [
-                          ];
-                          buttons.addAll([
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(
-                                child: Text(
-                                  "${state.task.lifecycle?.name} ",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 24,
-                            ),
-                          ]
-                          );
-                          state.task.statuses?.forEach((element) {
-                            var date = new DateTime.fromMillisecondsSinceEpoch(
-                                element.manualTime * 1000);
-                            //.fromMicrosecondsSinceEpoch(element.createdTime);
-                            final String formatted = formatter.format(date);
-
-                            /*list.add(
-                      SizedBox(
-                        height: 24,
-                      ),
-                    );*/
-                            buttons.add(
-                              InkWell(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                      ),
-                                      context: context,
-                                      builder: (context) => StatusEditor(
-                                          manualTime: DateTime.fromMillisecondsSinceEpoch(
-                                              element.manualTime * 1000),
-                                          commentInput: element.commentInput,
-                                          timeChanging: element.timeChanging,
-                                          commentRequired: element.commentRequired,
-                                          dateChanging: element.dateChanging,
-                                          comment: element.comment ?? "",
-                                          acceptButton: "Сохранить",
-                                          acceptCallback: (
-                                              {required DateTime time,
-                                                required DateTime manualTime,
-                                                required String comment}) {
-                                            print(
-                                                "time $time, manualTime $manualTime, comment $comment");
-                                            BlocProvider.of<TaskBloc>(context)
-                                              ..add(ChangeTaskStatus(
-                                                id: element.id,
-                                                status: element.status.id,
-                                                comment: comment,
-                                                createdTime:
-                                                DateTime.fromMillisecondsSinceEpoch(
-                                                    element.createdTime * 1000),
-                                                manualTime: manualTime,
-                                                timeChanging: element.timeChanging ?? false,
-                                                dateChanging: element.dateChanging ?? false,
-                                                commentChanging: element.commentInput ?? false,
-                                                commentRequired:
-                                                element.commentRequired ?? false,
-                                              ));
-                                            Navigator.pop(context);
-                                            Navigator.pop(context);
-                                          }));
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        height: 16,
-                                        width:16,
-                                        decoration: BoxDecoration(
-                                            color: HexColor.fromHex("${element.status.color}"),
-                                            borderRadius: BorderRadius.circular(16)),
-                                      ),
-                                      SizedBox(
-                                        width: 8,
-                                      ),
-                                      Text(
-                                        "${element.status.name} $formatted",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          });
-                          showModalBottomSheet(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SafeArea(
-                                    child: SingleChildScrollView(
-                                        child: Container(
-                                            child: Wrap(
-                                                children: buttons))));});
-
-                        },
-                        child: statusField
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            Text(
-              "${plannedVisitTimeString} ",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600),
-            ),
-          ];
-          list.add(
-          SizedBox(
-          height: 24,
-          ),);*/
         if (state.task.contractor?.id != null) {
           final String contractorParent = (state.task.contractor?.parent?.name??"").trim();
           final String contractorName = (state.task.contractor?.name??"").trim();
@@ -843,7 +677,7 @@ class TaskDetailPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                   child: Text(
-                    "Клиент не указан",
+                    AppLocalizations.of(context)!.taskNoClient,
                     style: TextStyle(
                         fontSize: 18,
                         color: Colors.black,
@@ -871,7 +705,7 @@ class TaskDetailPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
-                  "Адрес не указан",
+                  AppLocalizations.of(context)!.taskNoAddress,
                   style: TextStyle(
                       fontSize: 14,
                       color: Colors.black,
@@ -888,7 +722,7 @@ class TaskDetailPage extends StatelessWidget {
                 Icon(Icons.directions),
                 Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Text("Маршрут"),
+                  child: Text(AppLocalizations.of(context)!.taskRoute),
                 )
               ],
             ));
@@ -955,7 +789,7 @@ class TaskDetailPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
                 child: Text(
-                  "Телефоны",
+                  AppLocalizations.of(context)!.taskPhones,
                   style: TextStyle(
                       fontSize: 16,
                       //color: Colors.black,
@@ -1045,7 +879,7 @@ class TaskDetailPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
                       child: Text(
-                        "Телефоны не указаны",
+                        AppLocalizations.of(context)!.taskNoPhones,
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -1061,7 +895,7 @@ class TaskDetailPage extends StatelessWidget {
               child: Column(
                 children: [Icon(Icons.contact_phone), Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Text("Контакты"),
+                  child: Text(AppLocalizations.of(context)!.taskContacts),
                 )],
               ));
           print ("phoneCount $phoneCount");
@@ -1124,7 +958,7 @@ class TaskDetailPage extends StatelessWidget {
             alignment: Alignment.topLeft,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
-              child: Text("Выберите новый статус",
+              child: Text(AppLocalizations.of(context)!.taskNewStatus,
                   style: TextStyle(fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: Colors.black)),
@@ -1167,7 +1001,7 @@ class TaskDetailPage extends StatelessWidget {
                               commentRequired: element.commentRequired,
                               dateChanging: element.dateChanging,
                               resolutions: element.resolutions,
-                              acceptButton: "Перевести",
+                              acceptButton: AppLocalizations.of(context)!.taskNewStatusAccept,
                               acceptCallback: (
                                   {required DateTime time,
                                   required DateTime manualTime,
@@ -1223,117 +1057,6 @@ class TaskDetailPage extends StatelessWidget {
                       Navigator.pop(context);
                     }
                     return;
-                    // var date = new DateTime.now();
-                    //
-                    // List<Widget> wlist = [];
-                    //
-                    // //if(timesList.length>0)
-                    //   wlist.add(DateTimeInput(val:date)
-                    //   );
-                    //
-                    // if(element.commentInput==true) {
-                    //   wlist.add(Padding(
-                    //     padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,0.0),
-                    //     child: Row(
-                    //       children: [
-                    //         Text("Комментарий"),
-                    //         element.commentRequired == true
-                    //             ? Text(
-                    //                 "*",
-                    //                 style: TextStyle(color: Colors.red),
-                    //               )
-                    //             : Text("")
-                    //       ],
-                    //       //
-                    //     ),
-                    //   ));
-                    //   wlist.add(
-                    //       Padding(
-                    //         padding: const EdgeInsets.fromLTRB(8.0,0.0,8.0,8.0),
-                    //         child: TextField(
-                    //           //decoration: InputDecoration(
-                    //           //  labelText: "Введите комментарий",
-                    //           //  border: OutlineInputBorder(),
-                    //           //)  ,
-                    //           maxLines: null,
-                    //           //controller: _controller,
-                    //           keyboardType: TextInputType.multiline,
-                    //           //onChanged: (String s){setState(() {
-                    //
-                    //           //});},
-                    //           //.numberWithOptions(),
-                    //         ),
-                    //       )
-                    //   );
-                    // }
-                    //
-                    // wlist.add(Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   crossAxisAlignment: CrossAxisAlignment.center,
-                    //   children: [
-                    //     ElevatedButton(
-                    //         onPressed: () {
-                    //
-                    //         },
-                    //         child:
-                    //         Text(
-                    //               "Подтвердить"
-                    //           ),
-                    //     ),
-                    //     SizedBox(
-                    //       width: 24,
-                    //     ),
-                    //     ElevatedButton(
-                    //         onPressed: () {
-                    //
-                    //         },
-                    //           child: Text(
-                    //               "Отменить"
-                    //           ),
-                    //         )
-                    //   ],)
-                    // );
-                    //
-                    //
-                    // if(element.commentInput==true||element.timeChanging==true||element.commentRequired==true||element.dateChanging==true) {
-                    //   showDialog<int>(context: context, barrierDismissible: false, builder: (BuildContext context) => SimpleDialog(
-                    //     title:  Text("→ ${element.status.name}"),
-                    //     children: wlist,
-                    //   )).then((value) {
-                    //     print("$value");
-                    //     /*if(value!=null){
-                    //
-                    //       BlocProvider.of<TaskBloc>(context)
-                    //         ..add(ChangeTaskStatus(status:element.id,resolution:value));
-                    //       Navigator.pop(context);
-                    //     }*/
-                    //   });
-                    // }
-                    // /*if((element.status.resolutions?.length??0)>0){
-                    //   List<Widget> resolutions=element.status.resolutions!.map((e) => ListTile(
-                    //     leading: const Icon(Icons.check),
-                    //     title: Text("${e.name}"),
-                    //     onTap: ()=>Navigator.pop(context,e.id)
-                    //   )).toList();
-                    //
-                    //   showDialog<int>(context: context, builder: (BuildContext context) => SimpleDialog(
-                    //     title: const Text("Выберите причину"),
-                    //     children: resolutions,
-                    //   )).then((value) {
-                    //     print("$value");
-                    //     if(value!=null){
-                    //
-                    //       BlocProvider.of<TaskBloc>(context)
-                    //         ..add(ChangeTaskStatus(status:element.id,resolution:value));
-                    //       Navigator.pop(context);
-                    //     }
-                    //   });
-                    // }*/
-                    // else {
-                    //   BlocProvider.of<TaskBloc>(context)
-                    //     ..add(ChangeTaskStatus(status:element.status.id));
-                    //   Navigator.pop(context);
-                    // }
                   }, // Handle your callback
                   child: Align(
                     alignment: Alignment.topLeft,
@@ -1376,22 +1099,6 @@ class TaskDetailPage extends StatelessWidget {
 
           });
 
-/*          if (state.nextTaskStatuses != null) {
-            list.addAll([
-              SizedBox(
-                height: 24,
-              ),
-              Text(
-                "Прошедшие статусы:",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600),
-              )
-            ]);
-          }
-*/          //final DateFormat formatter = DateFormat('dd.MM.yyyy HH.mm');
-
 
           //
           //Map<int,Widget> groups={};
@@ -1419,7 +1126,8 @@ class TaskDetailPage extends StatelessWidget {
                     element.elementLocalId ?? -1,
                     element.tab ?? 0,
                     state.task.propsList,
-                    state.appFilesDirectory);
+                    state.appFilesDirectory,
+                    context);
                 lst.add(
                   ExpansionTile(
                     //height: 24,
@@ -1443,34 +1151,11 @@ class TaskDetailPage extends StatelessWidget {
                 if((element.tab ?? 0) == 2)
                   lst.add(getTaskFieldElement(element, state.appFilesDirectory));
                 else
-                  lst.addAll(getTaskFieldElementPassive(element, state.appFilesDirectory));
+                  lst.addAll(getTaskFieldElementPassive(element, state.appFilesDirectory, context));
               }
             }
           });
 
-          /*list.add(
-                  ExpansionTile(
-                    //height: 24,
-                    title: Text("Развернуть"),
-                    children: eList,
-                    initiallyExpanded: true,
-                    maintainState: true,
-                    onExpansionChanged: (e){
-                      print("${e.toString()}");
-                    },
-                  ),
-                );*/
-
-          /*list.add(
-                  Text(
-                    "${element.taskField?.type.string} ",
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                        //fontWeight: FontWeight.w600
-                    ),
-                  ),
-                );*/
           if (propsCounter>0) {
             list.add(
                  Container(
@@ -1524,7 +1209,7 @@ class TaskDetailPage extends StatelessWidget {
                               ? formatter.format(
                                   new DateTime.fromMillisecondsSinceEpoch(1000 *
                                       (state.comments[index].createdTime)))
-                              : "без даты";
+                              : AppLocalizations.of(context)!.taskNoCommentTime;
                           //int i= (100/200).toInt();
                           final size =
                               (state.comments[index].file?.size ?? 0) ~/ 1024;
@@ -1558,10 +1243,10 @@ class TaskDetailPage extends StatelessWidget {
                                       Icon(Icons
                                           .now_wallpaper),
                                       Text(
-                                          "Изображение не загружено ($size Кб)",
+                                          "${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",
                                           textAlign: TextAlign
                                               .center),
-                                      Text("Загрузить?")
+                                      Text(AppLocalizations.of(context)!.downloadQuestion)
                                     ],
                                   ),
                                   onTap: () {
@@ -1677,37 +1362,12 @@ class TaskDetailPage extends StatelessWidget {
                   CommentInput(val: ""),
                   //)
                 ]));
-            /*_kTabPages[2].add(
-                    ListView.separated(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          final String formatted = state.comments?[index].createdTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(1000*(state.comments![index].createdTime))):"без даты";
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("${state.comments![index].message}"),
-                              Text("${state.comments![index].author.name}, ${formatted}")
-                            ],
-                          );
-                      },
-                      separatorBuilder: (context, index) {
-                        return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Divider(height: 1,
-                              color: Colors.grey,
-                              thickness: 1,)
-                        );
-                      },
-                      itemCount: state.comments!.length
-                  )
-                );*/
           }
           int unreadedCommentCount=state.task.unreadedComments??0;
-          final String unreadedComment="Комментарии"+(unreadedCommentCount>0?" ($unreadedCommentCount)":"");
+          final String unreadedComment=AppLocalizations.of(context)!.taskTabComments+(unreadedCommentCount>0?" ($unreadedCommentCount)":"");
           final _kTabs = <Tab>[
-            const Tab(text: "Основное"),
-            const Tab(text: "Отчет"),
+            Tab(text: AppLocalizations.of(context)!.taskTabMain),
+            Tab(text: AppLocalizations.of(context)!.taskTabChecklist),
             Tab(text: unreadedComment),
           ];
           final _kTabPages1 = <Widget>[
@@ -1815,7 +1475,7 @@ class TaskDetailPage extends StatelessWidget {
         }
         return Scaffold(
             appBar: AppBar(
-              title: Text('Task'),
+              title: Text(AppLocalizations.of(context)!.taskPageHeader),
               centerTitle: true,
             ),
             body: Container());

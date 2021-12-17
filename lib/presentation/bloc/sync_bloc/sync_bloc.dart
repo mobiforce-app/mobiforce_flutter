@@ -32,14 +32,6 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
     print("map event+ ${event}");
     if(event is TryToSync) {
       yield SyncWaitingServerAnswer();
-      /*final faiureOrLoading = await auth(AuthorizationParams(
-          domain: event.domain,
-          login:  event.login,
-          pass:  event.pass));*/
-      //await Future.delayed(Duration(seconds: 2));
-      /*yield faiureOrLoading.fold((failure) => LoginError(message: "ошибка авторизации"), (task) {
-        return LoginOK();
-      });*/
     }
     else if(event is FullSyncingStart){
       if(!listenerIsInit) {

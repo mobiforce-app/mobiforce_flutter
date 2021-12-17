@@ -41,7 +41,6 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     print("start");
   }
 
-  //m.counterUpdates.listen((item) => print(item)); // использование лямбда-функции
 
   //StreamSubscription streamSubscription = MyApp.model.counterUpdates.listen((newVal) => setState(() {
   //_counter = newVal;

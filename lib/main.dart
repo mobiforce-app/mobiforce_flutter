@@ -18,6 +18,8 @@ import 'package:mobiforce_flutter/presentation/pages/login_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+//import 'package:flutter_';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -68,6 +70,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
       ], child: MaterialApp(
             localizationsDelegates: [
+              AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,

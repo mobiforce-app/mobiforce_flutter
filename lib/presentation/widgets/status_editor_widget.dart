@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'datetimepicker_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StatusEditor extends StatefulWidget {
   //final String name;
@@ -95,7 +96,7 @@ class _StatusEditorState extends State<StatusEditor> {
        wlist.add(
            Padding(
                padding: const EdgeInsets.all(16.0),
-               child: Text("Перевести задачу в статус",
+               child: Text(AppLocalizations.of(context)!.tasksPageHeader,
                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),))
        );
        //if(element.timeChanging==true||element.dateChanging==true)
@@ -150,7 +151,7 @@ class _StatusEditorState extends State<StatusEditor> {
                child: Column(
                  crossAxisAlignment: CrossAxisAlignment.start,
                  children: [
-                   Text("Редактировать статус",
+                   Text(AppLocalizations.of(context)!.editTaskStatus,
                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
                    Text("11.11.2021 13:00",
                      style: TextStyle(fontSize: 14, color: Colors.black26),),
@@ -230,22 +231,6 @@ class _StatusEditorState extends State<StatusEditor> {
 
 
       if(widget.commentInput==true) {
-        /*wlist.add(Padding(
-          padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
-          child: Row(
-            children: [
-              Text("Комментарий"),
-              widget.commentRequired == true
-                  ? Text(
-                "*",
-                style: TextStyle(color: Colors.red),
-              )
-                  : Text("")
-            ],
-            //
-          ),
-        ));
-        */
         wlist.add(
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0,0.0,16.0,8.0),
@@ -256,7 +241,7 @@ class _StatusEditorState extends State<StatusEditor> {
                   //border: OutlineInputBorder(),
                   label: Row(
                     children: [
-                      Text("Комментарий"),
+                      Text(AppLocalizations.of(context)!.taskStatusComment),
                       widget.commentRequired == true
                           ? Text(
                         " *",
@@ -266,14 +251,9 @@ class _StatusEditorState extends State<StatusEditor> {
                     ],
                     //
                   ),
-                  //label: Text("Причина"),
                 ),
 
                 controller: _controller,
-                //decoration: InputDecoration(
-                //  labelText: "Введите комментарий",
-                //  border: OutlineInputBorder(),
-                //)  ,
                 maxLines: null,
                 //controller: _controller,
                 keyboardType: TextInputType.multiline,
@@ -298,8 +278,7 @@ class _StatusEditorState extends State<StatusEditor> {
                 decoration: InputDecoration(
 
                   //border: OutlineInputBorder(),
-                  labelText: "Причина",
-                  //label: Text("Причина"),
+                  labelText: AppLocalizations.of(context)!.taskStatusResolution,
                 ),
                 items: ddmi,
                 onChanged: (data){
@@ -355,7 +334,7 @@ class _StatusEditorState extends State<StatusEditor> {
                     Navigator.pop(context);
                   },
                   child: Text(
-                      "Отмена"
+                      AppLocalizations.of(context)!.taskStatusEditingCancel
                   ),
                 ),
               ),
@@ -367,42 +346,6 @@ class _StatusEditorState extends State<StatusEditor> {
       padding: MediaQuery.of(context).viewInsets,
       child:Wrap(children:wlist),
     );
-
-     /*return TextField(
-       decoration: InputDecoration(
-         labelText: "Введите комментарий",
-         border: OutlineInputBorder(),
-         suffixIcon: _controller.text.length>0?IconButton(
-           icon: Icon(Icons.send),
-           onPressed: (){
-             BlocProvider.of<TaskBloc>(context).add(
-               AddComment(value:_controller.text),
-             );
-             setState(() {
-               _controller.clear();
-             });
-           },
-         ):IconButton(
-           icon: Icon(Icons.attach_file),
-           onPressed: (){
-             BlocProvider.of<TaskBloc>(context).add(
-               AddPhotoToComment(),
-             );
-           },
-         ),
-       ),
-       //expands: true,
-       maxLines: null,
-       controller: _controller,
-       keyboardType: TextInputType.multiline,
-       onChanged: (String s){setState(() {
-
-       });},
-       //.numberWithOptions(),
-     );
-        //maxLines: 3,
-       // onChanged: _onChanged,
-      //);*/
   }
 
   @override

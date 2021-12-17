@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_event.dart';
+
 class FullSyncStatus
 {
   String? syncNameStr;
@@ -21,12 +22,12 @@ abstract class FullSync{
 class FullSyncImpl implements FullSync{
   int _counter = 0;
   final Map<String,String> objectsTypeToName={
-    "taskfield":"Дополнительные поля",
-    "taskstatus":"Статусы",
-    "resolution":"Причины завершения",
-    "tasklifecycle":"Жизненные циклы",
-    "task":"Задачи",
-    "comments":"Комментарии"};
+    "taskfield":"Addition fields",
+    "taskstatus":"Statuses",
+    "resolution":"Resolutions",
+    "tasklifecycle":"Lifecycles",
+    "task":"tasks",
+    "comments":"Comments"};
   final FullSyncFromServer fullSyncFromServer;
   FullSyncImpl({required this.fullSyncFromServer});
 

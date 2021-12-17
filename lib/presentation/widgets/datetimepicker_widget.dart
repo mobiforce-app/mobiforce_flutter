@@ -14,6 +14,7 @@ import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DateTimeInput extends StatefulWidget {
   //final String name;
@@ -79,11 +80,11 @@ class _dateTimeInputState extends State<DateTimeInput> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Дата", style: TextStyle(color:Colors.black45)),
+            Text(AppLocalizations.of(context)!.dataWidgetDataLabel, style: TextStyle(color:Colors.black45)),
             Text("${formatterDays.format(dt!)}",
               style: TextStyle(fontSize: 24, ),
             ),
-            widget.dateChanging==true?Text("Редактировать", style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline))
+            widget.dateChanging==true?Text(AppLocalizations.of(context)!.dataWidgetEdit, style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline))
             :Container(),
           ],
         ),
@@ -101,11 +102,11 @@ class _dateTimeInputState extends State<DateTimeInput> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Дата", style: TextStyle(color:Colors.black45)),
+            Text(AppLocalizations.of(context)!.dataWidgetTimeLabel, style: TextStyle(color:Colors.black45)),
             Text("${formatterTime.format(dt!)}",
               style: TextStyle(fontSize: 24, ),
             ),
-            widget.timeChanging==true?Text("Редактировать", style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline))
+            widget.timeChanging==true?Text(AppLocalizations.of(context)!.dataWidgetEdit, style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline))
             :Container(),
           ],
         ),

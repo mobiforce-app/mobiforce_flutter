@@ -6,6 +6,7 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskEntity task;
@@ -15,7 +16,7 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String addressStr='${task.contractor?.parent?.name}${(task.contractor?.parent?.name??"").length>0?",":""} ${task.contractor?.name}'.trim();
-    final Widget address=(addressStr.length>0)?Text(addressStr):Text("Клиент не указан", style: TextStyle(
+    final Widget address=(addressStr.length>0)?Text(addressStr):Text(AppLocalizations.of(context)!.taskNoClient, style: TextStyle(
         //fontSize: 18,
         color: Colors.grey,
         ),
@@ -24,7 +25,7 @@ class TaskCard extends StatelessWidget {
     var plannedVisitTimeString = task.plannedVisitTime != null
         ? formatter.format(new DateTime.fromMillisecondsSinceEpoch(
         1000 * (task.plannedVisitTime ?? 0)))
-        : "Без даты";
+        : AppLocalizations.of(context)!.taskNoPlannedVisitTime;
     final Widget statusField = Row(
       children: [
         /*Text(
@@ -147,7 +148,7 @@ class TaskCard extends StatelessWidget {
                 address,
                 ((task.address?.length??0)>0)?
                   Text('${task.address}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
-                  :Text('Адрес не указан',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey),),
+                  :Text(AppLocalizations.of(context)!.taskNoAddress,overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey),),
 
               ]
           ),
