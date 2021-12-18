@@ -131,7 +131,7 @@ class TaskDetailPage extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: Text(element.taskField?.name ?? "",
               style: TextStyle(
-              fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600))
+              fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600))
           ),
         ),
         Padding(
@@ -141,7 +141,7 @@ class TaskDetailPage extends StatelessWidget {
             child: Text(
               element.selectionValue?.name ?? "",
               style: TextStyle(
-                  fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600),
+                  fontSize: 16, color: Colors.black),
             ),
           ),
         ),
@@ -246,12 +246,48 @@ class TaskDetailPage extends StatelessWidget {
           files: element.fileValueList,
           appFilesDirectory: appFilesDirectory);*/
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.signature) {
+
+      final List<Widget>? photos = element.fileValueList?.map((e) {
+        final size=(e.size)~/1024;
+        return Container(
+            width: 160,
+            height: 160,
+            child:
+            e.downloaded==true?
+            Image.file(File('$appFilesDirectory/photo_${e.id}.jpg')):(
+                e.downloading==true||e.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
+                    child: Center(child: CircularProgressIndicator(),))
+                    :
+                InkWell(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Icon(Icons.now_wallpaper),Text("${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",textAlign:TextAlign.center),Text(AppLocalizations.of(context)!.downloadQuestion)],),
+                    onTap: ()  {
+                      BlocProvider.of<TaskBloc>(context)
+                        ..add(FieldFileDownload(file:e.id));
+                    }
+                ))
+          // Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg'))
+        );
+      }
+      ).toList();
+
       return [Padding(
         padding: const EdgeInsets.only(left:16.0),
         child: Align(
             alignment: Alignment.topLeft,
-            child: Text(element.taskField?.name ?? "")),
-      )];
+            child: Text(element.taskField?.name ?? "",
+                style: TextStyle(
+                fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)
+          )),
+      ),
+        SizedBox(height: 8,),
+        SingleChildScrollView(
+          reverse: true,
+          scrollDirection: Axis.horizontal,
+          child: Row(children: photos==null||photos.length==0?[Text(AppLocalizations.of(context)!.pictureWidgetEmpty)]:photos,),
+        ),
+      ];
      /* return TaskFieldSignatureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
@@ -1220,7 +1256,8 @@ class TaskDetailPage extends StatelessWidget {
                     height: 16,
                   ),
                 );
-                if((element.tab ?? 0) == 2)
+                print("state.task.status?.systemStatusId ${state.task.status?.systemStatusId}");
+                if(((element.tab ?? 0) == 2)&&state.task.status?.systemStatusId != 7)
                   lst.add(getTaskFieldElement(element, state.appFilesDirectory));
                 else
                   lst.addAll(getTaskFieldElementPassive(element, state.appFilesDirectory, context));
