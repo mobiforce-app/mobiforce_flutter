@@ -557,6 +557,10 @@ class DBProvider {
         "t2.color as taskstatus_color, "
         "t2.external_id as taskstatus_external_id, "
         "t2.id as taskstatus_id, "
+        "t4.name as resolution_name, "
+        "t4.external_id as resolution_external_id, "
+        "t4.id as resolution_id, "
+        "t4.color as resolution_color, "
         "t3.external_id as task_external_id, "
         "t3.id as task_id "
         "FROM $tasksStatusesTable as t1 "
@@ -564,6 +568,8 @@ class DBProvider {
         "ON t1.task_status = t2.id "
         "LEFT JOIN $tasksTable as t3 "
         "ON t1.task = t3.id "
+        "LEFT JOIN $resolutionTable as t4 "
+        "ON t1.resolution = t4.id "
         //"LEFT JOIN $resolutionTable as t4 "
         //"ON t1.resolution = t4.id "
         "WHERE t1.usn > ? ORDER BY t1.usn ASC LIMIT $limitToSend",[localUSN]);
@@ -1209,6 +1215,22 @@ class DBProvider {
     resolution.id=id;
     return resolution;
   }
+  Future<int> getResolutionIdByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> resolutionMapList = await db.query(resolutionTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return resolutionMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+
+  Future<ResolutionModel> updateResolutionByServerId(ResolutionModel resolution) async{
+    Database db = await this.database;
+
+    int resolutionId = await getResolutionIdByServerId(resolution.serverId);
+    if(resolutionId!=0)
+      await db.update(resolutionTable, resolution.toMap(), where: 'id =?', whereArgs: [resolutionId]);
+    resolution.id=resolutionId;
+    return resolution;
+  }
+
   Future<ResolutionGroupModel> insertResolutionGroup(ResolutionGroupModel resolutionGroup) async{
     Database db = await this.database;
     int id=0;

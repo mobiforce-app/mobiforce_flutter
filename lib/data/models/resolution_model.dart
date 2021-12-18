@@ -37,6 +37,7 @@ class ResolutionModel extends ResolutionEntity
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
+    map['color'] = color;
     map['external_id'] = serverId;
     //map['client'] = client;
     //map['address'] = address;
@@ -45,6 +46,11 @@ class ResolutionModel extends ResolutionEntity
   Future<int> insertToDB(db) async {
     //List<int> resolutionGroupId=[];
     dynamic t = await db.insertResolution(this);
+    if(t.id==0){
+      t = await db.updateResolutionByServerId(this);
+      //print ("db id == ${t.toString()}");
+    }
+
     await db.deleteResolutuionGroupRelation(t.id);
     Future.forEach(resolutionGroup, (ResolutionGroupModel element) async {
       int resolutionGroupId = await element.insertToDB(db);
@@ -68,7 +74,7 @@ class ResolutionModel extends ResolutionEntity
   }
   factory ResolutionModel.fromJson(Map<String, dynamic> json)
   {
-    //print('jsonjson ${json[0]} ');
+    print('ResolutionModel ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return ResolutionModel(
         id: 0,

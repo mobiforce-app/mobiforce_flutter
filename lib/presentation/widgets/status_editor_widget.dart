@@ -53,6 +53,7 @@ class StatusEditor extends StatefulWidget {
     required this.acceptButton,
     this.manualTime,
     this.resolutions,
+    this.resolution,
     required this.acceptCallback,
     required this.comment,
   });
@@ -96,7 +97,7 @@ class _StatusEditorState extends State<StatusEditor> {
        wlist.add(
            Padding(
                padding: const EdgeInsets.all(16.0),
-               child: Text(AppLocalizations.of(context)!.tasksPageHeader,
+               child: Text(AppLocalizations.of(context)!.taskNewStatusConfirmDialogHeader,
                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),))
        );
        //if(element.timeChanging==true||element.dateChanging==true)
@@ -266,15 +267,54 @@ class _StatusEditorState extends State<StatusEditor> {
         );
       }
 
+      if((widget.resolution?.id??0)>0) {
+        wlist.add(
+            Padding(
+                padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: HexColor.fromHex("${widget.resolution?.color??"#FFFFFF"}"),
+                      borderRadius: BorderRadius.circular(4),
+
+                    ),
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(widget.resolution?.name??""),
+                ))
+            )
+        );
+
+
+    }
+
       if((widget.resolutions?.length??0)>0) {
 
-        List<DropdownMenuItem<int>> ddmi = (widget.resolutions?.map((element)=>DropdownMenuItem(child: Text("${element.name}"),value: element.id,))??[]).toList();
+        List<DropdownMenuItem<int>> ddmi = (widget.resolutions?.map((element)=>
+            DropdownMenuItem(
+              child:
+                Row(
+                  children: [
+                    Container(
+                      height: 16,
+                      width:16,
+                      decoration: BoxDecoration(
+                          color: HexColor.fromHex("${element.color}"),
+                          borderRadius: BorderRadius.circular(16)),
+                      margin: const EdgeInsets.only(right: 8.0),
+                    ),
+                    Text("${element.name}"),
+
+                  ],
+                ),
+              value: element.id,
+            )
+        )??[]).toList();
 
         wlist.add(
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
               child: DropdownButtonFormField(
-
+                isExpanded:true,
                 decoration: InputDecoration(
 
                   //border: OutlineInputBorder(),

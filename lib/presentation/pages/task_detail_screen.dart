@@ -444,7 +444,7 @@ class TaskDetailPage extends StatelessWidget {
                                 fontWeight: FontWeight.w600),
                           ),
                          Text(
-                            "Workflow: ${state.task.lifecycle?.name} ",
+                            "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black45,
@@ -541,6 +541,7 @@ class TaskDetailPage extends StatelessWidget {
                                                 manualTime: DateTime.fromMillisecondsSinceEpoch(
                                                     element.manualTime * 1000),
                                                 name: element.status.name,
+                                                resolution: element.resolution,
                                                 commentInput: element.commentInput,
                                                 timeChanging: element.timeChanging,
                                                 commentRequired: element.commentRequired,
@@ -585,15 +586,26 @@ class TaskDetailPage extends StatelessWidget {
                                 ),(element.resolution?.name.length??0)>0?
                                 Padding(
                                     padding: const EdgeInsets.only(left:24.0),
-                                    child: Text(
+                                    child: Container(
+                                      //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                      decoration: BoxDecoration(
+                                        color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                        borderRadius: BorderRadius.circular(4),
+
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
 
                                 "${element.resolution?.name}",style: TextStyle(
 
 
-                                      fontSize: 16,
-                                      //color: Colors.black45,
-                                      //    fontWeight: FontWeight.w600
-                                    ),)):Container(),
+                                          fontSize: 16,
+                                          //color: Colors.black45,
+                                          //    fontWeight: FontWeight.w600
+                                        ),),
+                                      ),
+                                    )):Container(),
                                 (element.comment?.length??0)>0?Padding(
                                   padding: const EdgeInsets.only(left:24.0),
                                   child: Text(
@@ -628,15 +640,15 @@ class TaskDetailPage extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
-                          isScrollControlled: true,
+                          //isScrollControlled: true,
                           context: context,
                           builder: (BuildContext context) {
-                            return //SafeArea(
-                                //child: SingleChildScrollView(
-                                    //child:
+                            return SafeArea(
+                                child: SingleChildScrollView(
+                                    child:
                                 Container(
                                         child: Wrap(
-                                            children: buttons));});
+                                            children: buttons))));});
 
                     },
                     child: statusField
