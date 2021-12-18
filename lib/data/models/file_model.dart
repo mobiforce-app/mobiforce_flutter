@@ -80,7 +80,7 @@ class FileModel extends FileEntity
    // name = map['name'];
     dynamic? parent = null;
     if(map['link_object_type']==1)
-      parent=TasksFieldsModel(id: map['link_object'], usn: 0, serverId: map['field_external_id']??0);
+      parent=TasksFieldsModel(id: map['link_object'], usn: 0, serverId: map['field_external_id']??0, valueRequired: map['field_required']??false);
     return FileModel(
         id: map['id'],
         size: map['size']==null?0:map['size'],

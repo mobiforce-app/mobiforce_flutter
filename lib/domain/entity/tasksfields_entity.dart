@@ -18,6 +18,7 @@ class TasksFieldsEntity{
   TaskFieldModel? taskField;
   List<TasksFieldsModel>? childrens;
   SelectionValueModel? selectionValue;
+  bool valueRequired;
   bool? boolValue;
   double? doubleValue;
   String? stringValue;
@@ -40,6 +41,7 @@ class TasksFieldsEntity{
     this.task,
     this.selectionValue,
     this.boolValue,
+    required this.valueRequired,
     this.doubleValue,
     this.stringValue,
     this.fileValueList,

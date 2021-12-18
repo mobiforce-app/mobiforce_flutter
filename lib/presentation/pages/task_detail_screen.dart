@@ -23,14 +23,21 @@ import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
   static Color fromHex(String hexString) {
-    final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-    buffer.write(hexString.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
+
+    RegExp hexColor = RegExp(r'^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$');
+    if(hexColor.hasMatch(hexString)) {
+      final buffer = StringBuffer();
+      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+      buffer.write(hexString.replaceFirst('#', ''));
+      return Color(int.parse(buffer.toString(), radix: 16));
+    }
+    else
+      return Color(int.parse("ffffffff", radix: 16));
   }
 
   /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
@@ -62,6 +69,7 @@ class TaskDetailPage extends StatelessWidget {
         name: element.taskField?.name ?? "",
         fieldId: element.id,
         val: element.selectionValue,
+        valueRequired: element.valueRequired,
         items: ddmi,
       );
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.text) {
@@ -69,6 +77,7 @@ class TaskDetailPage extends StatelessWidget {
           name: element.taskField?.name ?? "",
           fieldId: element.id,
           isText: true,
+          valueRequired: element.valueRequired,
           val: element.stringValue ?? "");
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.number) {
       return Padding(
@@ -77,18 +86,21 @@ class TaskDetailPage extends StatelessWidget {
           name: element.taskField?.name ?? "",
           fieldId: element.id,
           isText: false,
+              valueRequired: element.valueRequired,
           val: "${element.doubleValue ?? 0.0}"));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.checkbox) {
       return Padding(
           padding: const EdgeInsets.only(left:16.0, right:8.0),
           child:TaskFieldCheckboxCard(
-          name: element.taskField?.name ?? "",
-          fieldId: element.id,
+            name: element.taskField?.name ?? "",
+            fieldId: element.id,
+            valueRequired: element.valueRequired,
           val: element.boolValue ?? false));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.picture) {
       return TaskFieldPictureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
+          valueRequired: element.valueRequired,
           files: element.fileValueList,
           appFilesDirectory: appFilesDirectory);
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.signature) {
@@ -97,7 +109,8 @@ class TaskDetailPage extends StatelessWidget {
         child:TaskFieldSignatureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
-          files: element.fileValueList,
+            valueRequired: element.valueRequired,
+            files: element.fileValueList,
           appFilesDirectory: appFilesDirectory),
       );
     } else
@@ -994,6 +1007,50 @@ class TaskDetailPage extends StatelessWidget {
             buttons.add(
               InkWell(
                   onTap: () {
+                    print("element.nextStatus.systemStatusId ${element.nextStatus.systemStatusId}");
+                    if(element.nextStatus.systemStatusId==7)
+                    {
+                    List<String> errors = [];
+                    state.task.propsList?.forEach((prop) {
+                      if (prop.tab == 2 && prop.valueRequired) {
+                        if (prop.taskField?.type.value ==
+                            TaskFieldTypeEnum.signature &&
+                            (prop.fileValueList?.length ?? 0) == 0
+                            || prop.taskField?.type.value ==
+                                TaskFieldTypeEnum.text && (prop.stringValue
+                                ?.trim()
+                                ?.length ?? 0) == 0
+                            || prop.taskField?.type.value ==
+                                TaskFieldTypeEnum.checkbox &&
+                                !(prop.boolValue ?? false)
+                            || prop.taskField?.type.value ==
+                                TaskFieldTypeEnum.picture &&
+                                (prop.fileValueList?.length ?? 0) == 0
+                            || prop.taskField?.type.value ==
+                                TaskFieldTypeEnum.number &&
+                                (prop.doubleValue == null)
+                            || prop.taskField?.type.value ==
+                                TaskFieldTypeEnum.optionlist &&
+                                (prop.selectionValue?.id == null)
+                        ) {
+                          print("error: ${prop.taskField?.name}");
+                          errors.add(prop.taskField?.name ?? "");
+                        }
+                      }
+                    });
+                    if (errors.length > 0) {
+                      Fluttertoast.showToast(
+                          msg: "${AppLocalizations.of(context)!
+                              .requiredFielsIsNeeded}: ${errors.join(", ")}",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 4,
+                          fontSize: 16.0
+                      );
+                      return;
+                    }
+                  }
+
                     if ((element.resolutions?.length ?? 0) > 0 ||
                         element.commentInput == true ||
                         element.timeChanging == true ||
@@ -1021,6 +1078,9 @@ class TaskDetailPage extends StatelessWidget {
                                   required String comment}) {
                                 print(
                                     "createdTime $time, manualTime $manualTime");
+
+
+                                //print("${errors.length}");
                                 BlocProvider.of<TaskBloc>(context)
                                   ..add(ChangeTaskStatus(
                                     status: element.nextStatus.id,

@@ -19,11 +19,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TaskFieldTextCard extends StatefulWidget {
   final String name;
+  final bool valueRequired;
   final int fieldId;
   final bool isText;
   String val;
 
-  TaskFieldTextCard({required this.name, required this.fieldId, required this.val, required this.isText});
+  TaskFieldTextCard({required this.name, required this.fieldId, required this.val, required this.isText, required this.valueRequired});
 
   @override
   State<StatefulWidget> createState() {
@@ -84,7 +85,8 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
        padding: const EdgeInsets.only(left:16.0,right:16.0),
        child: TextField(
           decoration: InputDecoration(
-            labelText: widget.name,
+            //labelText: widget.name,
+            label: Row(children: [Text(widget.name),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),)],),
             border: UnderlineInputBorder(),
             suffixIcon: _controller.text.length>0?IconButton(
               icon: Icon(Icons.cancel),
@@ -122,10 +124,11 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
 class TaskFieldCheckboxCard extends StatefulWidget {
   final String name;
   final int fieldId;
+  final bool valueRequired;
   //final bool isText;
   bool val;
 
-  TaskFieldCheckboxCard({required this.name, required this.fieldId, required this.val});
+  TaskFieldCheckboxCard({required this.name, required this.fieldId, required this.val, required this.valueRequired});
 
   @override
   State<StatefulWidget> createState() {
@@ -234,8 +237,9 @@ class TaskFieldSelectionCard extends StatefulWidget {
   final String name;
   final List<DropdownMenuItem<int>> items;
   final int fieldId;
+  final bool valueRequired;
   dynamic? val;
-  TaskFieldSelectionCard({required this.name, required this.fieldId, required this.val, required this.items});
+  TaskFieldSelectionCard({required this.name, required this.fieldId, required this.val, required this.items, required this.valueRequired});
 
   @override
   State<StatefulWidget> createState() {
@@ -267,7 +271,8 @@ class _taskFieldSelectionState extends State<TaskFieldSelectionCard> {
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
               //isDense: true,
-              labelText: "${widget.name}",
+              //labelText: "${widget.name}",
+              label: Row(children: [Text(widget.name),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),)],),
               suffixIcon: widget.val?.id!=null?IconButton(
                 icon: Icon(Icons.cancel),
                 onPressed: (){
@@ -302,13 +307,15 @@ class _taskFieldSelectionState extends State<TaskFieldSelectionCard> {
 class TaskFieldPictureCard extends StatefulWidget {
   final String name;
   final int fieldId;
+  final bool valueRequired;
   final String appFilesDirectory;
   final List<FileModel>? files;
+
 
   //final bool isText;
   //String val;
 
-  TaskFieldPictureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory});
+  TaskFieldPictureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory, required this.valueRequired});
 
   @override
   State<StatefulWidget> createState() {
@@ -367,7 +374,8 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
 
     return Column(
       children: [
-        Text("${widget.name} (${widget.files?.length??0})"),
+        Row(children: [Text(widget.name),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),),Text("(${widget.files?.length??0})")],),
+        //Text("${widget.name} (${widget.files?.length??0})"),
         SizedBox(height: 8,),
         SingleChildScrollView(
           reverse: true,
@@ -442,13 +450,14 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
 class TaskFieldSignatureCard extends StatefulWidget {
   final String name;
   final int fieldId;
+  final bool valueRequired;
   final String appFilesDirectory;
   final List<FileModel>? files;
 
   //final bool isText;
   //String val;
 
-  TaskFieldSignatureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory});
+  TaskFieldSignatureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory, required this.valueRequired});
 
   @override
   State<StatefulWidget> createState() {
@@ -513,11 +522,13 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
     }
     ).toList();
     //print("signature ${widget.files?.first?.id}");
-    final int size = (widget.files?.first.size??0)~/1024;
+    final int size = (widget.files?.isNotEmpty??false)?(widget.files?.first.size??0)~/1024:0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("${widget.name}"),
+        //Text("${widget.name}"),
+        Row(children: [Text(widget.name),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),),Text("(${widget.files?.length??0})")],),
+
         SizedBox(height: 8,),
         (widget.files?.length??0)==0?ElevatedButton(
           onPressed: () async {

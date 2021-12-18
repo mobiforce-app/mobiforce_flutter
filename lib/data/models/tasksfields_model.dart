@@ -14,7 +14,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 class TasksFieldsModel extends TasksFieldsEntity
 {
 
-  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,fileValueList,tab, tabServerId, updateByToken}): super(
+  TasksFieldsModel({required id,required usn,required serverId,taskFieldId, elementLocalId,  parentLocalId, sort, taskField, task, selectionValue,boolValue,doubleValue,stringValue,fileValueList,tab, tabServerId, updateByToken, required valueRequired}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -23,6 +23,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       sort:sort,
       taskField:taskField,
       task:task,
+      valueRequired:valueRequired,
       taskFieldId:taskFieldId,
       selectionValue:selectionValue,
       boolValue:boolValue,
@@ -45,6 +46,7 @@ class TasksFieldsModel extends TasksFieldsEntity
     map['element_id'] = elementLocalId;
     map['task_field'] = taskFieldId;
     map['sort'] = sort;
+    map['required'] = valueRequired?1:0;
     map['task'] = task?.id;
     map['tasks_fields_tab'] = tab;
 
@@ -104,7 +106,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       {
         //print("add files to base");
         await Future.forEach(fileValueList!, (FileModel element) async {
-          element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0);
+          element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0, valueRequired: false);
           //print("file extId ${element.serverId}");
           //element.
           await element.insertToDB(db);
@@ -115,7 +117,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       {
         //print("add files to base");
         await Future.forEach(fileValueList!, (FileModel element) async {
-          element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0);
+          element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0, valueRequired: false);
           //print("file extId ${element.serverId}");
           //element.
           await element.insertToDB(db);
@@ -179,6 +181,7 @@ class TasksFieldsModel extends TasksFieldsEntity
         parentLocalId: map['parent_id'],
         elementLocalId: map['element_id'],
         sort: map['sort'],
+        valueRequired: map['required']==1?true:false,
         tab:map['tasks_fields_tab'],
         taskField:taskField,
         task:TaskModel.fromMap(taskMap: {"external_id":map['task_external_id']??0,"id":map['task_id']}, statusMap: null),
@@ -242,6 +245,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       elementLocalId: int.parse(json["element"]??"0"),
       parentLocalId: int.parse(json["parent"]??"0"),
       sort: int.parse(json["sorting"]??"0"),
+      valueRequired: json["required"]==true?true:false,
       taskField: taskField,
       selectionValue: optionList,
       tabServerId:tabServerId,

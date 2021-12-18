@@ -105,7 +105,7 @@ class TaskLifeCycleNodeModel extends TaskLifeCycleNodeEntity
         usn: map['usn'],
         serverId: map['external_id'],
         resolutionGroup: ResolutionGroupModel(id:map['resolution_group'],name: "", serverId: 0, usn: 0),
-        nextStatus: TaskStatusModel(id:map['next_status_id'],name:map['next_status_name'],color:map['next_status_color'],serverId:0),
+        nextStatus: TaskStatusModel(id:map['next_status_id'],systemStatusId:map["next_status_system_status_id"],name:map['next_status_name'],color:map['next_status_color'],serverId:0),
         currentStatus: TaskStatusModel(id:map['current_status_id'],serverId:0),
         commentInput: (map['comment_input'] == 1),
         commentRequired: (map['comment_required'] == 1),

@@ -28,7 +28,7 @@ class DBProvider {
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=1;
+  final int dbVersion=2;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;
@@ -160,6 +160,7 @@ class DBProvider {
             'element_id INTEGER, '
             'task_field INTEGER, '
             'tasks_fields_tab INTEGER, '
+            'required INTEGER, '
             'sort INTEGER'
             ')');
     print('CREATE TABLE IF NOT EXISTS  $tasksFieldsTable ('
@@ -436,6 +437,7 @@ class DBProvider {
         final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
             "t1.id as field_id, "
             "t2.external_id as field_external_id, "
+            "t2.required as field_required, "
             "t3.id as id, "
             "t3.link_object as link_object,"
             "t3.usn as usn, "
@@ -827,6 +829,7 @@ class DBProvider {
         "t1.current_status as current_status_id, "
         "t2.id as next_status_id,"
         "t2.external_id as next_status_external_id,"
+        "t2.system_status_id as next_status_system_status_id,"
         "t2.name as next_status_name,"
         "t2.color as next_status_color "
         "FROM $taskLifeCycleNodeTable as t1 "
