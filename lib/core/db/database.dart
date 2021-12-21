@@ -437,7 +437,7 @@ class DBProvider {
         final List<Map<String,dynamic>> tasksFieldsFilesMapList = await db.rawQuery("SELECT  "
             "t1.id as field_id, "
             "t2.external_id as field_external_id, "
-            "t2.required as field_required, "
+            "t1.required as field_required, "
             "t3.id as id, "
             "t3.link_object as link_object,"
             "t3.usn as usn, "

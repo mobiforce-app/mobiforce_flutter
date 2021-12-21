@@ -589,6 +589,8 @@ class TaskDetailPage extends StatelessWidget {
                                             builder: (context) => StatusEditor(
                                                 manualTime: DateTime.fromMillisecondsSinceEpoch(
                                                     element.manualTime * 1000),
+                                                createdTime: DateTime.fromMillisecondsSinceEpoch(
+                                                    element.createdTime * 1000),
                                                 name: element.status.name,
                                                 resolution: element.resolution,
                                                 commentInput: element.commentInput,
@@ -638,7 +640,8 @@ class TaskDetailPage extends StatelessWidget {
                                     child: Container(
                                       //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
                                       decoration: BoxDecoration(
-                                        color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                        //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                        border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
                                         borderRadius: BorderRadius.circular(4),
 
                                       ),

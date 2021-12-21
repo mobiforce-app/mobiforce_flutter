@@ -10,5 +10,5 @@ abstract class FullSyncRepository{
   Future<Either<Failure, SyncEntity>>getNext(int syncId);
   Future<bool>setComplete();
   Future<bool>commit();
-  Future<bool>restartFullSync({required int lastSyncTime});
+  Future<bool>restartFullSync({int lastSyncTime});
 }

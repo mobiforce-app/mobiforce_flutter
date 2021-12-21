@@ -84,6 +84,11 @@ class TasksStatusesModel extends TasksStatusesEntity
     if(status.id==0)
       status.id = await status.insertToDB(db);
 
+    if(resolution!=null && resolution?.id==0) {
+      print("update resolution ${resolution?.serverId}");
+      resolution?.id = await resolution!.insertToDB(db);
+    }
+
     dynamic t = await db.insertTasksStatuses(this);
     //print ("status db id == ${t.id}");
     if(t.id==0){
@@ -130,7 +135,7 @@ class TasksStatusesModel extends TasksStatusesEntity
     //print('TasksStatusesModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     TaskStatusModel status = TaskStatusModel.fromJson({"id":json["taskStatusId"],"name":json['description'],"color":json['color']});
-
+    print("resolution ${json["resolution"].toString()}");
     return TasksStatusesModel(
         id: 0,
         //statusId: 0,
@@ -145,9 +150,10 @@ class TasksStatusesModel extends TasksStatusesEntity
         lat: double.tryParse(json["lat"]??"0.0")??0.0,
         lon: double.tryParse(json["lon"]??"0.0")??0.0,
         task: TaskModel(id:0,serverId: 0),
-        manualTime: int.parse(json["manualTime"]??"0"),
+        manualTime: json["manualTime"]!=null?int.parse(json["manualTime"]??"0"):int.parse(json["time"]??"0"),
         //lat: double.tryParse(map['lat']),
         //lon: double.tryParse(map['lon']),
+        resolution: json["resolution"].runtimeType. toString()=='_InternalLinkedHashMap<String, dynamic>'?ResolutionModel.fromJson(json["resolution"]):null,
         comment: json['comment'],
         commentInput: json['commentInput']??false,
         commentRequired: json['commentRequired']??false,

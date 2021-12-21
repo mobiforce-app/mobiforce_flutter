@@ -23,7 +23,7 @@ class ResolutionModel extends ResolutionEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  ResolutionModel({required id,required usn,required serverId,required name, client, color, required resolutionGroup}): super(
+  ResolutionModel({required id,required usn,required serverId,required name, client, color, resolutionGroup}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -51,13 +51,15 @@ class ResolutionModel extends ResolutionEntity
       //print ("db id == ${t.toString()}");
     }
 
-    await db.deleteResolutuionGroupRelation(t.id);
-    Future.forEach(resolutionGroup, (ResolutionGroupModel element) async {
-      int resolutionGroupId = await element.insertToDB(db);
-      await db.insertResolutuionGroupRelation(t.id,resolutionGroupId);
-    });
+    if(resolutionGroup!=null) {
+      await db.deleteResolutuionGroupRelation(t.id);
+      Future.forEach(resolutionGroup!, (ResolutionGroupModel element) async {
+        int resolutionGroupId = await element.insertToDB(db);
+        await db.insertResolutuionGroupRelation(t.id, resolutionGroupId);
+      });
+    }
     //print ("db id == ${t.id}");
-    return 0;
+    return t.id;
   }
   factory ResolutionModel.fromMap({required Map<String, dynamic> map, List<Map<String, dynamic>> mapResolutionsList = const[]})
   {
@@ -82,7 +84,7 @@ class ResolutionModel extends ResolutionEntity
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         color: json["color"]??"",
-        resolutionGroup:json["resolutionGroups"]!=null?(json["resolutionGroups"] as List).map((person) => ResolutionGroupModel.fromJson(person)).toList():<ResolutionGroupModel>[],
+        resolutionGroup:json["resolutionGroups"]!=null?(json["resolutionGroups"] as List).map((person) => ResolutionGroupModel.fromJson(person)).toList():null,
         //client: json["client"]??"",
         //address: json["address"]??""
     );

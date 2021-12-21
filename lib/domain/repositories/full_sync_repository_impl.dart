@@ -86,7 +86,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
 
   }
   @override
-  Future<bool>restartFullSync({required int lastSyncTime}) async {
+  Future<bool>restartFullSync({int? lastSyncTime = null}) async {
 
     domain=sharedPreferences.getString("domain")??"";
     print("load domain $domain");
@@ -100,7 +100,8 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
 
     await sharedPreferences.setBool("full_sync", true);
     print("last_sync_time = $lastSyncTime");
-    await sharedPreferences.setInt("last_sync_time", lastSyncTime);
+    if(lastSyncTime!=null)
+      await sharedPreferences.setInt("last_sync_time", lastSyncTime);
     syncDataLength = 0;
     syncDataProgress = 0;
     fullSyncObjectsTypeId=0;

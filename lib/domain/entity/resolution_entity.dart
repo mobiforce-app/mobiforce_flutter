@@ -6,7 +6,7 @@ class ResolutionEntity{
   int serverId;
   String name;
   String? color;
-  List<ResolutionGroupModel> resolutionGroup;
+  List<ResolutionGroupModel>? resolutionGroup;
   //String? client;
   //String? address;
  // String address;
@@ -18,7 +18,7 @@ class ResolutionEntity{
       required this.name,
       this.color,
       required this.usn,
-      required this.resolutionGroup//, this.address, this.client///, required this.subdivision
+      this.resolutionGroup//, this.address, this.client///, required this.subdivision
   });
   fromMap(Map<String, dynamic> map)
   {

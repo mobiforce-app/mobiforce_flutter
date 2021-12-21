@@ -1,10 +1,10 @@
 {
-    "tasksPageHeader": "Tasks",
-    "taskPageHeader": "Task",
+    "tasksPageHeader": "Задачи",
+    "taskPageHeader": "Задача",
     "goToNextTaskStasus":"Перевести задачу в статус",
     "editTaskStatus":"Редактировать статус",
     "taskStatusComment":"Комментарий",
-    "taskStatusResolution":"Причина",
+    "taskStatusResolution":"Резолюция",
     "taskStatusEditingCancel":"Отмена",
     "pictureNotDownloaded":"Изображение не загружено",
     "fileSizeKB":"Кб",
@@ -36,6 +36,7 @@
     "taskNoPhones":"Телефоны не указаны",
     "taskContacts":"Контакты",
     "taskNewStatus":"Выберите новый статус",
+    "taskNewStatusConfirmDialogHeader":"Перевести задачу в статус",
     "taskNewStatusAccept":"Перевести",
     "taskTabComments":"Комментарии",
     "taskTabMain":"Основное",
@@ -46,5 +47,9 @@
     "pictureWidgetEmpty":"Нет фоточек",
     "signatureWidgetEnterButton":"Ввести подпись",
     "mobiforce":"МОБИФОРС",
-    "taskStatusHistory":"История"
+    "taskStatusHistory":"История",
+    "requiredFielsIsNeeded":"Не заполнены обязательные поля отчета",
+    "resolution":"Резолюция",
+    "workflow":"Рабочий процесс"
+
 }

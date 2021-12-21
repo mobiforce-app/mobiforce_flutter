@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
@@ -34,6 +35,7 @@ class StatusEditor extends StatefulWidget {
   bool? commentRequired;
   bool? dateChanging;
   DateTime? manualTime;
+  DateTime? createdTime;
   //bool forceStatusChanging;
   List<ResolutionModel>? resolutions;
   ResolutionEntity? resolution;
@@ -52,6 +54,7 @@ class StatusEditor extends StatefulWidget {
     this.dateChanging,
     required this.acceptButton,
     this.manualTime,
+    this.createdTime,
     this.resolutions,
     this.resolution,
     required this.acceptCallback,
@@ -146,6 +149,8 @@ class _StatusEditorState extends State<StatusEditor> {
      }
      else
      {
+       final DateFormat formatter = DateFormat('dd.MM.yyyy HH:mm');
+
        wlist.add(
            Padding(
                padding: const EdgeInsets.all(16.0),
@@ -154,7 +159,7 @@ class _StatusEditorState extends State<StatusEditor> {
                  children: [
                    Text(AppLocalizations.of(context)!.editTaskStatus,
                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                   Text("11.11.2021 13:00",
+                   Text(formatter.format(widget.createdTime??DateTime.now()),
                      style: TextStyle(fontSize: 14, color: Colors.black26),),
                  ],
                ))
@@ -269,18 +274,28 @@ class _StatusEditorState extends State<StatusEditor> {
 
       if((widget.resolution?.id??0)>0) {
         wlist.add(
+
             Padding(
                 padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
-                child: Container(
-                    decoration: BoxDecoration(
-                      color: HexColor.fromHex("${widget.resolution?.color??"#FFFFFF"}"),
-                      borderRadius: BorderRadius.circular(4),
-
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(AppLocalizations.of(context)!.resolution,
+                         style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
-                    child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.resolution?.name??""),
-                ))
+                    SizedBox(height: 4,),
+                    Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color:HexColor.fromHex("${widget.resolution?.color??"#FFFFFF"}"),width: 1),
+                          borderRadius: BorderRadius.circular(4),
+
+                        ),
+                        child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(widget.resolution?.name??""),
+                    )),
+                  ],
+                )
             )
         );
 

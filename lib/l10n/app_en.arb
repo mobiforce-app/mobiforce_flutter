@@ -4,7 +4,7 @@
     "goToNextTaskStasus":"Перевести задачу в статус",
     "editTaskStatus":"Редактировать статус",
     "taskStatusComment":"Комментарий",
-    "taskStatusResolution":"Причина",
+    "taskStatusResolution":"Резолюция",
     "taskStatusEditingCancel":"Отмена",
     "pictureNotDownloaded":"Изображение не загружено",
     "fileSizeKB":"Кб",
@@ -36,6 +36,7 @@
     "taskNoPhones":"Телефоны не указаны",
     "taskContacts":"Контакты",
     "taskNewStatus":"Выберите новый статус",
+    "taskNewStatusConfirmDialogHeader":"Перевести задачу в статус",
     "taskNewStatusAccept":"Перевести",
     "taskTabComments":"Комментарии",
     "taskTabMain":"Основное",
@@ -47,6 +48,9 @@
     "signatureWidgetEnterButton":"Ввести подпись",
     "mobiforce":"МОБИФОРС",
     "taskStatusHistory":"История",
+    "requiredFielsIsNeeded":"Не заполнены обязательные поля отчета",
+    "resolution":"Резолюция",
+    "workflow":"Workflow",
 
 
     "@helloWorld": {

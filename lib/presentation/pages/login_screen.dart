@@ -67,7 +67,7 @@ class LoginPage extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(AppLocalizations.of(context)!.loginPageAutorizationErrorMessage,style: TextStyle(color: Colors.red),),
                       ):Container()),
-                      (state is LoginWaitingServerAnswer?Padding(padding: const EdgeInsets.all(8.0),
+                      (state is LoginWaitingServerAnswer?Padding(padding: const EdgeInsets.all(16.0),
                         child: Center(child: CircularProgressIndicator(),),):
                       RaisedButton(onPressed: () async {
                         if(_formKey.currentState!.validate()) {
