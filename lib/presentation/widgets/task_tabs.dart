@@ -8,6 +8,7 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TaskTabs extends StatefulWidget {
   //final String name;
@@ -50,7 +51,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              Text('Task'),
+              Text(AppLocalizations.of(context)!.taskPageHeader),
               Text('${widget.taskNumber}',
                   style: TextStyle(
                       fontSize: 12,)

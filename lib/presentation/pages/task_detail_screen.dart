@@ -382,7 +382,7 @@ class TaskDetailPage extends StatelessWidget {
         if (state is StartLoadingTaskPage)
           return Scaffold(
               appBar: AppBar(
-                title: Text('Task'),
+                title: Text(AppLocalizations.of(context)!.taskPageHeader),
                 centerTitle: true,
               ),
               body: LinearProgressIndicator());
@@ -462,22 +462,34 @@ class TaskDetailPage extends StatelessWidget {
 
           List<Widget> list = [
             Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Text(
-                  "${plannedVisitTimeString} ",
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600),
-                ),
+                  Expanded(
+
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    //child: Flexible(
+                     // child: Container(
+                       // color: Colors.red,
+                        child: Text(
+                          "${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
+                          overflow: TextOverflow.ellipsis,
+                          //softWrap: false,
+                          //maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600),
+                        ),
+                     // ),
+                   // ),
+
               ),
+                  ),
               Padding(
                 //alignment:Alignment.topRight,
                 //color: const Color(0xffe67e22),
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: const EdgeInsets.fromLTRB(0, 16, 16, 0),
                 child: InkWell(
                     onTap: (){
                       List<Widget> buttons = [
@@ -547,10 +559,12 @@ class TaskDetailPage extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,7 +582,7 @@ class TaskDetailPage extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                                             child: Text(
-                                              "${element.status.name}",
+                                              "${element.status.name?.toUpperCase()}",
                                               //textAlign: TextAlign.start,
                                               style: TextStyle(
                                                 fontSize: 16,
@@ -580,7 +594,7 @@ class TaskDetailPage extends StatelessWidget {
 
                                       ),
                                           SizedBox(
-                                            height: 2.0,
+                                            height: 6.0,
                                           ),
                                           Text(
                                             "$formatted",
@@ -593,7 +607,7 @@ class TaskDetailPage extends StatelessWidget {
                                             ),
                                           ),
                                           SizedBox(
-                                            height: 8.0,
+                                            height: 2.0,
                                           ),
 
                                         ],
@@ -607,7 +621,14 @@ class TaskDetailPage extends StatelessWidget {
                                       ((element.commentInput??false)||
                                           (element.timeChanging??false)||
                                           (element.dateChanging??false))?
+                                      //false?
                                       ElevatedButton(
+                                        style: ButtonStyle(
+                                          //   padding: MaterialStateProperty.all<EdgeInsets>(
+                                          //       EdgeInsets.all(2)),
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+                                        ),
                                         // style: ButtonStyle(
                                         //   padding: MaterialStateProperty.all<EdgeInsets>(
                                         //       EdgeInsets.all(2)),
@@ -678,20 +699,24 @@ class TaskDetailPage extends StatelessWidget {
                                     ],
                                   ),(element.resolution?.name.length??0)>0?
                                   Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
-                                        height:16.0,
-                                        width: 16.0,
-                                        decoration: BoxDecoration(
-                                          color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
-                                          //border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
-                                          borderRadius: BorderRadius.circular(8),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top:6.0, left:6.0),
+                                        child: Container(
+                                          //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                          height:8.0,
+                                          width: 8.0,
+                                          decoration: BoxDecoration(
+                                            color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                            //border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
+                                            borderRadius: BorderRadius.circular(8),
 
+                                          ),
                                         ),
                                       ),
                                       Padding(
-                                          padding: const EdgeInsets.only(left:8.0),
+                                          padding: const EdgeInsets.only(left:6.0),
                                           child:
                                              Text(
 
@@ -900,13 +925,14 @@ class TaskDetailPage extends StatelessWidget {
           RegExp exp = RegExp(r"[^+ 0-9]+");
           int phoneCount=0;
           List<Widget> phonesWidget=[];
-          if ((state.task.phones?.length??0) != 0) {
+//          if ((state.task.phones?.length??0) != 0) {
             phonesWidget.add(
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
+                      padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
                       child: Text(
                         AppLocalizations.of(context)!.taskPhones,
                         style: TextStyle(
@@ -926,41 +952,49 @@ class TaskDetailPage extends StatelessWidget {
                 )
             );
 
-            phoneCount+=(state.task.phones?.length??0);
-            List<Widget> phones = state.task.phones!.map((e) => InkWell(
-              onTap: (){
-                launch("tel:${e.name.replaceAll(exp, '')}");
-              },
-              child: Align(
-                alignment: Alignment.topLeft,//(
-                //color:Colors.green,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
-                        child: Icon(Icons.phone)
+            //phoneCount+=(state.task.phones?.length??0);
+            List<Widget> phones = [];
+            if(state.task.phones!=null)
+            state.task.phones!.forEach((e) {
+              final tel=e.name.replaceAll(exp, '').trim();
+              if(tel.length>0) {
+                phones.add(InkWell(
+                  onTap: () {
+                    launch("tel:${e.name.replaceAll(exp, '')}");
+                  },
+                  child: Align(
+                    alignment: Alignment.topLeft, //(
+                    //color:Colors.green,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                      child: Row(
+                        children: [
+                          Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                              child: Icon(Icons.phone)),
+                          Text(
+                            "${e.name} ",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
                       ),
-                      Text(
-                        "${e.name} ",
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            )).toList();
+                ));
+                phoneCount++;
+              }
+            });
 
             phonesWidget.addAll(phones);
-          }
+  //        }
           if (state.task.persons != null) {
             state.task.persons?.forEach((element) {
-              phoneCount+=(element.phones?.length??0);
-              String? phoneStr = element.phones?.map((e) => e.name).join(", ");
+              //phoneCount+=(element.phones?.length??0);
+              //String? phoneStr = element.phones?.map((e) => e.name).join(", ");
               phonesWidget.add(Padding(
                 padding:  const EdgeInsets.fromLTRB(16.0,8.0,16.0,0.0),
                 child: Text(
@@ -972,20 +1006,26 @@ class TaskDetailPage extends StatelessWidget {
                 ),
               )
               );
+              List<Widget> phones = [];
+
               if((element.phones?.length??0)!=0) {
-                List<Widget> phones = element.phones!.map((e) =>
-                    InkWell(
-                      onTap: (){//${e.name.replaceAll(exp, '')
+                element.phones!.forEach((e) {
+                  if(e.name.replaceAll(exp, '').trim().length>0)
+                  {
+                    phones.add(InkWell(
+                      onTap: () { //${e.name.replaceAll(exp, '')
                         launch("tel:${e.name.replaceAll(exp, '')}");
                       },
                       child: Align(
                         alignment: Alignment.topLeft,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
+                          padding: const EdgeInsets.fromLTRB(
+                              8.0, 8.0, 8.0, 8.0),
                           child: Row(
                             children: [
                               Padding(
-                                  padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,8.0),
+                                  padding: const EdgeInsets.fromLTRB(
+                                      8.0, 8.0, 8.0, 8.0),
                                   child: Icon(Icons.phone)
                               ),
                               Text(
@@ -999,9 +1039,14 @@ class TaskDetailPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                    )).toList();
-                phonesWidget.addAll(phones);
+                    )
+                    );
+                    phoneCount++;
+                  }
+                });
               }
+              if(phones.length>0)
+                phonesWidget.addAll(phones);
               else{
                 phonesWidget.add(
                     Padding(
@@ -1183,7 +1228,7 @@ class TaskDetailPage extends StatelessWidget {
                                   required String comment}) {
                                 print(
                                     "createdTime $time, manualTime $manualTime");
-                                if(resolution?.id==null){
+                                if(resolution?.id==null&&(element.resolutions?.length??0)>0){
                                   Fluttertoast.showToast(
                                       msg: "${AppLocalizations.of(context)!
                                           .errorEmpltyResolutionNotAllowed

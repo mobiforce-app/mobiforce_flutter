@@ -58,6 +58,7 @@ class TaskCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8.0,4.0,8.0,4.0,),
             child: Text(
     "${task.status?.name}",
+
       style: TextStyle(
             fontSize: 14,
             color: Colors.black,
@@ -112,13 +113,19 @@ class TaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
               children:[
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
 
                   children:[
-                    Text('$plannedVisitTimeString', style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        ),),
+                    Expanded(
+                      child: Text('${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))}', style: TextStyle(
+                          color: Colors.black,
+                          overflow: TextOverflow.ellipsis,
+                          fontSize: 18,
+                          ),),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
                     statusField
                   ],),
                 SizedBox(
