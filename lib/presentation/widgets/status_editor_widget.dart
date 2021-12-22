@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
@@ -30,6 +32,8 @@ class StatusEditor extends StatefulWidget {
   //final bool isText;
   //TaskLifeCycleNodeEntity element;
   String? name;
+
+  bool edit;
   bool? commentInput;
   bool? timeChanging;
   bool? commentRequired;
@@ -39,7 +43,9 @@ class StatusEditor extends StatefulWidget {
   //bool forceStatusChanging;
   List<ResolutionModel>? resolutions;
   ResolutionEntity? resolution;
-  TaskStatusEntity? nextStatus;
+  TasksStatusesEntity? prevStatus;
+  TasksStatusesEntity? nextStatus;
+  TaskStatusEntity? currentStatus;
   String acceptButton;
   String comment;
 
@@ -47,6 +53,8 @@ class StatusEditor extends StatefulWidget {
 
   StatusEditor({
     this.name,
+    this.prevStatus,
+    this.currentStatus,
     this.nextStatus,
     this.commentInput,
     this.timeChanging,
@@ -57,6 +65,7 @@ class StatusEditor extends StatefulWidget {
     this.createdTime,
     this.resolutions,
     this.resolution,
+    required this.edit,
     required this.acceptCallback,
     required this.comment,
   });
@@ -92,11 +101,15 @@ class _StatusEditorState extends State<StatusEditor> {
         "element.dateChanging: ${widget.dateChanging}||"
         //"element.forceStatusChanging: ${widget.forceStatusChanging} "
         "element.resolution: ${widget.resolution?.id}"
-        "element.resolutionList: ${widget.resolutions}");
+        "element.resolutionList: ${widget.resolutions}"
+        "element.edit: ${widget.edit==true?"true":"false"}"
+        "oldManualTime: ${widget.prevStatus?.manualTime}"
+        "nextManualTime: ${widget.nextStatus?.manualTime}"
+    );
     //
 
     List<Widget> wlist = [];
-     if(widget.nextStatus!=null) {
+     if(widget.edit!=true){//nextStatus!=null) {
        wlist.add(
            Padding(
                padding: const EdgeInsets.all(16.0),
@@ -114,38 +127,7 @@ class _StatusEditorState extends State<StatusEditor> {
            )
 
        );
-       wlist.add(
-         Padding(
-           padding: const EdgeInsets.all(8.0),
-           child: Align(
-             alignment: Alignment.topCenter,
-             child:  Row(
-               mainAxisAlignment: MainAxisAlignment.center,
-               children: [
-                 Container(
-                   //height: 16,
-                   //width: 16,
-                   decoration: BoxDecoration(
-                     color: HexColor.fromHex("${widget.nextStatus?.color}"),
-                     borderRadius: BorderRadius.circular(16),
-                   ),
-                   padding: const EdgeInsets.all(8.0),
-                   margin:  const EdgeInsets.only(right:8.0),
-                 ),
-                 Text("${widget.nextStatus?.name}",
-                   textAlign: TextAlign.center,
-                   style: TextStyle(fontSize: 24,
-                           fontWeight: FontWeight.bold),
-                   //),
-                 ),
-               ],
-             ),
-
-
-         ),
-
-        )
-       );
+       print("currentStat ${widget.prevStatus?.id}");
      }
      else
      {
@@ -175,32 +157,276 @@ class _StatusEditorState extends State<StatusEditor> {
            )
 
        );
-       wlist.add(
-         Row(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: [
-             Container(
-               height: 16,
-               width:16,
-               decoration: BoxDecoration(
-                   color: Colors.green,
-                   borderRadius: BorderRadius.circular(16)),
-               //margin: const EdgeInsets.only(right: 8.0),
-             ),
-             Padding(
-               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-               child: Align(
-                 alignment: Alignment.topCenter,
-                 child: Text("${widget.name}",
-                   textAlign: TextAlign.center,
-                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-               ),
-             ),
-           ],
-         ),
+     }
+     if(widget.prevStatus!=null) {
+       final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
 
+       wlist.add(
+           Stack(
+             children: [
+               Padding(
+                 padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
+                 child: Center(
+                   child: Container(
+                     //height: 16,
+                     //width: 16,
+                     decoration: BoxDecoration(
+                       //border: Border.all(color: HexColor.fromHex(
+                       //    "${widget.currentStatus?.status.color}")),
+                       color: HexColor.fromHex("${widget.prevStatus?.status.color}"),
+                       borderRadius: BorderRadius.circular(16),
+                     ),
+                     padding: const EdgeInsets.symmetric(
+                         vertical: 4.0, horizontal: 8.0),
+                     //margin: const EdgeInsets.only(right: 8.0),
+                     child:
+                     Text("${widget.prevStatus?.status.name?.toUpperCase()}",
+                       textAlign: TextAlign.center,
+                       style: TextStyle(fontSize: 16,
+                           //color: Colors.black45,
+                           fontWeight: FontWeight.bold
+                       ), //fontWeight: FontWeight.bold),
+                       //),
+                     ),
+
+                   ),
+                 ),
+
+               ),
+               Container(
+               height: 30,
+               //color: Colors.red,
+                   decoration: BoxDecoration(
+                     gradient: LinearGradient(
+                         colors: [Color.fromRGBO(250, 250, 250, 1), Color.fromRGBO(250, 250, 250, 0.7), Color.fromRGBO(250, 250, 250, 0.0)],
+                         //stops: [1, 1, 1, 1],
+                         begin: Alignment.topCenter,
+                         end: Alignment.bottomCenter),
+                   )
+               )
+             ],
+           )
+       );
+       DateTime currentStatusTime = DateTime.fromMillisecondsSinceEpoch(
+           widget.prevStatus!.manualTime * 1000
+       );
+       DateTime newtime = DateTime(
+           manualTime.year, manualTime.month, manualTime.day, manualTime.hour,
+           manualTime.minute);
+       DateTime oldtime = DateTime(
+           currentStatusTime.year, currentStatusTime.month,
+           currentStatusTime.day, currentStatusTime.hour,
+           currentStatusTime.minute);
+
+       Duration difference = newtime.difference(oldtime);
+       // String durationDays=difference.inDays>0?"${difference.inDays} д":"";
+       // String durationHours=difference.inHours>0?"${difference.inHours.remainder(24)} ч":"";
+       // String durationMinutes=difference.inMinutes>0?"${difference.inMinutes.remainder(60)} мин":"";
+       List<String> times = [];
+       if (difference.inDays > 0) times.add("${difference.inDays} ${AppLocalizations.of(context)!
+           .dayShortName}");
+       if (difference.inHours.remainder(24) > 0) times.add(
+           "${difference.inHours.remainder(24)} ${AppLocalizations.of(context)!
+               .hourShortName}");
+       if (difference.inMinutes.remainder(60) > 0 || difference.inDays == 0 &&
+           difference.inHours.remainder(24) == 0) times.add(
+           "${difference.inMinutes.remainder(60)} ${AppLocalizations.of(context)!
+               .minuteShortName}");
+
+       wlist.add(
+           Row(
+               mainAxisAlignment: MainAxisAlignment.start,
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Expanded(
+                   child: Container(),
+                 ),
+                 Expanded(
+                     child: Align(
+                       alignment: Alignment.topLeft,
+                       child: Padding(
+                         padding: const EdgeInsets.symmetric(
+                             horizontal: 0.0, vertical: 8.0),
+                         child: Container(
+                           decoration: BoxDecoration(
+                               border: Border(left: BorderSide(
+                                   width: 1.0, color: Colors.black12),)
+                           ),
+                           child: //Padding(
+                             //padding: const EdgeInsets.all(8.0),
+                           //  child:
+                           Container(
+                                 decoration: BoxDecoration(
+                                   //border: Border.all(width: 1.0, color: Colors
+                                   //    .black12),
+                                   borderRadius: BorderRadius.circular(8),
+                                 ),
+                                 child:
+                                 Padding(
+                                   padding: const EdgeInsets.symmetric(
+                                       horizontal: 8.0, vertical: 4.0),
+                                   child: Text("${times.join(" ")}",
+                                       style: TextStyle(color: Colors.black45)),
+                                 )),
+                           ),
+                       //  ),
+                       ),
+                     )
+                 )
+               ]
+           )
+         // Column(
+         //   children: [
+         //     Icon(Icons.arrow_drop_down,
+         //       size: 32,
+         //       color: Colors.black45
+         //       ,
+         //     ),
+         //     Row(
+         //       mainAxisAlignment: MainAxisAlignment.center,
+         //         children: [
+         //                      // Expanded(
+         //                      //   child: Padding(
+         //                      //     padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 4),
+         //                      //     child: Text("", style: TextStyle( fontWeight: FontWeight.bold),),
+         //                      //   ),
+         //                      // ),
+         //                      // Icon(Icons.arrow_drop_down,
+         //                      //     size: 48,
+         //                      //   color: Colors.black45
+         //                      //   ,
+         //                      // ),
+         //                      //Expanded(
+         //                        //child: Padding(
+         //                          //padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 4),
+         //     //                     child:
+         //     Text("$durationDays $durationHours $durationMinutes", style: TextStyle(color: Colors.black45 ),),
+         //       //                 ),
+         //         //             )
+         //           ]
+         //     ),
+         //     Icon(Icons.arrow_drop_down,
+         //       size: 32,
+         //       color: Colors.black45
+         //       ,
+         //     ),
+         //
+         //   ],
+         // )
+         //      Column(
+         //        children: [
+         //          Container(
+         //            decoration: BoxDecoration(
+         //                border: Border.all(
+         //                   width: 1.0, color: Colors.black12)
+         //            ),
+         //              child: Container(height: 16,width: 0,
+         //              )
+         //          ),
+         //          SizedBox(height: 4.0,),
+         //          Container(
+         //            decoration: BoxDecoration(
+         //                border: Border.all(width: 1.0, color: Colors.black12),
+         //                borderRadius: BorderRadius.circular(8),
+         //            ),
+         //              child: Padding(
+         //                padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 4),
+         //                child: Text("$durationDays $durationHours $durationMinutes", style: TextStyle( fontWeight: FontWeight.bold),),
+         //              )
+         //          ),
+         //          SizedBox(height: 4.0,),
+         //          Container(
+         //              decoration: BoxDecoration(
+         //                  border: Border.all(
+         // width: 1.0, color: Colors.black12),
+         //
+         //              ),
+         //              child: Container(height: 0,width: 0,
+         //              )
+         //          ),
+         //          Stack(
+         //            alignment: AlignmentDirectional.topCenter,
+         //              children: [
+         //            Container(
+         //                decoration: BoxDecoration(
+         //                  border: Border.all(
+         //                      width: 1.0, color: Colors.black12),
+         //                ),
+         //                child: Container(height: 16,width: 0,
+         //                )
+         //            ),
+         //            Padding(
+         //              padding: const EdgeInsets.only(top:8.0),
+         //              child: Icon(Icons.arrow_drop_down,
+         //                  size: 24,
+         //                  color: Colors.black12,
+         //              ),
+         //            )]),
+         //          Container(),
+         //        ],
+         //      )
        );
      }
+
+    wlist.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8.0,8.0, 8.0, 8.0),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child:  Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  //height: 16,
+                  //width: 16,
+                  decoration: BoxDecoration(
+                    color: HexColor.fromHex("${widget.currentStatus?.color}"),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                  //margin:  const EdgeInsets.only(right:8.0),
+                  child: Text("${widget.currentStatus!.name!.toUpperCase()}",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 24,
+                        fontWeight: FontWeight.bold),
+                    //),
+                  ),
+                ),
+
+              ],
+            ),
+
+
+          ),
+
+        )
+    );
+    /*wlist.add(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 16,
+            width:16,
+            decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(16)),
+            //margin: const EdgeInsets.only(right: 8.0),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Text("${widget.name}",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+            ),
+          ),
+        ],
+      ),
+
+    );
+    */
     //  wlist.add(
     //     Divider(
     //       color: Colors.black12, //color of divider
@@ -217,7 +443,44 @@ class _StatusEditorState extends State<StatusEditor> {
               //controller:_manualTimeController,
               onChange: (DateTime time){
                 print("time: $time");
-                manualTime=time;
+
+
+                if(widget.prevStatus?.manualTime!=null&&(widget.prevStatus?.manualTime??0)>time.millisecondsSinceEpoch/1000){
+                  final DateTime oldStatusTime = DateTime.fromMillisecondsSinceEpoch(
+                      widget.prevStatus!.manualTime * 1000
+                  );
+                  final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
+                  Fluttertoast.showToast(
+                      msg: "${AppLocalizations.of(context)!
+                          .errorOnStatusTimeLessThanAllowed} (${formatterDays.format(oldStatusTime)})",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 10,
+                      fontSize: 16.0
+                  );
+
+                  return;
+                }
+                if(widget.nextStatus?.manualTime!=null&&(widget.nextStatus?.manualTime??0)<time.millisecondsSinceEpoch/1000){
+                  final DateTime nextStatusTime = DateTime.fromMillisecondsSinceEpoch(
+                      widget.nextStatus!.manualTime * 1000
+                  );
+                  final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
+                  Fluttertoast.showToast(
+                      msg: "${AppLocalizations.of(context)!
+                          .errorOnStatusTimeMoreThanAllowed} (${formatterDays.format(nextStatusTime)})",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 10,
+                      fontSize: 16.0
+                  );
+
+                  return;
+                }
+                setState((){
+                  manualTime=time;
+                });
+
               },
               val:manualTime,
               timeChanging:widget.timeChanging??false,
