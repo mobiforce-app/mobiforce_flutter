@@ -482,27 +482,42 @@ class TaskDetailPage extends StatelessWidget {
                     onTap: (){
                       List<Widget> buttons = [
                       ];
-                      buttons.addAll([Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                            children:[
-                        Text(
-                            AppLocalizations.of(context)!.taskStatusHistory,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600),
-                          ),
-                         Text(
-                            "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black45,
-                                ),
-                          ),
-                        ])
-                      ),
+                      buttons.addAll([
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children:[
+                                      Text(
+                                        AppLocalizations.of(context)!.taskStatusHistory,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      Text(
+                                        "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black45,
+                                        ),
+                                      ),
+                                    ])
+                            ),
+                            InkWell(
+                              onTap: ()=>Navigator.pop(context),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Icon(Icons.close, color: Colors.black45,),
+                              ),
+                            )
+                          ],
+                        )
+                        ,
                         Divider(
                           color: Colors.black12, //color of divider
                           height: 1, //height spacing of divider
@@ -887,16 +902,28 @@ class TaskDetailPage extends StatelessWidget {
           List<Widget> phonesWidget=[];
           if ((state.task.phones?.length??0) != 0) {
             phonesWidget.add(
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
-                child: Text(
-                  AppLocalizations.of(context)!.taskPhones,
-                  style: TextStyle(
-                      fontSize: 16,
-                      //color: Colors.black,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,0.0),
+                      child: Text(
+                        AppLocalizations.of(context)!.taskPhones,
+                        style: TextStyle(
+                          fontSize: 16,
+                          //color: Colors.black,
+                        ),
                       ),
-                ),
-              )
+                    ),
+                    InkWell(
+                      onTap: ()=>Navigator.pop(context),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Icon(Icons.close, color: Colors.black45,),
+                      ),
+                    )
+                  ],
+                )
             );
 
             phoneCount+=(state.task.phones?.length??0);

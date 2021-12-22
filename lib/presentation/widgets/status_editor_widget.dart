@@ -151,22 +151,25 @@ class _StatusEditorState extends State<StatusEditor> {
     List<Widget> wlist = [];
      if(widget.edit!=true){//nextStatus!=null) {
        wlist.add(
-           Padding(
-               padding: const EdgeInsets.all(16.0),
-               child: Text(AppLocalizations.of(context)!.taskNewStatusConfirmDialogHeader,
-                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),))
+
+           Row(
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             children: [
+               Padding(
+                   padding: const EdgeInsets.all(16.0),
+                   child: Text(AppLocalizations.of(context)!.taskNewStatusConfirmDialogHeader,
+                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)),
+               InkWell(
+                 onTap: ()=>Navigator.pop(context),
+                 child: Padding(
+                   padding: const EdgeInsets.all(16.0),
+                   child: Icon(Icons.close, color: Colors.black45,),
+                 ),
+               )
+             ],
+           )
        );
        //if(element.timeChanging==true||element.dateChanging==true)
-       wlist.add(
-           Divider(
-             color: Colors.black12, //color of divider
-             height: 1, //height spacing of divider
-             //thickness: 3, //thickness of divier line
-             // indent: 16, //spacing at the start of divider
-             //endIndent: 25, //spacing at the end of divider
-           )
-
-       );
        print("currentStat ${widget.prevStatus?.id}");
      }
      else
@@ -174,30 +177,42 @@ class _StatusEditorState extends State<StatusEditor> {
        final DateFormat formatter = DateFormat('dd.MM.yyyy HH:mm');
 
        wlist.add(
-           Padding(
-               padding: const EdgeInsets.all(16.0),
-               child: Column(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   Text(AppLocalizations.of(context)!.editTaskStatus,
-                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                   Text(formatter.format(widget.createdTime??DateTime.now()),
-                     style: TextStyle(fontSize: 14, color: Colors.black26),),
-                 ],
-               ))
+           Row(
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             children: [
+               Padding(
+                   padding: const EdgeInsets.all(16.0),
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(AppLocalizations.of(context)!.editTaskStatus,
+                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                       Text(formatter.format(widget.createdTime??DateTime.now()),
+                         style: TextStyle(fontSize: 14, color: Colors.black26),),
+                     ],
+                   )),
+               InkWell(
+                 onTap: ()=>Navigator.pop(context),
+                 child: Padding(
+                   padding: const EdgeInsets.all(16.0),
+                   child: Icon(Icons.close, color: Colors.black45,),
+                 ),
+               )
+             ],
+           )
        );
        //if(element.timeChanging==true||element.dateChanging==true)
-       wlist.add(
-           Divider(
-             color: Colors.black12, //color of divider
-             height: 1, //height spacing of divider
-             //thickness: 3, //thickness of divier line
-             // indent: 16, //spacing at the start of divider
-             //endIndent: 25, //spacing at the end of divider
-           )
-
-       );
      }
+      wlist.add(
+          Divider(
+            color: Colors.black12, //color of divider
+            height: 1, //height spacing of divider
+            //thickness: 3, //thickness of divier line
+            // indent: 16, //spacing at the start of divider
+            //endIndent: 25, //spacing at the end of divider
+          )
+
+      );
      if(widget.prevStatus!=null) {
        final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
 
@@ -223,7 +238,7 @@ class _StatusEditorState extends State<StatusEditor> {
                      Text("${widget.prevStatus?.status.name?.toUpperCase()}",
                        textAlign: TextAlign.center,
                        style: TextStyle(fontSize: 16,
-                           //color: Colors.black45,
+                           color: Colors.black45,
                            fontWeight: FontWeight.bold
                        ), //fontWeight: FontWeight.bold),
                        //),
@@ -233,17 +248,17 @@ class _StatusEditorState extends State<StatusEditor> {
                  ),
 
                ),
-               Container(
-               height: 30,
-               //color: Colors.red,
-                   decoration: BoxDecoration(
-                     gradient: LinearGradient(
-                         colors: [Color.fromRGBO(250, 250, 250, 1), Color.fromRGBO(250, 250, 250, 0.7), Color.fromRGBO(250, 250, 250, 0.0)],
-                         //stops: [1, 1, 1, 1],
-                         begin: Alignment.topCenter,
-                         end: Alignment.bottomCenter),
-                   )
-               )
+               // Container(
+               // height: 30,
+               // //color: Colors.red,
+               //     decoration: BoxDecoration(
+               //       gradient: LinearGradient(
+               //           colors: [Color.fromRGBO(250, 250, 250, 1), Color.fromRGBO(250, 250, 250, 0.7), Color.fromRGBO(250, 250, 250, 0.0)],
+               //           //stops: [1, 1, 1, 1],
+               //           begin: Alignment.topCenter,
+               //           end: Alignment.bottomCenter),
+               //     )
+               // )
              ],
            )
        );
@@ -665,23 +680,23 @@ class _StatusEditorState extends State<StatusEditor> {
                 ),
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.grey,
-                    //minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                      AppLocalizations.of(context)!.taskStatusEditingCancel
-                  ),
-                ),
-              ),
-            )
+            // Expanded(
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(8.0),
+            //     child: ElevatedButton(
+            //       style: ElevatedButton.styleFrom(
+            //         primary: Colors.grey,
+            //         //minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
+            //       ),
+            //       onPressed: () {
+            //         Navigator.pop(context);
+            //       },
+            //       child: Text(
+            //           AppLocalizations.of(context)!.taskStatusEditingCancel
+            //       ),
+            //     ),
+            //   ),
+            // )
           ],),
       )
       );
