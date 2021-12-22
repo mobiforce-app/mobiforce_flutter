@@ -43,6 +43,18 @@ class _dateTimeInputState extends State<DateTimeInput> {
   //_controller.text="20";
   int checkTimeBounds(int currentTime,int? prevTime,int? nextTime, BuildContext context){
     //return 0;
+    if(currentTime>DateTime.now().millisecondsSinceEpoch~/1000){
+      Fluttertoast.showToast(
+          msg: "Введенная дата не может быть больше текущего временеи"
+          ,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 10,
+          fontSize: 16.0
+      );
+      return 1;
+    }
+
     int error=0;
     print("prevTime $prevTime, nextTime $nextTime, currentTime $currentTime");
     if(prevTime!=null&&prevTime>currentTime)
@@ -185,6 +197,7 @@ class _dateTimeInputState extends State<DateTimeInput> {
                      DateTime tempDt = DateTime.utc(
                          dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);
                      print("${DateTime.now().timeZoneOffset}");
+
                      tempDt = tempDt.subtract((DateTime.now().timeZoneOffset)).toLocal();
                      if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
                        print("manual dt $tempDt");
