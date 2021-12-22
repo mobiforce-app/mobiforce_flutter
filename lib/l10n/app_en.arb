@@ -51,6 +51,11 @@
     "requiredFielsIsNeeded":"Не заполнены обязательные поля отчета",
     "resolution":"Резолюция",
     "workflow":"Workflow",
+    "dayShortName":"д",
+    "hourShortName":"ч",
+    "minuteShortName":"мин",
+    "errorOnStatusTimeLessThanAllowed":"Нельзя установить дату смены текущего статуса раньше, чем дата смены предыдущего статуса",
+    "errorOnStatusTimeMoreThanAllowed":"Нельзя установить дату смены текущего статуса посзже, чем дата смены последующего статуса",
 
 
     "@helloWorld": {

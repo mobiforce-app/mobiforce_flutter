@@ -23,9 +23,12 @@ class DateTimeInput extends StatefulWidget {
   DateTime val;
   bool timeChanging;
   bool dateChanging;
+  int? prevStatusTime;
+  int? nextStatusTime;
+
   void Function(DateTime time) onChange;
 
-  DateTimeInput({required this.val,required this.onChange, required this.timeChanging,required this.dateChanging});
+  DateTimeInput({required this.val,required this.onChange, required this.timeChanging,required this.dateChanging,required this.prevStatusTime, required this.nextStatusTime});
 
   @override
   State<StatefulWidget> createState() {
@@ -38,6 +41,33 @@ class _dateTimeInputState extends State<DateTimeInput> {
   //var _needToLoadValue=true;
   //Timer? _debounce;
   //_controller.text="20";
+  int checkTimeBounds(int currentTime,int? prevTime,int? nextTime, BuildContext context){
+    //return 0;
+    int error=0;
+    print("prevTime $prevTime, nextTime $nextTime, currentTime $currentTime");
+    if(prevTime!=null&&prevTime>currentTime)
+      error = -1;
+    if(nextTime!=null&&nextTime<currentTime)
+      error = 1;
+
+    if(error!=0){
+      final DateTime oldStatusTime = DateTime.fromMillisecondsSinceEpoch(
+          currentTime * 1000
+      );
+      final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
+      Fluttertoast.showToast(
+          msg: error<0?
+            "${AppLocalizations.of(context)!.errorOnStatusTimeLessThanAllowed} (${formatterDays.format(oldStatusTime)})"
+            :"${AppLocalizations.of(context)!.errorOnStatusTimeMoreThanAllowed} (${formatterDays.format(oldStatusTime)})"
+          ,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 10,
+          fontSize: 16.0
+      );
+   }
+   return error;
+  }
 
   DateTime? dt;
   @override
@@ -126,9 +156,13 @@ class _dateTimeInputState extends State<DateTimeInput> {
              );
              setState(() {
                //   dt=xdt;
-               dt = DateTime.utc(xdt!.year, xdt.month, xdt.day, dt!.hour,
+               DateTime tempDt = DateTime.utc(xdt!.year, xdt.month, xdt.day, dt!.hour,
                    dt!.minute); //txd!.hour!;
-               widget.onChange(dt!);
+               if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
+                 print("manual dt $tempDt");
+                 dt=tempDt;
+                 widget.onChange(dt!);
+               }
              });
            },
            child: dateWidget
@@ -148,15 +182,18 @@ class _dateTimeInputState extends State<DateTimeInput> {
                  );
                  setState(() {
                    if(txd!.hour!=null) {
-                     dt = DateTime.utc(
+                     DateTime tempDt = DateTime.utc(
                          dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);
                      print("${DateTime.now().timeZoneOffset}");
-                     dt = dt?.subtract((DateTime.now().timeZoneOffset)).toLocal();
-                     //.toLocal();//txd!.hour!;
-                     print("manual dt $dt");
+                     tempDt = tempDt.subtract((DateTime.now().timeZoneOffset)).toLocal();
+                     if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
+                       print("manual dt $tempDt");
+                       dt=tempDt;
+                       widget.onChange(dt!);
+                     }
                    }
 
-                   widget.onChange(dt!);
+
                  });
                },
                child: timeWidget

@@ -443,46 +443,14 @@ class _StatusEditorState extends State<StatusEditor> {
               //controller:_manualTimeController,
               onChange: (DateTime time){
                 print("time: $time");
-
-
-                if(widget.prevStatus?.manualTime!=null&&(widget.prevStatus?.manualTime??0)>time.millisecondsSinceEpoch/1000){
-                  final DateTime oldStatusTime = DateTime.fromMillisecondsSinceEpoch(
-                      widget.prevStatus!.manualTime * 1000
-                  );
-                  final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
-                  Fluttertoast.showToast(
-                      msg: "${AppLocalizations.of(context)!
-                          .errorOnStatusTimeLessThanAllowed} (${formatterDays.format(oldStatusTime)})",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.CENTER,
-                      timeInSecForIosWeb: 10,
-                      fontSize: 16.0
-                  );
-
-                  return;
-                }
-                if(widget.nextStatus?.manualTime!=null&&(widget.nextStatus?.manualTime??0)<time.millisecondsSinceEpoch/1000){
-                  final DateTime nextStatusTime = DateTime.fromMillisecondsSinceEpoch(
-                      widget.nextStatus!.manualTime * 1000
-                  );
-                  final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
-                  Fluttertoast.showToast(
-                      msg: "${AppLocalizations.of(context)!
-                          .errorOnStatusTimeMoreThanAllowed} (${formatterDays.format(nextStatusTime)})",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.CENTER,
-                      timeInSecForIosWeb: 10,
-                      fontSize: 16.0
-                  );
-
-                  return;
-                }
                 setState((){
                   manualTime=time;
                 });
 
               },
               val:manualTime,
+              prevStatusTime:widget.prevStatus?.manualTime,
+              nextStatusTime:widget.nextStatus?.manualTime,
               timeChanging:widget.timeChanging??false,
               dateChanging:widget.dateChanging??false
           )
