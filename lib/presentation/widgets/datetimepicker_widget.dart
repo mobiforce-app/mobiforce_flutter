@@ -41,45 +41,6 @@ class _dateTimeInputState extends State<DateTimeInput> {
   //var _needToLoadValue=true;
   //Timer? _debounce;
   //_controller.text="20";
-  int checkTimeBounds(int currentTime,int? prevTime,int? nextTime, BuildContext context){
-    //return 0;
-    if(currentTime>DateTime.now().millisecondsSinceEpoch~/1000){
-      Fluttertoast.showToast(
-          msg: "Введенная дата не может быть больше текущего временеи"
-          ,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 10,
-          fontSize: 16.0
-      );
-      return 1;
-    }
-
-    int error=0;
-    print("prevTime $prevTime, nextTime $nextTime, currentTime $currentTime");
-    if(prevTime!=null&&prevTime>currentTime)
-      error = -1;
-    if(nextTime!=null&&nextTime<currentTime)
-      error = 1;
-
-    if(error!=0){
-      final DateTime oldStatusTime = DateTime.fromMillisecondsSinceEpoch(
-          currentTime * 1000
-      );
-      final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
-      Fluttertoast.showToast(
-          msg: error<0?
-            "${AppLocalizations.of(context)!.errorOnStatusTimeLessThanAllowed} (${formatterDays.format(oldStatusTime)})"
-            :"${AppLocalizations.of(context)!.errorOnStatusTimeMoreThanAllowed} (${formatterDays.format(oldStatusTime)})"
-          ,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 10,
-          fontSize: 16.0
-      );
-   }
-   return error;
-  }
 
   DateTime? dt;
   @override
@@ -168,13 +129,14 @@ class _dateTimeInputState extends State<DateTimeInput> {
              );
              setState(() {
                //   dt=xdt;
-               DateTime tempDt = DateTime.utc(xdt!.year, xdt.month, xdt.day, dt!.hour,
+               dt = DateTime.utc(xdt!.year, xdt.month, xdt.day, dt!.hour,
                    dt!.minute); //txd!.hour!;
-               if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
-                 print("manual dt $tempDt");
-                 dt=tempDt;
+               dt = dt!.subtract((DateTime.now().timeZoneOffset)).toLocal();
+               //if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
+               //  print("manual dt $tempDt");
+               //  dt=tempDt;
                  widget.onChange(dt!);
-               }
+               //}
              });
            },
            child: dateWidget
@@ -185,7 +147,7 @@ class _dateTimeInputState extends State<DateTimeInput> {
 
      timesList.add(
          Expanded(
-           child: widget.dateChanging==true?InkWell(
+           child: widget.timeChanging==true?InkWell(
                onTap: () async {
                  TimeOfDay? txd = await showTimePicker(
                    context: context,
@@ -194,16 +156,16 @@ class _dateTimeInputState extends State<DateTimeInput> {
                  );
                  setState(() {
                    if(txd!.hour!=null) {
-                     DateTime tempDt = DateTime.utc(
+                     dt = DateTime.utc(
                          dt!.year, dt!.month, dt!.day, txd.hour, txd.minute);
                      print("${DateTime.now().timeZoneOffset}");
 
-                     tempDt = tempDt.subtract((DateTime.now().timeZoneOffset)).toLocal();
-                     if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
-                       print("manual dt $tempDt");
-                       dt=tempDt;
+                     dt = dt!.subtract((DateTime.now().timeZoneOffset)).toLocal();
+                     // if(checkTimeBounds(tempDt.millisecondsSinceEpoch~/1000,widget.prevStatusTime,widget.nextStatusTime, context)==0) { //.toLocal();//txd!.hour!;
+                     //   print("manual dt $tempDt");
+                     //   dt=tempDt;
                        widget.onChange(dt!);
-                     }
+                     //}
                    }
 
 

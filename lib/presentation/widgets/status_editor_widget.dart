@@ -92,6 +92,46 @@ class _StatusEditorState extends State<StatusEditor> {
     super.deactivate();
   }
 
+  int checkTimeBounds(int currentTime,int? prevTime,int? nextTime, BuildContext context){
+    //return 0;
+    if(currentTime>DateTime.now().millisecondsSinceEpoch~/1000){
+      Fluttertoast.showToast(
+          msg: "Введенная дата не может быть больше текущего временеи"
+          ,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 10,
+          fontSize: 16.0
+      );
+      return 1;
+    }
+
+    int error=0;
+    print("prevTime $prevTime, nextTime $nextTime, currentTime $currentTime");
+    if(prevTime!=null&&prevTime>currentTime)
+      error = -1;
+    if(nextTime!=null&&nextTime<currentTime)
+      error = 1;
+
+    if(error!=0){
+      final DateTime oldStatusTime = DateTime.fromMillisecondsSinceEpoch(
+          currentTime * 1000
+      );
+      final DateFormat formatterDays = DateFormat('dd.MM.yyyy HH:mm');
+      Fluttertoast.showToast(
+          msg: error<0?
+          "${AppLocalizations.of(context)!.errorOnStatusTimeLessThanAllowed} (${formatterDays.format(oldStatusTime)})"
+              :"${AppLocalizations.of(context)!.errorOnStatusTimeMoreThanAllowed} (${formatterDays.format(oldStatusTime)})"
+          ,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 10,
+          fontSize: 16.0
+      );
+    }
+    return error;
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -223,6 +263,12 @@ class _StatusEditorState extends State<StatusEditor> {
        // String durationHours=difference.inHours>0?"${difference.inHours.remainder(24)} ч":"";
        // String durationMinutes=difference.inMinutes>0?"${difference.inMinutes.remainder(60)} мин":"";
        List<String> times = [];
+       bool positive = difference.inMinutes>0;
+       if(!positive) {
+         difference = difference.abs();
+         times.add("- ");
+       }
+
        if (difference.inDays > 0) times.add("${difference.inDays} ${AppLocalizations.of(context)!
            .dayShortName}");
        if (difference.inHours.remainder(24) > 0) times.add(
@@ -266,7 +312,7 @@ class _StatusEditorState extends State<StatusEditor> {
                                    padding: const EdgeInsets.symmetric(
                                        horizontal: 8.0, vertical: 4.0),
                                    child: Text("${times.join(" ")}",
-                                       style: TextStyle(color: Colors.black45)),
+                                       style: TextStyle(color: positive?Colors.black45:Colors.red)),
                                  )),
                            ),
                        //  ),
@@ -605,7 +651,11 @@ class _StatusEditorState extends State<StatusEditor> {
                     //minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
                   ),
                   onPressed: (){
+
                     print("widget.resolution ${re?.id}");
+                    if(checkTimeBounds(manualTime.millisecondsSinceEpoch~/1000, widget.prevStatus?.manualTime,widget.nextStatus?.manualTime, context)!=0)
+                      return;
+                    //return;
                     return widget.acceptCallback(time:date, manualTime: manualTime, comment:_controller.text, resolution: re);
                   },
                   child:
