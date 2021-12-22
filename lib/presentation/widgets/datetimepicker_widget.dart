@@ -121,7 +121,7 @@ class _dateTimeInputState extends State<DateTimeInput> {
          child: widget.dateChanging==true?InkWell(
            onTap: () async {
              DateTime? xdt = await showDatePicker(
-                 locale: const Locale('ru'),
+                 //locale: const Locale('ru'),
                  context: context,
                  initialDate: widget.val,
                  firstDate: DateTime(2000),
