@@ -564,7 +564,14 @@ class _StatusEditorState extends State<StatusEditor> {
                 decoration: InputDecoration(
 
                   //border: OutlineInputBorder(),
-                  labelText: AppLocalizations.of(context)!.taskStatusResolution,
+                  label: Row(
+                      children: [
+                        Text(AppLocalizations.of(context)!.taskStatusResolution,),
+                        Text(
+                          " *",
+                          style: TextStyle(color: Colors.red),
+                        )
+                      ])
                 ),
                 items: ddmi,
                 onChanged: (data){

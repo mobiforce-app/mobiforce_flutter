@@ -1139,6 +1139,19 @@ class TaskDetailPage extends StatelessWidget {
                                   required String comment}) {
                                 print(
                                     "createdTime $time, manualTime $manualTime");
+                                if(resolution?.id==null){
+                                  Fluttertoast.showToast(
+                                      msg: "${AppLocalizations.of(context)!
+                                          .errorEmpltyResolutionNotAllowed
+                                      }",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 4,
+                                      fontSize: 16.0
+                                  );
+
+                                  return;
+                                }
 
 
                                 //print("${errors.length}");
