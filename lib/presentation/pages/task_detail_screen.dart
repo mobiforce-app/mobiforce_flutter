@@ -535,28 +535,35 @@ class TaskDetailPage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        height: 16,
-                                        width:16,
-                                        decoration: BoxDecoration(
-                                            color: HexColor.fromHex("${element.status.color}"),
-                                            borderRadius: BorderRadius.circular(16)),
-                                        margin: const EdgeInsets.only(right: 8.0),
-                                      ),
-
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "${element.status.name}",
-                                            //textAlign: TextAlign.start,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              //color: Colors.black,
-                                              //    fontWeight: FontWeight.w600
+
+                                          Container(
+                                        //height: 16,
+                                        //width:16,
+                                        decoration: BoxDecoration(
+                                            color: HexColor.fromHex("${element.status.color}"),
+                                            borderRadius: BorderRadius.circular(16)
+                                        ),
+                                        //margin: const EdgeInsets.only(right: 8.0),
+                                        child:
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                            child: Text(
+                                              "${element.status.name}",
+                                              //textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                //color: Colors.black,
+                                                //    fontWeight: FontWeight.w600
+                                              ),
                                             ),
                                           ),
+
+                                      ),
                                           SizedBox(
                                             height: 2.0,
                                           ),
@@ -570,9 +577,14 @@ class TaskDetailPage extends StatelessWidget {
                                               //    fontWeight: FontWeight.w600
                                             ),
                                           ),
+                                          SizedBox(
+                                            height: 8.0,
+                                          ),
 
                                         ],
                                       ),
+
+
                                       Expanded(
                                         child: Container(),
                                         //width: 8,
@@ -650,31 +662,36 @@ class TaskDetailPage extends StatelessWidget {
 
                                     ],
                                   ),(element.resolution?.name.length??0)>0?
-                                  Padding(
-                                      padding: const EdgeInsets.only(left:24.0),
-                                      child: Container(
+                                  Row(
+                                    children: [
+                                      Container(
                                         //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                        height:16.0,
+                                        width: 16.0,
                                         decoration: BoxDecoration(
-                                          //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
-                                          border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
-                                          borderRadius: BorderRadius.circular(4),
+                                          color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                          //border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
+                                          borderRadius: BorderRadius.circular(8),
 
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
+                                      ),
+                                      Padding(
+                                          padding: const EdgeInsets.only(left:8.0),
+                                          child:
+                                             Text(
 
-                                            "${element.resolution?.name}",style: TextStyle(
+                                               "${element.resolution?.name}",style: TextStyle(
 
 
-                                            fontSize: 16,
-                                            //color: Colors.black45,
-                                            //    fontWeight: FontWeight.w600
-                                          ),),
-                                        ),
-                                      )):Container(),
+                                               fontSize: 16,
+                                               //color: Colors.black45,
+                                               //    fontWeight: FontWeight.w600
+                                             ),),
+                                          ),
+                                    ],
+                                  ):Container(),
                                   (element.comment?.length??0)>0?Padding(
-                                    padding: const EdgeInsets.only(left:24.0),
+                                    padding: const EdgeInsets.only(left:0.0),
                                     child: Text(
 
                                       "${element.comment}",
