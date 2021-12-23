@@ -44,6 +44,7 @@
     "dataWidgetTimeLabel":"Time",
     "dataWidgetEdit":"Edit",
     "pictureWidgetEmpty":"No images",
+    "signatureWidgetEmpty":"No signature",
     "signatureWidgetEnterButton":"Add signature",
     "mobiforce":"Mobiforce",
     "taskStatusHistory":"Statuses history",

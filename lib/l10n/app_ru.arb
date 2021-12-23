@@ -44,6 +44,7 @@
     "dataWidgetTimeLabel":"Время",
     "dataWidgetEdit":"Редактировать",
     "pictureWidgetEmpty":"Нет изображений",
+    "signatureWidgetEmpty":"Подпись не добавлена",
     "signatureWidgetEnterButton":"Ввести подпись",
     "mobiforce":"Мобифорс",
     "taskStatusHistory":"История статусов",

@@ -140,7 +140,7 @@ class TaskDetailPage extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left:16.0),
+          padding: const EdgeInsets.only(left:16.0, top: 4.0),
           child: Align(
             alignment: Alignment.topLeft,
             child: Text(
@@ -286,13 +286,24 @@ class TaskDetailPage extends StatelessWidget {
                 fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)
           )),
       ),
-        SizedBox(height: 8,),
-        SingleChildScrollView(
-          reverse: true,
-          scrollDirection: Axis.horizontal,
-          child: Row(children: photos==null||photos.length==0?[Text(AppLocalizations.of(context)!.pictureWidgetEmpty)]:photos,),
+        photos==null||photos.length==0?
+        Padding(
+          padding: const EdgeInsets.only(left:16.0, top:4),
+          child: Text(AppLocalizations.of(context)!.signatureWidgetEmpty,
+              style: TextStyle(
+                  fontSize: 16, color: Colors.black)
+          ),
+        ):
+        Padding(
+          padding: const EdgeInsets.only(top:8),
+          child: SingleChildScrollView(
+            reverse: true,
+            scrollDirection: Axis.horizontal,
+            child: Row(children: photos,),
+          ),
         ),
       ];
+      // padding: const EdgeInsets.only(left:16.0),
      /* return TaskFieldSignatureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
