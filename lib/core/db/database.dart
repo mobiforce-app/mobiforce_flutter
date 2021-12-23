@@ -933,7 +933,7 @@ class DBProvider {
             " ON t1.lifecycle = t4.id "
             " LEFT JOIN $tasksTemplateTable as t5 "
             " ON t1.template = t5.id "
-            " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.id DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
+            " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.planned_visit_time DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
 
     final List<TaskModel> tasksList = [];
     //await Future.forEach(tasksMapList,(taskMap) async {
