@@ -111,6 +111,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         yield FoL.fold((failure) => TaskError(message: "bad"), (comments) {
           return TaskLoaded(isChanged: isChanged,
             task: task,
+            needToUpdateTaskList: false,
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
             comments: comments,
@@ -121,6 +122,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         {
           yield TaskLoaded(isChanged: isChanged,
               task: task,
+              needToUpdateTaskList: false,
               nextTaskStatuses: nextTaskStatuses,
               appFilesDirectory: dir,
               comments: comments,
@@ -211,6 +213,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
         print("pickedFile ${pickedFile.toString()}");
         yield TaskLoaded(isChanged: isChanged,
+            needToUpdateTaskList: false,
             task: task,
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
@@ -260,6 +263,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             isChanged = !(state as TaskLoaded).isChanged;
             return TaskLoaded(isChanged: isChanged,
                 task: task,
+                needToUpdateTaskList: false,
                 nextTaskStatuses: nextTaskStatuses,
                 appFilesDirectory: dir,
                 comments: []);
@@ -291,7 +295,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             print("picture + ${event.fieldId} ${element.id}");
           });
           syncToServer(ListSyncToServerParams());
-          return TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: []);
+          return TaskLoaded(isChanged:isChanged,
+              needToUpdateTaskList: false,
+              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: []);
         });
         //syncToServer(ListSyncToServerParams());
     }
@@ -322,7 +328,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             print("picture + ${event.fieldId} ${element.id}");
           });
           syncToServer(ListSyncToServerParams());
-          return TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: []);
+          return TaskLoaded(isChanged:isChanged,
+              needToUpdateTaskList: false,
+              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: []);
         });
         //syncToServer(ListSyncToServerParams());
       });
@@ -445,6 +453,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         syncToServer(ListSyncToServerParams());
         comments.insert(0,comment);
         return TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
           task: task,
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
@@ -471,6 +480,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //final faiureOrLoading = await loadFile(LoadFileParams(event.file!));
 
       yield TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
         task: task,
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
@@ -498,6 +508,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
 
         return TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
           task: task,
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
@@ -524,6 +535,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //final faiureOrLoading = await loadFile(LoadFileParams(event.file!));
 
       yield TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
         task: task,
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
@@ -551,6 +563,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
 
         return TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
           task: task,
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
@@ -582,6 +595,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           syncToServer(ListSyncToServerParams());
           comments.insert(0,comment);
           return TaskLoaded(isChanged: isChanged,
+            needToUpdateTaskList: false,
             task: task,
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
@@ -671,6 +685,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           commentChanging:event.commentChanging,
           commentRequired:event.commentRequired,
       ));
+
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
         //this.task = task_readed;
         final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
@@ -679,7 +694,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
           print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
           syncToServer(ListSyncToServerParams());
-          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+          return TaskLoaded(isChanged:true,
+              needToUpdateTaskList: true,
+              task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
 
         });
         //return TaskLoaded(task: task);
@@ -722,7 +739,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
           print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()}");
-          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+          return TaskLoaded(isChanged:true,
+              needToUpdateTaskList: false,
+              task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
         });
         //return TaskLoaded(task: task);
       });

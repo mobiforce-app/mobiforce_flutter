@@ -12,6 +12,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dar
 //import 'package:mobiforce_flutter/domain/usecases/search_task.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
+import 'package:collection/collection.dart';
 //import 'package:dartz/dartz.dart';
 // import 'equatabl'
 class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
@@ -74,6 +75,31 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       print("map event!");
       yield* _mapRefreshTaskToState();
     }
+    else if(event is RefreshCurrenTaskInListTasks){
+      print("RefreshCurrenTaskInListTasks!");
+      final currentState = state;
+      //SyncReady();
+      //yield Stream.fromFutures([wait10()]).listen(listener);
+      var oldTasks = <TaskEntity>[];
+      if(currentState is TaskListLoaded)
+      {
+        oldTasks = currentState.tasksList;
+        TaskEntity? neededTask;
+        neededTask = oldTasks.firstWhereOrNull((element) => element.id == event.task.id);
+        print("try to find task id ${event.task.id}");
+        if(neededTask!=null) {
+          print("task found!");
+          int ind = oldTasks.indexOf(neededTask);
+          print("task found! $ind");
+
+          oldTasks[ind] = event.task;
+          yield TaskListLoaded(tasksList: oldTasks, changed: !currentState.changed);
+        }
+      }
+
+
+      //yield* _mapRefreshTaskToState();
+    }
   }
   Stream<TaskListState> _mapRefreshTaskToState() async*{
     final currentState = state;
@@ -93,7 +119,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       page++;
       //final tasks = (state as TaskListLoading).oldPersonList;
       //tasks.addAll(task);
-      return TaskListLoaded(tasksList: task);
+      return TaskListLoaded(tasksList: task, changed: true);
     });//TaskListLoaded(tasksList: task));
 
 
@@ -119,7 +145,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
               page++;
               final tasks = (state as TaskListLoading).oldPersonList;
               tasks.addAll(task);
-              return TaskListLoaded(tasksList: tasks);
+              return TaskListLoaded(tasksList: tasks, changed: true);
             });//TaskListLoaded(tasksList: task));
 
 

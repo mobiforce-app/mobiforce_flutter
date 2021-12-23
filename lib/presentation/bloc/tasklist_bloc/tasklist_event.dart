@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 
 abstract class TaskListEvent extends Equatable{
   const TaskListEvent();
@@ -34,6 +36,11 @@ class RefreshListTasks extends TaskListEvent
   //final int page;
 
   RefreshListTasks();
+}
+class RefreshCurrenTaskInListTasks extends TaskListEvent
+{
+  TaskEntity task;
+  RefreshCurrenTaskInListTasks({required this.task});
 }
 class GetTaskUpdatesFromServer extends TaskListEvent
 {

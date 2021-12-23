@@ -28,11 +28,12 @@ class TaskListLoading extends TaskListState{
 
 class TaskListLoaded extends TaskListState{
   final List<TaskEntity> tasksList;
+  final bool changed;
 
-  TaskListLoaded({required this.tasksList});
+  TaskListLoaded({required this.tasksList,required this.changed});
 
   @override
-  List<Object> get props => [tasksList];
+  List<Object> get props => [tasksList, changed];
 
 }
 

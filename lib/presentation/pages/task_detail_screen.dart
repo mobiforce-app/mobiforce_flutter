@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +17,8 @@ import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/widgets/comment_input_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/datetimepicker_widget.dart';
@@ -389,6 +392,15 @@ class TaskDetailPage extends StatelessWidget {
         else if (state is TaskLoaded) {
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             // Navigation
+            BuildContext bc=context;
+            //Future.delayed(Duration(seconds: 10),() {
+              if (state.needToUpdateTaskList) {
+                print("reload main page");
+                BlocProvider.of<TaskListBloc>(bc)
+                  ..add(RefreshCurrenTaskInListTasks(task:state.task));
+              }
+            //});
+
             /*BlocProvider.of<TaskListBloc>(context)
                   ..add(RefreshListTasks());
                 Navigator.pushReplacement(context,
