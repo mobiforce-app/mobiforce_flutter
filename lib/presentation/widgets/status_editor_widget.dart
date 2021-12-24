@@ -96,7 +96,7 @@ class _StatusEditorState extends State<StatusEditor> {
     //return 0;
     if(currentTime>DateTime.now().millisecondsSinceEpoch~/1000){
       Fluttertoast.showToast(
-          msg: "Введенная дата не может быть больше текущего временеи"
+          msg: AppLocalizations.of(context)!.errorOnStatusTimeMoreThanCurrentTime
           ,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
