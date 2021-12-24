@@ -711,7 +711,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           if(task_readed.status?.systemStatusId == 1 && (nextTaskStatuses_readed.first.nextStatus.id) > 0){
             var date = new DateTime.now();
             return await _setNewTaskStatus(ChangeTaskStatus(
-              status: nextTaskStatuses_readed?.first.nextStatus.id ?? 0,
+              status: nextTaskStatuses_readed.first.nextStatus.id,
               comment: "",
               createdTime: date,
               manualTime: date,
