@@ -422,7 +422,7 @@ class TaskDetailPage extends StatelessWidget {
             //print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first?.id??0}");
             print("try to add! ${state.task.status?.systemStatusId}");
 
-            if ((state.task.status?.systemStatusId == 1 ||
+            /*if ((state.task.status?.systemStatusId == 1 ||
                     state.task.status?.systemStatusId == 2) &&
                 (state.nextTaskStatuses?.first.nextStatus.id ?? 0) > 0) {
               print("add! ${state.nextTaskStatuses?.first.nextStatus.id}");
@@ -438,7 +438,7 @@ class TaskDetailPage extends StatelessWidget {
                   commentChanging: false,
                   commentRequired: false,
                 ));
-            }
+            }*/
           });
 
           List<List<Widget>> _kTabPages = [[], [], []];
