@@ -40,9 +40,9 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
   _onChanged(String query) {
     setState(()=>{});
     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 5000), () {
+    _debounce = Timer(const Duration(milliseconds: 1000), () {
       // do something with query
-      print("$query");
+      print("EDIT $query");
       _oldValue=query;
       widget.val=query;
       BlocProvider.of<TaskBloc>(context).add(
@@ -116,6 +116,7 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
             );
           },//maxLines: 3,*/
           onChanged: _onChanged,
+         //onEditingComplete: ()=>print("editing complete"),
         ),
      );
   }
