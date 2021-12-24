@@ -124,18 +124,18 @@ class TaskRepositoryImpl implements TaskRepository{
   }
 
   Future<Either<Failure,List<TaskModel>>> _getTasks(Future<List<TaskModel>> Function() getTasks) async {
-    if(await networkInfo.isConnected){
-      try{
+    //if(await networkInfo.isConnected){
+    //  try{
         final remoteTask = await getTasks();//remoteDataSources.searchTask(query);
         return Right(remoteTask);
-      }
-      on ServerException{
-        //!!await Future.delayed(const Duration(seconds: 2), (){});
-        return Left(ServerFailure());
-      }
-    }
-    else
-      return Left(ServerFailure());
+      //}
+      //on ServerException{
+      //  //!!await Future.delayed(const Duration(seconds: 2), (){});
+      //  return Left(ServerFailure());
+      //}
+    //}
+    //else
+      //return Left(ServerFailure());
   }
   /*Future<Either<Failure,<List<TaskEntity>>> _getTasks(Future<List<TaskEntity>> Function() getTasks) async  {
 

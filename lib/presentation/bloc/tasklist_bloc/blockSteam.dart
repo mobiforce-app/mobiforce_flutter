@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
+import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
 class SyncStatus
 {
   //int progress;
@@ -22,10 +24,11 @@ abstract class Model{
 class ModelImpl implements Model{
   int _counter = 0;
   final SyncFromServer syncFromServer;
+  final SyncToServer syncToServer;
   final PushNotificationService fcm;
   bool fcmTokenNotSync = true;
 
-  ModelImpl({required this.syncFromServer,required this.fcm});
+  ModelImpl({required this.syncFromServer,required this.syncToServer,required this.fcm});
 
   SyncStatus s = SyncStatus(syncPhase:SyncPhase.normal);
   //var controller = new StreamController<String>();
@@ -37,7 +40,11 @@ class ModelImpl implements Model{
 
     while(true)
     {
-
+      final fOL = await syncToServer(ListSyncToServerParams());
+      bool completeWithErr=fOL.fold((failure) {return true;},(sync) {return false;});
+      if(completeWithErr)
+        break;
+        //syncFromServer
       final faiureOrLoading = await syncFromServer(ListSyncParams(
         lastSyncTime: 0,
         lastUpdateCount: 0,
@@ -46,6 +53,11 @@ class ModelImpl implements Model{
       print("serversync");
       bool complete=faiureOrLoading.fold((failure) {
         print ("*");
+        //failure.
+        if(failure == NoInternetConnection()) {
+          _streamController.add(SyncStatus(syncPhase:SyncPhase.normalSyncComplete));
+          return true;
+        }
         return false;
       }, (sync) {
         if(sync.sendToken)

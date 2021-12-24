@@ -31,6 +31,7 @@ class SyncToServer extends UseCase<SyncStatusEntity, ListSyncToServerParams>{
       cycle =  faiureOrLoading.fold((failure) {
         //print ("*")
         //return Left(failure);
+        print("Server UPDATE failure");
         return false;
       }, (sync) {
         if(sync==0)

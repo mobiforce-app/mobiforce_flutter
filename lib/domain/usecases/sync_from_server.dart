@@ -33,7 +33,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
 
     final faiureOrLoading = await syncRepository.getUpdates();
     return await faiureOrLoading.fold((failure){
-      //print ("*")
+      print (failure);
       return Left(failure);
     }, (sync) async{
       if (syncRepository.dbCheckVersion(db.dbVersion))

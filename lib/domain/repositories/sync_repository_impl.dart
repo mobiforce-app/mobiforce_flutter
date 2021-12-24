@@ -181,7 +181,9 @@ class SyncRepositoryImpl implements SyncRepository{
       all.sort((a, b) => a.usn.compareTo(b.usn));
       all = all.length > 30 ? all.sublist(0, 30) : all;
       /**/
-      await Future.forEach(all, (QueueToSync element) async {
+      int error=0;
+      for(final QueueToSync element in all){
+      //await Future.forEach(all, (QueueToSync element) async {
         print("usn: ${element.usn}");
         if (element.type == "taskfield") {
           dynamic? val = null;
@@ -241,6 +243,13 @@ class SyncRepositoryImpl implements SyncRepository{
               objectType: "taskfield",
               mapObjects: send
           );
+          if (serverId > 0)
+            ;
+          else{
+            error=1;
+            break;
+          }
+
           print("${serverId} OK");
         }
         else if (element.type == "comment") {
@@ -260,6 +269,11 @@ class SyncRepositoryImpl implements SyncRepository{
           );
           if (serverId > 0)
             db.setTasksStatusServerID(element.object.id, serverId);
+          else{
+            error=2;
+            break;
+          }
+
           print("Status id: ${element.object.id}/${serverId} OK");
         }
         else if (element.type == "taskstatus") {
@@ -288,14 +302,22 @@ class SyncRepositoryImpl implements SyncRepository{
           );
           if (serverId > 0)
             db.setTasksStatusServerID(element.object.id, serverId);
+          else{
+            error=3;
+            break;
+          }
           print("Status id: ${element.object.id}/${serverId} OK");
         }
         sendObjects++;
         print("sendObjects1 $sendObjects");
         localUSN = element.usn;
         await sharedPreferences.setInt("local_usn", localUSN);
-      });
+
+      };
+      if(error!=0)
+        return Left(ServerFailure());
     }
+
     print("sendObjects1 $sendObjects");
     return Right(sendObjects);
   }
@@ -392,7 +414,7 @@ class SyncRepositoryImpl implements SyncRepository{
         }
       }
       else
-        return Left(ServerFailure());
+        return Left(NoInternetConnection());
     }
  /* @override
   Future <void> saveAuthorization(String token) async {

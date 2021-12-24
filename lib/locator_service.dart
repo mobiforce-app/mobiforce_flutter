@@ -129,7 +129,7 @@ Future<void>init() async
       )
   );
   sl.registerLazySingleton<ModelImpl>(
-      () => ModelImpl(syncFromServer:sl(),
+      () => ModelImpl(syncFromServer:sl(),syncToServer:sl(),
           fcm: sl(),
           //remoteDataSources: sl(),
           //networkInfo: sl()

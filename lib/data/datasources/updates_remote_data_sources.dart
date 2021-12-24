@@ -80,12 +80,14 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
       }
       else{
         print("My exception");
-        throw ServerException();
+        return 0;
+        //throw ServerException();
       }
     }
     catch (error) {
       print("error!!! $error");
-      throw ServerException();
+      return 0;
+      //throw ServerException();
     }
     return 0;
   }
