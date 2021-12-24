@@ -278,7 +278,7 @@ class _StatusEditorState extends State<StatusEditor> {
        // String durationHours=difference.inHours>0?"${difference.inHours.remainder(24)} ч":"";
        // String durationMinutes=difference.inMinutes>0?"${difference.inMinutes.remainder(60)} мин":"";
        List<String> times = [];
-       bool positive = difference.inMinutes>0;
+       bool positive = difference.inMinutes>=0;
        if(!positive) {
          difference = difference.abs();
          times.add("- ");
