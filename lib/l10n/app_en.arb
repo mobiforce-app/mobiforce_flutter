@@ -56,5 +56,12 @@
     "minuteShortName":"min",
     "errorOnStatusTimeLessThanAllowed":"Can't set date. Сurrent status date is less than previous status date",
     "errorEmpltyResolutionNotAllowed":"Resolution is required",
-    "errorOnStatusTimeMoreThanAllowed":"Can't set date. Сurrent status date is more than previous status date"
+    "errorOnStatusTimeMoreThanAllowed":"Can't set date. Сurrent status date is more than previous status date",
+    "errorOnStatusTimeMoreThanCurrentTime":"Can't set date. Сurrent status date is more than current date",
+    "taskfieldSyncText":"Task Fileds",
+    "taskstatusSyncText":"Statuses",
+    "resolutionSyncText":"Resolutions",
+    "tasklifecycleSyncText":"Workflows",
+    "taskSyncText":"Tasks",
+    "commentsSyncText":"Comments"
 }

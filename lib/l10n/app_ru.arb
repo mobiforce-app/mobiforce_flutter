@@ -56,5 +56,12 @@
     "minuteShortName":"мин",
     "errorOnStatusTimeLessThanAllowed":"Нельзя установить дату смены текущего статуса раньше, чем дата смены предыдущего статуса",
     "errorEmpltyResolutionNotAllowed":"Не заполнено обязательное поле - резолюция",
-    "errorOnStatusTimeMoreThanAllowed":"Нельзя установить дату смены текущего статуса позже, чем дата смены последующего статуса"
+    "errorOnStatusTimeMoreThanAllowed":"Нельзя установить дату смены текущего статуса позже, чем дата смены последующего статуса",
+    "errorOnStatusTimeMoreThanCurrentTime":"Введенная дата не может быть больше текущего временеи",
+    "taskfieldSyncText":"Поля задач",
+    "taskstatusSyncText":"Статусы",
+    "resolutionSyncText":"Резолюции",
+    "tasklifecycleSyncText":"Рабочие процессы",
+    "taskSyncText":"Задачи",
+    "commentsSyncText":"Комментарии"
 }

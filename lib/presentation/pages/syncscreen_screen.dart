@@ -50,6 +50,15 @@ class SyncPage extends StatelessWidget {
           //return null;
             //}
           if (state is SyncInProgress) {
+            String syncText="";
+            switch(state.objectTypeName) {
+              case "taskfield": syncText=AppLocalizations.of(context)!.taskfieldSyncText;break;
+              case "taskstatus": syncText=AppLocalizations.of(context)!.taskstatusSyncText;break;
+              case "resolution": syncText=AppLocalizations.of(context)!.resolutionSyncText;break;
+              case "tasklifecycle": syncText=AppLocalizations.of(context)!.tasklifecycleSyncText;break;
+              case "task": syncText=AppLocalizations.of(context)!.taskSyncText;break;
+              case "comments": syncText=AppLocalizations.of(context)!.commentsSyncText;break;
+            }
             //tasks = state.tasksList;
             return
               Scaffold(
@@ -66,7 +75,7 @@ class SyncPage extends StatelessWidget {
                     children: [
                       Center(child: CircularProgressIndicator(),),
                       SizedBox(height: 16.0,),
-                      Text("${state.objectTypeName}: ${state.progress}%")
+                      Text("$syncText: ${state.progress}%")
                     ]
                   ),
                 ),
