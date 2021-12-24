@@ -116,6 +116,18 @@ class PushNotificationService {
         var m=di.sl<ModelImpl>();
         m.startUpdate();
         print("message recieve! ${notification.title.toString()} ${notification.hashCode.toString()} ${notification.body.toString()}");
+
+        BigTextStyleInformation bigTextStyleInformation =
+        BigTextStyleInformation(
+          (notification.body??""),//.replaceAll("\n", "<br>"),
+          //htmlFormatBigText: true,
+          contentTitle: notification.title,
+          htmlFormatContentTitle: true,
+          summaryText: notification.title,
+          htmlFormatSummaryText: true,
+        );
+        //const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails('channel_id', 'Channel Name', 'Channel Description', styleInformation: bigTextStyleInformation);
+
         flutterLocalNotificationsPlugin.show(
             notification.hashCode,
             notification.title,
@@ -125,6 +137,7 @@ class PushNotificationService {
                 channel.id,
                 channel.name,
                 channel.description,
+                styleInformation: bigTextStyleInformation
                 //icon: androidSettings,
                 // other properties...
               ),
