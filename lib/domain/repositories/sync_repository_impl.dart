@@ -200,6 +200,10 @@ class SyncRepositoryImpl implements SyncRepository{
             val = taskFieldElement.stringValue;
           }
           else if (taskFieldElement.taskField?.type.value ==
+              TaskFieldTypeEnum.checkbox) {
+            val = taskFieldElement.boolValue;
+          }
+          else if (taskFieldElement.taskField?.type.value ==
               TaskFieldTypeEnum.number) {
             print("serverId: ${taskFieldElement
                 .serverId}, element.selectionValue?.serverId: ${taskFieldElement

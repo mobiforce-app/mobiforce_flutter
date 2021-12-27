@@ -186,11 +186,17 @@ class _taskFieldCheckboxState extends State<TaskFieldCheckboxCard> {
        mainAxisAlignment: MainAxisAlignment.spaceBetween,
        //mainAxisSize: ,
        children: [
-         Flexible(
-           child: Text("${widget.name}",
-               softWrap:true,
+           Flexible(
+            child: Text.rich(
+              TextSpan(
+                children: <TextSpan>[
+                  TextSpan(text: widget.name,),
+                  TextSpan(text: widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),),
+                ],
+              )//text:widget.name,),
+        //    ),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),)],)
+           )
            ),
-         ),
          Checkbox(
             value: _oldValue,
             /*decoration: InputDecoration(
