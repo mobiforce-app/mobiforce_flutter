@@ -1362,7 +1362,7 @@ class TaskDetailPage extends StatelessWidget {
           int phoneCount=0;
           List<Widget> phonesWidget=[];
 //          if ((state.task.phones?.length??0) != 0) {
-            phonesWidget.add(
+           /* phonesWidget.add(
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -1386,7 +1386,7 @@ class TaskDetailPage extends StatelessWidget {
                     )
                   ],
                 )
-            );
+            );*/
 
             //phoneCount+=(state.task.phones?.length??0);
             List<Widget> phones = [];
@@ -1402,7 +1402,7 @@ class TaskDetailPage extends StatelessWidget {
                     alignment: Alignment.topLeft, //(
                     //color:Colors.green,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                      padding: const EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 6.0),
                       child: Row(
                         children: [
                           Padding(
@@ -1432,7 +1432,7 @@ class TaskDetailPage extends StatelessWidget {
               //phoneCount+=(element.phones?.length??0);
               //String? phoneStr = element.phones?.map((e) => e.name).join(", ");
               phonesWidget.add(Padding(
-                padding:  const EdgeInsets.fromLTRB(16.0,8.0,16.0,0.0),
+                padding:  const EdgeInsets.fromLTRB(16.0,16.0,16.0,8.0),
                 child: Text(
                   "${element.name} ",
                   style: TextStyle(
@@ -1515,6 +1515,113 @@ class TaskDetailPage extends StatelessWidget {
           InkWell(
             onTap: () async {
               showModalBottomSheet(
+                //routeSettings: ,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  //isScrollControlled: true,
+                  context: context,
+                  //isDismissible: true,
+                  builder: (BuildContext context) {
+                    /*
+    return Stack(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:[
+                      Text(
+                        AppLocalizations.of(context)!.taskStatusHistory,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black45,
+                        ),
+                      ),
+                    ])
+            ),
+            InkWell(
+              onTap: ()=>Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Icon(Icons.close, color: Colors.black45,),
+              ),
+            )
+          ],
+        ),
+        DraggableScrollableSheet(
+        initialChildSize: 0.5, //set this as you want
+        maxChildSize: 0.8, //set this as you want
+        minChildSize: 0.5, //set this as you want
+        expand: false,
+        builder: (context, scrollController) {
+                                */return Container(
+                      //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                            AppLocalizations.of(context)!.taskPhones,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.w600),
+                                          )
+                                ),
+                                InkWell(
+                                  onTap: ()=>Navigator.pop(context),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Icon(Icons.close, color: Colors.black45,),
+                                  ),
+                                )
+                              ],
+                            )
+                            ,
+                            Divider(
+                              color: Colors.black12, //color of divider
+                              height: 1, //height spacing of divider
+                              //thickness: 3, //thickness of divier line
+                              // indent: 16, //spacing at the start of divider
+                              //endIndent: 25, //spacing at the end of divider
+                            )
+                            ,
+                            Flexible(
+                              child:
+                              /*child:ListView.builder(
+                                     controller: scrollController, // set this too
+                                     itemBuilder: (_, i) =>ListTile(title: Text('Item $i')),
+                                   ),*/
+                              ListView(
+                                //reverse: true,
+
+                                shrinkWrap: true,
+                                children: phonesWidget,
+                              ),
+                            ),
+                          ],
+                        )
+                    );
+                                });
+            //})
+          /*    showModalBottomSheet(
                 //isScrollControlled: true,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -1525,7 +1632,7 @@ class TaskDetailPage extends StatelessWidget {
                           child: Container(
                               child: Wrap(
                                   children: phonesWidget)))));
-
+*/
             },
             child: contactsButtonWidget,
 
