@@ -126,6 +126,7 @@ class TaskFieldCheckboxCard extends StatefulWidget {
   final String name;
   final int fieldId;
   final bool valueRequired;
+
   //final bool isText;
   bool val;
 

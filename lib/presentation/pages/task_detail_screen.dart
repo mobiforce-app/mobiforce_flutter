@@ -216,6 +216,7 @@ class TaskDetailPage extends StatelessWidget {
           isText: false,
           val: "${element.doubleValue ?? 0.0}");*/
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.checkbox) {
+      print("element.boolValue ${element.boolValue} ${element.id}");
       return [Padding(
           padding: const EdgeInsets.only(left:16.0),
           child: Align(
@@ -223,11 +224,13 @@ class TaskDetailPage extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(element.taskField?.name ?? "",
-                  style: TextStyle(
-                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+              Expanded(
+                child: Text(element.taskField?.name ?? "",
+                    style: TextStyle(
+                        fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+              ),
               Checkbox(
-                tristate: true,
+                //tristate: true,
                 value: element.boolValue ?? false,
                 onChanged: null,
               ),
@@ -334,7 +337,7 @@ class TaskDetailPage extends StatelessWidget {
   }
 
   List<Widget> getFieldListByParent(int id, int tab,
-      List<TasksFieldsEntity>? props, String appFilesDirectory, BuildContext context) {
+      List<TasksFieldsEntity>? props, String appFilesDirectory, BuildContext context, int? systemStatusId ) {
     List<Widget> l = [];
     props?.forEach((element) {
       print(
@@ -345,7 +348,7 @@ class TaskDetailPage extends StatelessWidget {
             height: 16,
           ),
         );
-        if((element.tab ?? 0) == 2)
+        if((element.tab ?? 0) == 2&&systemStatusId != 7)
           l.add(getTaskFieldElement(element, appFilesDirectory));
         else
           l.addAll(getTaskFieldElementPassive(element, appFilesDirectory, context));
@@ -1795,7 +1798,9 @@ class TaskDetailPage extends StatelessWidget {
                     element.tab ?? 0,
                     state.task.propsList,
                     state.appFilesDirectory,
-                    context);
+                    context,
+                    state.task.status?.systemStatusId
+                );
                 lst.add(
                   ExpansionTile(
                     //height: 24,
