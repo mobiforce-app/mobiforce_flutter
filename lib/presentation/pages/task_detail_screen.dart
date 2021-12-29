@@ -517,51 +517,11 @@ class TaskDetailPage extends StatelessWidget {
                     onTap: (){
                       List<Widget> buttons = [
                       ];
-                      buttons.addAll([
+//                      buttons.addAll([
+                      buttons.add(SizedBox(height:16.0));
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children:[
-                                      Text(
-                                        AppLocalizations.of(context)!.taskStatusHistory,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      Text(
-                                        "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black45,
-                                        ),
-                                      ),
-                                    ])
-                            ),
-                            InkWell(
-                              onTap: ()=>Navigator.pop(context),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.close, color: Colors.black45,),
-                              ),
-                            )
-                          ],
-                        )
-                        ,
-                        Divider(
-                          color: Colors.black12, //color of divider
-                          height: 1, //height spacing of divider
-                          //thickness: 3, //thickness of divier line
-                         // indent: 16, //spacing at the start of divider
-                          //endIndent: 25, //spacing at the end of divider
-                        )
 
-                      ]);
+//                      ]);
                       var prevStatus=null;
                      // state.task.statuses?.forEach((element)
                         for (var item in state.task.statuses!)
@@ -578,7 +538,327 @@ class TaskDetailPage extends StatelessWidget {
                         height: 24,
                       ),
                     );*/
+                          int ind = state.task.statuses!.indexOf(element)-1;
+                          TasksStatusesEntity? nextStatus=ind>=0?state.task.statuses!.elementAt(ind):null;
+                          ind = state.task.statuses!.indexOf(element)+1;
+                          TasksStatusesEntity? oldStatus=ind<(state.task.statuses?.length??0)?state.task.statuses!.elementAt(ind):null;
+                          List<String> times = [];
+                          print("newtime $item $oldStatus");
+
+                          if(item!=null&&nextStatus!=null){//&&nextStatus.manualTime!=null&&oldStatus.manualTime!=null) {
+
+                            DateTime currentStatusTime = DateTime.fromMillisecondsSinceEpoch(
+                                item.manualTime * 1000
+                            );
+                            DateTime manualTime = DateTime.fromMillisecondsSinceEpoch(
+                                nextStatus.manualTime * 1000
+                            );
+
+                            DateTime newtime = DateTime(
+                                manualTime.year, manualTime.month,
+                                manualTime.day, manualTime.hour,
+                                manualTime.minute);
+                            DateTime oldtime = DateTime(
+                                currentStatusTime.year, currentStatusTime.month,
+                                currentStatusTime.day, currentStatusTime.hour,
+                                currentStatusTime.minute);
+                            Duration difference = newtime.difference(oldtime);
+                            // String durationDays=difference.inDays>0?"${difference.inDays} д":"";
+                            // String durationHours=difference.inHours>0?"${difference.inHours.remainder(24)} ч":"";
+                            // String durationMinutes=difference.inMinutes>0?"${difference.inMinutes.remainder(60)} мин":"";
+                            bool positive = difference.inMinutes >= 0;
+                            if (!positive) {
+                              difference = difference.abs();
+                              times.add("- ");
+                            }
+
+                            if (difference.inDays > 0) times.add(
+                                "${difference.inDays} ${AppLocalizations.of(
+                                    context)!
+                                    .dayShortName}");
+                            if (difference.inHours.remainder(24) > 0) times.add(
+                                "${difference.inHours.remainder(
+                                    24)} ${AppLocalizations.of(context)!
+                                    .hourShortName}");
+                            if (difference.inMinutes.remainder(60) > 0 ||
+                                difference.inDays == 0 &&
+                                    difference.inHours.remainder(24) == 0) times
+                                .add(
+                                "${difference.inMinutes.remainder(
+                                    60)} ${AppLocalizations.of(context)!
+                                    .minuteShortName}");
+                          }
                           buttons.add(
+                              Stack(
+
+                                //crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+
+                                            padding: oldStatus==null?const EdgeInsets.only(top: 8.0):const EdgeInsets.only(top: 0.0),
+                                            child: Container(
+                                              //color:Colors.red,
+                                              width: 19,
+                                              height: nextStatus==null?19:null,
+                                              decoration: const BoxDecoration(
+                                                //color:Colors.red,
+                                                border: Border(
+                                                  right:
+                                                  BorderSide(width: 1.0, color: Colors.grey
+                                                  ),),
+                                                //borderRadius: BorderRadius.only(
+                                                //  topLeft: Radius.circular(8),
+                                                //  topRight: Radius.circular(8),
+                                                //),
+                                              ),
+
+
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(top:8.0, left:16.0),
+                                              child: Column(
+                                                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Text(
+                                                              "${element.status.name?.toUpperCase()}",
+                                                              //textAlign: TextAlign.start,
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                //color: Colors.black,
+                                                                    fontWeight: FontWeight.w600
+                                                              ),
+                                                            ),
+                                                            (element.resolution?.name.length??0)>0?
+                                                            Row(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets.only(top:6.0, left:0.0),
+                                                                  child: Container(
+                                                                    //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                                                    height:8.0,
+                                                                    width: 8.0,
+                                                                    decoration: BoxDecoration(
+                                                                      color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                                                      //border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
+                                                                      borderRadius: BorderRadius.circular(8),
+
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child: Padding(
+                                                                    padding: const EdgeInsets.only(left:6.0),
+                                                                    child:
+                                                                    Column(
+                                                                      crossAxisAlignment: CrossAxisAlignment.start
+                                                                      ,
+                                                                      children: [
+                                                                        Text(
+                                                                          //"${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
+
+                                                                          "${(element.resolution?.name??"").replaceAll(' ', String.fromCharCode(0x00A0))}",
+                                                                          overflow: TextOverflow.ellipsis,
+                                                                          style: TextStyle(
+
+
+                                                                          fontSize: 16,
+                                                                          //color: Colors.black45,
+                                                                          //    fontWeight: FontWeight.w600
+                                                                        ),),
+                                                                        (element.comment?.length??0)>0&&false?Padding(
+                                                                          padding: const EdgeInsets.only(left:0.0),
+                                                                          child: Text(
+
+                                                                            "${element.comment}",
+
+                                                                            //textAlign: TextAlign.start,
+                                                                            style: TextStyle(
+
+
+                                                                              fontSize: 16,
+                                                                              color: Colors.black45,
+                                                                              //    fontWeight: FontWeight.w600
+                                                                            ),
+                                                                          ),
+                                                                        ):Container(),
+
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ):Container(),
+                                                            Text(
+                                                              "$formatted",
+                                                              //textAlign: TextAlign.start,
+                                                              style: TextStyle(
+
+                                                                fontSize: 16,
+                                                                color: Colors.black45,
+                                                                //    fontWeight: FontWeight.w600
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      ((element.commentInput??false)||
+                                                          (element.timeChanging??false)||
+                                                          (element.dateChanging??false))?
+                                                      InkWell(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal:16.0),
+                                                          child: Icon(Icons.edit, color: Colors.grey,),
+                                                        ),
+                                                        onTap:() {
+                                                          int ind = state.task.statuses!.indexOf(element)-1;
+                                                          TasksStatusesEntity? nextStatus=ind>=0?state.task.statuses!.elementAt(ind):null;
+                                                          ind = state.task.statuses!.indexOf(element)+1;
+                                                          TasksStatusesEntity? oldStatus=ind<(state.task.statuses?.length??0)?state.task.statuses!.elementAt(ind):null;
+                                                          showModalBottomSheet(
+                                                              isScrollControlled: true,
+                                                              //fullscreenDialog: true,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(10.0),
+                                                              ),
+                                                              context: context,
+                                                              builder: (context) => StatusEditor(
+                                                                  edit: true,
+                                                                  currentStatus: element.status,
+                                                                  prevStatus: oldStatus,
+                                                                  nextStatus: nextStatus,
+                                                                  manualTime: DateTime.fromMillisecondsSinceEpoch(
+                                                                      element.manualTime * 1000),
+                                                                  createdTime: DateTime.fromMillisecondsSinceEpoch(
+                                                                      element.createdTime * 1000),
+                                                                  name: element.status.name,
+                                                                  resolution: element.resolution,
+                                                                  commentInput: element.commentInput,
+                                                                  timeChanging: element.timeChanging,
+                                                                  commentRequired: element.commentRequired,
+                                                                  dateChanging: element.dateChanging,
+                                                                  comment: element.comment ?? "",
+                                                                  acceptButton: AppLocalizations.of(context)!.taskEditStatusSave,
+                                                                  acceptCallback: (
+                                                                      {required DateTime time,
+                                                                        required DateTime manualTime,
+                                                                        ResolutionEntity? resolution,
+                                                                        required String comment}) {
+                                                                    print(
+                                                                        "time $time, manualTime $manualTime, comment $comment");
+                                                                    BlocProvider.of<TaskBloc>(context)
+                                                                      ..add(ChangeTaskStatus(
+                                                                        id: element.id,
+                                                                        status: element.status.id,
+                                                                        comment: comment,
+                                                                        createdTime:
+                                                                        DateTime.fromMillisecondsSinceEpoch(
+                                                                            element.createdTime * 1000),
+                                                                        manualTime: manualTime,
+                                                                        resolution: resolution?.id,
+                                                                        timeChanging: element.timeChanging ?? false,
+                                                                        dateChanging: element.dateChanging ?? false,
+                                                                        commentChanging: element.commentInput ?? false,
+                                                                        commentRequired:
+                                                                        element.commentRequired ?? false,
+                                                                      ));
+                                                                    Navigator.pop(context);
+                                                                    Navigator.pop(context);
+                                                                  }));
+                                                        },
+                                                      ):Container()
+                                                    ],
+                                                  ),
+                                                  (element.comment?.length??0)>0/*&&(element.resolution?.name.length??0)==0*/?Padding(
+                                                    padding: const EdgeInsets.only(left:0.0),
+                                                    child: Text(
+
+                                                      "${element.comment}",
+
+                                                      //textAlign: TextAlign.start,
+                                                      style: TextStyle(
+
+
+                                                        fontSize: 16,
+                                                        color: Colors.black45,
+                                                        //    fontWeight: FontWeight.w600
+                                                      ),
+                                                    ),
+                                                  ):Container(),
+                                                  //SizedBox(height: 54.0,)
+                                                  times.length>0?Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        // color:Colors.red,
+                                                        border: Border.all(color: Colors.grey, width: 1),
+                                                        borderRadius: BorderRadius.circular(16),
+
+                                                      ),
+
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                                                        child: Text("${times.join(" ")}",style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.grey)),
+                                                      ),
+                                                    ),
+                                                  ):Container(),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          //color: HexColor.fromHex("${element.status.color}"),
+                                          border: Border.all(color: Colors.grey, width: 1),
+                                          borderRadius: BorderRadius.circular(16)
+                                      ),
+                                      child: Container(
+                                        height: 19,
+                                        width:19,
+                                        decoration: BoxDecoration(
+                                            color: HexColor.fromHex("${element.status.color}"),
+                                            border: Border.all(color: Colors.white, width: 4),
+                                            borderRadius: BorderRadius.circular(16)
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  //Positioned.fill(
+                                    //child: Align(
+                                      //alignment: Alignment.bottomLeft,
+                                      //child:
+
+
+                                    //),
+                                  //)
+
+                                ],
+                              )
+                          );
+
+                              /*  buttons.add(
                             Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
@@ -772,8 +1052,8 @@ class TaskDetailPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          );
-                          buttons.add(
+                          );*/
+                          /*buttons.add(
                               Divider(
                                 color: Colors.black12, //color of divider
                                 height: 1, //height spacing of divider
@@ -781,32 +1061,162 @@ class TaskDetailPage extends StatelessWidget {
                                 indent: 16, //spacing at the start of divider
                                 //endIndent: 25, //spacing at the end of divider
                               )
-                          );
+                          );*/
                           print("status ${element.id}");
                           prevStatus=element;
                           //print("status prevStatus ${prevStatus?.id}");
 
                         }
+                      buttons.add(SizedBox(height:8.0));
+
                       //}
                       showModalBottomSheet(
+                        //routeSettings: ,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           //isScrollControlled: true,
                           context: context,
+                          //isDismissible: true,
                           builder: (BuildContext context) {
-                            return SafeArea(
-                                child: SingleChildScrollView(
-                                    child:
-                                Container(
-                                        child: Wrap(
-                                            children: buttons))));});
+                            /*
+    return Stack(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:[
+                      Text(
+                        AppLocalizations.of(context)!.taskStatusHistory,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black45,
+                        ),
+                      ),
+                    ])
+            ),
+            InkWell(
+              onTap: ()=>Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Icon(Icons.close, color: Colors.black45,),
+              ),
+            )
+          ],
+        ),
+        DraggableScrollableSheet(
+        initialChildSize: 0.5, //set this as you want
+        maxChildSize: 0.8, //set this as you want
+        minChildSize: 0.5, //set this as you want
+        expand: false,
+        builder: (context, scrollController) {
+                                */return Container(
+                                  //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                            child: Column(
+                                 mainAxisSize: MainAxisSize.min,
+                                 children: <Widget>[
+
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children:[
+                              Text(
+                                AppLocalizations.of(context)!.taskStatusHistory,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black45,
+                                ),
+                              ),
+                            ])
+                    ),
+                    InkWell(
+                      onTap: ()=>Navigator.pop(context),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Icon(Icons.close, color: Colors.black45,),
+                      ),
+                    )
+                  ],
+                )
+                ,
+                Divider(
+                  color: Colors.black12, //color of divider
+                  height: 1, //height spacing of divider
+                  //thickness: 3, //thickness of divier line
+                  // indent: 16, //spacing at the start of divider
+                  //endIndent: 25, //spacing at the end of divider
+                )
+,
+                                   Flexible(
+                                 child:
+                                   /*child:ListView.builder(
+                                     controller: scrollController, // set this too
+                                     itemBuilder: (_, i) =>ListTile(title: Text('Item $i')),
+                                   ),*/
+                                  ListView(
+                                    reverse: true,
+
+                                    shrinkWrap: true,
+                                   children: buttons,
+                                  ),
+                                 ),
+                                 ],
+                                )
+          );}
+          );
+
+      //)
+        //)
+
+
+
+      //],
+    //);
+                            //);                             //     child: SingleChildScrollView(
+
+                            // return SafeArea(
+                            //
+                            //     child: SingleChildScrollView(
+                            //         child:
+                            //     Container(
+                            //             child: Wrap(
+                            //                 children: buttons))));
+                          //});
 
                     },
                     child: statusField
                 ),
               ),
             ]),
+
+
+
+
+
+
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
@@ -1422,7 +1832,7 @@ class TaskDetailPage extends StatelessWidget {
                   color: Colors.black12,
                   height: 1.0,
                 ),
-              
+
             );
           }
           _kTabPages[0].addAll(propsLists[0]);
