@@ -249,6 +249,7 @@ class TasksFieldsModel extends TasksFieldsEntity
       taskField: taskField,
       selectionValue: optionList,
       tabServerId:tabServerId,
+      boolValue: taskField.type.value==TaskFieldTypeEnum.checkbox?(json["value"]==true?true:false):null,
       doubleValue: taskField.type.value==TaskFieldTypeEnum.number?double.tryParse(json["value"]):null,
       stringValue: taskField.type.value==TaskFieldTypeEnum.text?json["value"]:null,
       fileValueList: fileVL,
