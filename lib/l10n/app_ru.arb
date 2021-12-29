@@ -63,5 +63,7 @@
     "resolutionSyncText":"Резолюции",
     "tasklifecycleSyncText":"Рабочие процессы",
     "taskSyncText":"Задачи",
-    "commentsSyncText":"Комментарии"
+    "commentsSyncText":"Комментарии",
+    "fullSyncRetryCaption": "Ошибка загрузки данных",
+    "fullSyncRetryButton": "Повторить"
 }

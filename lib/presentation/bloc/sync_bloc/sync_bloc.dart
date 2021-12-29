@@ -34,11 +34,19 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
       yield SyncWaitingServerAnswer();
     }
     else if(event is FullSyncingStart){
-      if(!listenerIsInit) {
-        listenerIsInit=true;
+      yield StartFullSyncWindow();
+      print("wait");
+      //await Future.delayed(Duration(seconds: ));
+      //print("listenerIsInit $listenerIsInit");
+      if(!m.hasListener) {
+        //listenerIsInit=true;
+        //print("listenerIsInit $listenerIsInit");
+
         m.counterUpdates.listen((item) {
           print(item.progress);
-          if (item.complete)
+          if (item.error!=null)
+            this.add(FullSyncingError());
+          else if (item.complete)
             this.add(FullSyncingComplete());
           else
             this.add(FullSyncingInProgress(progress:item.progress,objectTypeName: item.syncNameStr));
@@ -51,8 +59,16 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
       m.startUpdate();
       //yield CloseFullSyncWindow();
     }
+    else if(event is FullSyncingReStart){
+      m.startUpdate();
+      //yield CloseFullSyncWindow();
+    }
     else if(event is FullSyncingComplete){
       yield CloseFullSyncWindow();
+    }
+    else if(event is FullSyncingError){
+      print("error ErrorFullSyncWindow");
+      yield ErrorFullSyncWindow();
     }
     else if(event is ReadyToSync){
       yield SyncOK();

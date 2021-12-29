@@ -11,6 +11,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mobiforce_flutter/locator_service.dart' as di;
 
 class SyncPage extends StatelessWidget {
 
@@ -46,18 +47,73 @@ class SyncPage extends StatelessWidget {
                   ));
             });
           }
+          if (state is ErrorFullSyncWindow) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(AppLocalizations.of(context)!.syncPageHeader),
+                centerTitle: true,
+              ),
+              body: Padding(padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Column(
+
+                    //padding: EdgeInsets.all(32.0),
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppLocalizations.of(context)!.fullSyncRetryCaption),
+                        SizedBox(height: 16.0,),
+                        ElevatedButton(
+                          onPressed: () {
+                            //m.startUpdate();
+                            //di.sl<SyncBloc>().add(FullSyncingStart());
+                            BlocProvider.of<SyncBloc>(context).add(
+                                FullSyncingStart()
+                            );
+                          },
+                          child: Text(
+                              AppLocalizations.of(context)!.fullSyncRetryButton
+                          ),
+                        )
+                      ]
+                  ),
+                ),
+              ),
+            );
+          }
+          if (state is StartFullSyncWindow) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(AppLocalizations.of(context)!.syncPageHeader),
+                centerTitle: true,
+              ),
+              body: Padding(padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: CircularProgressIndicator()
+                ),
+              ),
+            );
+          }
 
           //return null;
             //}
           if (state is SyncInProgress) {
+            print ("state.objectTypeName ${state.objectTypeName}");
             String syncText="";
             switch(state.objectTypeName) {
-              case "taskfield": syncText=AppLocalizations.of(context)!.taskfieldSyncText;break;
+              case "taskfield":
+                syncText=AppLocalizations.of(context)!.taskfieldSyncText;
+                print ("state.objectTypeName $syncText");
+
+                break;
               case "taskstatus": syncText=AppLocalizations.of(context)!.taskstatusSyncText;break;
               case "resolution": syncText=AppLocalizations.of(context)!.resolutionSyncText;break;
               case "tasklifecycle": syncText=AppLocalizations.of(context)!.tasklifecycleSyncText;break;
               case "task": syncText=AppLocalizations.of(context)!.taskSyncText;break;
-              case "comments": syncText=AppLocalizations.of(context)!.commentsSyncText;break;
+              case "comments":
+                syncText=AppLocalizations.of(context)!.commentsSyncText;
+                print ("state.objectTypeName $syncText");
+                break;
             }
             //tasks = state.tasksList;
             return

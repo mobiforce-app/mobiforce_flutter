@@ -13,6 +13,10 @@ class SyncOK extends SyncState{}
 
 class CloseFullSyncWindow extends SyncState{}
 
+class ErrorFullSyncWindow extends SyncState{}
+
+class StartFullSyncWindow extends SyncState{}
+
 class SyncWaitingServerAnswer extends SyncState{
  /* final List<TaskEntity> oldPersonList;
   final bool isFirstFetch;

@@ -27,6 +27,11 @@ class FullSyncingStart extends SyncEvent
   //final double progress;
   FullSyncingStart();
 }
+class FullSyncingReStart extends SyncEvent
+{
+  //final double progress;
+  FullSyncingReStart();
+}
 class ReadyToSync extends SyncEvent
 {
   //final double progress;
@@ -36,4 +41,10 @@ class FullSyncingComplete extends SyncEvent
 {
   //final int progress;
   FullSyncingComplete();
+}
+
+class FullSyncingError extends SyncEvent
+{
+  //final int progress;
+  FullSyncingError();
 }

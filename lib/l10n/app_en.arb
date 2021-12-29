@@ -63,5 +63,7 @@
     "resolutionSyncText":"Resolutions",
     "tasklifecycleSyncText":"Workflows",
     "taskSyncText":"Tasks",
-    "commentsSyncText":"Comments"
+    "commentsSyncText":"Comments",
+    "fullSyncRetryCaption": "Data synchronization error",
+    "fullSyncRetryButton": "Retry"
 }
