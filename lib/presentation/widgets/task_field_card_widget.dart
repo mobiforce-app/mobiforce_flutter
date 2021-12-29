@@ -38,13 +38,15 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
   Timer? _debounce;
   //_controller.text="20";
   _onChanged(String query) {
-    setState(()=>{});
+
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 1000), () {
       // do something with query
       print("EDIT $query");
-      _oldValue=query;
-      widget.val=query;
+      setState((){
+        _oldValue=query;
+        widget.val=query;
+      });
       BlocProvider.of<TaskBloc>(context).add(
         ChangeTextFieldValue(fieldId:widget.fieldId,value:query),
       );
@@ -93,8 +95,15 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
               onPressed: (){
                 //  setState((){element.selectionValue=null;});
                 print("press");
-                setState(()=>
-                  _controller.clear()
+                setState((){
+                  _controller.clear();
+                    _oldValue="";
+                    widget.val="query";
+
+                }
+                );
+                BlocProvider.of<TaskBloc>(context).add(
+                  ChangeTextFieldValue(fieldId:widget.fieldId,value:""),
                 );
 //              widget.val  = "";
 
