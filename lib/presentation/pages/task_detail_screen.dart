@@ -1803,6 +1803,7 @@ class TaskDetailPage extends StatelessWidget {
                 );
                 lst.add(
                   ExpansionTile(
+                    initiallyExpanded:true,
                     //height: 24,
                     title: Text(
                         "${element.taskField?.name ?? ''} (${eList.length ~/ 2})"),
