@@ -1187,13 +1187,13 @@ class DBProvider {
       Map<String,dynamic> upd={"status":ts.status.id};
       if(resolution!=null)
         upd["resolution"]=resolution;
-      await db.update(tasksTable, upd, where: 'id =?', whereArgs: [ts.task.id]);
       if(ts.id>0){
         id=ts.id;
         await await db.update(tasksStatusesTable, ts.toMap(), where: 'id =?', whereArgs: [ts.id]);
         //print("update id $id");
       }
       else{
+        await db.update(tasksTable, upd, where: 'id =?', whereArgs: [ts.task.id]);
         id=await db.insert(tasksStatusesTable, ts.toMap());
         //print("insert id $id");
       }
