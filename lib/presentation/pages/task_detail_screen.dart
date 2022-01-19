@@ -9,14 +9,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
+import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
@@ -25,6 +29,8 @@ import 'package:mobiforce_flutter/presentation/widgets/datetimepicker_widget.dar
 import 'package:mobiforce_flutter/presentation/widgets/status_editor_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_template_selector_widget.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -404,6 +410,11 @@ class TaskDetailPage extends StatelessWidget {
               ),
               body: LinearProgressIndicator());
         else if (state is TaskLoaded) {
+          bool editEnabledPlannedVisitTime=state.task.id==0?true:false;
+          bool editEnabledContractor=state.task.id==0?true:false;
+          bool editEnabledAddress=state.task.id==0?true:false;
+          bool saveEnabled=state.task.id==0?true:false;
+          bool editEnabledTemplate=state.task.id==0?true:false;
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             // Navigation
             BuildContext bc=context;
@@ -486,32 +497,101 @@ class TaskDetailPage extends StatelessWidget {
 
 
 
-          List<Widget> list = [
-            Row(
+          List<Widget> list = [/*
+          editEnabledPlannedVisitTime?
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16,16,16,8),
+            child: Container(
+              decoration: const BoxDecoration(
+                //color:Colors.red,
+                border: Border(
+                  bottom:
+                  BorderSide(width: 1.0, color: Colors.grey
+                  ),),
+              ),
+              child:
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+
+                children: [
+                  Expanded(
+                    child:  Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Дата запланированного визита",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black45,
+                            ),
+                          ),
+                          Text(
+                            "${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              //fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        ],),
+
+
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: Icon(Icons.calendar_today, color: Colors.black45,)
+                  ),
+                ],
+              ),
+            ),
+          )
+          :*/
+          SizedBox(height: 16,),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
 
-                child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    //child: Flexible(
-                     // child: Container(
-                       // color: Colors.red,
-                        child: Text(
-                          "${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
-                          overflow: TextOverflow.ellipsis,
-                          //softWrap: false,
-                          //maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600),
+                child:
+                    Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                            Text(
+                            "Дата запланированного визита",
+                            style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black45,
+                            //fontWeight: FontWeight.w600
+                            ),
+                            ),
+                            SizedBox(height: 4,),
+                            Text(
+                              "${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
+                              overflow: TextOverflow.ellipsis,
+                              //softWrap: false,
+                              //maxLines: 1,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                           ],
                         ),
-                     // ),
-                   // ),
 
-              ),
+                    ),
                   ),
+                  editEnabledPlannedVisitTime?Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 24, 0),
+                  child: Icon(Icons.calendar_today, color: Colors.black45,)
+                  ):
+                  Container()
+                  /*
               Padding(
                 //alignment:Alignment.topRight,
                 //color: const Color(0xffe67e22),
@@ -861,210 +941,6 @@ class TaskDetailPage extends StatelessWidget {
                               )
                           );
 
-                              /*  buttons.add(
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-
-                                          Container(
-                                        //height: 16,
-                                        //width:16,
-                                        decoration: BoxDecoration(
-                                            color: HexColor.fromHex("${element.status.color}"),
-                                            borderRadius: BorderRadius.circular(16)
-                                        ),
-                                        //margin: const EdgeInsets.only(right: 8.0),
-                                        child:
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                            child: Text(
-                                              "${element.status.name?.toUpperCase()}",
-                                              //textAlign: TextAlign.start,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                //color: Colors.black,
-                                                //    fontWeight: FontWeight.w600
-                                              ),
-                                            ),
-                                          ),
-
-                                      ),
-                                          SizedBox(
-                                            height: 6.0,
-                                          ),
-                                          Text(
-                                            "$formatted",
-                                            //textAlign: TextAlign.start,
-                                            style: TextStyle(
-
-                                              fontSize: 16,
-                                              color: Colors.black45,
-                                              //    fontWeight: FontWeight.w600
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 2.0,
-                                          ),
-
-                                        ],
-                                      ),
-
-
-                                      Expanded(
-                                        child: Container(),
-                                        //width: 8,
-                                      ),
-                                      ((element.commentInput??false)||
-                                          (element.timeChanging??false)||
-                                          (element.dateChanging??false))?
-                                      //false?
-                                      ElevatedButton(
-                                        style: ButtonStyle(
-                                          //   padding: MaterialStateProperty.all<EdgeInsets>(
-                                          //       EdgeInsets.all(2)),
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-
-                                        ),
-                                        // style: ButtonStyle(
-                                        //   padding: MaterialStateProperty.all<EdgeInsets>(
-                                        //       EdgeInsets.all(2)),
-                                        // ),
-                                        onPressed: () {
-                                          int ind = state.task.statuses!.indexOf(element)-1;
-                                          TasksStatusesEntity? nextStatus=ind>=0?state.task.statuses!.elementAt(ind):null;
-                                          ind = state.task.statuses!.indexOf(element)+1;
-                                          TasksStatusesEntity? oldStatus=ind<(state.task.statuses?.length??0)?state.task.statuses!.elementAt(ind):null;
-                                          showModalBottomSheet(
-                                              isScrollControlled: true,
-                                              //fullscreenDialog: true,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10.0),
-                                              ),
-                                              context: context,
-                                              builder: (context) => StatusEditor(
-                                                  edit: true,
-                                                  currentStatus: element.status,
-                                                  prevStatus: oldStatus,
-                                                  nextStatus: nextStatus,
-                                                  manualTime: DateTime.fromMillisecondsSinceEpoch(
-                                                      element.manualTime * 1000),
-                                                  createdTime: DateTime.fromMillisecondsSinceEpoch(
-                                                      element.createdTime * 1000),
-                                                  name: element.status.name,
-                                                  resolution: element.resolution,
-                                                  commentInput: element.commentInput,
-                                                  timeChanging: element.timeChanging,
-                                                  commentRequired: element.commentRequired,
-                                                  dateChanging: element.dateChanging,
-                                                  comment: element.comment ?? "",
-                                                  acceptButton: AppLocalizations.of(context)!.taskEditStatusSave,
-                                                  acceptCallback: (
-                                                      {required DateTime time,
-                                                        required DateTime manualTime,
-                                                        ResolutionEntity? resolution,
-                                                        required String comment}) {
-                                                    print(
-                                                        "time $time, manualTime $manualTime, comment $comment");
-                                                    BlocProvider.of<TaskBloc>(context)
-                                                      ..add(ChangeTaskStatus(
-                                                        id: element.id,
-                                                        status: element.status.id,
-                                                        comment: comment,
-                                                        createdTime:
-                                                        DateTime.fromMillisecondsSinceEpoch(
-                                                            element.createdTime * 1000),
-                                                        manualTime: manualTime,
-                                                        resolution: resolution?.id,
-                                                        timeChanging: element.timeChanging ?? false,
-                                                        dateChanging: element.dateChanging ?? false,
-                                                        commentChanging: element.commentInput ?? false,
-                                                        commentRequired:
-                                                        element.commentRequired ?? false,
-                                                      ));
-                                                    Navigator.pop(context);
-                                                    Navigator.pop(context);
-                                                  }));
-                                        },
-                                        child: Text(
-                                            AppLocalizations.of(context)!.taskEditStatusEdit
-                                        ),
-                                      ):Container(),
-
-
-
-                                    ],
-                                  ),(element.resolution?.name.length??0)>0?
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(top:6.0, left:6.0),
-                                        child: Container(
-                                          //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
-                                          height:8.0,
-                                          width: 8.0,
-                                          decoration: BoxDecoration(
-                                            color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
-                                            //border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
-                                            borderRadius: BorderRadius.circular(8),
-
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                          padding: const EdgeInsets.only(left:6.0),
-                                          child:
-                                             Text(
-
-                                               "${element.resolution?.name}",style: TextStyle(
-
-
-                                               fontSize: 16,
-                                               //color: Colors.black45,
-                                               //    fontWeight: FontWeight.w600
-                                             ),),
-                                          ),
-                                    ],
-                                  ):Container(),
-                                  (element.comment?.length??0)>0?Padding(
-                                    padding: const EdgeInsets.only(left:0.0),
-                                    child: Text(
-
-                                      "${element.comment}",
-
-                                      //textAlign: TextAlign.start,
-                                      style: TextStyle(
-
-
-                                        fontSize: 16,
-                                        color: Colors.black45,
-                                        //    fontWeight: FontWeight.w600
-                                      ),
-                                    ),
-                                  ):Container(),
-                                ],
-                              ),
-                            ),
-                          );*/
-                          /*buttons.add(
-                              Divider(
-                                color: Colors.black12, //color of divider
-                                height: 1, //height spacing of divider
-                                //thickness: 3, //thickness of divier line
-                                indent: 16, //spacing at the start of divider
-                                //endIndent: 25, //spacing at the end of divider
-                              )
-                          );*/
                           print("status ${element.id}");
                           prevStatus=element;
                           //print("status prevStatus ${prevStatus?.id}");
@@ -1082,49 +958,7 @@ class TaskDetailPage extends StatelessWidget {
                           context: context,
                           //isDismissible: true,
                           builder: (BuildContext context) {
-                            /*
-    return Stack(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:[
-                      Text(
-                        AppLocalizations.of(context)!.taskStatusHistory,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black45,
-                        ),
-                      ),
-                    ])
-            ),
-            InkWell(
-              onTap: ()=>Navigator.pop(context),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Icon(Icons.close, color: Colors.black45,),
-              ),
-            )
-          ],
-        ),
-        DraggableScrollableSheet(
-        initialChildSize: 0.5, //set this as you want
-        maxChildSize: 0.8, //set this as you want
-        minChildSize: 0.5, //set this as you want
-        expand: false,
-        builder: (context, scrollController) {
-                                */return Container(
+                            return Container(
                                   //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
                             child: Column(
                                  mainAxisSize: MainAxisSize.min,
@@ -1212,7 +1046,7 @@ class TaskDetailPage extends StatelessWidget {
                     },
                     child: statusField
                 ),
-              ),
+              ),*/
             ]),
 
 
@@ -1220,76 +1054,196 @@ class TaskDetailPage extends StatelessWidget {
 
 
 
+            ];
+          String clientNameString="";
+          if (state.task.contractor?.id != null) {
+            final String contractorParent = (state.task.contractor?.parent
+                ?.name ?? "").trim();
+            final String contractorName = (state.task.contractor?.name ?? "")
+                .trim();
+            clientNameString=("$contractorParent${contractorParent.length>0?",":""} $contractorName").trim();
+          }
+          else
+            clientNameString=AppLocalizations.of(context)!.taskNoClient;
+
+        if(editEnabledContractor){
+          list.add(
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    //color:Colors.red,
+                    border: Border(
+                      bottom:
+                      BorderSide(width: 1.0, color: Colors.grey
+                      ),),
+                  ),
+                  child:
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+
+                    children: [
+                      Expanded(
+                        child:  Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Клиент",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black45,
+                                ),
+                              ),
+                              Text(
+                                "$clientNameString",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.w600
+                                ),
+                              ),
+                            ],),
+
+
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                          child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
+                      ),
+                    ],
+                  ),
+                ),
+              )
+          );
+        }
+        else {
+          list.add(
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Text(
-                "${state.task.template?.name}",
+                "Клиент",
                 style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600
+                ),
+              ),
+            )
+          );
+          list.add(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Text(
+                clientNameString,
+                style: TextStyle(
+                    fontSize: 18,
                     color: Colors.black,
                 //    fontWeight: FontWeight.w600
                 ),
               ),
-            ),
-            ];
-        if (state.task.contractor?.id != null) {
-          final String contractorParent = (state.task.contractor?.parent?.name??"").trim();
-          final String contractorName = (state.task.contractor?.name??"").trim();
-            list.add(
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Text(
-                  ("$contractorParent${contractorParent.length>0?",":""} $contractorName").trim(),
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                  //    fontWeight: FontWeight.w600
+            )
+          );
+        }
+          String adressStr= "${state.task.address ?? ""} ${state.task.addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task.addressRoom ?? ""} ${state.task.addressInfo ?? ""} ".trim();
+        if(adressStr.length==0)
+          adressStr=AppLocalizations.of(context)!.taskNoAddress;
+    if(editEnabledAddress) {
+      list.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+            child: Container(
+              decoration: const BoxDecoration(
+                //color:Colors.red,
+                border: Border(
+                  bottom:
+                  BorderSide(width: 1.0, color: Colors.grey
+                  ),),
+              ),
+              child:
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+
+                children: [
+                  Expanded(
+                    child:  Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Адрес",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black45,
+                            ),
+                          ),
+                          Text(
+                            "$adressStr",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              //fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        ],),
+
+
+                    ),
                   ),
-                ),
-              )
-            );
-          }
-          else{
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
+                  ),
+                ],
+              ),
+            ),
+          )
+      );
+    }
+        else
+          {
             list.add(
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                   child: Text(
-                    AppLocalizations.of(context)!.taskNoClient,
+                    "Адрес",
                     style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Colors.black,
-                    //    fontWeight: FontWeight.w600
-                    ),
+                        fontWeight: FontWeight.w600),
                   ),
                 )
             );
-          }
-          final String adressStr= "${state.task.address ?? ""} ${state.task.addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task.addressRoom ?? ""} ${state.task.addressInfo ?? ""} ".trim();
-          if(adressStr.length>0)
-            list.add(Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text(
-                adressStr,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                  //    fontWeight: FontWeight.w600
-                ),
-              ),
-            ));
-          else
-            list.add(
-              Padding(
+
+            if(adressStr.length>0)
+              list.add(Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
-                  AppLocalizations.of(context)!.taskNoAddress,
+                  adressStr,
                   style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600),
+                    fontSize: 16,
+                    color: Colors.black,
+                    //    fontWeight: FontWeight.w600
+                  ),
                 ),
-              )
-            );
+              ));
+            else
+              list.add(
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      adressStr,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  )
+              );
+          }
           print("state.task.lat!=null ${(state.task.lat!=null&&state.task.lon!=null)?1:0}");
             final int mapButtonType=(state.task.lat!=null&&state.task.lon!=null&&state.task.lat!=0.0&&state.task.lon!=0.0)?1:((adressStr.length>0)?2:0);
             final Widget mapBottonWidget=Padding(
@@ -1648,7 +1602,116 @@ class TaskDetailPage extends StatelessWidget {
                 children:[mapWidget,phoneWidget]
             ),
           ));
+//          if (propsCounter>0) {
+            list.add(
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                color: Colors.black12,
+                height: 1.0,
+              ),
 
+            );
+//          }
+
+          list.add(
+            editEnabledTemplate?Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+              child: Container(
+                decoration: const BoxDecoration(
+                  //color:Colors.red,
+                  border: Border(
+                    bottom:
+                    BorderSide(width: 1.0, color: Colors.grey
+                    ),),
+                ),
+                child:
+                InkWell(
+                  onTap:(){
+                    showModalBottomSheet(
+                      //isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        context: context,
+                        builder: (BuildContext context) => TaskTemplateSelectionList(
+                            selectCallback:({required TemplateModel template}){
+                                print(template.name);
+                                BlocProvider.of<TaskBloc>(context)
+                                  ..add(SetTaskTemplate(
+                                    template: template
+                                  ));
+                                Navigator.pop(context);
+
+                            }
+                        )
+                    );
+                    BlocProvider.of<TaskTemplateSelectionBloc>(context)
+                      ..add(ReloadTaskTemplateSelection());
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+
+                    children: [
+                      Expanded(
+                        child:  Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Шаблон задачи",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black45,
+                                ),
+                              ),
+                              Text(
+                                "${state.task.template?.name??"Не задан"}",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.w600
+                                ),
+                              ),
+                            ],),
+
+
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                          child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ):
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Text(
+                  "Шаблон задачи",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600
+                  ),
+                ),
+                  SizedBox(height: 4,),
+                  Text(
+                  "${state.task.template?.name}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    //    fontWeight: FontWeight.w600
+                  ),
+                ),]
+              ),
+            ),
+
+          );
           //const List<Widget> n =[];
           /*if (state.task.persons != null) {
             state.task.persons?.forEach((element) {
@@ -1670,6 +1733,596 @@ class TaskDetailPage extends StatelessWidget {
             //SizedBox(width: 20),
           ];
 
+        /*  buttons.add(Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
+              child: Text("Текущий статус",
+                  style: TextStyle(fontSize: 16,
+                      ///fontWeight: FontWeight.w900,
+                      color: Colors.black)),
+            ),
+          ));*/
+          buttons.add(Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child:
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                 Text(AppLocalizations.of(context)!.taskNewStatus,
+                      style: TextStyle(fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black)),
+                  Expanded(child: Container()),
+              ElevatedButton(
+                child:Text("История"),
+                onPressed: () {
+                  List<Widget> buttons = [
+                  ];
+//                      buttons.addAll([
+                  buttons.add(SizedBox(height: 16.0));
+
+
+//                      ]);
+                  var prevStatus = null;
+                  // state.task.statuses?.forEach((element)
+                  for (var item in state.task.statuses!) {
+                    TasksStatusesModel element = item;
+
+                    var date = new DateTime.fromMillisecondsSinceEpoch(
+                        element.manualTime * 1000);
+                    //.fromMicrosecondsSinceEpoch(element.createdTime);
+                    final String formatted = formatter.format(date);
+
+                    /*list.add(
+                      SizedBox(
+                        height: 24,
+                      ),
+                    );*/
+                    int ind = state.task.statuses!.indexOf(element) - 1;
+                    TasksStatusesEntity? nextStatus = ind >= 0 ? state.task
+                        .statuses!.elementAt(ind) : null;
+                    ind = state.task.statuses!.indexOf(element) + 1;
+                    TasksStatusesEntity? oldStatus = ind <
+                        (state.task.statuses?.length ?? 0) ? state.task
+                        .statuses!.elementAt(ind) : null;
+                    List<String> times = [];
+                    print("newtime $item $oldStatus");
+
+                    if (item != null && nextStatus !=
+                        null) { //&&nextStatus.manualTime!=null&&oldStatus.manualTime!=null) {
+
+                      DateTime currentStatusTime = DateTime
+                          .fromMillisecondsSinceEpoch(
+                          item.manualTime * 1000
+                      );
+                      DateTime manualTime = DateTime.fromMillisecondsSinceEpoch(
+                          nextStatus.manualTime * 1000
+                      );
+
+                      DateTime newtime = DateTime(
+                          manualTime.year, manualTime.month,
+                          manualTime.day, manualTime.hour,
+                          manualTime.minute);
+                      DateTime oldtime = DateTime(
+                          currentStatusTime.year, currentStatusTime.month,
+                          currentStatusTime.day, currentStatusTime.hour,
+                          currentStatusTime.minute);
+                      Duration difference = newtime.difference(oldtime);
+                      // String durationDays=difference.inDays>0?"${difference.inDays} д":"";
+                      // String durationHours=difference.inHours>0?"${difference.inHours.remainder(24)} ч":"";
+                      // String durationMinutes=difference.inMinutes>0?"${difference.inMinutes.remainder(60)} мин":"";
+                      bool positive = difference.inMinutes >= 0;
+                      if (!positive) {
+                        difference = difference.abs();
+                        times.add("- ");
+                      }
+
+                      if (difference.inDays > 0) times.add(
+                          "${difference.inDays} ${AppLocalizations.of(
+                              context)!
+                              .dayShortName}");
+                      if (difference.inHours.remainder(24) > 0) times.add(
+                          "${difference.inHours.remainder(
+                              24)} ${AppLocalizations.of(context)!
+                              .hourShortName}");
+                      if (difference.inMinutes.remainder(60) > 0 ||
+                          difference.inDays == 0 &&
+                              difference.inHours.remainder(24) == 0) times
+                          .add(
+                          "${difference.inMinutes.remainder(
+                              60)} ${AppLocalizations.of(context)!
+                              .minuteShortName}");
+                    }
+                    buttons.add(
+                        Stack(
+
+                          //crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+
+                                    padding: oldStatus == null
+                                        ? const EdgeInsets.only(top: 8.0)
+                                        : const EdgeInsets.only(top: 0.0),
+                                    child: Container(
+                                      //color:Colors.red,
+                                      width: 19,
+                                      height: nextStatus == null ? 19 : null,
+                                      decoration: const BoxDecoration(
+                                        //color:Colors.red,
+                                        border: Border(
+                                          right:
+                                          BorderSide(
+                                              width: 1.0, color: Colors.grey
+                                          ),),
+                                        //borderRadius: BorderRadius.only(
+                                        //  topLeft: Radius.circular(8),
+                                        //  topRight: Radius.circular(8),
+                                        //),
+                                      ),
+
+
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 8.0, left: 16.0),
+                                      child: Column(
+                                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment
+                                                .end,
+                                            crossAxisAlignment: CrossAxisAlignment
+                                                .start,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment
+                                                      .start,
+                                                  children: [
+                                                    Text(
+                                                      "${element.status.name
+                                                          ?.toUpperCase()}",
+                                                      //textAlign: TextAlign.start,
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          //color: Colors.black,
+                                                          fontWeight: FontWeight
+                                                              .w600
+                                                      ),
+                                                    ),
+                                                    (element.resolution?.name
+                                                        .length ?? 0) > 0 ?
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment
+                                                          .start,
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets
+                                                              .only(top: 6.0,
+                                                              left: 0.0),
+                                                          child: Container(
+                                                            //color: HexColor.fromHex("${element.resolution?.color??"#FFFFFF"}"),
+                                                            height: 8.0,
+                                                            width: 8.0,
+                                                            decoration: BoxDecoration(
+                                                              color: HexColor
+                                                                  .fromHex(
+                                                                  "${element
+                                                                      .resolution
+                                                                      ?.color ??
+                                                                      "#FFFFFF"}"),
+                                                              //border: Border.all(color: HexColor.fromHex("${element.resolution?.color}"), width: 1),
+                                                              borderRadius: BorderRadius
+                                                                  .circular(8),
+
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Padding(
+                                                            padding: const EdgeInsets
+                                                                .only(
+                                                                left: 6.0),
+                                                            child:
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment
+                                                                  .start
+                                                              ,
+                                                              children: [
+                                                                Text(
+                                                                  //"${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
+
+                                                                  "${(element
+                                                                      .resolution
+                                                                      ?.name ??
+                                                                      "")
+                                                                      .replaceAll(
+                                                                      ' ',
+                                                                      String
+                                                                          .fromCharCode(
+                                                                          0x00A0))}",
+                                                                  overflow: TextOverflow
+                                                                      .ellipsis,
+                                                                  style: TextStyle(
+
+
+                                                                    fontSize: 16,
+                                                                    //color: Colors.black45,
+                                                                    //    fontWeight: FontWeight.w600
+                                                                  ),),
+                                                                (element.comment
+                                                                    ?.length ??
+                                                                    0) > 0 &&
+                                                                    false
+                                                                    ? Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .only(
+                                                                      left: 0.0),
+                                                                  child: Text(
+
+                                                                    "${element
+                                                                        .comment}",
+
+                                                                    //textAlign: TextAlign.start,
+                                                                    style: TextStyle(
+
+
+                                                                      fontSize: 16,
+                                                                      color: Colors
+                                                                          .black45,
+                                                                      //    fontWeight: FontWeight.w600
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                                    : Container(),
+
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ) : Container(),
+                                                    Text(
+                                                      "$formatted",
+                                                      //textAlign: TextAlign.start,
+                                                      style: TextStyle(
+
+                                                        fontSize: 16,
+                                                        color: Colors.black45,
+                                                        //    fontWeight: FontWeight.w600
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              ((element.commentInput ??
+                                                  false) ||
+                                                  (element.timeChanging ??
+                                                      false) ||
+                                                  (element.dateChanging ??
+                                                      false)) ?
+                                              InkWell(
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 16.0),
+                                                  child: Icon(Icons.edit,
+                                                    color: Colors.grey,),
+                                                ),
+                                                onTap: () {
+                                                  int ind = state.task.statuses!
+                                                      .indexOf(element) - 1;
+                                                  TasksStatusesEntity? nextStatus = ind >=
+                                                      0 ? state.task.statuses!
+                                                      .elementAt(ind) : null;
+                                                  ind = state.task.statuses!
+                                                      .indexOf(element) + 1;
+                                                  TasksStatusesEntity? oldStatus = ind <
+                                                      (state.task.statuses
+                                                          ?.length ?? 0) ? state
+                                                      .task.statuses!.elementAt(
+                                                      ind) : null;
+                                                  showModalBottomSheet(
+                                                      isScrollControlled: true,
+                                                      //fullscreenDialog: true,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius
+                                                            .circular(10.0),
+                                                      ),
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          StatusEditor(
+                                                              edit: true,
+                                                              currentStatus: element
+                                                                  .status,
+                                                              prevStatus: oldStatus,
+                                                              nextStatus: nextStatus,
+                                                              manualTime: DateTime
+                                                                  .fromMillisecondsSinceEpoch(
+                                                                  element
+                                                                      .manualTime *
+                                                                      1000),
+                                                              createdTime: DateTime
+                                                                  .fromMillisecondsSinceEpoch(
+                                                                  element
+                                                                      .createdTime *
+                                                                      1000),
+                                                              name: element
+                                                                  .status.name,
+                                                              resolution: element
+                                                                  .resolution,
+                                                              commentInput: element
+                                                                  .commentInput,
+                                                              timeChanging: element
+                                                                  .timeChanging,
+                                                              commentRequired: element
+                                                                  .commentRequired,
+                                                              dateChanging: element
+                                                                  .dateChanging,
+                                                              comment: element
+                                                                  .comment ??
+                                                                  "",
+                                                              acceptButton: AppLocalizations
+                                                                  .of(context)!
+                                                                  .taskEditStatusSave,
+                                                              acceptCallback: (
+                                                                  {required DateTime time,
+                                                                    required DateTime manualTime,
+                                                                    ResolutionEntity? resolution,
+                                                                    required String comment}) {
+                                                                print(
+                                                                    "time $time, manualTime $manualTime, comment $comment");
+                                                                BlocProvider.of<
+                                                                    TaskBloc>(
+                                                                    context)
+                                                                  ..add(
+                                                                      ChangeTaskStatus(
+                                                                        id: element
+                                                                            .id,
+                                                                        status: element
+                                                                            .status
+                                                                            .id,
+                                                                        comment: comment,
+                                                                        createdTime:
+                                                                        DateTime
+                                                                            .fromMillisecondsSinceEpoch(
+                                                                            element
+                                                                                .createdTime *
+                                                                                1000),
+                                                                        manualTime: manualTime,
+                                                                        resolution: resolution
+                                                                            ?.id,
+                                                                        timeChanging: element
+                                                                            .timeChanging ??
+                                                                            false,
+                                                                        dateChanging: element
+                                                                            .dateChanging ??
+                                                                            false,
+                                                                        commentChanging: element
+                                                                            .commentInput ??
+                                                                            false,
+                                                                        commentRequired:
+                                                                        element
+                                                                            .commentRequired ??
+                                                                            false,
+                                                                      ));
+                                                                Navigator.pop(
+                                                                    context);
+                                                                Navigator.pop(
+                                                                    context);
+                                                              }));
+                                                },
+                                              ) : Container()
+                                            ],
+                                          ),
+                                          (element.comment?.length ?? 0) >
+                                              0 /*&&(element.resolution?.name.length??0)==0*/
+                                              ? Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 0.0),
+                                            child: Text(
+
+                                              "${element.comment}",
+
+                                              //textAlign: TextAlign.start,
+                                              style: TextStyle(
+
+
+                                                fontSize: 16,
+                                                color: Colors.black45,
+                                                //    fontWeight: FontWeight.w600
+                                              ),
+                                            ),
+                                          )
+                                              : Container(),
+                                          //SizedBox(height: 54.0,)
+                                          times.length > 0 ? Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 16.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                // color:Colors.red,
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 1),
+                                                borderRadius: BorderRadius
+                                                    .circular(16),
+
+                                              ),
+
+                                              child: Padding(
+                                                padding: const EdgeInsets
+                                                    .symmetric(horizontal: 8.0,
+                                                    vertical: 2.0),
+                                                child: Text("${times.join(
+                                                    " ")}", style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey)),
+                                              ),
+                                            ),
+                                          ) : Container(),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 8.0, top: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  //color: HexColor.fromHex("${element.status.color}"),
+                                    border: Border.all(
+                                        color: Colors.grey, width: 1),
+                                    borderRadius: BorderRadius.circular(16)
+                                ),
+                                child: Container(
+                                  height: 19,
+                                  width: 19,
+                                  decoration: BoxDecoration(
+                                      color: HexColor.fromHex(
+                                          "${element.status.color}"),
+                                      border: Border.all(
+                                          color: Colors.white, width: 4),
+                                      borderRadius: BorderRadius.circular(16)
+                                  ),
+                                ),
+                              ),
+                            ),
+                            //Positioned.fill(
+                            //child: Align(
+                            //alignment: Alignment.bottomLeft,
+                            //child:
+
+
+                            //),
+                            //)
+
+                          ],
+                        )
+                    );
+
+                    print("status ${element.id}");
+                    prevStatus = element;
+                    //print("status prevStatus ${prevStatus?.id}");
+
+                  }
+                  buttons.add(SizedBox(height: 8.0));
+
+                  //}
+                  showModalBottomSheet(
+                    //routeSettings: ,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      //isScrollControlled: true,
+                      context: context,
+                      //isDismissible: true,
+                      builder: (BuildContext context) {
+                        return Container(
+                          //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+
+
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceBetween,
+                                  children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment
+                                                .start,
+                                            children: [
+                                              Text(
+                                                AppLocalizations.of(context)!
+                                                    .taskStatusHistory,
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight
+                                                        .w600),
+                                              ),
+                                              Text(
+                                                "${AppLocalizations.of(context)!
+                                                    .workflow}: ${state.task
+                                                    .lifecycle?.name} ",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                            ])
+                                    ),
+                                    InkWell(
+                                      onTap: () => Navigator.pop(context),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Icon(
+                                          Icons.close, color: Colors.black45,),
+                                      ),
+                                    )
+                                  ],
+                                )
+                                ,
+                                Divider(
+                                  color: Colors.black12, //color of divider
+                                  height: 1, //height spacing of divider
+                                  //thickness: 3, //thickness of divier line
+                                  // indent: 16, //spacing at the start of divider
+                                  //endIndent: 25, //spacing at the end of divider
+                                )
+                                ,
+                                Flexible(
+                                  child:
+                                  /*child:ListView.builder(
+                                     controller: scrollController, // set this too
+                                     itemBuilder: (_, i) =>ListTile(title: Text('Item $i')),
+                                   ),*/
+                                  ListView(
+                                    reverse: true,
+
+                                    shrinkWrap: true,
+                                    children: buttons,
+                                  ),
+                                ),
+                              ],
+                            )
+                        );
+                      }
+                  );
+                }
+                  //Icon(Icons
+                  //    .navigate_next)
+          )],
+              ),
+            ),
+          )
+          );
+          /*buttons.add(Divider(
+            color: Colors.black12, //color of divider
+            height: 1, //height spacing of divider
+            //thickness: 3, //thickness of divier line
+            //indent: 25, //spacing at the start of divider
+            //endIndent: 25, //spacing at the end of divider
+          ));
+        //  floatButtonColor: HexColor.fromHex("${state.task.statuses?.first.status.color}"),
+
           buttons.add(Align(
             alignment: Alignment.topLeft,
             child: Padding(
@@ -1679,7 +2332,7 @@ class TaskDetailPage extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       color: Colors.black)),
             ),
-          ));
+          ));*/
           buttons.add(Divider(
             color: Colors.black12, //color of divider
             height: 1, //height spacing of divider
@@ -1938,16 +2591,6 @@ class TaskDetailPage extends StatelessWidget {
             }
           });
 
-          if (propsCounter>0) {
-            list.add(
-                 Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  color: Colors.black12,
-                  height: 1.0,
-                ),
-
-            );
-          }
           _kTabPages[0].addAll(propsLists[0]);
           _kTabPages[1].addAll(propsLists[1]);
           _kTabPages[0].add(
@@ -2181,21 +2824,23 @@ class TaskDetailPage extends StatelessWidget {
                     color: Colors.white,
                     fontWeight: FontWeight.w600)),
           ];
-          if (state.nextTaskStatuses?.isNotEmpty ?? true) {
+          /*if (state.nextTaskStatuses?.isNotEmpty ?? true) {
             floatButton.add(SizedBox(
               width: 10,
             ));
             floatButton.add(Icon(
               Icons.navigate_next,
-              color: Colors.white,
+              color: Colors.black,
               size: 24.0,
             ));
-          }
+          }*/
           return TaskTabs(
+              floatButtonColor: HexColor.fromHex("${state.task.statuses?.first.status.color}"),
+              saveEnabled: saveEnabled,
               tabs: _kTabs,
               tabsBody: _kTabPages1,
               keyboardVisible: _keyboardVisible,
-              taskNumber: state.task.name??"",
+              taskNumber: state.task.id==0 ? AppLocalizations.of(context)!.newTask : (state.task.name??""),
               floatButton: floatButton,
               buttons: buttons);
           // return DefaultTabController(

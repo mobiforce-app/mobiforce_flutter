@@ -129,6 +129,23 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             );
         }
     }
+    if (event is SetTaskTemplate) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+      task.template=event.template;
+      //yield StartLoadingTaskPage();
+      yield TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
+          task: task,
+          nextTaskStatuses: nextTaskStatuses,
+          appFilesDirectory: dir,
+          comments:comments,
+        );
+
+    }
     if (event is ChangeSelectionFieldValue) {
       //getTask.
       final task = (state as TaskLoaded).task;
@@ -671,27 +688,14 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       yield StartLoadingTaskPage();
       yield await _setNewTaskStatus(event, task);
     }
-    /*if (event is SetTaskReaded) {
-      //await Future.delayed(Duration(seconds: 2));
-      final task = (state as TaskLoaded).task;
-
-      yield StartLoadingTaskPage();
-
-      print("SetTaskReaded");
-      //int readedStatusId=await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status));
-      final faiureOrLoading = await setTaskStatus(SetTaskStatusParams(task: task.id,status: event.status));
-      yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
-        //this.task = task_readed;
-        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id));
-        return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
-          //this.nextTaskStatuses = nextTaskStatuses_readed;
-          //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
-          print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
-          return TaskLoaded(isChanged:true, task: task_readed, nextTaskStatuses:nextTaskStatuses_readed);
-        });
-        //return TaskLoaded(task: task);
-      });
-    }*/
+    if (event is NewTask) {
+      Directory dir =  await getApplicationDocumentsDirectory();
+      final isChanged=(state is TaskLoaded)?!(state as TaskLoaded).isChanged:true;
+      yield TaskLoaded(isChanged:isChanged,
+          needToUpdateTaskList: false,
+          task: TaskModel(id: 0, serverId: 0), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[]);
+      print("start sync");
+    }
     if (event is ReloadTask) {
       print("start sync");
       //TaskModel t=//task.taskRepository()

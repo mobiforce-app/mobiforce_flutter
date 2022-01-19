@@ -3,8 +3,9 @@ class TemplateEntity{
   int usn;
   int serverId;
   String name;
+  String? color;
   TemplateEntity({
-      required this.id, required this.serverId, required this.name, required this.usn,
+      required this.id, required this.serverId, required this.name, required this.usn, this.color,
   });
   fromMap(Map<String, dynamic> map)
   {

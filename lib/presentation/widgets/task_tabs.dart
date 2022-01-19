@@ -12,9 +12,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TaskTabs extends StatefulWidget {
   //final String name;
+  final bool saveEnabled;
   final List<Widget> tabs;
   final List<Widget> tabsBody;
   final String taskNumber;
+  final Color floatButtonColor;
   final List<Widget> floatButton;
   final List<Widget> buttons;
   final bool keyboardVisible;
@@ -22,7 +24,7 @@ class TaskTabs extends StatefulWidget {
   //final bool isText;
   //String val;
 
-  TaskTabs({required this.tabs,required this.tabsBody,required this.keyboardVisible,required this.floatButton, required this.buttons, required this.taskNumber, });
+  TaskTabs({required this.tabs,required this.tabsBody,required this.keyboardVisible,required this.floatButton, required this.buttons, required this.taskNumber,required this.saveEnabled,required this.floatButtonColor, });
 
   @override
   State<StatefulWidget> createState() {
@@ -48,7 +50,23 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
         child: Scaffold(
           appBar: AppBar(
 
-            title: Column(
+            title: widget.saveEnabled?Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    Text(AppLocalizations.of(context)!.taskPageHeader),
+                    Text('${widget.taskNumber}',
+                        style: TextStyle(
+                            fontSize: 12,)
+                    )
+                  ],
+                  ),
+                ),
+                Icon(Icons.save_outlined)
+              ],
+            ):Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
               Text(AppLocalizations.of(context)!.taskPageHeader),
@@ -80,12 +98,18 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
                 children: [
                   ElevatedButton(
                       style: ButtonStyle(
-                          backgroundColor: widget.floatButton.length>1?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
+                          backgroundColor:
+              //ElevatedButton.styleFrom(
+              //primary: widget.floatButtonColor,
 
-                      ),
-                      onPressed: () {
+              widget.floatButton.length>0?
+              MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
+
+              ),
+              onPressed: ()
+              {
                         if (widget.floatButton.length >
-                            1) showModalBottomSheet(
+                            0) showModalBottomSheet(
                           isScrollControlled: true,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
@@ -96,7 +120,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
                       },
                       child:
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
                         child: Wrap(
                           children: widget.floatButton,
                         ),

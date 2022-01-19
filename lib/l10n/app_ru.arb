@@ -65,5 +65,6 @@
     "taskSyncText":"Задачи",
     "commentsSyncText":"Комментарии",
     "fullSyncRetryCaption": "Ошибка загрузки данных",
-    "fullSyncRetryButton": "Повторить"
+    "fullSyncRetryButton": "Повторить",
+    "newTask": "Новая"
 }

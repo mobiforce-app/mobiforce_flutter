@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 //import 'package:mobiforce_flutter/locator_service.dart';
@@ -65,6 +66,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<TaskSearchBloc>(create: (context) => di.sl<TaskSearchBloc>()),
         BlocProvider<LoginBloc>(create: (context) => di.sl<LoginBloc>()),
+        BlocProvider<TaskTemplateSelectionBloc>(create: (context) => di.sl<TaskTemplateSelectionBloc>()),
         BlocProvider<SyncBloc>(create: (context) => di.sl<SyncBloc>()),
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))

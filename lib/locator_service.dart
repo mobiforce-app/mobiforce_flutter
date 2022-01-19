@@ -16,6 +16,7 @@ import 'package:mobiforce_flutter/domain/repositories/picture_repository_impl.da
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/sync_repository_impl.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
+import 'package:mobiforce_flutter/domain/repositories/template_repository.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
@@ -23,6 +24,7 @@ import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_task_templates.dart';
 import 'package:mobiforce_flutter/domain/usecases/load_file.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
@@ -31,6 +33,7 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/fullSyncSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
@@ -39,9 +42,11 @@ import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/syncscreen_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'data/datasources/online_remote_data_sources.dart';
 import 'domain/repositories/firebase.dart';
 import 'domain/repositories/picture_repository.dart';
 import 'domain/repositories/task_repository_impl.dart';
+import 'domain/repositories/template_repository_impl.dart';
 import 'domain/usecases/add_picture_to_field.dart';
 //import 'domain/usecases/add_picture_to_task_comment.dart';
 import 'domain/usecases/add_task_comment.dart';
@@ -60,6 +65,7 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
+  sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl()));
   sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
   //sl.registerFactory(() => SignaturePage();
   sl.registerFactory(() => SyncBloc(m:sl()));
@@ -79,6 +85,7 @@ Future<void>init() async
 
 
   //usecases
+  sl.registerLazySingleton(() => GetTaskTemplates(sl()));
   sl.registerLazySingleton(() => GetPictureFromCamera(fileRepository: sl()));
   sl.registerLazySingleton(() => AddPictureToTaskField(taskRepository: sl()));
   sl.registerLazySingleton(() => DeletePictureToTaskField(taskRepository: sl()));
@@ -104,6 +111,12 @@ Future<void>init() async
   //repository
   sl.registerLazySingleton<TaskRepository>(
       () => TaskRepositoryImpl(
+          remoteDataSources: sl(),
+          networkInfo: sl()
+      )
+  );
+  sl.registerLazySingleton<TemplateRepository>(
+      () => TemplateRepositoryImpl(
           remoteDataSources: sl(),
           networkInfo: sl()
       )
@@ -142,6 +155,8 @@ Future<void>init() async
       )
   );
    //sl.registerLazySingleton<Model>();
+  sl.registerLazySingleton<OnlineRemoteDataSources>(() => OnlineRemoteDataSourcesImpl(client: http.Client(),sharedPreferences: sl(),db:sl()));
+
   sl.registerLazySingleton<TaskRemoteDataSources>(() => TaskRemoteDataSourcesImpl(client: http.Client(),sharedPreferences: sl(),db:sl()));
 
   sl.registerLazySingleton<AuthorizationRepository>(

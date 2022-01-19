@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/data/models/template_model.dart';
+import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 
 abstract class TaskEvent extends Equatable {
@@ -17,6 +19,12 @@ class ReloadTask extends TaskEvent
   //final int page;
 
   ReloadTask(this.id);
+}
+class NewTask extends TaskEvent
+{
+  //final int page;
+
+  NewTask();
 }
 class SetTaskReaded extends TaskEvent
 {
@@ -57,6 +65,11 @@ class ChangeSelectionFieldValue extends TaskEvent
   final dynamic value;
   //final int task;
   ChangeSelectionFieldValue({required this.fieldId, required this.value});
+}
+class SetTaskTemplate extends TaskEvent
+{
+  final TemplateModel template;
+  SetTaskTemplate({required this.template});
 }
 class ChangeBoolFieldValue extends TaskEvent
 {

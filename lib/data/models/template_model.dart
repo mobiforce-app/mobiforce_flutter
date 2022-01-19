@@ -27,11 +27,12 @@ class TemplateModel extends TemplateEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TemplateModel({required id,required usn,required serverId,required name,}): super(
+  TemplateModel({required id,required usn,required serverId,required name,color,}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
+      color:color,
   );
 
   Map<String, dynamic> toMap(){
@@ -74,6 +75,7 @@ class TemplateModel extends TemplateEntity
         usn: json["usn"]??0,
         serverId: int.parse(json["id"]??0),
         name: json["name"]??"",
+        color: json["color"],
     );
   }
   /*fromMap(Map<String, dynamic> map)

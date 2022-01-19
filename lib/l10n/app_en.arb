@@ -65,5 +65,6 @@
     "taskSyncText":"Tasks",
     "commentsSyncText":"Comments",
     "fullSyncRetryCaption": "Data synchronization error",
-    "fullSyncRetryButton": "Retry"
+    "fullSyncRetryButton": "Retry",
+    "newTask": "New"
 }
