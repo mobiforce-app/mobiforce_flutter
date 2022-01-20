@@ -57,6 +57,15 @@ class TaskModel extends TaskEntity
       lifecycle:lifecycle,
   );
 
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    map["template"]=template?.toJson();
+    map["employees"]=employees?.map((e) => e.toJson()).toList();
+    map["employee"]=employees?[0].toJson();
+    return map;
+  }
+
+
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
@@ -234,7 +243,7 @@ class TaskModel extends TaskEntity
       id=0;*/
     //print("ObjectModel = ${object.toString()}");
 
-    return 0;
+    return taskId;
   }
   factory TaskModel.fromMap({
     required Map<String, dynamic> taskMap,

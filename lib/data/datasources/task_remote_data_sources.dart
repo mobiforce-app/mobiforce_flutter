@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
@@ -45,6 +46,7 @@ abstract class TaskRemoteDataSources{
   Future<bool> setTaskFieldSelectionValue({required TasksFieldsModel taskField});
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
   Future<FileModel> deletePictureTaskField({required int taskFieldId,required int pictureId});
+  Future<TaskEntity> saveNewTask({required TaskEntity task});
   //Future<FileModel> addPictureTaskComment({required int taskCommentId,required int pictureId});
   Future<TaskCommentModel> addTaskComment({required TaskCommentModel comment});
 }
@@ -121,6 +123,14 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     //return
       ;//FileModel(id: id, usn:0);
   }
+
+  @override
+  Future<TaskEntity> saveNewTask({required TaskEntity task}) async
+  {
+    (task as TaskModel).insertToDB(db);
+    return task;
+  }
+
   @override
   Future<TaskCommentModel> addTaskComment({required TaskCommentModel comment}) async
   {

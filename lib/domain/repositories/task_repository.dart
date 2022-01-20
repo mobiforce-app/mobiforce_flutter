@@ -12,6 +12,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 abstract class TaskRepository{
   Future<Either<Failure, List<TaskEntity>>>searchTask(String query);
 
+  Future<Either<Failure, TaskEntity>>saveNewTask({required TaskEntity task});
   Future<Either<Failure, List<TaskEntity>>>getAllTasks(int page);
   Future<Either<Failure, List<TaskCommentEntity>>>getAllTaskComments(int task, int page);
   Future<Either<Failure, TaskCommentEntity>>addTaskComment( {required TaskCommentModel comment});

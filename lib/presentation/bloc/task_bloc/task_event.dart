@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
+import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 
@@ -70,6 +72,11 @@ class SetTaskTemplate extends TaskEvent
 {
   final TemplateModel template;
   SetTaskTemplate({required this.template});
+}
+class SaveNewTaskEvent extends TaskEvent
+{
+  final TaskEntity task;
+  SaveNewTaskEvent({required this.task});
 }
 class ChangeBoolFieldValue extends TaskEvent
 {

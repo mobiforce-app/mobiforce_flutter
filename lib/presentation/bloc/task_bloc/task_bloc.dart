@@ -13,6 +13,7 @@ import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -23,11 +24,13 @@ import 'package:mobiforce_flutter/domain/usecases/add_task_comment.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_new_task_number.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_tasks_comments.dart';
 import 'package:mobiforce_flutter/domain/usecases/load_file.dart';
+import 'package:mobiforce_flutter/domain/usecases/save_new_task.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
@@ -44,7 +47,7 @@ import 'package:path_provider/path_provider.dart';
 
 class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final GetTask taskReader;
-
+  final CreateTaskOnServer createTaskOnServer;
   //TaskEntity? task;
   //List<TaskStatusEntity>? nextTaskStatuses;
   final GetPictureFromCamera getPictureFromCamera;
@@ -58,6 +61,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final SyncToServer syncToServer;
   final GetTaskComments getTaskComments;
   final AddTaskComment addTaskComment;
+  final SaveNewTask saveNewTask;
   //final ModelImpl m;
   //final WaitDealys10 wait10;
 
@@ -70,6 +74,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   TaskBloc({
     required this.taskReader,
+    required this.saveNewTask,
     required this.loadFile,
     required this.nextTaskStatusesReader,
     required this.getPictureFromCamera,
@@ -80,6 +85,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.syncToServer,
     required this.addPictureToTaskField,
     required this.deletePictureToTaskField,
+    required this.createTaskOnServer,
 
    // required this.addCommentWithPictureToTask,
   }) : super(TaskEmpty()) {
@@ -680,6 +686,51 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           comments:comments,
         );
       });*/
+    }
+    if (event is SaveNewTaskEvent) {
+      final task = (state as TaskLoaded).task;
+      Directory dir =  await getApplicationDocumentsDirectory();
+      final isChanged=(state is TaskLoaded)?!(state as TaskLoaded).isChanged:true;
+      //print("SetTaskStatus ${event.status} ${task.id} ${event.resolution} id:  ${event.id}");
+      print("${(task as TaskModel).toMap()}");
+      //task.employees=[EmployeeModel(id: 0, usn: 0, serverId: 1, name: "name", webAuth: false, mobileAuth: true)];
+      final fOl = await createTaskOnServer(CreateTaskOnServerParams(task:task));
+      yield await fOl.fold(
+              (l) => TaskError(message: "message"),
+              (TaskEntity task_readed) async {
+                print("task_readed ${(task_readed as TaskModel).toMap()}");
+                final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
+                return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) async {
+                  //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+
+                    return TaskLoaded(isChanged:isChanged,
+                        needToUpdateTaskList: false,
+                        task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+
+                });
+              }
+      );
+
+      final faiureOrLoading = await saveNewTask(SaveNewTaskParams(
+        task: task,
+      ));
+
+      /*return await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
+        //this.task = task_readed;
+        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
+        return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) {
+          //this.nextTaskStatuses = nextTaskStatuses_readed;
+          //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+          print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
+          syncToServer(ListSyncToServerParams());
+          return TaskLoaded(isChanged:true,
+              needToUpdateTaskList: true,
+              task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+
+        });*/
+        //return TaskLoaded(task: task);
+     // });
+
     }
     if (event is ChangeTaskStatus) {
       //await Future.delayed(Duration(seconds: 2));

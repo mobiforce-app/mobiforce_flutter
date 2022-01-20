@@ -50,8 +50,10 @@ import 'domain/repositories/template_repository_impl.dart';
 import 'domain/usecases/add_picture_to_field.dart';
 //import 'domain/usecases/add_picture_to_task_comment.dart';
 import 'domain/usecases/add_task_comment.dart';
+import 'domain/usecases/get_new_task_number.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
+import 'domain/usecases/save_new_task.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
@@ -81,10 +83,14 @@ Future<void>init() async
       addTaskComment:sl(),
       addPictureToTaskField: sl(),
       deletePictureToTaskField: sl(),
+      saveNewTask:sl(),
+      createTaskOnServer: sl()
     ));
 
 
   //usecases
+  sl.registerLazySingleton(() => CreateTaskOnServer(sl()));
+  sl.registerLazySingleton(() => SaveNewTask(sl()));
   sl.registerLazySingleton(() => GetTaskTemplates(sl()));
   sl.registerLazySingleton(() => GetPictureFromCamera(fileRepository: sl()));
   sl.registerLazySingleton(() => AddPictureToTaskField(taskRepository: sl()));

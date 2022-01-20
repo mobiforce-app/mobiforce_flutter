@@ -47,6 +47,12 @@ class EmployeeModel extends EmployeeEntity
     //map['address'] = address;
     return map;
   }
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    map["name"]=name;
+    map["id"]=serverId;
+    return map;
+  }
   Future<int> insertToDB(DBProvider db) async {
     Timeline.startSync('Employee Insert To DB');
 

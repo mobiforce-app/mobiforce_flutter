@@ -17,7 +17,7 @@ class TaskTabs extends StatefulWidget {
   final List<Widget> tabsBody;
   final String taskNumber;
   final Color floatButtonColor;
-  final List<Widget> floatButton;
+  final Widget floatButton;
   final List<Widget> buttons;
   final bool keyboardVisible;
   //final
@@ -96,36 +96,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
                 ///crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround ,
                 children: [
-                  ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor:
-              //ElevatedButton.styleFrom(
-              //primary: widget.floatButtonColor,
-
-              widget.floatButton.length>0?
-              MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
-
-              ),
-              onPressed: ()
-              {
-                        if (widget.floatButton.length >
-                            0) showModalBottomSheet(
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          context: context,
-                          builder: (context) =>
-                              Wrap(children: (widget.buttons)),);
-                      },
-                      child:
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                        child: Wrap(
-                          children: widget.floatButton,
-                        ),
-                      )
-                  )
+                  widget.floatButton
                 ],
               ),
             ),

@@ -94,6 +94,11 @@ class TaskRepositoryImpl implements TaskRepository{
   }
 
   @override
+  Future<Either<Failure, TaskEntity>>saveNewTask({required TaskEntity task}) async {
+    return Right(await remoteDataSources.saveNewTask(task:task));
+  }
+
+  @override
   Future<Either<Failure, List<TaskCommentEntity>>>getAllTaskComments(int task, int page) async {
 
     return Right(await remoteDataSources.getCommentList(task:task,page:page));

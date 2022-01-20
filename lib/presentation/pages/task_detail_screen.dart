@@ -2834,6 +2834,56 @@ class TaskDetailPage extends StatelessWidget {
               size: 24.0,
             ));
           }*/
+          Widget floatButtonWidget = saveEnabled?
+          ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor:
+                  MaterialStateProperty.all(Colors.green)
+              ),
+              onPressed: ()
+              {
+                BlocProvider.of<TaskBloc>(context)
+                  ..add(SaveNewTaskEvent(
+                    task: state.task
+                  ));
+              },
+              child:
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                child: Text("Сохранить"),
+              )
+          )
+              :ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor:
+                  //ElevatedButton.styleFrom(
+                  //primary: widget.floatButtonColor,
+
+                  floatButton.length>0?
+                  MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.grey)
+
+              ),
+              onPressed: ()
+              {
+                if (floatButton.length >
+                    0) showModalBottomSheet(
+                  isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  context: context,
+                  builder: (context) =>
+                      Wrap(children: (buttons)),);
+              },
+              child:
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                child: Wrap(
+                  children: floatButton,
+                ),
+              )
+          );
+
           return TaskTabs(
               floatButtonColor: HexColor.fromHex("${state.task.statuses?.first.status.color}"),
               saveEnabled: saveEnabled,
@@ -2841,7 +2891,7 @@ class TaskDetailPage extends StatelessWidget {
               tabsBody: _kTabPages1,
               keyboardVisible: _keyboardVisible,
               taskNumber: state.task.id==0 ? AppLocalizations.of(context)!.newTask : (state.task.name??""),
-              floatButton: floatButton,
+              floatButton: floatButtonWidget,
               buttons: buttons);
           // return DefaultTabController(
           //     //controller: _tabController,

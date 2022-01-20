@@ -34,7 +34,12 @@ class TemplateModel extends TemplateEntity
       name:name,
       color:color,
   );
-
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    map["name"]=name;
+    map["id"]=serverId;
+    return map;
+  }
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
