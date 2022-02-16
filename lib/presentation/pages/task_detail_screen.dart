@@ -8,6 +8,7 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:map_launcher/map_launcher.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
@@ -16,6 +17,8 @@ import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksfields_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
+import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
@@ -25,6 +28,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
 import 'package:mobiforce_flutter/presentation/widgets/comment_input_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/contractor_selection_list_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/datetimepicker_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/status_editor_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
@@ -415,6 +419,10 @@ class TaskDetailPage extends StatelessWidget {
           bool editEnabledAddress=state.task.id==0?true:false;
           bool saveEnabled=state.task.id==0?true:false;
           bool editEnabledTemplate=state.task.id==0?true:false;
+          if(state.task.id==0){
+            var date = new DateTime.now();
+            state.task.plannedVisitTime = (date.millisecondsSinceEpoch~/1000);
+          }
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             // Navigation
             BuildContext bc=context;
@@ -587,8 +595,79 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                   ),
                   editEnabledPlannedVisitTime?Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 24, 0),
-                  child: Icon(Icons.calendar_today, color: Colors.black45,)
+                      padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+                      child: InkWell(
+                          onTap:(){
+
+                            List<Widget> bbb = [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text("Дата планируемого визита ${state.task.plannedVisitTime}", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                              ),
+                              Divider(
+                                color: Colors.black12, //color of divider
+                                height: 1, //height spacing of divider
+                                //thickness: 3, //thickness of divier line
+                                // indent: 16, //spacing at the start of divider
+                                //endIndent: 25, //spacing at the end of divider
+                              )
+                              ,
+                              DateTimeInput(
+                              //controller:_manualTimeController,
+                                onChange: (DateTime time){
+                                  //print("time: $time");
+                                  //setState((){
+                                  //  manualTime=time;
+                                  //});
+
+                                },
+                                val:DateTime
+                                    .fromMillisecondsSinceEpoch(
+                                    (state.task.plannedVisitTime??0)
+                                         *
+                                        1000),
+                                prevStatusTime:null,
+                                nextStatusTime:null,
+                                timeChanging:true,
+                                dateChanging:true
+                            ),
+                            Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child:                                       Center(
+                            child:
+                            ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                          MaterialStateProperty.all(Colors.green)
+                                      ),
+                                      onPressed: ()
+                                      {
+                                        //BlocProvider.of<TaskBloc>(context)
+                                        //  ..add(SaveNewTaskEvent(
+                                        //      task: state.task
+                                        //  ));
+                                      },
+                                      child:Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                                        child: Text("Сохранить"),
+                                      )
+                                  ),
+                                ),
+                              )];
+                            showModalBottomSheet(
+                              isScrollControlled: true,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              context: context,
+                              builder: (context) =>
+                                  Wrap(children: (bbb)),);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(Icons.calendar_today, color: Colors.black45,),
+                          )
+                      )
                   ):
                   Container()
                   /*
@@ -1079,41 +1158,78 @@ class TaskDetailPage extends StatelessWidget {
                       ),),
                   ),
                   child:
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  InkWell(
+                    onTap: (){
+                      //print("##");
+                      showModalBottomSheet(
+                      //routeSettings: ,
+                      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      isScrollControlled: true,
+                      context: context,
+                      //isDismissible: true,
+                      builder: (BuildContext context) {
+                        return
+                        FractionallySizedBox(
+                          heightFactor: 0.9,
+                          child:
+                        Padding(
+                            padding: MediaQuery.of(context).viewInsets,
+                            child: ContractorSelectionList(
+                            selectCallback: (
+                                {required ContractorModel contractor}) {
+                              print("SET CONTRACTOR NAME ${contractor.name}");
+                              BlocProvider.of<TaskBloc>(context)
+                                ..add(SetTaskContractor(
+                                    contractor: contractor
+                                ));
+                              Navigator.pop(context);
+                            }
+                        )));
+                      }
 
-                    children: [
-                      Expanded(
-                        child:  Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Клиент",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black45,
+                      );
+                      BlocProvider.of<ContractorSelectionBloc>(context)
+                        ..add(ReloadContractorSelection());
+
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+
+                      children: [
+                        Expanded(
+                          child:  Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Клиент",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black45,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "$clientNameString",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  //fontWeight: FontWeight.w600
+                                Text(
+                                  "$clientNameString",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                    //fontWeight: FontWeight.w600
+                                  ),
                                 ),
-                              ),
-                            ],),
+                              ],),
 
 
+                          ),
                         ),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
-                      ),
-                    ],
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                            child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               )

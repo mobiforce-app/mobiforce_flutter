@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
@@ -25,7 +26,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class OnlineRemoteDataSources{
   Future<List<TemplateModel>>getAllTemplates(int page);
+  Future<List<ContractorModel>>getAllContractors(String name);
   Future<TaskEntity>createTaskOnServer(TaskEntity task);
+  Future<ContractorModel> getCurrentContractor(int id);
 }
 
 class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
@@ -76,30 +79,58 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
 
 
   @override
-  Future<List<TemplateModel>> getAllTemplates(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php", page:page);
+  Future<List<TemplateModel>> getAllTemplates(int page) async {
+    var results = await _getTableFromUrl(
+        url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php",
+        page: page,
+        gridName: "tasktemplate_grid",
+        rules: '{"groupOp":"AND","rules":[]}'
+    );
+    return (results as List).map((task)=> TemplateModel.fromJson(task)).toList();
+  }
+  @override
+  //Future<List<TemplateModel>> getAllContractors(String name) => _getTableFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php", page:0,gridName:"tasktemplate_grid");
+  Future<List<ContractorModel>> getAllContractors(String name) async {
+    var results = await _getTableFromUrl(
+        url: "https://mobifors111.mobiforce.ru/api2.0/get-contractors.php",
+        page: 0,
+        gridName: "contractor_grid",
+        rules: '{"groupOp":"AND","rules":[],"groups":[{"groupOp":"OR","rules":[{"field":"name","op":"cn","data":"$name"},{"field":"address","op":"cn","data":"$name"},{"field":"parent","op":"cn","data":"$name"},{"field":"favourites","op":"cn","data":"$name"},{"field":"employee","op":"cn","data":"$name"}],"groups":[]}]}'
+    );
+    return (results as List).map((task)=> ContractorModel.fromJson(task)).toList();
+  }
+
+  Future<ContractorModel> getCurrentContractor(int id) async {
+    var results = await _getObjectFromUrl(
+        url: "https://mobifors111.mobiforce.ru/api2.0/get-contractor.php?id=$id",
+    );
+    return ContractorModel.fromJson(results);
+  }
 
 
-  Future<List<TemplateModel>> _getTaskFromUrl({required String url,required int page}) async{
+  Future<List> _getTableFromUrl({required String url,required int page, required String gridName, required String rules}) async{
     //return await db.getTasks(page);
+    print("getData $rules");
     final token=sharedPreferences.getString("access_token");
     print(token);
     try{
       Map data = {
-        'filters': '{"groupOp":"AND","rules":[]}',
+        'filters': rules,
         'nd': 1629978655643,
         'page': 1,
         'rows': 30,
         'sidx': 'ID',
         'sord': 'asc',
-        'tableId': 'tasktemplate_grid',
+        'tableId': gridName,
         'updateCounter': 0,
         '_search': true
       };
       final response = await client.post(Uri.parse(url),headers:{'Content-Type':"application/json","AUTHORIZATION":"key=$token"},body: json.encode(data));
       if(response.statusCode == 200){
+        print("response.body ${response.body}");
         final templates = json.decode(response.body);
         //print("ok!"+response.body);
-        return (templates['results'] as List).map((task)=> TemplateModel.fromJson(task)).toList();
+        return templates['results'];//(templates['results'] as List).map((task)=> TemplateModel.fromJson(task)).toList();
       }
       else{
         print("My exception");
@@ -111,5 +142,29 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
       throw ServerException();
     }
   }
-  
+  Future<Map<String, dynamic>> _getObjectFromUrl({required String url,}) async{
+    //return await db.getTasks(page);
+    //print("getData $rules");
+    final token=sharedPreferences.getString("access_token");
+    print(token);
+    try{
+
+      final response = await client.get(Uri.parse(url),headers:{'Content-Type':"application/json","AUTHORIZATION":"key=$token"});
+      if(response.statusCode == 200){
+        print("response.body ${response.body}");
+        final templates = json  .decode(response.body);
+        //print("ok!"+response.body);
+        return templates['results'];//(templates['results'] as List).map((task)=> TemplateModel.fromJson(task)).toList();
+      }
+      else{
+        print("My exception");
+        throw ServerException();
+      }
+    }
+    catch (error) {
+      print("error!!! $error");
+      throw ServerException();
+    }
+  }
+
 }

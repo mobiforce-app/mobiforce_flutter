@@ -1,4 +1,6 @@
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 
 class ContractorEntity{
   int? id;
@@ -14,6 +16,9 @@ class ContractorEntity{
   double? lat;
   double? lon;
   ContractorModel? parent;
+  List<PhoneModel>? phones;
+  List<PersonModel>? persons;
+
 
   // String subdivision;
   ContractorEntity({
@@ -30,6 +35,8 @@ class ContractorEntity{
     this.addressPorch,
     this.addressRoom,
     this.parent,
+    this.phones,
+    this.persons,
     //, this.address, this.client///, required this.subdivision
   });
   fromMap(Map<String, dynamic> map)

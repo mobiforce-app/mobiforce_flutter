@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
@@ -13,5 +14,7 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 
 abstract class TemplateRepository{
   Future<Either<Failure, List<TemplateModel>>>getAllTemplates(int page);
+  Future<Either<Failure, List<ContractorModel>>>getAllContractors(String name);
+  Future<Either<Failure, ContractorModel>> getCurrentContractor(int id);
   Future<Either<Failure, TaskEntity>>createTaskOnServer(TaskEntity task);
 }

@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -142,6 +144,76 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final isChanged=!(state as TaskLoaded).isChanged;
       final task = (state as TaskLoaded).task;
       task.template=event.template;
+      //yield StartLoadingTaskPage();
+      yield TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
+          task: task,
+          nextTaskStatuses: nextTaskStatuses,
+          appFilesDirectory: dir,
+          comments:comments,
+        );
+
+    }
+    if (event is SetTaskContractor) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+      task.contractor=event.contractor;
+      if(event.contractor.address != null)
+        task.address=event.contractor.address;
+      if(event.contractor.addressFloor != null)
+        task.addressFloor=event.contractor.addressFloor;
+      if(event.contractor.addressRoom != null)
+        task.addressRoom=event.contractor.addressRoom;
+      if(event.contractor.addressInfo != null)
+        task.addressInfo=event.contractor.addressInfo;
+      if(event.contractor.addressPorch != null)
+        task.addressPorch=event.contractor.addressPorch;
+      if(event.contractor.lat != null)
+        task.lat=event.contractor.lat;
+      if(event.contractor.lon != null)
+        task.lon=event.contractor.lon;
+      if(event.contractor.lon != null)
+        task.lon=event.contractor.lon;
+      //task.ph
+
+      if(event.contractor.phones != null) {
+        task.phones=[];
+        event.contractor.phones!.forEach((element) {
+          PhoneModel p =
+              PhoneModel(id: 0, usn: 0, serverId: 0, name: element.name);
+          task.phones!.add(p);
+        });
+      }
+      else
+        task.phones=null;
+
+
+      if(event.contractor.persons != null) {
+        task.persons=[];
+        event.contractor.persons!.forEach((element) {
+          PersonModel p = PersonModel(id: 0,
+              usn: 0,
+              serverId: 0,
+              name: element.name,
+              phones: null);
+
+          if(element.phones != null) {
+            p.phones=[];
+            element.phones!.forEach((element) {
+              PhoneModel ph =
+              PhoneModel(id: 0, usn: 0, serverId: 0, name: element.name);
+              p.phones!.add(ph);
+            });
+          }
+          task.persons!.add(p);
+        });
+      }
+      else
+        task.persons=null;
+
       //yield StartLoadingTaskPage();
       yield TaskLoaded(isChanged: isChanged,
           needToUpdateTaskList: false,

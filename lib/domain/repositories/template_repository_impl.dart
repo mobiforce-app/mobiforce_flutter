@@ -6,6 +6,7 @@ import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/online_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
@@ -28,6 +29,42 @@ class TemplateRepositoryImpl implements TemplateRepository{
   Future<Either<Failure, List<TemplateModel>>> getAllTemplates(int page) async {
     return
      await _getTasks(()=> remoteDataSources.getAllTemplates(page));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+  @override
+  Future<Either<Failure, List<ContractorModel>>> getAllContractors(String name) async {
+    if(await networkInfo.isConnected){
+      try{
+        final remoteTask = await remoteDataSources.getAllContractors(name);//remoteDataSources.searchTask(query);
+        return Right(remoteTask);
+      }
+      on ServerException{
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else
+      return Left(ServerFailure());
+
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+  @override
+  Future<Either<Failure, ContractorModel>> getCurrentContractor(int id) async {
+    if(await networkInfo.isConnected){
+      try{
+          final remoteTask = await remoteDataSources.getCurrentContractor(id);//remoteDataSources.searchTask(query);
+        return Right(remoteTask);
+      }
+      on ServerException{
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else
+      return Left(ServerFailure());
+
     //return Right(_r);
     //throw UnimplementedError();
   }

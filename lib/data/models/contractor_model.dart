@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/domain/entity/contractor_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
@@ -28,7 +30,7 @@ class ContractorModel extends ContractorEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  ContractorModel({id,required usn,required serverId,required name, lat, lon, address, addressFloor, addressInfo, addressPorch, addressRoom, parent,}): super(
+  ContractorModel({id,required usn,required serverId,required name, lat, lon, address, addressFloor, addressInfo, addressPorch, addressRoom, parent, phones, persons}): super(
       id:id,
       usn:usn,
       serverId:serverId,
@@ -41,6 +43,8 @@ class ContractorModel extends ContractorEntity
       addressPorch:addressPorch,
       addressRoom:addressRoom,
       parent:parent,
+      phones:phones,
+      persons: persons,
     //client:client,
       //address:address
   );
@@ -121,7 +125,10 @@ class ContractorModel extends ContractorEntity
         addressPorch:json['address_porch'],
         addressRoom: json['address_room'],
         parent: json["parent"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?ContractorModel.fromJson(json["parent"]):null,
-        //client: json["client"]??"",
+        phones:json["phone"]!=null?(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList():<PhoneModel>[],
+        persons:json["person"]!=null?(json["person"] as List).map((person) => PersonModel.fromJson(person)).toList():<PersonModel>[],
+
+      //client: json["client"]??"",
         //address: json["address"]??""
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -72,6 +73,11 @@ class SetTaskTemplate extends TaskEvent
 {
   final TemplateModel template;
   SetTaskTemplate({required this.template});
+}
+class SetTaskContractor extends TaskEvent
+{
+  final ContractorModel contractor;
+  SetTaskContractor({required this.contractor});
 }
 class SaveNewTaskEvent extends TaskEvent
 {
