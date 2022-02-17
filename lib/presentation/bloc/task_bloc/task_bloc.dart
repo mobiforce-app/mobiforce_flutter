@@ -154,6 +154,29 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         );
 
     }
+    if (event is SetTaskAddress) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+
+      task.address=event.address;
+      task.addressFloor=event.addressFloor;
+      task.addressRoom=event.addressRoom;
+      task.addressInfo=event.addressInfo;
+      task.addressPorch=event.addressPorch;
+      task.lat=null;
+      task.lon=null;
+      yield TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments:comments,
+      );
+
+    }
     if (event is SetTaskContractor) {
       final comments =  (state as TaskLoaded).comments;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
@@ -173,8 +196,6 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         task.addressPorch=event.contractor.addressPorch;
       if(event.contractor.lat != null)
         task.lat=event.contractor.lat;
-      if(event.contractor.lon != null)
-        task.lon=event.contractor.lon;
       if(event.contractor.lon != null)
         task.lon=event.contractor.lon;
       //task.ph

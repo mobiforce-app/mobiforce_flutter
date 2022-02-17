@@ -79,6 +79,21 @@ class SetTaskContractor extends TaskEvent
   final ContractorModel contractor;
   SetTaskContractor({required this.contractor});
 }
+class SetTaskAddress extends TaskEvent
+{
+  final String address;
+  final String addressPorch;
+  final String addressFloor;
+  final String addressRoom;
+  final String addressInfo;
+  SetTaskAddress({
+    required this.address,
+    required this.addressPorch,
+    required this.addressFloor,
+    required this.addressRoom,
+    required this.addressInfo,
+  });
+}
 class SaveNewTaskEvent extends TaskEvent
 {
   final TaskEntity task;

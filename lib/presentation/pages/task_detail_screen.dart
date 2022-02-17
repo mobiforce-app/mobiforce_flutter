@@ -5,8 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+//import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+//import 'package:latlong2/latlong.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
@@ -27,9 +29,11 @@ import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/signature_screen.dart';
+import 'package:mobiforce_flutter/presentation/widgets/address_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/comment_input_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/contractor_selection_list_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/datetimepicker_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/input_field_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/status_editor_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
@@ -1279,41 +1283,94 @@ class TaskDetailPage extends StatelessWidget {
                   ),),
               ),
               child:
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              InkWell(
+                onTap:(){
+                  showModalBottomSheet(
+                    //routeSettings: ,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      isScrollControlled: true,
+                      context: context,
+                      //isDismissible: true,
+                      builder: (BuildContext context) {
+                        return
+                          FractionallySizedBox(
+                              heightFactor: 0.9,
+                              child:
+                              Padding(
+                                  padding: MediaQuery.of(context).viewInsets,
+                                  child: Container(
+                                   // color:Colors.red,
+                                    //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                                      child: AddressEditor(selectCallback: ({
+                                        required String address,
+                                        required String addressPorch,
+                                        required String addressFloor,
+                                        required String addressRoom,
+                                        required String addressInfo,
+                                      }){
+                                        BlocProvider.of<TaskBloc>(context)
+                                        ..add(SetTaskAddress(
+                                          address:address,
+                                          addressPorch:addressPorch,
+                                          addressFloor:addressFloor,
+                                          addressRoom:addressRoom,
+                                          addressInfo:addressInfo,
+                                        ));
+                                        Navigator.pop(context);
 
-                children: [
-                  Expanded(
-                    child:  Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Адрес",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black45,
+                                      },
+                                          address: state.task.address??"",
+                                          addressPorch: state.task.addressPorch??"",
+                                          addressFloor: state.task.addressFloor??"",
+                                          addressRoom: state.task.addressRoom??"",
+                                          addressInfo: state.task.addressInfo??"")
+                                  )
+                              ));
+                      }
+
+                  );
+                  //BlocProvider.of<ContractorSelectionBloc>(context)
+                  //  ..add(ReloadContractorSelection());
+
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+
+                  children: [
+                    Expanded(
+                      child:  Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Адрес",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black45,
+                              ),
                             ),
-                          ),
-                          Text(
-                            "$adressStr",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              //fontWeight: FontWeight.w600
+                            Text(
+                              "$adressStr",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                //fontWeight: FontWeight.w600
+                              ),
                             ),
-                          ),
-                        ],),
+                          ],),
 
 
+                      ),
                     ),
-                  ),
-                  Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
-                  ),
-                ],
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
+                    ),
+                  ],
+                ),
               ),
             ),
           )
