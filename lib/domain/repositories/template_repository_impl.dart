@@ -70,6 +70,25 @@ class TemplateRepositoryImpl implements TemplateRepository{
   }
 
   @override
+  Future<Either<Failure, TemplateModel>> getCurrentTemplate(int id) async {
+    if(await networkInfo.isConnected){
+      try{
+          final remoteTemplate = await remoteDataSources.getCurrentTemplate(id);//remoteDataSources.searchTask(query);
+        return Right(remoteTemplate);
+      }
+      on ServerException{
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else
+      return Left(ServerFailure());
+
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+
+  @override
   Future<Either<Failure, TaskEntity>>createTaskOnServer(TaskEntity task) async {
     if(await networkInfo.isConnected){
       try{

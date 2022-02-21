@@ -83,6 +83,11 @@ class TaskFieldModel extends TaskFieldEntity
         selectionValues: sv
     );
   }
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    map["id"]=serverId;
+    return map;
+  }
   factory TaskFieldModel.fromJson(Map<String, dynamic> json)
   {
 

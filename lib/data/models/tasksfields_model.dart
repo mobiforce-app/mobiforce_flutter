@@ -194,6 +194,24 @@ class TasksFieldsModel extends TasksFieldsEntity
        // name: map['name']
     );
   }
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    print("map fields ${taskField?.serverId} ${taskField?.type.string} ${stringValue}");
+    if(taskField?.type.value==TaskFieldTypeEnum.optionlist)
+      map["value"]=selectionValue?.toJson();
+    else if(taskField?.type.value==TaskFieldTypeEnum.text)
+      map["value"]=stringValue;
+    else if(taskField?.type.value==TaskFieldTypeEnum.number)
+      map["value"]=doubleValue;
+    else if(taskField?.type.value==TaskFieldTypeEnum.picture)
+    ;
+    else if(taskField?.type.value==TaskFieldTypeEnum.signature)
+    ;//await db.updateTaskFieldValue(taskFieldId:t.id,taskFieldValue:"${t.doubleValue}",update_usn: false);
+    else if(taskField?.type.value==TaskFieldTypeEnum.checkbox)
+      map["value"]=boolValue;
+    map["field"]=taskField?.toJson();
+    return map;
+  }
   factory TasksFieldsModel.fromJson(Map<String, dynamic> json,int? tabServerId)
   {
     print("json[fieldId] = ${json.toString()}");

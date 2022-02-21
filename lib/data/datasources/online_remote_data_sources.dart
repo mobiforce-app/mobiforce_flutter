@@ -11,6 +11,7 @@ import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobiforce_flutter/data/models/taskfield_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
@@ -29,6 +30,7 @@ abstract class OnlineRemoteDataSources{
   Future<List<ContractorModel>>getAllContractors(String name);
   Future<TaskEntity>createTaskOnServer(TaskEntity task);
   Future<ContractorModel> getCurrentContractor(int id);
+  Future<TemplateModel> getCurrentTemplate(int id);
 }
 
 class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
@@ -61,7 +63,7 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
         print("task ${task.toMap()}");
         int taskInsertId = await task.insertToDB(db);
         print("taskInsertId $taskInsertId");
-        final t = await db.getTask(taskInsertId);
+        final t = await db.getTask(taskInsertId, null);
         print("task_readed[$taskInsertId] ${(t as TaskModel).toMap()}");
         return t;
       }
@@ -105,6 +107,31 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
         url: "https://mobifors111.mobiforce.ru/api2.0/get-contractor.php?id=$id",
     );
     return ContractorModel.fromJson(results);
+  }
+
+Future<TemplateModel> getCurrentTemplate(int id) async {
+    var results = await _getObjectFromUrl(
+        url: "https://mobifors111.mobiforce.ru/api2.0/get-template.php?id=$id",
+    );
+    TemplateModel tm = TemplateModel.fromJson(results);
+    List<TasksFieldsModel> tfm = [];
+    if(tm.propsList!=null) {
+      int fid=1;
+      await Future.forEach(tm.propsList!, (TasksFieldsModel element) async {
+        element.tab = await db.getTasksFieldsTabIdByServerId(element.tabServerId);
+        element.id=fid++;
+        print("idddd $fid");
+        if(element.taskField!=null) {
+          int id = await element.taskField!.insertToDB(db);
+          element.taskField!.id = id;
+
+        }
+        tfm.add(element);
+      });
+    }
+    tm.propsList=tfm;
+    tm.propsList!.forEach((element) { print("idx ${element.id}");});
+    return tm;
   }
 
 

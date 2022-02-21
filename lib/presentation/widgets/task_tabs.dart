@@ -44,16 +44,18 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    print("build tabs");
     return DefaultTabController(
         //controller: _tabController,
         length: widget.tabs.length,
         child: Scaffold(
           appBar: AppBar(
 
-            title: widget.saveEnabled?Row(
-              children: [
-                Expanded(
-                  child: Column(
+            title: widget.saveEnabled?//Row(
+              //children: [
+              //  Expanded(
+            //      child:
+            Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                     Text(AppLocalizations.of(context)!.taskPageHeader),
@@ -62,11 +64,12 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
                             fontSize: 12,)
                     )
                   ],
-                  ),
-                ),
-                Icon(Icons.save_outlined)
-              ],
-            ):Column(
+                  )
+               // )//,
+                //Icon(Icons.save_outlined)
+              //],
+            //)
+                :Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
               Text(AppLocalizations.of(context)!.taskPageHeader),

@@ -18,6 +18,7 @@ import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/add_picture_to_field.dart';
@@ -43,11 +44,15 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
 import 'package:path_provider/path_provider.dart';
-//import 'package:dartz/dartz.dart';
+import 'package:collection/collection.dart';//import 'package:dartz/dartz.dart';
+import 'package:mobiforce_flutter/locator_service.dart' as di;
+
+import '../../../main.dart';
 // import 'equatabl'
 //enum PictureSourceEnum {camera, gallery}
 
 class TaskBloc extends Bloc<TaskEvent,TaskState> {
+//  final GlobalKey<NavigatorState> navigatorKey;
   final GetTask taskReader;
   final CreateTaskOnServer createTaskOnServer;
   //TaskEntity? task;
@@ -88,7 +93,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.addPictureToTaskField,
     required this.deletePictureToTaskField,
     required this.createTaskOnServer,
-
+//    required this.navigatorKey,
    // required this.addCommentWithPictureToTask,
   }) : super(TaskEmpty()) {
 
@@ -117,6 +122,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
               (task: task.id, page: 0));
         //await await Future.delayed(Duration(seconds: 2));
         yield FoL.fold((failure) => TaskError(message: "bad"), (comments) {
+          print("TaskLoaded");
+
           return TaskLoaded(isChanged: isChanged,
             task: task,
             needToUpdateTaskList: false,
@@ -128,6 +135,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       }
       else
         {
+          print("TaskLoaded");
+
           yield TaskLoaded(isChanged: isChanged,
               task: task,
               needToUpdateTaskList: false,
@@ -144,7 +153,33 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final isChanged=!(state as TaskLoaded).isChanged;
       final task = (state as TaskLoaded).task;
       task.template=event.template;
+      if(event.template.propsList!=null){
+        List<TasksFieldsModel> propsList=[];
+        event.template.propsList?.forEach((element) {
+          print("element.tabServerId ${element.tab} ${element.tabServerId} ${element.taskField?.name}");
+          TasksFieldsModel tfm = TasksFieldsModel(
+              id: element.id,
+              usn: 0,
+              serverId: 0,
+              valueRequired: false,
+              tab: element.tab,
+              parentLocalId:0,
+              taskField: element.taskField,
+              tabServerId: element.tabServerId,
+              fileValueList: <FileModel>[],
+          );
+          propsList.add(
+              tfm
+          );
+
+        });
+        task.propsList=propsList;
+      }
+      else
+        task.propsList=null;
       //yield StartLoadingTaskPage();
+      print("TaskLoaded");
+
       yield TaskLoaded(isChanged: isChanged,
           needToUpdateTaskList: false,
           task: task,
@@ -168,6 +203,27 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       task.addressPorch=event.addressPorch;
       task.lat=null;
       task.lon=null;
+      print("TaskLoaded");
+
+      yield TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments:comments,
+      );
+
+    }
+    if (event is NewPlannedVisitTimeTaskEvent) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+      print("wwwww ${(event.time!=null?event.time!.millisecondsSinceEpoch~/1000:null)}");
+      task.plannedVisitTime=(event.time!=null?event.time!.millisecondsSinceEpoch~/1000:null);
+      print("TaskLoaded");
+
       yield TaskLoaded(isChanged: isChanged,
         needToUpdateTaskList: false,
         task: task,
@@ -234,6 +290,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       }
       else
         task.persons=null;
+      print("TaskLoaded");
 
       //yield StartLoadingTaskPage();
       yield TaskLoaded(isChanged: isChanged,
@@ -328,6 +385,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           print("picture + ${event.fieldId} ${element.id}");
         });
         print("pickedFile ${pickedFile.toString()}");
+        print("TaskLoaded");
+
         yield TaskLoaded(isChanged: isChanged,
             needToUpdateTaskList: false,
             task: task,
@@ -377,6 +436,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             });
             syncToServer(ListSyncToServerParams());
             isChanged = !(state as TaskLoaded).isChanged;
+            print("TaskLoaded");
+
             return TaskLoaded(isChanged: isChanged,
                 task: task,
                 needToUpdateTaskList: false,
@@ -411,6 +472,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             print("picture + ${event.fieldId} ${element.id}");
           });
           syncToServer(ListSyncToServerParams());
+          print("TaskLoaded");
+
           return TaskLoaded(isChanged:isChanged,
               needToUpdateTaskList: false,
               task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: []);
@@ -444,6 +507,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             print("picture + ${event.fieldId} ${element.id}");
           });
           syncToServer(ListSyncToServerParams());
+          print("TaskLoaded");
+
           return TaskLoaded(isChanged:isChanged,
               needToUpdateTaskList: false,
               task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: []);
@@ -526,7 +591,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //else if(fieldElement?.taskField?.type.value==TaskFieldTypeEnum.checkbox)
       //  return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.boolValue==true?"1":"0");
 
-      if(fieldElement!=null) {
+      if(fieldElement!=null&&task.id!=0) {
         final FoL = await setTaskFieldSelectionValue(
             SetTaskFieldSelectionValueParams(taskField: fieldElement!));
         FoL.fold((failure) {print("error");}, (
@@ -549,6 +614,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //task.isChanged=!task.isChanged;
 
       print("task.isChanged ${task.isChanged}");
+      print("TaskLoaded");
+
       //yield TaskLoaded(isChanged:isChanged, task: task, nextTaskStatuses:nextTaskStatuses);
     }
     if (event is AddComment) {
@@ -568,6 +635,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       yield faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
         syncToServer(ListSyncToServerParams());
         comments.insert(0,comment);
+        print("TaskLoaded");
+
         return TaskLoaded(isChanged: isChanged,
           needToUpdateTaskList: false,
           task: task,
@@ -594,6 +663,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         }
       });
       //final faiureOrLoading = await loadFile(LoadFileParams(event.file!));
+      print("TaskLoaded");
 
       yield TaskLoaded(isChanged: isChanged,
         needToUpdateTaskList: false,
@@ -622,6 +692,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             print("element.file?.downloading ${element.file?.downloading}");
           }
         });
+        print("TaskLoaded");
 
         return TaskLoaded(isChanged: isChanged,
           needToUpdateTaskList: false,
@@ -649,6 +720,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
       });
       //final faiureOrLoading = await loadFile(LoadFileParams(event.file!));
+      print("TaskLoaded");
 
       yield TaskLoaded(isChanged: isChanged,
         needToUpdateTaskList: false,
@@ -677,6 +749,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             }
           });
         });
+        print("TaskLoaded");
 
         return TaskLoaded(isChanged: isChanged,
           needToUpdateTaskList: false,
@@ -710,6 +783,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         return faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (comment) {
           syncToServer(ListSyncToServerParams());
           comments.insert(0,comment);
+          print("TaskLoaded");
+
           return TaskLoaded(isChanged: isChanged,
             needToUpdateTaskList: false,
             task: task,
@@ -786,8 +861,13 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final isChanged=(state is TaskLoaded)?!(state as TaskLoaded).isChanged:true;
       //print("SetTaskStatus ${event.status} ${task.id} ${event.resolution} id:  ${event.id}");
       print("${(task as TaskModel).toMap()}");
+      if(task.propsList!=null)
+        task.propsList!.forEach((element) {
+          print("propsList element ${element.taskField?.name} ${(element.boolValue==true?"true":"false")} ${(element.stringValue)} ");
+        });
       //task.employees=[EmployeeModel(id: 0, usn: 0, serverId: 1, name: "name", webAuth: false, mobileAuth: true)];
       final fOl = await createTaskOnServer(CreateTaskOnServerParams(task:task));
+      yield StartLoadingTaskPage();
       yield await fOl.fold(
               (l) => TaskError(message: "message"),
               (TaskEntity task_readed) async {
@@ -795,6 +875,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
                 final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
                 return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) async {
                   //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+                  print("TaskLoaded");
 
                     return TaskLoaded(isChanged:isChanged,
                         needToUpdateTaskList: false,
@@ -807,6 +888,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final faiureOrLoading = await saveNewTask(SaveNewTaskParams(
         task: task,
       ));
+
+
 
       /*return await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
         //this.task = task_readed;
@@ -835,9 +918,14 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     if (event is NewTask) {
       Directory dir =  await getApplicationDocumentsDirectory();
       final isChanged=(state is TaskLoaded)?!(state as TaskLoaded).isChanged:true;
+      var date = new DateTime.now();
+      print("TaskLoaded");
       yield TaskLoaded(isChanged:isChanged,
           needToUpdateTaskList: false,
-          task: TaskModel(id: 0, serverId: 0), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[]);
+          task: TaskModel(id: 0, serverId: 0, plannedVisitTime: date.millisecondsSinceEpoch~/1000, lat: null, lon: null
+      ), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[]);
+      //navigatorKey.currentState?.pushNamed('TaskDetailPage');
+      di.sl<NavigationService>().navigatorKey.currentState?.pushNamed('TaskDetailPage');
       print("start sync");
     }
     if (event is ReloadTask) {
@@ -853,13 +941,15 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       //yield TaskListEmpty();
       yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
         final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
-        return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) async {
+        return FoL.fold((failure) =>TaskError(message:"bad"), (List<TaskLifeCycleNodeEntity> nextTaskStatuses_readed) async {
           //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
           print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()}");
-          if(task_readed.status?.systemStatusId == 1 && (nextTaskStatuses_readed.first.nextStatus.id) > 0){
+          TaskStatusModel? readedStatus = null;
+          readedStatus = nextTaskStatuses_readed.firstWhereOrNull((element) => element.nextStatus.systemStatusId == 3)?.nextStatus;
+          if(task_readed.status?.systemStatusId == 1 && readedStatus != null){
             var date = new DateTime.now();
             return await _setNewTaskStatus(ChangeTaskStatus(
-              status: nextTaskStatuses_readed.first.nextStatus.id,
+              status: readedStatus.id,
               comment: "",
               createdTime: date,
               manualTime: date,
@@ -870,6 +960,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             ), task_readed);
           }
           else{
+            print("TaskLoaded");
+
             return TaskLoaded(isChanged:true,
                 needToUpdateTaskList: false,
                 task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
@@ -878,24 +970,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         //return TaskLoaded(task: task);
       });
     }
-    /*if (event is GetTaskUpdatesFromServer) {
-      //m.startUpdate();
-    }
-    if (event is SetEmptyList) {
-      //   print("start sync");
-      yield TaskListEmpty();
-    }
-    if (event is ListTasks) {
-      yield* _mapFetchTaskToState();
-    }
-    if (event is BadListTasks) {
-      print("wait 10 sec");
-      yield TaskListError(message: "111");
-    }
-    else if (event is RefreshListTasks) {
-      print("map event!");
-      yield* _mapRefreshTaskToState();
-    }*/
+
   }
 
   Stream<TaskState> _mapRefreshTaskToState() async* {
@@ -947,6 +1022,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
         print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()} ${task_readed.toString()}");
         syncToServer(ListSyncToServerParams());
+        print("TaskLoaded");
+
         return TaskLoaded(isChanged:true,
             needToUpdateTaskList: true,
             task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);

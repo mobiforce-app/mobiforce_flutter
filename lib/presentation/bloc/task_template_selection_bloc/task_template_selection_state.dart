@@ -24,8 +24,9 @@ class TaskTemplateSelectionStateLoading extends TaskTemplateSelectionState{}
 
 class TaskTemplateSelectionStateLoaded extends TaskTemplateSelectionState{
   final List<TemplateEntity> taskTemlates;
+  final TemplateEntity? taskTemlate;
   final int id;
-  TaskTemplateSelectionStateLoaded({required this.taskTemlates, required this.id});
+  TaskTemplateSelectionStateLoaded({required this.taskTemlates, required this.id, this.taskTemlate});
 
   @override
   List<Object> get props => [id];

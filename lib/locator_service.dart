@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
@@ -29,6 +30,7 @@ import 'package:mobiforce_flutter/domain/usecases/load_file.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
+import 'package:mobiforce_flutter/main.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/fullSyncSteam.dart';
@@ -53,6 +55,7 @@ import 'domain/usecases/add_picture_to_field.dart';
 import 'domain/usecases/add_task_comment.dart';
 import 'domain/usecases/get_contractors.dart';
 import 'domain/usecases/get_current_contractor.dart';
+import 'domain/usecases/get_current_template.dart';
 import 'domain/usecases/get_new_task_number.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
@@ -70,7 +73,7 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
-  sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl()));
+  sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => ContractorSelectionBloc(contractors: sl(),currentContractor: sl()));
   sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
   //sl.registerFactory(() => SignaturePage();
@@ -88,7 +91,8 @@ Future<void>init() async
       addPictureToTaskField: sl(),
       deletePictureToTaskField: sl(),
       saveNewTask:sl(),
-      createTaskOnServer: sl()
+      createTaskOnServer: sl(),
+//      navigatorKey: sl()
     ));
 
 
@@ -98,6 +102,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetTaskTemplates(sl()));
   sl.registerLazySingleton(() => GetContractors(sl()));
   sl.registerLazySingleton(() => GetCurrentContractor(sl()));
+  sl.registerLazySingleton(() => GetCurrentTemplate(sl()));
   sl.registerLazySingleton(() => GetPictureFromCamera(fileRepository: sl()));
   sl.registerLazySingleton(() => AddPictureToTaskField(taskRepository: sl()));
   sl.registerLazySingleton(() => DeletePictureToTaskField(taskRepository: sl()));
@@ -202,5 +207,9 @@ Future<void>init() async
   //sl.registerLazySingleton(() => sharedPrefernces);
   //sl.registerLazySingleton(() => PushNotificationService());
   sl.registerLazySingleton(() => http.Client());
+  //sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => InternetConnectionChecker());
+  //final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
+  //sl.registerLazySingleton(() => _navigatorKey);
+  sl.registerLazySingleton(() => NavigationService());
 }

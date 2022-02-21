@@ -26,11 +26,11 @@ class HomePage extends StatelessWidget {
                   BlocProvider.of<TaskBloc>(context).add(
                     NewTask(),
                   );
-                  Navigator.push(context,
+                  /*Navigator.push(context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) => TaskDetailPage(),
                     transitionDuration: Duration(seconds: 0),
-                  ));
+                  ));*/
                   //MaterialPageRoute(
                   //builder: (context)=> TaskDetailPage(task: task,)
                   //));

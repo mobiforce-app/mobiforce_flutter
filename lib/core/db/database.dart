@@ -668,7 +668,7 @@ class DBProvider {
     return taskFieldSelectionValuesMap;
 
   }
-  Future<TaskModel> getTask(int id) async {
+  Future<TaskModel> getTask(int id, int? internalSelfId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.rawQuery(
         "SELECT "
@@ -808,6 +808,7 @@ class DBProvider {
         taskPhoneMap:taskPhoneMapList,
         tasksFieldsFilesMap:tasksFieldsFilesMapList,
         unreadedComments:unreadedComments.length,
+        internalSelfId: internalSelfId
     );
   }
   Future<List<TaskLifeCycleNodeEntity>> getNextStatuses(int ?id, int? lifecycle) async {

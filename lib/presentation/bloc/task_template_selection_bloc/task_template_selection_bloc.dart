@@ -25,6 +25,7 @@ import 'package:mobiforce_flutter/domain/usecases/add_task_comment.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_current_template.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
@@ -49,6 +50,7 @@ import 'package:path_provider/path_provider.dart';
 
 class TaskTemplateSelectionBloc extends Bloc<TaskTemplateSelectionEvent,TaskTemplateSelectionState> {
   final GetTaskTemplates taskTemplates;
+  final GetCurrentTemplate currentTemplate;
   /*final GetTask taskReader;
 
   //TaskEntity? task;
@@ -90,6 +92,7 @@ class TaskTemplateSelectionBloc extends Bloc<TaskTemplateSelectionEvent,TaskTemp
     required this.deletePictureToTaskField,
 */
      required this.taskTemplates,
+     required this.currentTemplate,
     }
   ) : super(TaskTemplateSelectionStateEmpty()) {
 
@@ -116,14 +119,32 @@ class TaskTemplateSelectionBloc extends Bloc<TaskTemplateSelectionEvent,TaskTemp
 
     }
     if(event is LoadCurrentTaskTemplate) {
-      if(id==0) {
+/*      if(id==0) {
         final List<TemplateEntity> templates = (state as TaskTemplateSelectionStateLoaded).taskTemlates;
         print("event.id: ${event.id}");
         yield TaskTemplateSelectionStateLoaded(taskTemlates:templates, id: event.id);
         await Future.delayed(Duration(seconds: 1));
 
         yield TaskTemplateSelectionStateSelect(taskTemlate:(templates.firstWhere((element) => element.serverId==event.id) as TemplateModel));
+      }*/
+      if(id==0) {
+        final List<TemplateEntity> templates = (state as TaskTemplateSelectionStateLoaded).taskTemlates;
+        print("event.id: ${event.id}");
+        yield TaskTemplateSelectionStateLoaded(taskTemlates:templates, id: event.id);
+        await Future.delayed(Duration(seconds: 1));
+        final faiureOrLoading = await currentTemplate(TemplateParams(id: event.id));
+        yield faiureOrLoading.fold(
+                (l) => TaskTemplateSelectionStateFailure(),
+                (r) {
+              print("loaded contractor ${r.propsList.toString()}");
+              //return ContractorSelectionStateSelect(contractor:(r as ContractorModel));
+              return TaskTemplateSelectionStateLoaded(taskTemlates:templates, id: 0, taskTemlate:r);
+            }
+        );
+
+//        yield ContractorSelectionStateSelect(contractor:(contractors.firstWhere((element) => element.serverId==event.id) as ContractorModel));
       }
+
       //print("start")
       //yield TaskTemplateSelectionStateLoading();
       //await Future.delayed(Duration(seconds: 1));

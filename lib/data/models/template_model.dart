@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:mobiforce_flutter/core/db/database.dart';
+import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -27,12 +28,13 @@ class TemplateModel extends TemplateEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TemplateModel({required id,required usn,required serverId,required name,color,}): super(
+  TemplateModel({required id,required usn,required serverId,required name,color,propsList}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       color:color,
+      propsList:propsList,
   );
   Map<String, dynamic> toJson(){
     final map=Map<String, dynamic>();
@@ -73,6 +75,11 @@ class TemplateModel extends TemplateEntity
   }
   factory TemplateModel.fromJson(Map<String, dynamic> json)
   {
+    var propsList = json["props"]!=null?(json["props"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,1)).toList():<TasksFieldsModel>[];
+    //print("ok2");
+    var checkList = json["checklist"]!=null?(json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,2)).toList():<TasksFieldsModel>[];
+    propsList.addAll(checkList);
+
     //print('employeejsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return TemplateModel(
@@ -81,6 +88,8 @@ class TemplateModel extends TemplateEntity
         serverId: int.parse(json["id"]??0),
         name: json["name"]??"",
         color: json["color"],
+        propsList:propsList,
+
     );
   }
   /*fromMap(Map<String, dynamic> map)

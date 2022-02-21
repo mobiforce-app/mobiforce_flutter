@@ -74,6 +74,11 @@ class SetTaskTemplate extends TaskEvent
   final TemplateModel template;
   SetTaskTemplate({required this.template});
 }
+class NewPlannedVisitTimeTaskEvent extends TaskEvent
+{
+  final DateTime? time;
+  NewPlannedVisitTimeTaskEvent({this.time});
+}
 class SetTaskContractor extends TaskEvent
 {
   final ContractorModel contractor;

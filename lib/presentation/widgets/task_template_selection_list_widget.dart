@@ -65,34 +65,41 @@ class TaskTemplateSelectionList extends StatelessWidget {
         return BlocBuilder<TaskTemplateSelectionBloc, TaskTemplateSelectionState>(
             builder: (context, state) {
               print("loaded");
-              if (state is TaskTemplateSelectionStateSelect) {
-                WidgetsBinding.instance!.addPostFrameCallback((_) {
-                  // Navigation
-                  //di.sl<SyncBloc>().add(FullSyncingStart());
-                  /*Navigator.pushReplacement(context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation1, animation2) => SyncPage(),
-                        transitionDuration: Duration(seconds: 0),
-                      )
-                  );*/
-                  print("callback");
-                  selectCallback(template: state.taskTemlate!);
-                });
+/*              if (state is TaskTemplateSelectionStateSelect) {
                 return Container();
               }
-
-              if(state is TaskTemplateSelectionStateLoading)
-                return Wrap(children:[Padding(
+*/
+              if (state is TaskTemplateSelectionStateLoading)
+                return Wrap(children: [Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Center(child: CircularProgressIndicator(),),
-                )]);
-              if(state is TaskTemplateSelectionStateLoaded)
-                print(state.taskTemlates);
-                final List<Widget> templates = (state as TaskTemplateSelectionStateLoaded).taskTemlates.map((element) {
+                )
+                ]);
+              if (state is TaskTemplateSelectionStateLoaded) {
+                if(state.taskTemlate!=null)
+                {
+                  WidgetsBinding.instance!.addPostFrameCallback((_) {
+                    // Navigation
+                    //di.sl<SyncBloc>().add(FullSyncingStart());
+                    /*Navigator.pushReplacement(context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation1, animation2) => SyncPage(),
+                                transitionDuration: Duration(seconds: 0),
+                              )
+                          );*/
+                    print("callback");
+                    selectCallback(template: (state.taskTemlate as TemplateModel));
+                  });
+                }
+
+        //print(state.taskTemlates);
+                final List<
+                    Widget> templates = (state as TaskTemplateSelectionStateLoaded)
+                    .taskTemlates.map((element) {
                   return
 
                     InkWell(
-                      onTap:(){
+                      onTap: () {
                         BlocProvider.of<TaskTemplateSelectionBloc>(context)
                           ..add(LoadCurrentTaskTemplate(
                               id: element.serverId
@@ -116,25 +123,31 @@ class TaskTemplateSelectionList extends StatelessWidget {
                             Expanded(
                               child: Text(element.name,
                                   style: TextStyle(
-                                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600)
                               ),
                             ),
-                            element.serverId==state.id?
+                            element.serverId == state.id ?
                             SizedBox(
                               child: CircularProgressIndicator(),
                               height: 20.0,
                               width: 20.0,
-                            ):Container(),
+                            ) : Container(),
 
                           ],
                         ),
                       ),
-                    );}
+                    );
+                }
                 ).toList();
                 return Padding(
-                padding: MediaQuery.of(context).viewInsets,
-                child:Wrap(children:templates),
-              );
+                  padding: MediaQuery
+                      .of(context)
+                      .viewInsets,
+                  child: Wrap(children: templates),
+                );
+              }
               return Text("ok");
             }
         );

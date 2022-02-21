@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
@@ -22,7 +23,7 @@ class TaskModel extends TaskEntity
 {
 
   TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
-              author, employees,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
+              author, employees,employee,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
               externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,
   }): super(
       isChanged:isChanged,
@@ -38,6 +39,7 @@ class TaskModel extends TaskEntity
       propsList:propsList,
       checkList:checkList,
       author:author,
+      employee:employee,
       employees:employees,
       phones:phones,
       persons:persons,
@@ -58,10 +60,37 @@ class TaskModel extends TaskEntity
   );
 
   Map<String, dynamic> toJson(){
+    final DateFormat formatter = DateFormat('yyyy-MM-dd\THH:mm:ss');
     final map=Map<String, dynamic>();
     map["template"]=template?.toJson();
     map["employees"]=employees?.map((e) => e.toJson()).toList();
     map["employee"]=employees?[0].toJson();
+    map["address"]=address;
+    map["addressFloor"]=addressFloor;
+    map["addressInfo"]=addressInfo;
+    map["addressPorch"]=addressPorch;
+    map["addressRoom"]=addressRoom;
+    map["plannedVisitTime"]=plannedVisitTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(
+        1000 * (plannedVisitTime ?? 0))):null;
+    if(lat!=null)
+        map["lat"]=lat;
+    if(lon!=null)
+      map["lon"]=lon;
+    if(contractor!=null)
+      map["contractor"]=contractor?.toJson();
+
+    map["employee"]=employees?[0].toJson();
+    List<Map<String, dynamic>> props=[];
+    List<Map<String, dynamic>> checklist=[];
+    propsList?.forEach((TasksFieldsModel element) {
+      if(element.tab == 1)
+        props.add(element.toJson());
+      else if(element.tab == 2)
+        checklist.add(element.toJson());
+
+    });
+    map["props"]=props;
+    map["checklist"]=checklist;
     return map;
   }
 
@@ -254,6 +283,7 @@ class TaskModel extends TaskEntity
     List<Map<String, dynamic>> taskPhoneMap = const [],
     List<Map<String, dynamic>> tasksFieldsFilesMap = const [],
     int unreadedComments = 0,
+    int? internalSelfId
   })
   {
    // id = map['id'];
@@ -334,11 +364,13 @@ class TaskModel extends TaskEntity
     });
         //var fieldList1=tasksFieldsFilesMap.map((tasksField) => TasksFieldsModel.fromMap(tasksField,{})).toList();
 
-    //print("statusMap = ${statusMap.toString()}");
+    //print("taskMap = ${taskMap.toString()}");
     return TaskModel(
         id: taskMap['id'],
         isChanged:false,
         usn: taskMap['usn'],
+        employee:internalSelfId!=null?EmployeeModel(id: internalSelfId, usn: 0, serverId: 0, name: "", webAuth: false, mobileAuth: false):null,
+        author: taskMap['author']!=null?EmployeeModel(id: taskMap['author'], usn: 0, serverId: 0, name: "", webAuth: false, mobileAuth: false):null,
         lat: double.tryParse(taskMap['lat']??"0"),
         lon: double.tryParse(taskMap['lon']??"0"),
         serverId: taskMap['external_id'],

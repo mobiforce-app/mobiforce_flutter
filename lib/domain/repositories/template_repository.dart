@@ -16,5 +16,6 @@ abstract class TemplateRepository{
   Future<Either<Failure, List<TemplateModel>>>getAllTemplates(int page);
   Future<Either<Failure, List<ContractorModel>>>getAllContractors(String name);
   Future<Either<Failure, ContractorModel>> getCurrentContractor(int id);
+  Future<Either<Failure, TemplateModel>> getCurrentTemplate(int id);
   Future<Either<Failure, TaskEntity>>createTaskOnServer(TaskEntity task);
 }

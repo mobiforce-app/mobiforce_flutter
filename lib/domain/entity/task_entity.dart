@@ -41,6 +41,7 @@ class TaskEntity extends Equatable{
  // String subdivision;
   TaskStatusModel? status;
   EmployeeModel? author;
+  EmployeeModel? employee;
   TemplateModel? template;
   List<EmployeeModel>? employees;
   List<PhoneModel>? phones;
@@ -71,6 +72,7 @@ class TaskEntity extends Equatable{
       this.employees,
       this.template,
       this.author,
+      this.employee,
       this.phones,
       this.persons,
       this.deleted,

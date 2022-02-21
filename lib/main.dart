@@ -17,6 +17,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event
 //import 'package:mobiforce_flutter/locator_service.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasksearch_bloc/tasksearch_bloc.dart';
 import 'package:mobiforce_flutter/presentation/pages/login_screen.dart';
+import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -52,7 +53,13 @@ void main() async {
   di.sl<PushNotificationService>();
   runApp(MyApp());
 }
-
+class NavigationService {
+  final GlobalKey<NavigatorState> navigatorKey =
+  new GlobalKey<NavigatorState>();
+  Future<dynamic> navigateTo(String routeName) {
+    return navigatorKey.currentState!.pushNamed(routeName);
+  }
+}
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   //final SharedPreferences sharedPreferences;
@@ -73,6 +80,15 @@ class MyApp extends StatelessWidget {
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
       ], child: MaterialApp(
+            navigatorKey: di.sl<NavigationService>().navigatorKey,
+            onGenerateRoute: (routeSettings) {
+              switch (routeSettings.name) {
+                case 'TaskDetailPage':
+                  return MaterialPageRoute(builder: (context) => TaskDetailPage());
+                //default:
+                  //return MaterialPageRoute(builder: (context) => HomeView());
+              }
+            },
             localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,

@@ -87,6 +87,13 @@ class SelectionValueModel extends SelectionValueEntity
         name: map['name']
     );
   }
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    map["name"]=name;
+    map["id"]=serverId;
+    return map;
+  }
+
   factory SelectionValueModel.fromJson(Map<String, dynamic> json)
   {
     //print("SelectionValueModel $json");

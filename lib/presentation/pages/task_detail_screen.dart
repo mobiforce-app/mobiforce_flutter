@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 //import 'package:flutter_map/flutter_map.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 //import 'package:latlong2/latlong.dart';
@@ -410,6 +411,7 @@ class TaskDetailPage extends StatelessWidget {
     print("rebiult it ${_keyboardVisible ? "1" : "0"}");
     return BlocBuilder<TaskBloc, TaskState>(
       builder: (context, state) {
+        print("rebiult $state");
         if (state is StartLoadingTaskPage)
           return Scaffold(
               appBar: AppBar(
@@ -423,10 +425,6 @@ class TaskDetailPage extends StatelessWidget {
           bool editEnabledAddress=state.task.id==0?true:false;
           bool saveEnabled=state.task.id==0?true:false;
           bool editEnabledTemplate=state.task.id==0?true:false;
-          if(state.task.id==0){
-            var date = new DateTime.now();
-            state.task.plannedVisitTime = (date.millisecondsSinceEpoch~/1000);
-          }
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             // Navigation
             BuildContext bc=context;
@@ -438,38 +436,15 @@ class TaskDetailPage extends StatelessWidget {
               }
             //});
 
-            /*BlocProvider.of<TaskListBloc>(context)
-                  ..add(RefreshListTasks());
-                Navigator.pushReplacement(context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation1, animation2) => HomePage(),
-                      transitionDuration: Duration(seconds: 0),
-                    ));*/
             //print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first?.id??0}");
             print("try to add! ${state.task.status?.systemStatusId}");
 
-            /*if ((state.task.status?.systemStatusId == 1 ||
-                    state.task.status?.systemStatusId == 2) &&
-                (state.nextTaskStatuses?.first.nextStatus.id ?? 0) > 0) {
-              print("add! ${state.nextTaskStatuses?.first.nextStatus.id}");
-              var date = new DateTime.now();
-              BlocProvider.of<TaskBloc>(context)
-                ..add(ChangeTaskStatus(
-                  status: state.nextTaskStatuses?.first.nextStatus.id ?? 0,
-                  comment: "",
-                  createdTime: date,
-                  manualTime: date,
-                  timeChanging: false,
-                  dateChanging: false,
-                  commentChanging: false,
-                  commentRequired: false,
-                ));
-            }*/
+
           });
 
           List<List<Widget>> _kTabPages = [[], [], []];
           final DateFormat formatter = DateFormat('dd.MM.yyyy HH:mm');
-
+          print("state.task.plannedVisitTime ${state.task.plannedVisitTime}");
           var plannedVisitTimeString = state.task.plannedVisitTime != null
               ? formatter.format(new DateTime.fromMillisecondsSinceEpoch(
                   1000 * (state.task.plannedVisitTime ?? 0)))
@@ -602,7 +577,7 @@ class TaskDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
                       child: InkWell(
                           onTap:(){
-
+                            DateTime? newPlannedVisitTime=null;
                             List<Widget> bbb = [
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
@@ -619,6 +594,8 @@ class TaskDetailPage extends StatelessWidget {
                               DateTimeInput(
                               //controller:_manualTimeController,
                                 onChange: (DateTime time){
+                                  print("DateTime $time");
+                                  newPlannedVisitTime = time;
                                   //print("time: $time");
                                   //setState((){
                                   //  manualTime=time;
@@ -646,10 +623,12 @@ class TaskDetailPage extends StatelessWidget {
                                       ),
                                       onPressed: ()
                                       {
-                                        //BlocProvider.of<TaskBloc>(context)
-                                        //  ..add(SaveNewTaskEvent(
-                                        //      task: state.task
-                                        //  ));
+                                        BlocProvider.of<TaskBloc>(context)
+                                          ..add(NewPlannedVisitTimeTaskEvent(
+                                              time: newPlannedVisitTime
+                                          ));
+                                        Navigator.pop(context);
+
                                       },
                                       child:Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -1268,8 +1247,8 @@ class TaskDetailPage extends StatelessWidget {
           );
         }
           String adressStr= "${state.task.address ?? ""} ${state.task.addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task.addressRoom ?? ""} ${state.task.addressInfo ?? ""} ".trim();
-        if(adressStr.length==0)
-          adressStr=AppLocalizations.of(context)!.taskNoAddress;
+        //if(adressStr.length==0)
+          //adressStr=AppLocalizations.of(context)!.taskNoAddress;
     if(editEnabledAddress) {
       list.add(
           Padding(
@@ -1353,7 +1332,7 @@ class TaskDetailPage extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "$adressStr",
+                              adressStr.length>0?adressStr:AppLocalizations.of(context)!.taskNoAddress,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.black,
@@ -1408,7 +1387,7 @@ class TaskDetailPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
-                      adressStr,
+                      AppLocalizations.of(context)!.taskNoAddress,
                       style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
@@ -1430,6 +1409,7 @@ class TaskDetailPage extends StatelessWidget {
                 )
               ],
             ));
+            print("mapButtonType $mapButtonType");
             final Widget mapWidget= (mapButtonType>0)?
           //   SizedBox(
           //     height: 8,
@@ -1475,10 +1455,17 @@ class TaskDetailPage extends StatelessWidget {
                 //final String googleMapslocationUrl = "https://www.google.com/maps/search/?api=1&query=37.759392,-122.5107336}";
 
                 //final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
-                final String encodedURl = "geo:${state.task.lat},${state.task.lon}";
-
-                await launch(encodedURl);
-              },
+                if(mapButtonType==2){
+                  //final String encodedURl =
+                  //    "geo:${state.task.lat},${state.task.lon}";
+                  await MapsLauncher.launchQuery(adressStr);
+                }
+                else {
+                      final String encodedURl =
+                          "geo:${state.task.lat},${state.task.lon}";
+                      await launch(encodedURl);
+                    }
+                  },
               child: mapBottonWidget,
             ):
             Opacity(opacity: 0.5,
@@ -2536,7 +2523,7 @@ class TaskDetailPage extends StatelessWidget {
                             || prop.taskField?.type.value ==
                                 TaskFieldTypeEnum.text && (prop.stringValue
                                 ?.trim()
-                                ?.length ?? 0) == 0
+                                .length ?? 0) == 0
                             || prop.taskField?.type.value ==
                                 TaskFieldTypeEnum.checkbox &&
                                 !(prop.boolValue ?? false)
@@ -2708,13 +2695,13 @@ class TaskDetailPage extends StatelessWidget {
           //Map<int,Widget> groups={};
           _kTabPages[0] = list;
 
-          List<List<Widget>> propsLists =[[],[]];
+          List<List<Widget>> propsLists =[[],[],[]];
           int propsCounter=0;
           state.task.propsList?.forEach((element) {
             //          if(element.tab==1)
             //        {
             {
-              print("element.tab ${element.tab}");
+              print("element.tab [${element.id}] ${element.tab} ${element.taskField?.name}");
               if((element.tab ?? 1) - 1 == 0)
                 propsCounter++;
               final List<Widget> lst = propsLists[(element.tab ?? 1) - 1];
@@ -2756,7 +2743,8 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                 );
                 print("state.task.status?.systemStatusId ${state.task.status?.systemStatusId}");
-                if(((element.tab ?? 0) == 2)&&state.task.status?.systemStatusId != 7)
+                print("state.task.author?.id == state.task.employees?.first.id ${state.task.author?.id} ${state.task.employee?.id}");
+                if(((element.tab ?? 0) == 2)&&state.task.status?.systemStatusId != 7 || state.task.status?.systemStatusId == null ||state.task.author!=null&&state.task.employee!=null&&state.task.author?.id == state.task.employee?.id)
                   lst.add(getTaskFieldElement(element, state.appFilesDirectory));
                 else
                   lst.addAll(getTaskFieldElementPassive(element, state.appFilesDirectory, context));
@@ -2966,7 +2954,7 @@ class TaskDetailPage extends StatelessWidget {
           final _kTabs = <Tab>[
             Tab(text: AppLocalizations.of(context)!.taskTabMain),
             Tab(text: AppLocalizations.of(context)!.taskTabChecklist),
-            Tab(text: unreadedComment),
+
           ];
           final _kTabPages1 = <Widget>[
             SingleChildScrollView(
@@ -2985,11 +2973,16 @@ class TaskDetailPage extends StatelessWidget {
             //   child: Column(
             //   crossAxisAlignment: CrossAxisAlignment.start,
             //   children:
-            _kTabPages[2][0]
+            //state.task.id>0?_kTabPages[2][0]:Container()
             // ),
             // ),
             // ),
           ];
+          if(state.task.id>0)
+            {
+              _kTabPages1.add(_kTabPages[2][0]);
+              _kTabs.add(Tab(text: unreadedComment));
+            }
           List<Widget> floatButton = [
             Text("${state.task.status?.name}",
                 style: TextStyle(
@@ -3011,11 +3004,12 @@ class TaskDetailPage extends StatelessWidget {
           ElevatedButton(
               style: ButtonStyle(
                   backgroundColor:
-                  MaterialStateProperty.all(Colors.green)
+                  ((state.task.template?.serverId??0)>0)?MaterialStateProperty.all(Colors.green):MaterialStateProperty.all(Colors.grey)
               ),
               onPressed: ()
               {
-                BlocProvider.of<TaskBloc>(context)
+                if((state.task.template?.serverId??0)>0)
+                  BlocProvider.of<TaskBloc>(context)
                   ..add(SaveNewTaskEvent(
                     task: state.task
                   ));

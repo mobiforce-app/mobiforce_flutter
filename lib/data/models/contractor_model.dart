@@ -107,6 +107,13 @@ class ContractorModel extends ContractorEntity
         parent:map["parent"]!=null?ContractorModel.fromMap(map["parent"]):null
     );
   }
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    map["name"]=name;
+    map["id"]=serverId;
+    return map;
+  }
+
   factory ContractorModel.fromJson(Map<String, dynamic> json)
   {
     //print('Contractor jsonjson ${json} ');

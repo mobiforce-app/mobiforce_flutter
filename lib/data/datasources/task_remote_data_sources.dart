@@ -156,7 +156,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   }
   @override
   Future<TaskModel> getTask(int id) async{
-    return await db.getTask(id);
+    final int selfId = sharedPreferences.getInt("self_id")??0;
+    int? internalSelfId = null;
+    print("self_id $selfId");
+    if(selfId!=0){
+      internalSelfId = await db.getEmployeeIdByServerId(selfId);
+    }
+    return await db.getTask(id, internalSelfId);
   }
   @override
   Future<int> newTaskPicture() async{
@@ -196,7 +202,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
         lat: 0.0, lon:0.0, dirty:true);
     print("resolution $resolution");
     await db.addStatusToTask(ts:ts,resolution: resolution,update_usn: true);
-    return await db.getTask(task);
+    return await db.getTask(task,null);
   }
 
 
