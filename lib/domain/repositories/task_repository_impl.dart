@@ -9,6 +9,7 @@ import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
+import 'package:mobiforce_flutter/domain/entity/phone_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_comment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
@@ -70,6 +71,13 @@ class TaskRepositoryImpl implements TaskRepository{
   Future<Either<Failure, FileModel>>addTaskFieldPicture({required int taskFieldId, required int pictureId}) async {
     print("picture id= $pictureId");
     return Right(await remoteDataSources.addPictureTaskField(taskFieldId:taskFieldId,pictureId:pictureId));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+   @override
+   Future<Either<Failure, PhoneEntity>>addNewPhone({required String name}) async {
+    //print("picture id= $pictureId");
+    return Right(await remoteDataSources.addNewPhone(name:name));
     //return Right(_r);
     //throw UnimplementedError();
   }

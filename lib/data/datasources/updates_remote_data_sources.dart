@@ -63,6 +63,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
         'data': mapObjects
       };
       print("domain=$domain, access_token=$accessToken, objectType = $objectType");
+      print("${data.toString()}");
       final response = await client.post(Uri.parse("https://$domain/api2.0/send-update.php"),
 
           headers:{
@@ -85,7 +86,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
       }
     }
     catch (error) {
-      print("error!!! $error");
+      print("error!!!+6 $error");
       return 0;
       //throw ServerException();
     }

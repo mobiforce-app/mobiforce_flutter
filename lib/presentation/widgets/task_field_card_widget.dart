@@ -252,7 +252,7 @@ class _taskFieldCheckboxState extends State<TaskFieldCheckboxCard> {
 
 class TaskFieldSelectionCard extends StatefulWidget {
   final String name;
-  final List<DropdownMenuItem<int>> items;
+  final List<SelectionValueModel>? items;
   final int fieldId;
   final bool valueRequired;
   dynamic? val;
@@ -279,17 +279,33 @@ class _taskFieldSelectionState extends State<TaskFieldSelectionCard> {
   }
   @override
   Widget build(BuildContext context) {
+
+    List<DropdownMenuItem<int>> ddmi = (widget.items
+        ?.map((el) => DropdownMenuItem(
+      child: (widget.val?.id!=el.id)?Text("${el.name}",style: TextStyle(
+          color: Colors.black45,
+      //    fontWeight: FontWeight.bold
+      )):Text("${el.name}"),
+      value: el.id,
+    )) ??
+        [])
+        .toList();
     return
     //Container()
         Padding(
             padding: const EdgeInsets.only(left:16.0,right:16.0),
             child: DropdownButtonFormField(
               isExpanded:true,
+            //elevation: 4,
+             isDense: false,
+              //  selectedItemBuilder:(BuildContext context)=>ddmi,
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
+              contentPadding: EdgeInsets.fromLTRB(0,0,0,8),
               //isDense: true,
+              //iconS,
               //labelText: "${widget.name}",
-              label: Row(children: [Text(widget.name),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),)],),
+              label: Row(children: [Text("${widget.name}"),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),)],),
               suffixIcon: widget.val?.id!=null?IconButton(
                 icon: Icon(Icons.cancel),
                 onPressed: (){
@@ -304,14 +320,22 @@ class _taskFieldSelectionState extends State<TaskFieldSelectionCard> {
                 },
               ):null,
             ),
-            items: widget.items,
+            items: ddmi,//widget.items,
             onChanged: (data){
               print("data: $data");
 
-              widget.val=SelectionValueModel(id: int.parse("$data"), serverId: 0, name: "", deleted: false, sorting: 0);
-              BlocProvider.of<TaskBloc>(context).add(
-                ChangeSelectionFieldValue(fieldId:widget.fieldId,value:data),
-              );
+              setState(() {
+                widget.val = SelectionValueModel(id: int.
+                parse("$data"),
+                    serverId: 0,
+                    name: "",
+                    deleted: false,
+                    sorting: 0);
+                BlocProvider.of<TaskBloc>(context).add(
+                  ChangeSelectionFieldValue(
+                      fieldId: widget.fieldId, value: data),
+                );
+              });
             },
             value: widget.val?.id,
           ),

@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/equipment_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -25,9 +27,9 @@ class ReloadTask extends TaskEvent
 }
 class NewTask extends TaskEvent
 {
-  //final int page;
+  final TemplateModel template;
 
-  NewTask();
+  NewTask({required this.template});
 }
 class SetTaskReaded extends TaskEvent
 {
@@ -74,6 +76,16 @@ class SetTaskTemplate extends TaskEvent
   final TemplateModel template;
   SetTaskTemplate({required this.template});
 }
+class SetTaskEquipment extends TaskEvent
+{
+  final EquipmentModel equipment;
+  SetTaskEquipment({required this.equipment});
+}
+class SetTaskPerson extends TaskEvent
+{
+  final PersonModel person;
+  SetTaskPerson({required this.person});
+}
 class NewPlannedVisitTimeTaskEvent extends TaskEvent
 {
   final DateTime? time;
@@ -102,7 +114,8 @@ class SetTaskAddress extends TaskEvent
 class SaveNewTaskEvent extends TaskEvent
 {
   final TaskEntity task;
-  SaveNewTaskEvent({required this.task});
+  final Function callback;
+  SaveNewTaskEvent({required this.task, required this.callback});
 }
 class ChangeBoolFieldValue extends TaskEvent
 {
@@ -160,6 +173,20 @@ class AddComment extends TaskEvent
   //final int fieldId;
   final String value;
   AddComment({required this.value});
+}
+class AddPhone extends TaskEvent
+{
+  //final int fieldId;
+  final String value;
+  final int? id;
+  final int? personId;
+  AddPhone({required this.value, this.id, this.personId});
+}
+class DeletePhone extends TaskEvent
+{
+  //final int fieldId;
+  final int id;
+  DeletePhone({required this.id});
 }
 
 class ShowTaskComment extends TaskEvent

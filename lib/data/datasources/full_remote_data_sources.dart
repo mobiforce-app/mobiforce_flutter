@@ -32,7 +32,7 @@ class FullRemoteDataSourcesImpl implements FullRemoteDataSources
     //final auth = json.decode(response.body);
     //return SyncModel(lastUpdateCount: fullSyncUpdateId+50,lastSyncTime: 0,fullSync: true,dataLength: 0,dataList: <SyncObjectEntity>[]);//.fromJson(auth['results']);
     print('fullSyncUpdateId = $fullSyncUpdateId, objectType = $objectType');
-    try{
+    //try{
       Map data = {
         'lastUpdateCount': fullSyncUpdateId,
         'objectType': objectType
@@ -57,11 +57,11 @@ class FullRemoteDataSourcesImpl implements FullRemoteDataSources
         print("My exception");
         throw ServerException();
       }
-    }
-    catch (error) {
-      print("error!!! $error");
-      throw ServerException();
-    }
+    //}
+    //catch (error) {
+      //print("error!!!+2 $error");
+      //throw ServerException();
+    //}
   }
   
 }

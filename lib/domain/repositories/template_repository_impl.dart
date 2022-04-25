@@ -7,6 +7,7 @@ import 'package:mobiforce_flutter/core/platform/network_info.dart';
 import 'package:mobiforce_flutter/data/datasources/online_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/datasources/task_remote_data_sources.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/equipment_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
@@ -37,6 +38,25 @@ class TemplateRepositoryImpl implements TemplateRepository{
     if(await networkInfo.isConnected){
       try{
         final remoteTask = await remoteDataSources.getAllContractors(name);//remoteDataSources.searchTask(query);
+        return Right(remoteTask);
+      }
+      on ServerException{
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else
+      return Left(ServerFailure());
+
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+  @override
+  Future<Either<Failure, List<EquipmentModel>>>getAllEquipments({String? query, int? contractor}) async
+  {
+    if(await networkInfo.isConnected){
+      try{
+        final remoteTask = await remoteDataSources.getAllEquipments(query:query, contractor:contractor);//remoteDataSources.searchTask(query);
         return Right(remoteTask);
       }
       on ServerException{
@@ -121,6 +141,24 @@ class TemplateRepositoryImpl implements TemplateRepository{
     }
     else
     return Left(ServerFailure());
+  }
+
+  @override
+  Future<Either<Failure, EquipmentModel>> getCurrentEquipment(int id) async {
+    if(await networkInfo.isConnected){
+      try{
+        final remoteTask = await remoteDataSources.getCurrentEquipment(id);//remoteDataSources.searchTask(query);
+        return Right(remoteTask);
+      }
+      on ServerException{
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else
+      return Left(ServerFailure());
+    // TODO: implement getCurrentEquippment
+//    throw UnimplementedError();
   }
 
 }

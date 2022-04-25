@@ -12,6 +12,8 @@ import 'package:intl/intl.dart';
 //import 'package:latlong2/latlong.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
+import 'package:mobiforce_flutter/data/models/equipment_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
@@ -25,6 +27,8 @@ import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/co
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
@@ -35,7 +39,11 @@ import 'package:mobiforce_flutter/presentation/widgets/comment_input_widget.dart
 import 'package:mobiforce_flutter/presentation/widgets/contractor_selection_list_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/datetimepicker_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/input_field_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/person_selection_list_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/phone_input_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/save_task_btn_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/status_editor_widget.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_equipment_selection_list_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_field_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_tabs.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
@@ -78,19 +86,13 @@ class TaskDetailPage extends StatelessWidget {
   Widget getTaskFieldElement(
       TasksFieldsEntity element, String appFilesDirectory) {
     if (element.taskField?.type.value == TaskFieldTypeEnum.optionlist) {
-      List<DropdownMenuItem<int>> ddmi = (element.taskField?.selectionValues
-                  ?.map((element) => DropdownMenuItem(
-                        child: Text("${element.name}"),
-                        value: element.id,
-                      )) ??
-              [])
-          .toList();
+
       return TaskFieldSelectionCard(
         name: element.taskField?.name ?? "",
         fieldId: element.id,
         val: element.selectionValue,
         valueRequired: element.valueRequired,
-        items: ddmi,
+        items: element.taskField?.selectionValues,//ddmi,
       );
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.text) {
       return TaskFieldTextCard(
@@ -420,26 +422,26 @@ class TaskDetailPage extends StatelessWidget {
               ),
               body: LinearProgressIndicator());
         else if (state is TaskLoaded) {
-          bool editEnabledPlannedVisitTime=state.task.id==0?true:false;
-          bool editEnabledContractor=state.task.id==0?true:false;
-          bool editEnabledAddress=state.task.id==0?true:false;
-          bool saveEnabled=state.task.id==0?true:false;
-          bool editEnabledTemplate=state.task.id==0?true:false;
+          bool editEnabledPlannedVisitTime = state.task.id == 0 ? true : false;
+          bool editEnabledContractor = state.task.id == 0 ? true : false;
+          bool editEnabledAddress = state.task.id == 0 ? true : false;
+          bool editEnabledEquipment = state.task.id == 0 ? true : false;
+          bool saveEnabled = state.task.id == 0 ? true : false;
+          bool editEnabledTemplate = state.task.id == 0 ? true : false;
+          bool editPersons = state.task.id == 0 ? true : false;
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             // Navigation
-            BuildContext bc=context;
+            BuildContext bc = context;
             //Future.delayed(Duration(seconds: 10),() {
-              if (state.needToUpdateTaskList) {
-                print("reload main page");
-                BlocProvider.of<TaskListBloc>(bc)
-                  ..add(RefreshCurrenTaskInListTasks(task:state.task));
-              }
+            if (state.needToUpdateTaskList) {
+              print("reload main page");
+              BlocProvider.of<TaskListBloc>(bc)
+                ..add(RefreshCurrenTaskInListTasks(task: state.task));
+            }
             //});
 
             //print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first?.id??0}");
             print("try to add! ${state.task.status?.systemStatusId}");
-
-
           });
 
           List<List<Widget>> _kTabPages = [[], [], []];
@@ -447,44 +449,45 @@ class TaskDetailPage extends StatelessWidget {
           print("state.task.plannedVisitTime ${state.task.plannedVisitTime}");
           var plannedVisitTimeString = state.task.plannedVisitTime != null
               ? formatter.format(new DateTime.fromMillisecondsSinceEpoch(
-                  1000 * (state.task.plannedVisitTime ?? 0)))
+              1000 * (state.task.plannedVisitTime ?? 0)))
               : AppLocalizations.of(context)!.taskNoPlannedVisitTime;
           var date = new DateTime.fromMillisecondsSinceEpoch(
-              (state.task.statuses?.first.manualTime??0) * 1000);
-          final String statusDateFormatted = state.task.statuses?.first.manualTime!=null?formatter.format(date)
+              (state.task.statuses?.first.manualTime ?? 0) * 1000);
+          final String statusDateFormatted = state.task.statuses?.first
+              .manualTime != null ? formatter.format(date)
               : AppLocalizations.of(context)!.taskNoStatusManualTime;
 
           final Widget statusField =
-              Container(
-                //height: 16,
-                //width: 16,
-                decoration: BoxDecoration(
-                    color: HexColor.fromHex("${state.task.statuses?.first.status.color}"),
-                    borderRadius: BorderRadius.circular(16),
-                    /*boxShadow:<BoxShadow>[
+          Container(
+            //height: 16,
+            //width: 16,
+              decoration: BoxDecoration(
+                color: HexColor.fromHex(
+                    "${state.task.statuses?.first.status.color}"),
+                borderRadius: BorderRadius.circular(16),
+                /*boxShadow:<BoxShadow>[
                       BoxShadow(
                         color: Colors.black,
                         offset: Offset(1.0, 1.0),
                         blurRadius: 4.0,
                       ),
                     ],*/
-                ),
-                child: Padding(
-                padding: const EdgeInsets.fromLTRB(12.0,4.0,12.0,4.0,),
-                child:Text(
-                  "${(state.task.statuses?.first.status.name??"").toUpperCase()}",
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 4.0,),
+                child: Text(
+                  "${(state.task.statuses?.first.status.name ?? "")
+                      .toUpperCase()}",
                   style: TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                       fontWeight: FontWeight.w600
-                      ),
+                  ),
                 ),)
-            );
+          );
 
 
-
-
-          List<Widget> list = [/*
+          List<Widget> list = [ /*
           editEnabledPlannedVisitTime?
           Padding(
             padding: const EdgeInsets.fromLTRB(16,16,16,8),
@@ -536,52 +539,57 @@ class TaskDetailPage extends StatelessWidget {
             ),
           )
           :*/
-          SizedBox(height: 16,),
-              Row(
+            SizedBox(height: 16,),
+            Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
 
-                child:
+                    child:
                     Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                            Text(
-                            "Дата запланированного визита",
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.taskPlannedVisitTime,
                             style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black45,
-                            //fontWeight: FontWeight.w600
+                              fontSize: 14,
+                              color: Colors.black45,
+                              //fontWeight: FontWeight.w600
                             ),
-                            ),
-                            SizedBox(height: 4,),
-                            Text(
-                              "${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))} ",
-                              overflow: TextOverflow.ellipsis,
-                              //softWrap: false,
-                              //maxLines: 1,
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                           ],
-                        ),
+                          ),
+                          SizedBox(height: 4,),
+                          Text(
+                            "${plannedVisitTimeString.replaceAll(
+                                ' ', String.fromCharCode(0x00A0))} ",
+                            overflow: TextOverflow.ellipsis,
+                            //softWrap: false,
+                            //maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
 
                     ),
                   ),
-                  editEnabledPlannedVisitTime?Padding(
+                  editEnabledPlannedVisitTime ? Padding(
                       padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
                       child: InkWell(
-                          onTap:(){
-                            DateTime? newPlannedVisitTime=null;
+                          onTap: () {
+                            DateTime? newPlannedVisitTime = null;
                             List<Widget> bbb = [
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: Text("Дата планируемого визита ${state.task.plannedVisitTime}", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                child: Text(
+                                    AppLocalizations.of(context)!
+                                        .taskPlannedVisitTime, style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold)),
                               ),
                               Divider(
                                 color: Colors.black12, //color of divider
@@ -592,51 +600,53 @@ class TaskDetailPage extends StatelessWidget {
                               )
                               ,
                               DateTimeInput(
-                              //controller:_manualTimeController,
-                                onChange: (DateTime time){
-                                  print("DateTime $time");
-                                  newPlannedVisitTime = time;
-                                  //print("time: $time");
-                                  //setState((){
-                                  //  manualTime=time;
-                                  //});
+                                //controller:_manualTimeController,
+                                  onChange: (DateTime time) {
+                                    print("DateTime $time");
+                                    newPlannedVisitTime = time;
+                                    //print("time: $time");
+                                    //setState((){
+                                    //  manualTime=time;
+                                    //});
 
-                                },
-                                val:DateTime
-                                    .fromMillisecondsSinceEpoch(
-                                    (state.task.plannedVisitTime??0)
-                                         *
-                                        1000),
-                                prevStatusTime:null,
-                                nextStatusTime:null,
-                                timeChanging:true,
-                                dateChanging:true
-                            ),
-                            Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child:                                       Center(
-                            child:
-                            ElevatedButton(
+                                  },
+                                  val: DateTime
+                                      .fromMillisecondsSinceEpoch(
+                                      (state.task.plannedVisitTime ?? 0)
+                                          *
+                                          1000),
+                                  prevStatusTime: null,
+                                  nextStatusTime: null,
+                                  timeChanging: true,
+                                  dateChanging: true
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child:
+                                  ElevatedButton(
                                       style: ButtonStyle(
                                           backgroundColor:
-                                          MaterialStateProperty.all(Colors.green)
+                                          MaterialStateProperty.all(
+                                              Colors.green)
                                       ),
-                                      onPressed: ()
-                                      {
+                                      onPressed: () {
                                         BlocProvider.of<TaskBloc>(context)
                                           ..add(NewPlannedVisitTimeTaskEvent(
                                               time: newPlannedVisitTime
                                           ));
                                         Navigator.pop(context);
-
                                       },
-                                      child:Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                                        child: Text("Сохранить"),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0, vertical: 8),
+                                        child: Text(AppLocalizations.of(context)!
+                                            .savePlennedVisitTime),
                                       )
                                   ),
                                 ),
-                              )];
+                              )
+                            ];
                             showModalBottomSheet(
                               isScrollControlled: true,
                               shape: RoundedRectangleBorder(
@@ -647,11 +657,12 @@ class TaskDetailPage extends StatelessWidget {
                                   Wrap(children: (bbb)),);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(Icons.calendar_today, color: Colors.black45,),
+                            padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
+                            child: Icon(
+                              Icons.calendar_today, color: Colors.grey[700]!,),
                           )
                       )
-                  ):
+                  ) :
                   Container()
                   /*
               Padding(
@@ -1109,259 +1120,289 @@ class TaskDetailPage extends StatelessWidget {
                     child: statusField
                 ),
               ),*/
-            ]),
+                ]),
 
 
-
-
-
-
-            ];
-          String clientNameString="";
+          ];
+          String clientNameString = "";
           if (state.task.contractor?.id != null) {
             final String contractorParent = (state.task.contractor?.parent
                 ?.name ?? "").trim();
             final String contractorName = (state.task.contractor?.name ?? "")
                 .trim();
-            clientNameString=("$contractorParent${contractorParent.length>0?",":""} $contractorName").trim();
+            clientNameString = ("$contractorParent${contractorParent.length > 0
+                ? ","
+                : ""} $contractorName").trim();
           }
           else
-            clientNameString=AppLocalizations.of(context)!.taskNoClient;
+            clientNameString = AppLocalizations.of(context)!.taskNoClient;
 
-        if(editEnabledContractor){
-          list.add(
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    //color:Colors.red,
-                    border: Border(
-                      bottom:
-                      BorderSide(width: 1.0, color: Colors.grey
-                      ),),
-                  ),
-                  child:
-                  InkWell(
-                    onTap: (){
-                      //print("##");
-                      showModalBottomSheet(
-                      //routeSettings: ,
-                      shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      isScrollControlled: true,
-                      context: context,
-                      //isDismissible: true,
-                      builder: (BuildContext context) {
-                        return
-                        FractionallySizedBox(
-                          heightFactor: 0.9,
-                          child:
-                        Padding(
-                            padding: MediaQuery.of(context).viewInsets,
-                            child: ContractorSelectionList(
-                            selectCallback: (
-                                {required ContractorModel contractor}) {
-                              print("SET CONTRACTOR NAME ${contractor.name}");
-                              BlocProvider.of<TaskBloc>(context)
-                                ..add(SetTaskContractor(
-                                    contractor: contractor
-                                ));
-                              Navigator.pop(context);
+          if (editEnabledContractor) {
+            list.add(
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      //color:Colors.red,
+                      border: Border(
+                        bottom:
+                        BorderSide(width: 1.0, color: Colors.grey
+                        ),),
+                    ),
+                    child:
+                    InkWell(
+                      onTap: () {
+                        //print("##");
+                        showModalBottomSheet(
+                          //routeSettings: ,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            isScrollControlled: true,
+                            context: context,
+                            //isDismissible: true,
+                            builder: (BuildContext context) {
+                              return
+                                FractionallySizedBox(
+                                    heightFactor: 0.9,
+                                    child:
+                                    Padding(
+                                        padding: MediaQuery
+                                            .of(context)
+                                            .viewInsets,
+                                        child: ContractorSelectionList(
+                                            selectCallback: (
+                                                {required ContractorModel contractor}) {
+                                              print(
+                                                  "SET CONTRACTOR NAME ${contractor
+                                                      .name}");
+                                              BlocProvider.of<TaskBloc>(context)
+                                                ..add(SetTaskContractor(
+                                                    contractor: contractor
+                                                ));
+                                              Navigator.pop(context);
+                                            }
+                                        )));
                             }
-                        )));
-                      }
 
-                      );
-                      BlocProvider.of<ContractorSelectionBloc>(context)
-                        ..add(ReloadContractorSelection());
+                        );
+                        BlocProvider.of<ContractorSelectionBloc>(context)
+                          ..add(ReloadContractorSelection());
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
 
-                    },
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        Expanded(
-                          child:  Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Клиент",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black45,
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(context)!.taskClient,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black45,
+                                        ),
+                                      ),
+                                      state.task.template?.requiredContractor==true?Text(" *",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.w600)
+                                      ):Container()
+                                    ],
                                   ),
-                                ),
-                                Text(
-                                  "$clientNameString",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                    //fontWeight: FontWeight.w600
+                                  Text(
+                                    "$clientNameString",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      //fontWeight: FontWeight.w600
+                                    ),
                                   ),
-                                ),
-                              ],),
+                                ],),
 
 
+                            ),
                           ),
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                            child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
-                        ),
-                      ],
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                              child: Icon(
+                                Icons.arrow_drop_down, color: Colors.grey[700]!,)
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              )
-          );
-        }
-        else {
-          list.add(
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                "Клиент",
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600
-                ),
-              ),
-            )
-          );
-          list.add(
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Text(
-                clientNameString,
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                //    fontWeight: FontWeight.w600
-                ),
-              ),
-            )
-          );
-        }
-          String adressStr= "${state.task.address ?? ""} ${state.task.addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task.addressRoom ?? ""} ${state.task.addressInfo ?? ""} ".trim();
-        //if(adressStr.length==0)
+                )
+            );
+          }
+          else {
+            list.add(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Text(
+                    AppLocalizations.of(context)!.taskClient,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                    ),
+                  ),
+                )
+            );
+            list.add(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                  child: Text(
+                    clientNameString,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      //    fontWeight: FontWeight.w600
+                    ),
+                  ),
+                )
+            );
+          }
+          String adressStr = "${state.task.address ?? ""} ${state.task
+              .addressPorch ?? ""} ${state.task.addressFloor ?? ""} ${state.task
+              .addressRoom ?? ""} ${state.task.addressInfo ?? ""} ".trim();
+          //if(adressStr.length==0)
           //adressStr=AppLocalizations.of(context)!.taskNoAddress;
-    if(editEnabledAddress) {
-      list.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-            child: Container(
-              decoration: const BoxDecoration(
-                //color:Colors.red,
-                border: Border(
-                  bottom:
-                  BorderSide(width: 1.0, color: Colors.grey
-                  ),),
-              ),
-              child:
-              InkWell(
-                onTap:(){
-                  showModalBottomSheet(
-                    //routeSettings: ,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      isScrollControlled: true,
-                      context: context,
-                      //isDismissible: true,
-                      builder: (BuildContext context) {
-                        return
-                          FractionallySizedBox(
-                              heightFactor: 0.9,
-                              child:
-                              Padding(
-                                  padding: MediaQuery.of(context).viewInsets,
-                                  child: Container(
-                                   // color:Colors.red,
-                                    //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
-                                      child: AddressEditor(selectCallback: ({
-                                        required String address,
-                                        required String addressPorch,
-                                        required String addressFloor,
-                                        required String addressRoom,
-                                        required String addressInfo,
-                                      }){
-                                        BlocProvider.of<TaskBloc>(context)
-                                        ..add(SetTaskAddress(
-                                          address:address,
-                                          addressPorch:addressPorch,
-                                          addressFloor:addressFloor,
-                                          addressRoom:addressRoom,
-                                          addressInfo:addressInfo,
-                                        ));
-                                        Navigator.pop(context);
-
-                                      },
-                                          address: state.task.address??"",
-                                          addressPorch: state.task.addressPorch??"",
-                                          addressFloor: state.task.addressFloor??"",
-                                          addressRoom: state.task.addressRoom??"",
-                                          addressInfo: state.task.addressInfo??"")
-                                  )
-                              ));
-                      }
-
-                  );
-                  //BlocProvider.of<ContractorSelectionBloc>(context)
-                  //  ..add(ReloadContractorSelection());
-
-                },
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-
-                  children: [
-                    Expanded(
-                      child:  Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Адрес",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black45,
-                              ),
-                            ),
-                            Text(
-                              adressStr.length>0?adressStr:AppLocalizations.of(context)!.taskNoAddress,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                //fontWeight: FontWeight.w600
-                              ),
-                            ),
-                          ],),
-
-
-                      ),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                        child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-      );
-    }
-        else
+          if(state.task.template?.enabledAddress==true)
           {
+          if (editEnabledAddress) {
+            list.add(
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      //color:Colors.red,
+                      border: Border(
+                        bottom:
+                        BorderSide(width: 1.0, color: Colors.grey
+                        ),),
+                    ),
+                    child:
+                    InkWell(
+                      onTap: () {
+                        showModalBottomSheet(
+                          //routeSettings: ,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            isScrollControlled: true,
+                            context: context,
+                            //isDismissible: true,
+                            builder: (BuildContext context) {
+                              return
+                                FractionallySizedBox(
+                                    heightFactor: 0.9,
+                                    child:
+                                    Padding(
+                                        padding: MediaQuery
+                                            .of(context)
+                                            .viewInsets,
+                                        child: Container(
+                                          // color:Colors.red,
+                                          //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                                            child: AddressEditor(
+                                                selectCallback: ({
+                                                  required String address,
+                                                  required String addressPorch,
+                                                  required String addressFloor,
+                                                  required String addressRoom,
+                                                  required String addressInfo,
+                                                }) {
+                                                  BlocProvider.of<TaskBloc>(
+                                                      context)
+                                                    ..add(SetTaskAddress(
+                                                      address: address,
+                                                      addressPorch: addressPorch,
+                                                      addressFloor: addressFloor,
+                                                      addressRoom: addressRoom,
+                                                      addressInfo: addressInfo,
+                                                    ));
+                                                  Navigator.pop(context);
+                                                },
+                                                address: state.task.address ??
+                                                    "",
+                                                addressPorch: state.task
+                                                    .addressPorch ?? "",
+                                                addressFloor: state.task
+                                                    .addressFloor ?? "",
+                                                addressRoom: state.task
+                                                    .addressRoom ?? "",
+                                                addressInfo: state.task
+                                                    .addressInfo ?? "")
+                                        )
+                                    ));
+                            }
+
+                        );
+                        //BlocProvider.of<ContractorSelectionBloc>(context)
+                        //  ..add(ReloadContractorSelection());
+
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(context)!.taskAddress,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black45,
+                                    ),
+                                  ),
+                                  Text(
+                                    adressStr.length > 0
+                                        ? adressStr
+                                        : AppLocalizations.of(context)!
+                                        .taskNoAddress,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      //fontWeight: FontWeight.w600
+                                    ),
+                                  ),
+                                ],),
+
+
+                            ),
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              child: Icon(
+                                Icons.arrow_drop_down, color: Colors.black45,)
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+            );
+          }
+          else {
             list.add(
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                   child: Text(
-                    "Адрес",
+                    AppLocalizations.of(context)!
+                        .taskAddress,
                     style: TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -1370,7 +1411,7 @@ class TaskDetailPage extends StatelessWidget {
                 )
             );
 
-            if(adressStr.length>0)
+            if (adressStr.length > 0)
               list.add(Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
@@ -1396,6 +1437,7 @@ class TaskDetailPage extends StatelessWidget {
                   )
               );
           }
+        }
           print("state.task.lat!=null ${(state.task.lat!=null&&state.task.lon!=null)?1:0}");
             final int mapButtonType=(state.task.lat!=null&&state.task.lon!=null&&state.task.lat!=0.0&&state.task.lon!=0.0)?1:((adressStr.length>0)?2:0);
             final Widget mapBottonWidget=Padding(
@@ -1410,7 +1452,7 @@ class TaskDetailPage extends StatelessWidget {
               ],
             ));
             print("mapButtonType $mapButtonType");
-            final Widget mapWidget= (mapButtonType>0)?
+            final Widget mapWidget= (mapButtonType>0&&state.task.template?.enabledAddress==true)?
           //   SizedBox(
           //     height: 8,
           //   ),
@@ -1474,7 +1516,6 @@ class TaskDetailPage extends StatelessWidget {
           // ]);
           RegExp exp = RegExp(r"[^+ 0-9]+");
           int phoneCount=0;
-          List<Widget> phonesWidget=[];
 //          if ((state.task.phones?.length??0) != 0) {
            /* phonesWidget.add(
                 Row(
@@ -1503,117 +1544,8 @@ class TaskDetailPage extends StatelessWidget {
             );*/
 
             //phoneCount+=(state.task.phones?.length??0);
-            List<Widget> phones = [];
-            if(state.task.phones!=null)
-            state.task.phones!.forEach((e) {
-              final tel=e.name.replaceAll(exp, '').trim();
-              if(tel.length>0) {
-                phones.add(InkWell(
-                  onTap: () {
-                    launch("tel:${e.name.replaceAll(exp, '')}");
-                  },
-                  child: Align(
-                    alignment: Alignment.topLeft, //(
-                    //color:Colors.green,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 6.0),
-                      child: Row(
-                        children: [
-                          Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                              child: Icon(Icons.phone)),
-                          Text(
-                            "${e.name} ",
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ));
-                phoneCount++;
-              }
-            });
 
-            phonesWidget.addAll(phones);
-  //        }
-          if (state.task.persons != null) {
-            state.task.persons?.forEach((element) {
-              //phoneCount+=(element.phones?.length??0);
-              //String? phoneStr = element.phones?.map((e) => e.name).join(", ");
-              phonesWidget.add(Padding(
-                padding:  const EdgeInsets.fromLTRB(16.0,16.0,16.0,8.0),
-                child: Text(
-                  "${element.name} ",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      ),
-                ),
-              )
-              );
-              List<Widget> phones = [];
-
-              if((element.phones?.length??0)!=0) {
-                element.phones!.forEach((e) {
-                  if(e.name.replaceAll(exp, '').trim().length>0)
-                  {
-                    phones.add(InkWell(
-                      onTap: () { //${e.name.replaceAll(exp, '')
-                        launch("tel:${e.name.replaceAll(exp, '')}");
-                      },
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                              8.0, 8.0, 8.0, 8.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      8.0, 8.0, 8.0, 8.0),
-                                  child: Icon(Icons.phone)
-                              ),
-                              Text(
-                                "${e.name.replaceAll(exp, '')} ",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    );
-                    phoneCount++;
-                  }
-                });
-              }
-              if(phones.length>0)
-                phonesWidget.addAll(phones);
-              else{
-                phonesWidget.add(
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0,16.0,16.0,16.0),
-                      child: Text(
-                        AppLocalizations.of(context)!.taskNoPhones,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    )
-                );
-              }
-            });
-          }
-          final Widget contactsButtonWidget = Padding(
+    final Widget contactsButtonWidget = Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [Icon(Icons.contact_phone), Padding(
@@ -1622,7 +1554,7 @@ class TaskDetailPage extends StatelessWidget {
                 )],
               ));
           print ("phoneCount $phoneCount");
-          final Widget phoneWidget= (phoneCount>0)?
+          final Widget phoneWidget= ((state.task.phones?.length??0) != 0 || (state.task.persons?.length??0) != 0) ?//  || state.task.status?.systemStatusId == null)?
           //   SizedBox(
           //     height: 8,
           //   ),
@@ -1637,101 +1569,272 @@ class TaskDetailPage extends StatelessWidget {
                   context: context,
                   //isDismissible: true,
                   builder: (BuildContext context) {
-                    /*
-    return Stack(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:[
-                      Text(
-                        AppLocalizations.of(context)!.taskStatusHistory,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        "${AppLocalizations.of(context)!.workflow}: ${state.task.lifecycle?.name} ",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black45,
-                        ),
-                      ),
-                    ])
-            ),
-            InkWell(
-              onTap: ()=>Navigator.pop(context),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Icon(Icons.close, color: Colors.black45,),
-              ),
-            )
-          ],
-        ),
-        DraggableScrollableSheet(
-        initialChildSize: 0.5, //set this as you want
-        maxChildSize: 0.8, //set this as you want
-        minChildSize: 0.5, //set this as you want
-        expand: false,
-        builder: (context, scrollController) {
-                                */return Container(
+                    return Padding(
+                        padding: MediaQuery.of(context).viewInsets,
+                    child:Container(
                       //padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(
-                                            AppLocalizations.of(context)!.taskPhones,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w600),
-                                          )
-                                ),
-                                InkWell(
-                                  onTap: ()=>Navigator.pop(context),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Icon(Icons.close, color: Colors.black45,),
-                                  ),
-                                )
-                              ],
-                            )
-                            ,
-                            Divider(
-                              color: Colors.black12, //color of divider
-                              height: 1, //height spacing of divider
-                              //thickness: 3, //thickness of divier line
-                              // indent: 16, //spacing at the start of divider
-                              //endIndent: 25, //spacing at the end of divider
-                            )
-                            ,
-                            Flexible(
-                              child:
-                              /*child:ListView.builder(
-                                     controller: scrollController, // set this too
-                                     itemBuilder: (_, i) =>ListTile(title: Text('Item $i')),
-                                   ),*/
-                              ListView(
-                                //reverse: true,
-
-                                shrinkWrap: true,
-                                children: phonesWidget,
-                              ),
+                      child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                    Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                            padding:
+                            const EdgeInsets.all(16.0),
+                            child: Text(
+                              AppLocalizations.of(context)!
+                                  .taskPhones,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight:
+                                  FontWeight.w600),
+                            )),
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Padding(
+                            padding:
+                            const EdgeInsets.all(16.0),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.black45,
                             ),
-                          ],
+                          ),
                         )
+                      ],
+                    ),
+                    Divider(
+                    color: Colors.black12,
+                    //color of divider
+                    height: 1, //height spacing of divider
+                    //thickness: 3, //thickness of divier line
+                    // indent: 16, //spacing at the start of divider
+                    //endIndent: 25, //spacing at the end of divider
+                    ),
+                    Flexible(
+                    child:
+                    BlocBuilder<TaskBloc, TaskState>(
+                    builder: (context, state) {
+                      if(state is TaskLoaded)
+                      {
+                        List<Widget> phonesWidget=[];
+                              List<Widget> phones = [];
+                              if (state.task.phones != null)
+                                state.task.phones!.forEach((e) {
+                                  final tel = e.name.replaceAll(exp, '').trim();
+                                  if (tel.length > 0) {
+                                    phones.add(Dismissible(
+                                      key: UniqueKey(),//Key("t${e.id}"),
+                                      onDismissed: (DismissDirection dir) {
+                                        print("dismiss ${e.id}");
+                                        BlocProvider.of<TaskBloc>(context).add(
+                                          DeletePhone(id:e.id),
+                                        );
+                                      },
+                                      background: Container(
+                                          color: Colors.red,
+                                          alignment: Alignment.centerLeft,
+                                          child: const Icon(Icons.delete)),
+                                      secondaryBackground: Container(
+                                          color: Colors.red,
+                                          alignment: Alignment.centerRight,
+                                          child: const Icon(Icons.delete)),
+                                      child: InkWell(
+                                        onTap: () {
+                                          launch(
+                                              "tel:${e.name.replaceAll(exp, '')}");
+                                        },
+                                        child: Align(
+                                          alignment: Alignment.topLeft, //(
+                                          //color:Colors.green,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                8.0, 6.0, 8.0, 6.0),
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                    padding: const EdgeInsets
+                                                            .fromLTRB(
+                                                        8.0, 8.0, 8.0, 8.0),
+                                                    child: Icon(Icons.phone)),
+                                                Text(
+                                                  "${e.name}",
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ));
+                                    phoneCount++;
+                                  }
+                                });
+                              if (state.task.id == 0) {
+                                phones.add(PhoneInput(val: ""));
+                              }
+
+                              phonesWidget.addAll(phones);
+                              //        }
+
+                              if (state.task.persons != null) {
+                                state.task.persons?.forEach((element) {
+                                  print("state.task.persons ${element.name}");
+                                  //phoneCount+=(element.phones?.length??0);
+                                  //String? phoneStr = element.phones?.map((e) => e.name).join(", ");
+                                  phonesWidget.add(Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        16.0, 16.0, 16.0, 8.0),
+                                    child: Text(
+                                      "${element.name}",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ));
+                                  List<Widget> phones = [];
+
+                                  if ((element.phones?.length ?? 0) != 0) {
+                                    element.phones!.forEach((e) {
+                                      if (e.name
+                                              .replaceAll(exp, '')
+                                              .trim()
+                                              .length >
+                                          0) {
+                                        phones.add(InkWell(
+                                          onTap: () {
+                                            //${e.name.replaceAll(exp, '')
+                                            launch(
+                                                "tel:${e.name.replaceAll(exp, '')}");
+                                          },
+                                          child: Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      8.0, 8.0, 8.0, 8.0),
+                                              child: Row(
+                                                children: [
+                                                  Padding(
+                                                      padding: const EdgeInsets
+                                                              .fromLTRB(
+                                                          8.0, 8.0, 8.0, 8.0),
+                                                      child: Icon(Icons.phone)),
+                                                  Text(
+                                                    "${e.name.replaceAll(exp, '')} ***${e.id}",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ));
+                                        phoneCount++;
+                                      }
+                                    });
+                                  }
+                                  if (state.task.id == 0) {
+                                    phones.add(InkWell(
+                                      onTap: () {
+                                        //launch("tel:${e.name.replaceAll(exp, '')}");
+                                      },
+                                      child: Align(
+                                        alignment: Alignment.topLeft, //(
+                                        //color:Colors.green,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              8.0, 6.0, 8.0, 6.0),
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          8.0, 8.0, 8.0, 8.0),
+                                                  child: Icon(Icons.phone,
+                                                      color: Colors.black45)),
+                                              Text(
+                                                AppLocalizations.of(context)!
+                                                    .addNewPhoneNumber,
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black45,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ));
+                                  }
+
+                                  if (phones.length > 0)
+                                    phonesWidget.addAll(phones);
+                                  else {
+                                    phonesWidget.add(Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16.0, 16.0, 16.0, 16.0),
+                                      child: Text(
+                                        AppLocalizations.of(context)!
+                                            .taskNoPhones,
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ));
+                                  }
+                                });
+                              }
+                              if (state.task.id == 0) {
+                                phonesWidget.add(InkWell(
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        16.0, 16.0, 16.0, 16.0),
+                                    child: Text(
+                                      AppLocalizations.of(context)!
+                                          .addNewPerson,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black45,
+                                      ),
+                                    ),
+                                  ),
+                                ));
+                              }
+
+                              print("___rebuild ${phonesWidget.length}");
+                              return
+                                ListView.builder(
+                                  itemCount: phonesWidget.length,
+                                       //controller: scrollController, // set this too
+                                       itemBuilder: (_, i) =>phonesWidget.length>i?phonesWidget[i]:Container(),
+                                     );
+                                         /*   ListView(
+                                          //reverse: true,
+
+                                          shrinkWrap: true,
+                                          children: phonesWidget,
+                                        );*/
+
+                            }
+                      else
+                        return Container();
+                          }))
+                      ],
+                      ))
                     );
                                 });
             //})
@@ -1755,14 +1858,103 @@ class TaskDetailPage extends StatelessWidget {
               child:contactsButtonWidget)
           ;
 
-          list.add(Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children:[mapWidget,phoneWidget]
-            ),
-          ));
-//          if (propsCounter>0) {
+          if(editPersons){
+
+            Widget contactSelectionBtn = Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+
+              children: [
+                Expanded(
+                  child:  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.taskPerson,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black45,
+                          ),
+                        ),
+                        Text(
+                          "${state.task.persons?[0]?.name??AppLocalizations.of(context)!.taskPersonEmpty}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: (state.task.contractor?.persons?.length??0)>0?Colors.black:Colors.black45,
+                            //fontWeight: FontWeight.w600
+                          ),
+                        ),
+                      ],),
+
+
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                    child: Icon(Icons.arrow_drop_down, color: Colors.grey[700]!,)
+                ),
+              ],
+            );
+
+            list.add(Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+              child: Container(
+                decoration: const BoxDecoration(
+                  //color:Colors.red,
+                  border: Border(
+                    bottom:
+                    BorderSide(width: 1.0, color: Colors.grey
+                    ),),
+                ),
+                child:
+                (state.task.contractor?.persons?.length??0)>0?InkWell(
+                  onTap:(){
+                    if((state.task.contractor?.persons?.length??0)>0)
+                      showModalBottomSheet(
+                        //isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          context: context,
+                          builder: (BuildContext context) => PersonSelectionList(
+                              selectCallback:({required PersonModel person}){
+                                print(person.name);
+
+                                BlocProvider.of<TaskBloc>(context)
+                                  ..add(SetTaskPerson(
+                                      person: person
+                                  ));
+                                Navigator.pop(context);
+
+                              },persons: state.task.contractor?.persons??[],
+                          )
+                      );
+                    else
+                      Fluttertoast.showToast(
+                          msg: "${AppLocalizations.of(context)!
+                              .toastNoPersons}",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 4,
+                          fontSize: 16.0
+                      );
+
+
+                  },
+                  child: contactSelectionBtn,
+                ):contactSelectionBtn,
+              ),
+            ));
+          }
+          else {
+            list.add(Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [mapWidget, phoneWidget]
+              ),
+            ));
             list.add(
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -1771,6 +1963,8 @@ class TaskDetailPage extends StatelessWidget {
               ),
 
             );
+          }
+//          if (propsCounter>0) {
 //          }
 
           list.add(
@@ -1814,19 +2008,19 @@ class TaskDetailPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child:  Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+                          padding: const EdgeInsets.only(bottom: 8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Шаблон задачи",
+                                AppLocalizations.of(context)!.taskTemplate,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.black45,
                                 ),
                               ),
                               Text(
-                                "${state.task.template?.name??"Не задан"}",
+                                "${state.task.template?.name??AppLocalizations.of(context)!.taskTemplateEmpty}",
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.black,
@@ -1839,8 +2033,8 @@ class TaskDetailPage extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          child: Icon(Icons.arrow_drop_down, color: Colors.black45,)
+                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                          child: Icon(Icons.arrow_drop_down, color: Colors.grey[700]!,)
                       ),
                     ],
                   ),
@@ -1852,7 +2046,7 @@ class TaskDetailPage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                 children: [Text(
-                  "Шаблон задачи",
+                  AppLocalizations.of(context)!.taskTemplate,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black,
@@ -1872,6 +2066,138 @@ class TaskDetailPage extends StatelessWidget {
             ),
 
           );
+
+          if(state.task.template?.enabledEquipment==true) {
+            list.add(
+              editEnabledEquipment ? Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 8.0, horizontal: 16),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    //color:Colors.red,
+                    border: Border(
+                      bottom:
+                      BorderSide(width: 1.0, color: Colors.grey
+                      ),),
+                  ),
+                  child:
+                  InkWell(
+                    onTap: () {
+                      showModalBottomSheet(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          isScrollControlled: true,
+                          context: context,
+                          //isDismissible: true,
+                          builder: (BuildContext context) {
+                            return
+                              FractionallySizedBox(
+                                  heightFactor: 0.9,
+                                  child:
+                                  Padding(
+                                      padding: MediaQuery
+                                          .of(context)
+                                          .viewInsets,
+                                      child: TaskEquipmentSelectionList(
+                                          contractorServerId: state.task
+                                              .contractor?.serverId,
+                                          selectCallback: (
+                                              {required EquipmentModel equipment}) {
+                                            //print(template.name);
+                                            BlocProvider.of<TaskBloc>(context)
+                                              ..add(SetTaskEquipment(
+                                                  equipment: equipment
+                                              ));
+                                            Navigator.pop(context);
+                                          }
+                                      )
+                                  ));
+                          });
+                      BlocProvider.of<TaskEquipmentSelectionBloc>(context)
+                        ..add(ReloadTaskEquipmentSelection(
+                          contractorServerId: state.task.contractor
+                              ?.serverId,));
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.taskEquipment,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black45,
+                                      ),
+                                    ),
+                                    state.task.template?.requiredEquipment==true?Text(" *",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.w600)
+                                    ):Container(),
+
+                                  ],
+                                ),
+                                Text(
+                                  "${state.task.equipment?.name ?? AppLocalizations.of(context)!.taskNoEquipment}",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                    //fontWeight: FontWeight.w600
+                                  ),
+                                ),
+                              ],),
+
+
+                          ),
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                            child: Icon(
+                              Icons.arrow_drop_down, color: Colors.grey[700]!,)
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ) :
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(
+                      AppLocalizations.of(context)!.taskEquipment,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600
+                      ),
+                    ),
+                      SizedBox(height: 4,),
+                      Text(
+                        "${state.task.equipment?.name}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          //    fontWeight: FontWeight.w600
+                        ),
+                      ),
+                    ]
+                ),
+              ),
+
+            );
+          }
+
           //const List<Widget> n =[];
           /*if (state.task.persons != null) {
             state.task.persons?.forEach((element) {
@@ -1917,7 +2243,7 @@ class TaskDetailPage extends StatelessWidget {
                           color: Colors.black)),
                   Expanded(child: Container()),
               ElevatedButton(
-                child:Text("История"),
+                child:Text(AppLocalizations.of(context)!.taskStatusHistory),
                 onPressed: () {
                   List<Widget> buttons = [
                   ];
@@ -2277,6 +2603,8 @@ class TaskDetailPage extends StatelessWidget {
                                                                             .commentRequired ??
                                                                             false,
                                                                       ));
+                                                                Navigator.pop(
+                                                                    context);
                                                                 Navigator.pop(
                                                                     context);
                                                                 Navigator.pop(
@@ -2744,7 +3072,9 @@ class TaskDetailPage extends StatelessWidget {
                 );
                 print("state.task.status?.systemStatusId ${state.task.status?.systemStatusId}");
                 print("state.task.author?.id == state.task.employees?.first.id ${state.task.author?.id} ${state.task.employee?.id}");
-                if(((element.tab ?? 0) == 2)&&state.task.status?.systemStatusId != 7 || state.task.status?.systemStatusId == null ||state.task.author!=null&&state.task.employee!=null&&state.task.author?.id == state.task.employee?.id)
+                if(((element.tab ?? 0) == 2)&&state.task.status?.systemStatusId != 7
+                    || state.task.status?.systemStatusId == null
+                    || state.task.author!=null&&state.task.employee!=null&&state.task.author?.id == state.task.employee?.id&&state.task.status?.systemStatusId != 7)
                   lst.add(getTaskFieldElement(element, state.appFilesDirectory));
                 else
                   lst.addAll(getTaskFieldElementPassive(element, state.appFilesDirectory, context));
@@ -2978,7 +3308,7 @@ class TaskDetailPage extends StatelessWidget {
             // ),
             // ),
           ];
-          if(state.task.id>0)
+          if(state.task.id>0&&state.task.template?.enabledComments==true)
             {
               _kTabPages1.add(_kTabPages[2][0]);
               _kTabs.add(Tab(text: unreadedComment));
@@ -3000,26 +3330,61 @@ class TaskDetailPage extends StatelessWidget {
               size: 24.0,
             ));
           }*/
-          Widget floatButtonWidget = saveEnabled?
-          ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                  ((state.task.template?.serverId??0)>0)?MaterialStateProperty.all(Colors.green):MaterialStateProperty.all(Colors.grey)
-              ),
-              onPressed: ()
-              {
-                if((state.task.template?.serverId??0)>0)
-                  BlocProvider.of<TaskBloc>(context)
-                  ..add(SaveNewTaskEvent(
-                    task: state.task
-                  ));
-              },
-              child:
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                child: Text("Сохранить"),
-              )
-          )
+          Widget floatButtonWidget = saveEnabled?SaveTaskBtn(
+            checkFields:() {
+              List<String> errors=[];
+              if(state.task.template?.requiredContractor==true&&(state.task.contractor?.serverId==null)){
+                errors.add(AppLocalizations.of(context)!.taskClient.toLowerCase());
+              }
+              if(state.task.template?.requiredEquipment==true&&(state.task.equipment?.serverId==null)){
+                errors.add(AppLocalizations.of(context)!.taskEquipment.toLowerCase());
+              }
+              if(errors.length>0) {
+                Fluttertoast.showToast(
+                    msg: "${AppLocalizations.of(context)!
+                        .requiredFielsToCreateIsNeeded}: ${errors.join(", ")}",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 4,
+                    fontSize: 16.0
+                );
+                return false;
+              }
+              else
+                return true;
+
+            },
+            onTap: (){
+              BlocProvider.of<TaskBloc>(context)
+                ..add(SaveNewTaskEvent(
+                    task: state.task,
+                    callback: () {
+                      print("createTaskCallback");
+                      BlocProvider.of<TaskListBloc>(context)
+                        ..add(RefreshListTasks());
+                    }
+                )
+                );
+            } ,active: ((state.task.template?.serverId??0)>0),)
+          // ElevatedButton(
+          //     style: ButtonStyle(
+          //         backgroundColor:
+          //         ((state.task.template?.serverId??0)>0)?MaterialStateProperty.all(Colors.green):MaterialStateProperty.all(Colors.grey)
+          //     ),
+          //     onPressed: ()
+          //     {
+          //       if((state.task.template?.serverId??0)>0)
+          //         BlocProvider.of<TaskBloc>(context)
+          //         ..add(SaveNewTaskEvent(
+          //           task: state.task
+          //         ));
+          //     },
+          //     child:
+          //     Padding(
+          //       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          //       child: Text("Сохранить"),
+          //     )
+          // )
               :ElevatedButton(
               style: ButtonStyle(
                   backgroundColor:

@@ -16,11 +16,13 @@ import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/phone_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
+import 'package:mobiforce_flutter/domain/usecases/add_new_phone.dart';
 import 'package:mobiforce_flutter/domain/usecases/add_picture_to_field.dart';
 //import 'package:mobiforce_flutter/domain/usecases/add_picture_to_task_comment.dart';
 import 'package:mobiforce_flutter/domain/usecases/add_task_comment.dart';
@@ -69,6 +71,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final GetTaskComments getTaskComments;
   final AddTaskComment addTaskComment;
   final SaveNewTask saveNewTask;
+  final AddNewPhone addNewPhone;
   //final ModelImpl m;
   //final WaitDealys10 wait10;
 
@@ -93,6 +96,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.addPictureToTaskField,
     required this.deletePictureToTaskField,
     required this.createTaskOnServer,
+    required this.addNewPhone,
 //    required this.navigatorKey,
    // required this.addCommentWithPictureToTask,
   }) : super(TaskEmpty()) {
@@ -189,6 +193,72 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         );
 
     }
+    if (event is SetTaskEquipment) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+      task.equipment=event.equipment;
+      if(event.equipment.contractor!=null) {
+        task.contractor = event.equipment.contractor;
+
+        task.address = event.equipment.contractor?.address;
+        task.addressFloor = event.equipment.contractor?.addressFloor;
+        task.addressRoom = event.equipment.contractor?.addressRoom;
+        task.addressInfo = event.equipment.contractor?.addressInfo;
+        task.addressPorch = event.equipment.contractor?.addressPorch;
+        task.lat = null;
+        task.lon = null;
+       /* if(event.equipment.contractor?.phones != null) {
+          task.phones=[];
+          event.equipment.contractor?.phones!.forEach((element) {
+            PhoneModel p =
+            PhoneModel(id: element.id, usn: 0, serverId: 0, name: element.name);
+            task.phones!.add(p);
+          });
+        }
+        else
+          task.phones=null;
+*/
+
+        /*if(event.equipment.contractor?.persons != null) {
+          task.persons=[];
+          event.equipment.contractor?.persons!.forEach((element) {
+            PersonModel p = PersonModel(id: element.id,
+                usn: 0,
+                serverId: 0,
+                name: element.name,
+                phones: null);
+
+            if(element.phones != null) {
+              p.phones=[];
+              element.phones!.forEach((element_tel) {
+                PhoneModel ph =
+                PhoneModel(id: element_tel.id, usn: 0, serverId: 0, name: element_tel.name);
+                p.phones!.add(ph);
+              });
+            }
+            task.persons!.add(p);
+          });
+        }
+        else
+          task.persons=null;
+
+         */
+
+      }
+      print("TaskLoaded ${event.equipment.contractor?.toJson()}");
+
+      yield TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
+          task: task,
+          nextTaskStatuses: nextTaskStatuses,
+          appFilesDirectory: dir,
+          comments:comments,
+        );
+
+    }
     if (event is SetTaskAddress) {
       final comments =  (state as TaskLoaded).comments;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
@@ -213,6 +283,49 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         comments:comments,
       );
 
+    }
+    if (event is DeletePhone) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+      if(task.phones!=null) {
+        PhoneModel? p = task.phones?.firstWhere((element) => element.id==event.id);
+        if(p != null)
+          task.phones?.remove(p);
+      }
+      TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments:comments,
+      );
+    }
+    if (event is AddPhone) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+
+
+      final FoL = await addNewPhone(
+          AddNewPhoneParams(name:event.value));
+      yield FoL.fold((l) => TaskError(message:"bad"), (PhoneEntity phone)  {
+        if(task.phones==null)
+          task.phones=[];
+        task.phones?.add(phone as PhoneModel);
+        return TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
+        task: task,
+            nextTaskStatuses: nextTaskStatuses,
+            appFilesDirectory: dir,
+            comments:comments,
+        );
+
+      });
     }
     if (event is NewPlannedVisitTimeTaskEvent) {
       final comments =  (state as TaskLoaded).comments;
@@ -256,22 +369,22 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         task.lon=event.contractor.lon;
       //task.ph
 
-      if(event.contractor.phones != null) {
+/*      if(event.contractor.phones != null) {
         task.phones=[];
         event.contractor.phones!.forEach((element) {
           PhoneModel p =
-              PhoneModel(id: 0, usn: 0, serverId: 0, name: element.name);
+              PhoneModel(id: element.id, usn: 0, serverId: 0, name: element.name);
           task.phones!.add(p);
         });
       }
       else
         task.phones=null;
-
-
+*/
+/*
       if(event.contractor.persons != null) {
         task.persons=[];
         event.contractor.persons!.forEach((element) {
-          PersonModel p = PersonModel(id: 0,
+          PersonModel p = PersonModel(id: element.id,
               usn: 0,
               serverId: 0,
               name: element.name,
@@ -279,9 +392,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           if(element.phones != null) {
             p.phones=[];
-            element.phones!.forEach((element) {
+            element.phones!.forEach((element_tel) {
               PhoneModel ph =
-              PhoneModel(id: 0, usn: 0, serverId: 0, name: element.name);
+              PhoneModel(id: element_tel.id, usn: 0, serverId: 0, name: element_tel.name);
               p.phones!.add(ph);
             });
           }
@@ -290,6 +403,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       }
       else
         task.persons=null;
+
+ */
       print("TaskLoaded");
 
       //yield StartLoadingTaskPage();
@@ -301,6 +416,24 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           comments:comments,
         );
 
+    }
+    if (event is SetTaskPerson) {
+      final comments =  (state as TaskLoaded).comments;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final dir =  (state as TaskLoaded).appFilesDirectory;
+      final isChanged=!(state as TaskLoaded).isChanged;
+      final task = (state as TaskLoaded).task;
+      print("event.person ${event.person.serverId} ${event.person.contractorPersonServerId}");
+      task.persons=[event.person];
+      yield TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments:comments,
+      );
+
+      //getTask.
     }
     if (event is ChangeSelectionFieldValue) {
       //getTask.
@@ -872,7 +1005,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
               (l) => TaskError(message: "message"),
               (TaskEntity task_readed) async {
                 print("task_readed ${(task_readed as TaskModel).toMap()}");
+                event.callback();
                 final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
+
                 return FoL.fold((failure) =>TaskError(message:"bad"), (nextTaskStatuses_readed) async {
                   //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
                   print("TaskLoaded");
@@ -882,6 +1017,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
                         task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
 
                 });
+
               }
       );
 
@@ -920,9 +1056,43 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final isChanged=(state is TaskLoaded)?!(state as TaskLoaded).isChanged:true;
       var date = new DateTime.now();
       print("TaskLoaded");
+      List<TasksFieldsModel>? propsList=null;
+
+      if(event.template.propsList!=null){
+        propsList=[];
+
+        event.template.propsList?.forEach((element) {
+          print("element.tabServerId ${element.tab} ${element.tabServerId} ${element.taskField?.name}");
+          TasksFieldsModel tfm = TasksFieldsModel(
+            id: element.id,
+            usn: 0,
+            serverId: 0,
+            valueRequired: false,
+            tab: element.tab,
+            parentLocalId:0,
+            taskField: element.taskField,
+            tabServerId: element.tabServerId,
+            fileValueList: <FileModel>[],
+          );
+          propsList!.add(
+              tfm
+          );
+
+        });
+      }
+
       yield TaskLoaded(isChanged:isChanged,
           needToUpdateTaskList: false,
-          task: TaskModel(id: 0, serverId: 0, plannedVisitTime: date.millisecondsSinceEpoch~/1000, lat: null, lon: null
+          task:
+            TaskModel(
+                id: 0,
+                serverId: 0,
+                plannedVisitTime: date.millisecondsSinceEpoch~/1000,
+                lat: null,
+                lon: null,
+                template:  event.template,
+                propsList: propsList,
+
       ), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[]);
       //navigatorKey.currentState?.pushNamed('TaskDetailPage');
       di.sl<NavigationService>().navigatorKey.currentState?.pushNamed('TaskDetailPage');

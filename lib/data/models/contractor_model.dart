@@ -122,7 +122,7 @@ class ContractorModel extends ContractorEntity
     return ContractorModel(
         id:0,
         usn: json["usn"]??0,
-        serverId: int.parse(json["id"]??0),
+        serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         lat: json['lat']!=null?double.tryParse(json['lat']):null,
         lon: json['lon']!=null?double.tryParse(json['lon']):null,

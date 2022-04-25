@@ -26,26 +26,40 @@ class PhoneModel extends PhoneEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  PhoneModel({required id,required usn,required serverId,required name, taskId, personId,}): super(
+  PhoneModel({required id,required usn,serverId,required name, taskId, personId, temp,}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       taskId:taskId,
       personId:personId,
+      temp:temp,
   );
+
+  /*set newId(int value) {
+    id = value;
+  }*/
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    if(serverId!=null&&serverId!=0)
+      map["id"]=serverId;
+    map["name"]=name;
+
+    return map;
+  }
 
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
     map['external_id'] = serverId;
     map['task'] = taskId;
+    map['temp'] = temp==true?1:0;
     map['person'] = personId;
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
     dynamic t = await db.insertPhone(this);
-    if(t.id==0){
+    if(t.id==0&&t.serverId!=0){
       t = await db.updatePhoneByServerId(this);
       ///print ("db id == ${t.toString()}");
     }
@@ -63,7 +77,8 @@ class PhoneModel extends PhoneEntity
         taskId: map['task']??0,
         usn: map['usn']??0,
         serverId: map['external_id']??0,
-        name: map['name']
+        name: map['name'],
+        temp: map['temp']==1?true:false,
     );
   }
   factory PhoneModel.fromJson(Map<String, dynamic> json)

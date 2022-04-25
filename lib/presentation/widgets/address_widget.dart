@@ -30,6 +30,8 @@ import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 
 import 'input_field_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class AddressEditor extends StatefulWidget {
   void Function({
   required String address,
@@ -123,17 +125,17 @@ class _addressEditorState extends State<AddressEditor> {
             children: [
               Padding(
                   padding: const EdgeInsets.only(left:0.0,right:0.0),
-                  child: InputFieldText(name: "Адрес", val: widget.address, controller: addressController)
+                  child: InputFieldText(name: AppLocalizations.of(context)!.taskAddressDetailes, val: widget.address, controller: addressController)
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Flexible(child: InputFieldText(name: "Подъезд", val: widget.addressPorch, controller: addressPorchController)),
-                  Flexible(child: InputFieldText(name: "Этаж", val: widget.addressFloor, controller: addressFloorController)),
-                  Flexible(child: InputFieldText(name: "Квартира", val: widget.addressRoom, controller: addressRoomController)),
+                  Flexible(child: InputFieldText(name: AppLocalizations.of(context)!.taskAddressPorch, val: widget.addressPorch, controller: addressPorchController)),
+                  Flexible(child: InputFieldText(name: AppLocalizations.of(context)!.taskAddressFloor, val: widget.addressFloor, controller: addressFloorController)),
+                  Flexible(child: InputFieldText(name: AppLocalizations.of(context)!.taskAddressRoom, val: widget.addressRoom, controller: addressRoomController)),
                 ],
               ),
-              InputFieldText(name: "Дополнительная информация по адресу", val: widget.addressInfo, controller: addressInfoController),
+              InputFieldText(name: AppLocalizations.of(context)!.taskAddressAdditionInfo, val: widget.addressInfo, controller: addressInfoController),
 
               // FlutterMap(
               //   options: MapOptions(

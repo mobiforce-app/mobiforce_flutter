@@ -75,6 +75,11 @@ class SyncRepositoryImpl implements SyncRepository{
     return true;
   }
   @override
+  int getLastSyncTime()  {
+    //await sharedPreferences.setInt("last_update_count_${objectsType[syncObjectsTypeId]}", objectsTypeLastUpdateId[syncObjectsTypeId]);
+    return lastSyncTime;
+  }
+  @override
   Future<bool>setComplete() async {
     print("complete fullSyncObjectsTypeId = $syncObjectsTypeId");
     syncObjectsTypeId++;
@@ -304,6 +309,7 @@ class SyncRepositoryImpl implements SyncRepository{
               objectType: "taskstatus",
               mapObjects: send
           );
+          print("serverId: $serverId");
           if (serverId > 0)
             db.setTasksStatusServerID(element.object.id, serverId);
           else{
@@ -318,6 +324,7 @@ class SyncRepositoryImpl implements SyncRepository{
         await sharedPreferences.setInt("local_usn", localUSN);
 
       };
+      print("error code: $error");
       if(error!=0)
         return Left(ServerFailure());
     }

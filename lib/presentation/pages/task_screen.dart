@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobiforce_flutter/data/models/template_model.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:mobiforce_flutter/presentation/widgets/custom_search_delegate.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,9 +27,33 @@ class HomePage extends StatelessWidget {
               InkWell(
                 onTap: (){
                   print("click");
-                  BlocProvider.of<TaskBloc>(context).add(
-                    NewTask(),
+                  showModalBottomSheet(
+                    //isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      context: context,
+                      builder: (BuildContext context) => TaskTemplateSelectionList(
+                          selectCallback:({required TemplateModel template}){
+                            print(template.name);
+                            BlocProvider.of<TaskBloc>(context).add(
+                                 NewTask(template: template),
+                            );
+                            /*BlocProvider.of<TaskBloc>(context)
+                              ..add(SetTaskTemplate(
+                                  template: template
+                              ));*/
+                            Navigator.pop(context);
+
+                          }
+                      )
                   );
+                  BlocProvider.of<TaskTemplateSelectionBloc>(context)
+                    ..add(ReloadTaskTemplateSelection());
+
+                  // BlocProvider.of<TaskBloc>(context).add(
+                  //   NewTask(),
+                  // );
                   /*Navigator.push(context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) => TaskDetailPage(),

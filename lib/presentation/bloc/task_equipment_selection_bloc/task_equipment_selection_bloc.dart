@@ -9,13 +9,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
+import 'package:mobiforce_flutter/data/models/equipment_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
-import 'package:mobiforce_flutter/domain/entity/contractor_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/equipment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -27,8 +28,10 @@ import 'package:mobiforce_flutter/domain/usecases/add_task_comment.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
-import 'package:mobiforce_flutter/domain/usecases/get_contractors.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_current_contractor.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_current_equipment.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_current_template.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_equipment.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_status_graph.dart';
@@ -39,6 +42,9 @@ import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/wait.dart';
+import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_state.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_event.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_state.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_state.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
@@ -47,16 +53,14 @@ import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'contractor_selection_event.dart';
-import 'contractor_selection_state.dart';
 //import 'package:dartz/dartz.dart';
 // import 'equatabl'
 //enum PictureSourceEnum {camera, gallery}
 
-class ContractorSelectionBloc extends Bloc<ContractorSelectionEvent,ContractorSelectionState> {
-  final GetContractors contractors;
+class TaskEquipmentSelectionBloc extends Bloc<TaskEquipmentSelectionEvent,TaskEquipmentSelectionState> {
   final GetCurrentContractor currentContractor;
+  final GetEquipment equipment;
+  final GetCurrentEquipment currentEquipment;
   /*final GetTask taskReader;
 
   //TaskEntity? task;
@@ -79,10 +83,10 @@ class ContractorSelectionBloc extends Bloc<ContractorSelectionEvent,ContractorSe
   //StreamSink<int> get counter_sink => _counterStreamController.sink;
 // expose data from stream
 //  Stream<int> get stream_counter => _counterStreamController.stream;
-
+  int? contractorServerId;
   int id = 0;
 
-  ContractorSelectionBloc(
+  TaskEquipmentSelectionBloc(
 
   {
 /* required this.taskReader,
@@ -97,10 +101,11 @@ class ContractorSelectionBloc extends Bloc<ContractorSelectionEvent,ContractorSe
     required this.addPictureToTaskField,
     required this.deletePictureToTaskField,
 */
-     required this.contractors,
-        required this.currentContractor,
+     required this.equipment,
+     required this.currentContractor,
+     required this.currentEquipment,
     }
-  ) : super(ContractorSelectionStateEmpty()) {
+  ) : super(TaskEquipmentSelectionStateEmpty()) {
 
   }
 
@@ -111,52 +116,87 @@ class ContractorSelectionBloc extends Bloc<ContractorSelectionEvent,ContractorSe
   //
 
   @override
-  Stream<ContractorSelectionState> mapEventToState(ContractorSelectionEvent event) async* {
-    if(event is ReloadContractorSelection) {
+  Stream<TaskEquipmentSelectionState> mapEventToState(TaskEquipmentSelectionEvent event) async* {
+    if(event is ReloadTaskEquipmentSelection) {
       //print("start")
-      yield ContractorSelectionStateLoading();
+      contractorServerId=event.contractorServerId;
+      yield TaskEquipmentSelectionStateLoading();
       await Future.delayed(Duration(seconds: 1));
-      final faiureOrLoading = await contractors(ListContractorParams(name: "1"));
+      final faiureOrLoading = await equipment(ListEquipmentParams(contractor: contractorServerId));
       yield faiureOrLoading.fold(
-              (l) => ContractorSelectionStateFailure(),
-              (r) => ContractorSelectionStateLoaded(contractors:r, id: 0, query:"", searching: false)
+              (l) => TaskEquipmentSelectionStateFailure(),
+              (r) => TaskEquipmentSelectionStateLoaded(taskEquipments:r, id: 0, searching: false, query: "")
       );
 
 
     }
-     if(event is SearchContractorSelection) {
-      //print("start")
-      String query=(state as ContractorSelectionStateLoaded).query;
-      yield ContractorSelectionStateLoaded(contractors:[], id: 0, query:"", searching: true);
+    if(event is SearchEquipmentSelection) {
+      print("start");
+      String query=(state as TaskEquipmentSelectionStateLoaded).query;
+      yield TaskEquipmentSelectionStateLoaded(taskEquipments:[], id: 0, query:"", searching: true);
       await Future.delayed(Duration(seconds: 1));
-      final faiureOrLoading = await contractors(ListContractorParams(name: event.query));
+      final faiureOrLoading = await equipment(ListEquipmentParams(query: event.query, contractor: contractorServerId));
       yield faiureOrLoading.fold(
-              (l) => ContractorSelectionStateFailure(),
-              (r) => ContractorSelectionStateLoaded(contractors:r, id: 0, query:"", searching: false, )
+              (l) => TaskEquipmentSelectionStateFailure(),
+              (r) => TaskEquipmentSelectionStateLoaded(taskEquipments:r, id: 0, query:"", searching: false, )
       );
 
 
     }
-    if(event is LoadCurrentContractor) {
-      if(id==0) {
-        final List<ContractorEntity> contractors = (state as ContractorSelectionStateLoaded).contractors;
+
+    if(event is LoadCurrentTaskEquipment) {
+/*      if(id==0) {
+        final List<TemplateEntity> templates = (state as TaskTemplateSelectionStateLoaded).taskTemlates;
         print("event.id: ${event.id}");
-        yield ContractorSelectionStateLoaded(contractors:contractors, id: event.id, query: "", searching: false);
+        yield TaskTemplateSelectionStateLoaded(taskTemlates:templates, id: event.id);
         await Future.delayed(Duration(seconds: 1));
-        final faiureOrLoading = await currentContractor(ContractorParams(id: event.id));
+
+        yield TaskTemplateSelectionStateSelect(taskTemlate:(templates.firstWhere((element) => element.serverId==event.id) as TemplateModel));
+      }*/
+      if(id==0) {
+        final List<EquipmentEntity> templates = (state as TaskEquipmentSelectionStateLoaded).taskEquipments;
+        print("event.id: ${event.id}");
+        yield TaskEquipmentSelectionStateLoaded(taskEquipments:templates, id: event.id, searching: true, query:"");
+        await Future.delayed(Duration(seconds: 1));
+        final faiureOrLoading = await currentEquipment(EquipmentParams(id: event.id));
         //event.onSuccess();
         faiureOrLoading.fold(
-                (l) => ContractorSelectionStateFailure(),
-                (r) {
-                  print("loaded contractor");
-                  //return ContractorSelectionStateSelect(contractor:(r as ContractorModel));
-                  event.onSuccess(r);
-                  //return ContractorSelectionStateLoaded(contractors:contractors, id: 0, query:"", searching: true, contractor:r);
-                }
+          (l) => TaskEquipmentSelectionStateFailure(),
+          (r) async {
+            print("equipment ${(r as EquipmentModel).toJson()}");
+            if((r.contractor?.serverId??0)>0) {
+              print("load contractor ${(r.contractor?.serverId??0)}");
+              final fOL = await currentContractor(ContractorParams(id: (r.contractor?.serverId??0)));
+              fOL.fold(
+                      (l1) => ContractorSelectionStateFailure(),
+                      (r1) {
+                        r.contractor=r1 as ContractorModel;
+                  }
+              );
+            }
+            //final faiureOrLoading = await currentEquipment(EquipmentParams(id: event.id));
+
+            print("loaded contractor");
+            //return ContractorSelectionStateSelect(contractor:(r as ContractorModel));
+            event.onSuccess(r);
+            //return ContractorSelectionStateLoaded(contractors:contractors, id: 0, query:"", searching: true, contractor:r);
+          }
         );
 
 //        yield ContractorSelectionStateSelect(contractor:(contractors.firstWhere((element) => element.serverId==event.id) as ContractorModel));
+        /*final faiureOrLoading = await currentTemplate(TemplateParams(id: event.id));
+        yield faiureOrLoading.fold(
+                (l) => TaskEquipmentSelectionStateFailure(),
+                (r) {
+              print("loaded contractor ${r.propsList.toString()}");
+              //return ContractorSelectionStateSelect(contractor:(r as ContractorModel));
+              return TaskEquipmentSelectionStateLoaded(taskTemlates:templates, id: 0, taskTemlate:r);
+            }
+        );*/
+
+//        yield ContractorSelectionStateSelect(contractor:(contractors.firstWhere((element) => element.serverId==event.id) as ContractorModel));
       }
+
       //print("start")
       //yield TaskTemplateSelectionStateLoading();
       //await Future.delayed(Duration(seconds: 1));

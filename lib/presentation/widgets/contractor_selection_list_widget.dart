@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
+import 'package:mobiforce_flutter/domain/entity/contractor_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
@@ -28,6 +29,7 @@ import 'package:mobiforce_flutter/presentation/widgets/task_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_result.dart';
 import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SeachTextField extends StatefulWidget {
   final String name;
@@ -225,8 +227,6 @@ class ContractorSelectionList extends StatelessWidget {
                           );*/
 
                     print("callback XXX");
-                    if(state.contractor != null)
-                      selectCallback(contractor: (state.contractor as ContractorModel));
                   });
                 }
                 final List<
@@ -236,9 +236,15 @@ class ContractorSelectionList extends StatelessWidget {
 
                     InkWell(
                       onTap: () {
+
                         BlocProvider.of<ContractorSelectionBloc>(context)
                           ..add(LoadCurrentContractor(
-                              id: element.serverId
+                              id: element.serverId,
+                              onSuccess: (ContractorEntity? contractor) {
+                                print("onSuccess!");
+                                if(contractor != null)
+                                  selectCallback(contractor: (contractor as ContractorModel));
+                              }
                           ));
                         //selectCallback(template: TemplateModel(id: 0, serverId: element.id, name: element.name, usn: 0));
                       },
@@ -332,7 +338,7 @@ class ContractorSelectionList extends StatelessWidget {
                   :(contractorList.length>0?contractorList:
                   [Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: Center(child: Text("не найдено"),),
+                child: Center(child: Text( AppLocalizations.of(context)!.notFound),),
               )]
                 ),
                 ),

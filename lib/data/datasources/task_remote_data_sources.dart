@@ -5,6 +5,7 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
@@ -13,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
+import 'package:mobiforce_flutter/domain/entity/phone_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -47,6 +49,7 @@ abstract class TaskRemoteDataSources{
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId});
   Future<FileModel> deletePictureTaskField({required int taskFieldId,required int pictureId});
   Future<TaskEntity> saveNewTask({required TaskEntity task});
+  Future<PhoneEntity> addNewPhone({required String name});
   //Future<FileModel> addPictureTaskComment({required int taskCommentId,required int pictureId});
   Future<TaskCommentModel> addTaskComment({required TaskCommentModel comment});
 }
@@ -129,6 +132,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   {
     (task as TaskModel).insertToDB(db);
     return task;
+  }
+  @override
+  Future<PhoneEntity> addNewPhone({required String name}) async
+  {
+    PhoneModel phoneModel = PhoneModel(id: 0, usn: 0, name: name, temp: true);
+    phoneModel.id = await phoneModel.insertToDB(db);
+    return phoneModel;
   }
 
   @override

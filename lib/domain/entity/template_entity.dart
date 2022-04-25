@@ -6,11 +6,31 @@ class TemplateEntity{
   int serverId;
   String name;
   String? color;
+  bool? enabledAddress;
+  bool? enabledEquipment;
+  bool? enabledAddingNewPerson;
+  bool? enabledAddingMultiplePerson;
+  bool? enabledComments;
+  bool? requiredEquipment;
+  bool? requiredContractor;
   List<TasksFieldsModel>? checkList;
   List<TasksFieldsModel>? propsList;
 
   TemplateEntity({
-      required this.id, required this.serverId, required this.name, required this.usn, this.color, this.propsList,
+    required this.id,
+    required this.serverId,
+    required this.name,
+    required this.usn,
+    this.color,
+    this.propsList,
+    this.enabledAddress,
+    this.enabledEquipment,
+    this.enabledAddingNewPerson,
+    this.enabledAddingMultiplePerson,
+    this.enabledComments,
+    this.requiredEquipment,
+    this.requiredContractor,
+
   });
   fromMap(Map<String, dynamic> map)
   {

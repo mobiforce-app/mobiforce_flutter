@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
+import 'package:mobiforce_flutter/data/models/equipment_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/task_life_cycle_model.dart';
@@ -41,6 +42,7 @@ class TaskEntity extends Equatable{
  // String subdivision;
   TaskStatusModel? status;
   EmployeeModel? author;
+  EquipmentModel? equipment;
   EmployeeModel? employee;
   TemplateModel? template;
   List<EmployeeModel>? employees;
@@ -70,6 +72,7 @@ class TaskEntity extends Equatable{
       this.checkList,
       this.propsList,
       this.employees,
+      this.equipment,
       this.template,
       this.author,
       this.employee,

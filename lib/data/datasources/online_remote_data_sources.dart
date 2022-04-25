@@ -5,7 +5,10 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/employee_model.dart';
+import 'package:mobiforce_flutter/data/models/equipment_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
+import 'package:mobiforce_flutter/data/models/person_model.dart';
+import 'package:mobiforce_flutter/data/models/phone_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_group_model.dart';
 import 'package:mobiforce_flutter/data/models/resolution_model.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
@@ -28,9 +31,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class OnlineRemoteDataSources{
   Future<List<TemplateModel>>getAllTemplates(int page);
   Future<List<ContractorModel>>getAllContractors(String name);
+  Future<List<EquipmentModel>>getAllEquipments({ int? contractor, String? query});
   Future<TaskEntity>createTaskOnServer(TaskEntity task);
   Future<ContractorModel> getCurrentContractor(int id);
   Future<TemplateModel> getCurrentTemplate(int id);
+  Future<EquipmentModel> getCurrentEquipment(int id);
 }
 
 class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
@@ -44,12 +49,13 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
   @override
   Future<TaskEntity> createTaskOnServer (TaskEntity task) async
   {
-    final String url = "https://mobifors111.mobiforce.ru/api2.0/create-task.php";
+    final String url = "https://agfa.mobiforce.ru/api2.0/create-task.php";
     final token=sharedPreferences.getString("access_token");
 
     print(token);
     try{
       final int selfId = sharedPreferences.getInt("self_id")??0;
+      //task.equipment=EquipmentModel(id: 0, usn: 0, serverId: 4052, name: "");
       task.employees=[EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", webAuth: false, mobileAuth: true)].toList();
       //task.author=EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", webAuth: false, mobileAuth: true);
       Map data = (task as TaskModel).toJson();
@@ -73,7 +79,7 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
       }
     }
     catch (error) {
-      print("error!!! $error");
+      print("error!!!+3 $error");
       throw ServerException();
     }
 
@@ -83,7 +89,7 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
   @override
   Future<List<TemplateModel>> getAllTemplates(int page) async {
     var results = await _getTableFromUrl(
-        url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php",
+        url: "https://agfa.mobiforce.ru/api2.0/get-templates.php",
         page: page,
         gridName: "tasktemplate_grid",
         rules: '{"groupOp":"AND","rules":[]}'
@@ -94,24 +100,94 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
   //Future<List<TemplateModel>> getAllContractors(String name) => _getTableFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php", page:0,gridName:"tasktemplate_grid");
   Future<List<ContractorModel>> getAllContractors(String name) async {
     var results = await _getTableFromUrl(
-        url: "https://mobifors111.mobiforce.ru/api2.0/get-contractors.php",
+        url: "https://agfa.mobiforce.ru/api2.0/get-contractors.php",
         page: 0,
         gridName: "contractor_grid",
         rules: '{"groupOp":"AND","rules":[],"groups":[{"groupOp":"OR","rules":[{"field":"name","op":"cn","data":"$name"},{"field":"address","op":"cn","data":"$name"},{"field":"parent","op":"cn","data":"$name"},{"field":"favourites","op":"cn","data":"$name"},{"field":"employee","op":"cn","data":"$name"}],"groups":[]}]}'
     );
     return (results as List).map((task)=> ContractorModel.fromJson(task)).toList();
   }
+  @override
+  Future<List<EquipmentModel>>getAllEquipments({String? query, int? contractor}) async {
+    String contractorStr="";
+    if(contractor!=null)
+    {
+      contractorStr='{"field":"contractor","op":"cn","data":"$contractor"}';
+    }
+    print("contractorStr $contractorStr");
+    var results = await _getTableFromUrl(
+        url: "https://agfa.mobiforce.ru/api2.0/get-equipments.php",
+        page: 0,
+        gridName: "equipment_grid",
+//        rules: '{"groupOp":"AND","rules":[]}'
+        rules: query==null?'{"groupOp":"AND","rules":[$contractorStr]}':'{"groupOp":"AND","rules":[$contractorStr],"groups":[{"groupOp":"OR","rules":[{"field":"description","op":"cn","data":"$query"},{"field":"name","op":"cn","data":"$query"},{"field":"inventory_number","op":"cn","data":"$query"},{"field":"contractor_name","op":"cn","data":"$query"},{"field":"model","op":"cn","data":"$query"},{"field":"manufacture","op":"cn","data":"$query"},{"field":"equipment_type","op":"cn","data":"$query"},{"field":"employee_name","op":"cn","data":"$query"}],"groups":[]}]}'
+    );
+    return (results as List).map((task)=> EquipmentModel.fromJson(task)).toList();
+  }
 
   Future<ContractorModel> getCurrentContractor(int id) async {
     var results = await _getObjectFromUrl(
-        url: "https://mobifors111.mobiforce.ru/api2.0/get-contractor.php?id=$id",
+        url: "https://agfa.mobiforce.ru/api2.0/get-contractor.php?id=$id",
     );
-    return ContractorModel.fromJson(results);
+    ContractorModel contractor = ContractorModel.fromJson(results);
+    //List<PhoneModel> phones=[];
+    if(contractor.phones!=null)
+      await Future.forEach(contractor.phones!, (PhoneModel element) async {
+        element.temp=true;
+        element.serverId=null;
+        int id = await element.insertToDB(db);
+        element.id = id;
+        //phones.add(element);
+      });
+    //contractor.phones=phones;
+    List<PersonModel> persons=[];
+    if(contractor.persons!=null)
+      await Future.forEach(contractor.persons!, (PersonModel person) async {
+        person.temp=true;
+        person.contractorPersonServerId=person.serverId;
+        person.serverId=null;
+        person.phones?.forEach((element) {element.temp=true;});
+        int id = await person.insertToDB(db);
+        person.id = id;
+        persons.add(person);
+      });
+    contractor.persons=persons;
+
+    return contractor;
+  }
+  Future<EquipmentModel> getCurrentEquipment(int id) async {
+    var results = await _getObjectFromUrl(
+        url: "https://agfa.mobiforce.ru/api2.0/get-equipment.php?id=$id",
+    );
+    EquipmentModel equipment = EquipmentModel.fromJson(results);
+    //List<PhoneModel> phones=[];
+    /*if(contractor.phones!=null)
+      await Future.forEach(contractor.phones!, (PhoneModel element) async {
+        element.temp=true;
+        element.serverId=null;
+        int id = await element.insertToDB(db);
+        element.id = id;
+        //phones.add(element);
+      });
+    //contractor.phones=phones;
+    List<PersonModel> persons=[];
+    if(contractor.persons!=null)
+      await Future.forEach(contractor.persons!, (PersonModel person) async {
+        person.temp=true;
+        person.serverId=null;
+        person.phones?.forEach((element) {element.temp=true;});
+        int id = await person.insertToDB(db);
+        person.id = id;
+        persons.add(person);
+      });
+    contractor.persons=persons;
+    */
+    return equipment;
   }
 
 Future<TemplateModel> getCurrentTemplate(int id) async {
     var results = await _getObjectFromUrl(
-        url: "https://mobifors111.mobiforce.ru/api2.0/get-template.php?id=$id",
+        url: "https://agfa.mobiforce.ru/api2.0/get-template.php?id=$id",
     );
     TemplateModel tm = TemplateModel.fromJson(results);
     List<TasksFieldsModel> tfm = [];
@@ -165,7 +241,7 @@ Future<TemplateModel> getCurrentTemplate(int id) async {
       }
     }
     catch (error) {
-      print("error!!! $error");
+      print("error!!!+4 $error");
       throw ServerException();
     }
   }
@@ -189,7 +265,7 @@ Future<TemplateModel> getCurrentTemplate(int id) async {
       }
     }
     catch (error) {
-      print("error!!! $error");
+      print("error!!!+5 $error");
       throw ServerException();
     }
   }

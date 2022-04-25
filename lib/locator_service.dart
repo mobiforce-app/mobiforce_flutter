@@ -23,6 +23,8 @@ import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/domain/usecases/delete_picture_from_field.dart';
 import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_current_equipment.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_equipment.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_templates.dart';
@@ -36,6 +38,7 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/fullSyncSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
@@ -50,6 +53,7 @@ import 'domain/repositories/firebase.dart';
 import 'domain/repositories/picture_repository.dart';
 import 'domain/repositories/task_repository_impl.dart';
 import 'domain/repositories/template_repository_impl.dart';
+import 'domain/usecases/add_new_phone.dart';
 import 'domain/usecases/add_picture_to_field.dart';
 //import 'domain/usecases/add_picture_to_task_comment.dart';
 import 'domain/usecases/add_task_comment.dart';
@@ -74,6 +78,7 @@ Future<void>init() async
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
+  sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));
   sl.registerFactory(() => ContractorSelectionBloc(contractors: sl(),currentContractor: sl()));
   sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
   //sl.registerFactory(() => SignaturePage();
@@ -92,6 +97,7 @@ Future<void>init() async
       deletePictureToTaskField: sl(),
       saveNewTask:sl(),
       createTaskOnServer: sl(),
+      addNewPhone: sl(),
 //      navigatorKey: sl()
     ));
 
@@ -99,9 +105,12 @@ Future<void>init() async
   //usecases
   sl.registerLazySingleton(() => CreateTaskOnServer(sl()));
   sl.registerLazySingleton(() => SaveNewTask(sl()));
+  sl.registerLazySingleton(() => AddNewPhone(taskRepository:sl()));
   sl.registerLazySingleton(() => GetTaskTemplates(sl()));
   sl.registerLazySingleton(() => GetContractors(sl()));
   sl.registerLazySingleton(() => GetCurrentContractor(sl()));
+  sl.registerLazySingleton(() => GetEquipment(sl()));
+  sl.registerLazySingleton(() => GetCurrentEquipment(sl()));
   sl.registerLazySingleton(() => GetCurrentTemplate(sl()));
   sl.registerLazySingleton(() => GetPictureFromCamera(fileRepository: sl()));
   sl.registerLazySingleton(() => AddPictureToTaskField(taskRepository: sl()));

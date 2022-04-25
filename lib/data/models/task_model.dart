@@ -18,12 +18,13 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 
 import 'employee_model.dart';
+import 'equipment_model.dart';
 
 class TaskModel extends TaskEntity
 {
 
   TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
-              author, employees,employee,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
+              author, employees,employee,equipment,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
               externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,
   }): super(
       isChanged:isChanged,
@@ -39,6 +40,7 @@ class TaskModel extends TaskEntity
       propsList:propsList,
       checkList:checkList,
       author:author,
+      equipment:equipment,
       employee:employee,
       employees:employees,
       phones:phones,
@@ -69,6 +71,7 @@ class TaskModel extends TaskEntity
     map["addressFloor"]=addressFloor;
     map["addressInfo"]=addressInfo;
     map["addressPorch"]=addressPorch;
+    map["equipment"]=equipment?.toJson();
     map["addressRoom"]=addressRoom;
     map["plannedVisitTime"]=plannedVisitTime!=null?formatter.format(new DateTime.fromMillisecondsSinceEpoch(
         1000 * (plannedVisitTime ?? 0))):null;
@@ -79,6 +82,17 @@ class TaskModel extends TaskEntity
     if(contractor!=null)
       map["contractor"]=contractor?.toJson();
 
+    if(persons!=null)
+    {
+      List<Map<String, dynamic>> personsJSON=[];
+      persons?.forEach((PersonModel element) {
+        personsJSON.add(element.toJson());
+      });
+      map["person"]=personsJSON;
+    }
+    else
+      map["person"]=[];
+    map["phone"]=[];
     map["employee"]=employees?[0].toJson();
     List<Map<String, dynamic>> props=[];
     List<Map<String, dynamic>> checklist=[];
@@ -102,10 +116,11 @@ class TaskModel extends TaskEntity
     map['deleted'] = deleted==true?1:0;
     map['external_id'] = serverId;
     map['contractor'] = contractor?.id;
+    map['equipment'] = equipment?.id;
     map['lifecycle'] = lifecycle?.id;
     map['address'] = address;
     map['status'] = status?.id;
-    map['contractor'] = contractor?.id;
+    //map['contractor'] = contractor?.id;
     map['author'] = author?.id;
     map['template'] = template?.id;
     map['address_floor'] = addressFloor;
@@ -134,6 +149,11 @@ class TaskModel extends TaskEntity
     if(contractor != null)
     {
       contractor?.id = await contractor!.insertToDB(db);
+    }
+
+    if(equipment != null)
+    {
+      equipment?.id = await equipment!.insertToDB(db);
     }
 
     if(template != null)
@@ -301,6 +321,7 @@ class TaskModel extends TaskEntity
     //PersonModel? p = null;//PersonModel(id: id, usn: usn, serverId: serverId, name: name)
     List<Map<String, dynamic>> persons = [];
     int personId=-1;
+    print("taskPhoneMap $taskPhoneMap");
     taskPhoneMap.forEach((element) {
       if(element["person_id"]==null){
         phonesMap.add({"id":element["id"],"name":element["name"]});
@@ -330,6 +351,7 @@ class TaskModel extends TaskEntity
     });
     if(personId>0)
       persons.add(person!);
+    print("persons ${persons}");
     //print("personsListMap: ${persons} $phonesMap");
 
     var contractor = ContractorModel.fromMap({
@@ -370,6 +392,7 @@ class TaskModel extends TaskEntity
         isChanged:false,
         usn: taskMap['usn'],
         employee:internalSelfId!=null?EmployeeModel(id: internalSelfId, usn: 0, serverId: 0, name: "", webAuth: false, mobileAuth: false):null,
+        equipment:taskMap['equipment_id']!=null?EquipmentModel(id: taskMap['equipment_id']??0, usn: 0, serverId: 0, name: taskMap['equipment_name']??"",):null,
         author: taskMap['author']!=null?EmployeeModel(id: taskMap['author'], usn: 0, serverId: 0, name: "", webAuth: false, mobileAuth: false):null,
         lat: double.tryParse(taskMap['lat']??"0"),
         lon: double.tryParse(taskMap['lon']??"0"),
@@ -386,7 +409,19 @@ class TaskModel extends TaskEntity
         plannedVisitTime: taskMap['planned_visit_time'],
         name: taskMap['name'],
         contractor: contractor,
-        template: TemplateModel(id: taskMap['template_id']??0, usn: 0, serverId: 0, name: taskMap['template_name']??""),
+        template: TemplateModel(
+            id: taskMap['template_id']??0,
+            usn: 0,
+            serverId: 0,
+            name: taskMap['template_name']??"",
+            enabledAddress: taskMap['template_enabled_address'] ==1?true:false,
+            enabledComments: taskMap['template_enabled_comments']==1?true:false,
+            enabledEquipment: taskMap['template_enabled_equipment'] ==1?true:false,
+            enabledAddingNewPerson: taskMap['template_enabled_adding_new_person'] ==1 ?true:false,
+            enabledAddingMultiplePerson:taskMap['template_enabled_adding_multiple_person']==1 ?true:false,
+            requiredEquipment:taskMap['template_required_equipment']==1 ?true:false,
+            requiredContractor:taskMap['template_required_contractor']==1 ?true:false,
+        ),
         status:statusMap!=null?TaskStatusModel.fromMap(map:statusMap):null,
         statuses: statusesMap.map((tasksStatuses) => TasksStatusesModel.fromMap(tasksStatuses)).toList(),
         propsList: fieldList,
@@ -408,6 +443,7 @@ class TaskModel extends TaskEntity
     propsList.addAll(checkList);
     //print("ok3 ${json["contractor"]} ${json["contractor"].runtimeType.toString()} ${json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'}");
     ContractorModel? contractor;
+    print("json[person] ${json["person"]}");
     return TaskModel(
         id: 0,
         isChanged:false,
@@ -416,6 +452,7 @@ class TaskModel extends TaskEntity
         name: json["name"]??"",
         deleted: json["deleted"]==1?true:false,
         contractor: json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?ContractorModel.fromJson(json["contractor"]):null,
+        equipment: json["equipment"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EquipmentModel.fromJson(json["equipment"]):null,
         address: json["address"]??"",
         status:json["task_status"].runtimeType. toString()=='_InternalLinkedHashMap<String, dynamic>'?TaskStatusModel.fromJson(json["task_status"]):null,
         propsList:propsList,

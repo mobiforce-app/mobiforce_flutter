@@ -28,25 +28,45 @@ class PersonModel extends PersonEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  PersonModel({required id,required usn,required serverId,required name, taskId, phones}): super(
+  PersonModel({required id,required usn,serverId,required name, taskId, phones, temp, contractorPersonServerId}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       taskId:taskId,
       phones:phones,
+      temp: temp,
+      contractorPersonServerId:contractorPersonServerId,
   );
+  Map<String, dynamic> toJson(){
+    final map=Map<String, dynamic>();
+    if(serverId!=null&&serverId!=0)
+        map["id"]=serverId;
+    map["contractorPerson"]=contractorPersonServerId;
+    map["name"]=name;
+    if(phones!=null)
+    {
+      List<Map<String, dynamic>> phonesJSON=[];
+      phones?.forEach((PhoneModel element) {
+        phonesJSON.add(element.toJson());
+      });
+      map["phone"]=phonesJSON;
+    }
 
+    return map;
+  }
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
+    map['temp'] = temp==true?1:0;
     map['external_id'] = serverId;
+    map['contractor_person_external_id'] = contractorPersonServerId;
     map['task'] = taskId;
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
     PersonModel t = await db.insertPerson(this);
-    if(t.id==0){
+    if(t.id==0&&t.serverId!=null){
       t = await db.updatePersonByServerId(this);
       //print ("db id == ${t.toString()}");
     }
@@ -61,6 +81,7 @@ class PersonModel extends PersonEntity
         element.personId=t.id;
         element.taskId=t.taskId;
         int phoneId = await element.insertToDB(db);
+        element.id = phoneId;
         //print("phonenotnull $phoneId");
 
         //if(employeeId>0){
@@ -84,13 +105,15 @@ class PersonModel extends PersonEntity
         usn: map['usn']??0,
         serverId: map['external_id']??0,
         name: map['name'],
+        temp: map['temp']==1?true:false,
+        contractorPersonServerId: map['contractor_person_external_id'],
         phones: (map["phone"] as List).map((phone) => PhoneModel.fromMap(phone)).toList(),
     );
   }
   factory PersonModel.fromJson(Map<String, dynamic> json)
   {
     //print('employeejsonjson ${json} ');
-    //print('PersonModeljsonjson ${json} ');
+    print('PersonModeljsonjson ${json} ');
 
     //return TaskModel(id:0,externalId: 0, name: "");
     return PersonModel(
@@ -98,6 +121,7 @@ class PersonModel extends PersonEntity
         usn: int.parse(json["usn"]??"0"),
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
+        contractorPersonServerId:int.parse(json["contractorPerson"]??"0"),
         phones:(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList(),
     );
   }

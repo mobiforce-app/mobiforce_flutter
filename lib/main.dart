@@ -11,6 +11,7 @@ import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/co
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
@@ -23,6 +24,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 //import 'package:flutter_';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
+
 
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -52,6 +56,14 @@ void main() async {
   await di.init();
   di.sl<PushNotificationService>();
   runApp(MyApp());
+
+  //TransistorAuth.registerErrorHandler();
+  /// Register BackgroundGeolocation headless-task.
+  bg.BackgroundGeolocation.registerHeadlessTask(
+      backgroundGeolocationHeadlessTask);
+  /// Register BackgroundFetch headless-task.
+  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+
 }
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey =
@@ -75,6 +87,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<TaskSearchBloc>(create: (context) => di.sl<TaskSearchBloc>()),
         BlocProvider<LoginBloc>(create: (context) => di.sl<LoginBloc>()),
         BlocProvider<TaskTemplateSelectionBloc>(create: (context) => di.sl<TaskTemplateSelectionBloc>()),
+        BlocProvider<TaskEquipmentSelectionBloc>(create: (context) => di.sl<TaskEquipmentSelectionBloc>()),
         BlocProvider<ContractorSelectionBloc>(create: (context) => di.sl<ContractorSelectionBloc>()),
         BlocProvider<SyncBloc>(create: (context) => di.sl<SyncBloc>()),
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),

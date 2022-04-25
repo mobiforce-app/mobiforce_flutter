@@ -109,11 +109,25 @@ class TaskTemplateSelectionBloc extends Bloc<TaskTemplateSelectionEvent,TaskTemp
     if(event is ReloadTaskTemplateSelection) {
       //print("start")
       yield TaskTemplateSelectionStateLoading();
-      await Future.delayed(Duration(seconds: 1));
+      //await Future.delayed(Duration(seconds: 1));
       final faiureOrLoading = await taskTemplates(ListTemplateParams(page: 1));
-      yield faiureOrLoading.fold(
+      yield await faiureOrLoading.fold(
               (l) => TaskTemplateSelectionStateFailure(),
-              (r) => TaskTemplateSelectionStateLoaded(taskTemlates:r, id: 0)
+              (r) async {
+                if(r.length!=1)
+                    return TaskTemplateSelectionStateLoaded(taskTemlates:r, id: 0);
+                else{
+                  final faiureOrLoading = await currentTemplate(TemplateParams(id: r[0].serverId));
+                  return faiureOrLoading.fold(
+                          (l) => TaskTemplateSelectionStateFailure(),
+                          (r1) {
+                        print("loaded contractor ${r1.propsList.toString()}");
+                        //return ContractorSelectionStateSelect(contractor:(r as ContractorModel));
+                        return TaskTemplateSelectionStateLoaded(taskTemlates:r, id: 0, taskTemlate:r1);
+                      }
+                  );
+                }
+              }
       );
 
 
@@ -131,7 +145,7 @@ class TaskTemplateSelectionBloc extends Bloc<TaskTemplateSelectionEvent,TaskTemp
         final List<TemplateEntity> templates = (state as TaskTemplateSelectionStateLoaded).taskTemlates;
         print("event.id: ${event.id}");
         yield TaskTemplateSelectionStateLoaded(taskTemlates:templates, id: event.id);
-        await Future.delayed(Duration(seconds: 1));
+        //await Future.delayed(Duration(seconds: 1));
         final faiureOrLoading = await currentTemplate(TemplateParams(id: event.id));
         yield faiureOrLoading.fold(
                 (l) => TaskTemplateSelectionStateFailure(),

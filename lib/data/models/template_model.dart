@@ -28,13 +28,37 @@ class TemplateModel extends TemplateEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  TemplateModel({required id,required usn,required serverId,required name,color,propsList}): super(
+  TemplateModel({
+    required id,
+    required usn,
+    required serverId,
+    required name,
+    color,
+    propsList,
+    enabledComments,
+    enabledAddress,
+    enabledEquipment,
+    enabledAddingNewPerson,
+    enabledAddingMultiplePerson,
+    requiredEquipment,
+    requiredContractor,
+
+  }): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       color:color,
       propsList:propsList,
+      enabledAddress: enabledAddress,
+      enabledComments: enabledComments,
+      enabledEquipment: enabledEquipment,
+      enabledAddingNewPerson: enabledAddingNewPerson,
+      enabledAddingMultiplePerson: enabledAddingMultiplePerson,
+      requiredEquipment:requiredEquipment,
+      requiredContractor:requiredContractor,
+
+
   );
   Map<String, dynamic> toJson(){
     final map=Map<String, dynamic>();
@@ -46,6 +70,15 @@ class TemplateModel extends TemplateEntity
     final map=Map<String, dynamic>();
     map['name'] = name;
     map['external_id'] = serverId;
+    map['enabled_address'] = enabledAddress==true?1:0;;
+    map['enabled_comments'] = enabledComments==true?1:0;;
+    map['enabled_equipment'] = enabledEquipment==true?1:0;;
+    map['enabled_adding_new_person'] = enabledAddingNewPerson==true?1:0;;
+    map['enabled_adding_multiple_person'] = enabledAddingMultiplePerson==true?1:0;;
+    map['required_equipment'] = requiredEquipment==true?1:0;;
+    map['required_contractor'] = requiredContractor==true?1:0;;
+
+
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
@@ -70,7 +103,15 @@ class TemplateModel extends TemplateEntity
         id: map['id'],
         usn: map['usn'],
         serverId: map['external_id'],
-        name: map['name']
+        name: map['name'],
+        enabledAddress: map['enabled_address'] == 1?true:false,
+        enabledComments: map['enabled_comments'] == 1?true:false,
+        enabledEquipment: map['enabled_equipment'] == 1?true:false,
+        enabledAddingNewPerson: map['enabled_adding_new_person'] == 1?true:false,
+        enabledAddingMultiplePerson:map['enabled_adding_multiple_person'] == 1?true:false,
+        requiredEquipment:map['required_equipment'] == 1?true:false,
+        requiredContractor:map['required_contractor'] == 1?true:false,
+
     );
   }
   factory TemplateModel.fromJson(Map<String, dynamic> json)
@@ -80,7 +121,7 @@ class TemplateModel extends TemplateEntity
     var checkList = json["checklist"]!=null?(json["checklist"] as List).map((taskStatus) => TasksFieldsModel.fromJson(taskStatus,2)).toList():<TasksFieldsModel>[];
     propsList.addAll(checkList);
 
-    //print('employeejsonjson ${json} ');
+    print('TemplateModeljsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return TemplateModel(
         id: 0,
@@ -89,6 +130,13 @@ class TemplateModel extends TemplateEntity
         name: json["name"]??"",
         color: json["color"],
         propsList:propsList,
+        enabledAddress: json["enabledAddress"]==true?true:false,
+        enabledComments: json["enabledComments"]==true?true:false,
+        enabledEquipment: json["enabledEquipment"]==true?true:false,
+        enabledAddingNewPerson: json["enabledAddingNewPerson"]==true?true:false,
+        enabledAddingMultiplePerson: json["enabledAddingMultiplePerson"]==true?true:false,
+        requiredEquipment: json["requiredEquipment"]==true?true:false,
+        requiredContractor: json["requiredContractor"]==true?true:false,
 
     );
   }
