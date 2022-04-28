@@ -9,11 +9,63 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_state.dart'
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
 
 class LoginPage extends StatelessWidget {
 
 //  const LoginPage({Key? key}) : super(key: key);
 
+
+  Future<Null> _initPlatformState() async {
+
+
+    // Fetch a Transistor demo server Authorization token for tracker.transistorsoft.com.
+    print("wvauth3");
+    //bg.TransistorAuthorizationToken token =
+   // await bg.TransistorAuthorizationToken.findOrCreate(
+     //   orgname, username, "https://mobifors111.mobiforce.ru");
+
+    // 1.  Listen to events (See docs for all 12 available events).
+  /*  bg.BackgroundGeolocation.onLocation(_onLocation, _onLocationError);
+    bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
+    bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
+    bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
+    bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
+    bg.BackgroundGeolocation.onHttp(_onHttp);
+    bg.BackgroundGeolocation.onAuthorization(_onAuthorization);
+*/
+    // 2.  Configure the plugin
+    bg.BackgroundGeolocation.ready(bg.Config(
+        reset: true,
+        debug: true,
+        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+        distanceFilter: 10.0,
+        backgroundPermissionRationale: bg.PermissionRationale(
+            title:
+            "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
+            message:
+            "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
+            positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
+            negativeAction: 'Cancel'),
+        url: "https://mobifors111.mobiforce.ru/api/locations.php",
+        authorization: bg.Authorization(
+          // <-- demo server authenticates with JWT
+            strategy: bg.Authorization.STRATEGY_JWT,
+            //accessToken: token.accessToken,
+            //refreshToken: token.refreshToken,
+            refreshUrl: "https://mobifors111.mobiforce.ru/api/refresh_token.php",
+            refreshPayload: {'refresh_token': '{refreshToken}'}),
+        stopOnTerminate: false,
+        startOnBoot: true,
+        enableHeadless: true))
+        .then((bg.State state) {
+      print("[ready] ${state.toMap()}");
+    }).catchError((error) {
+      print('[ready] ERROR: $error');
+    });
+  }
   //String _domain="";
   TextEditingController _domainContorller = TextEditingController();
   TextEditingController _loginContorller = TextEditingController();
@@ -23,6 +75,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
         builder: (context, state) {
+          _initPlatformState();
           //if(state is LoginOK){
 
 
@@ -94,7 +147,32 @@ class LoginPage extends StatelessWidget {
                               ));
                         }
                       },
-                        child: Text(AppLocalizations.of(context)!.loginButtonText),))
+                        child: Text(AppLocalizations.of(context)!.loginButtonText),)),
+                      RaisedButton(onPressed: () async {
+                        bg.BackgroundGeolocation.start().then((bg.State state) {
+                            print('[start] success $state');
+                            bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
+                              print('[changePace] success $isMoving');
+                            }).catchError((e) {
+                              print('[changePace] ERROR: ' + e.code.toString());
+                            });
+                            bg.BackgroundGeolocation.getCurrentPosition(
+                                persist: true, // <-- do persist this location
+                                desiredAccuracy: 0, // <-- desire best possible accuracy
+                                timeout: 30, // <-- wait 30s before giving up.
+                                samples: 3 // <-- sample 3 location before selecting best.
+                            )
+                                .then((bg.Location location) {
+                              print('[getCurrentPosition] - $location');
+                            }).catchError((error) {
+                              print('[getCurrentPosition] ERROR: $error');
+                            });
+                          }).catchError((error) {
+                            print('[start] ERROR: $error');
+
+                        });
+                      },
+                        child: Text(AppLocalizations.of(context)!.loginButtonText),)
                     ],
                     //),
                   ),

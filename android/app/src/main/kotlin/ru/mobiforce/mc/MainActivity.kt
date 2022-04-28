@@ -1,4 +1,4 @@
-package ru.mobiforce.mc
+package com.transistorsoft.flutterbackgroundgeolocationexample
 
 import io.flutter.embedding.android.FlutterActivity
 
