@@ -35,6 +35,7 @@ import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/main.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/fullSyncSteam.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
@@ -63,6 +64,7 @@ import 'domain/usecases/get_current_template.dart';
 import 'domain/usecases/get_new_task_number.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
+import 'domain/usecases/get_user_setting.dart';
 import 'domain/usecases/save_new_task.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
@@ -77,6 +79,7 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
+  sl.registerFactory(() => SettingBloc(settingsReader: sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));
   sl.registerFactory(() => ContractorSelectionBloc(contractors: sl(),currentContractor: sl()));
@@ -119,6 +122,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => SearchTask(sl()));
   sl.registerLazySingleton(() => AddTaskComment(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
+  sl.registerLazySingleton(() => GetUserSetting(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
   sl.registerLazySingleton(() => LoadFile(fileRepository:sl()));
   sl.registerLazySingleton(() => GetTaskComments(sl()));
@@ -202,7 +206,7 @@ Future<void>init() async
   );
 
   sl.registerLazySingleton<AuthorizationDataSource>(
-        () => AuthorizationDataSourceImpl(sharedPreferences: sl()),
+        () => AuthorizationDataSourceImpl(sharedPreferences: sl(),db: sl(),),
   );
   //core
 

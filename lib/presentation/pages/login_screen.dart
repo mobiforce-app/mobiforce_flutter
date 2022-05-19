@@ -142,37 +142,12 @@ class LoginPage extends StatelessWidget {
                           Navigator.pushReplacement(context,
                               PageRouteBuilder(
                                 pageBuilder: (context, animation1,
-                                    animation2) => HomePage(),
+                                    animation2) => TaskListPage(),
                                 transitionDuration: Duration(seconds: 0),
                               ));
                         }
                       },
                         child: Text(AppLocalizations.of(context)!.loginButtonText),)),
-                      RaisedButton(onPressed: () async {
-                        bg.BackgroundGeolocation.start().then((bg.State state) {
-                            print('[start] success $state');
-                            bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
-                              print('[changePace] success $isMoving');
-                            }).catchError((e) {
-                              print('[changePace] ERROR: ' + e.code.toString());
-                            });
-                            bg.BackgroundGeolocation.getCurrentPosition(
-                                persist: true, // <-- do persist this location
-                                desiredAccuracy: 0, // <-- desire best possible accuracy
-                                timeout: 30, // <-- wait 30s before giving up.
-                                samples: 3 // <-- sample 3 location before selecting best.
-                            )
-                                .then((bg.Location location) {
-                              print('[getCurrentPosition] - $location');
-                            }).catchError((error) {
-                              print('[getCurrentPosition] ERROR: $error');
-                            });
-                          }).catchError((error) {
-                            print('[start] ERROR: $error');
-
-                        });
-                      },
-                        child: Text(AppLocalizations.of(context)!.loginButtonText),)
                     ],
                     //),
                   ),

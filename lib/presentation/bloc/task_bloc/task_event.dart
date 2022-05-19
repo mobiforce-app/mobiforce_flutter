@@ -25,6 +25,14 @@ class ReloadTask extends TaskEvent
 
   ReloadTask(this.id);
 }
+class ReloadTaskByExternalID extends TaskEvent
+{
+  final int externaId;
+  final bool showCommentTab;
+  //final int page;
+
+  ReloadTaskByExternalID(this.externaId, this.showCommentTab);
+}
 class NewTask extends TaskEvent
 {
   final TemplateModel template;

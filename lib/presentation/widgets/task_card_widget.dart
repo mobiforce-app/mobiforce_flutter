@@ -91,6 +91,7 @@ class TaskCard extends StatelessWidget {
         );
         Navigator.push(context,
             PageRouteBuilder(
+              settings:RouteSettings(name: "TaskDetailPage") ,
               pageBuilder: (context, animation1, animation2) => TaskDetailPage(),
               transitionDuration: Duration(seconds: 0),
             ));

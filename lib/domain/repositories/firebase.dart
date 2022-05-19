@@ -1,10 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
+
+import '../../main.dart';
+import '../../presentation/bloc/task_bloc/task_bloc.dart';
+import '../../presentation/bloc/task_bloc/task_event.dart';
+import '../../presentation/pages/task_detail_screen.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -27,6 +35,65 @@ class PushNotificationService {
     _register();
   }
   get token => _token;
+  get message async => await FirebaseMessaging.instance.getInitialMessage();
+
+  void goToCurrentScreen(Map<String, dynamic> data) {
+    print("datascreen ${data.toString()}");
+    if(data["screen"]=="task") {
+
+      //di.sl<NavigationService>().navigatorKey.currentState?.pushNamed(TaskDetailPage());
+      di.sl<NavigationService>().navigatorKey.currentState?.popUntil((route) {
+        print ("route.settings.name ${route.settings.name}");
+        if(route.settings.name=='TaskDetailPage')
+          return false;
+        else
+          return true;
+      });
+      //di.sl<NavigationService>().navigatorKey.currentState.name.pushReplacementNamed('TaskDetailPage',arguments: {'id': data["id"]});
+      //di.sl<NavigationService>().navigatorKey.currentState?.pushNamed('TaskDetailPage',arguments: {'id': data["id"]});
+      di.sl<NavigationService>().navigatorKey.currentState?.push(
+       PageRouteBuilder(
+        settings:RouteSettings(name: "TaskDetailPage") ,
+        pageBuilder: (context, animation1, animation2){
+          String externalId = data["id"];//(routeSettings.arguments as Map<String,
+          //dynamic>)["id"] as String;
+          BlocProvider.of<TaskBloc>(context).add(
+            ReloadTaskByExternalID(int.parse(externalId), false),
+          );
+          return TaskDetailPage();
+          },
+        transitionDuration: Duration(seconds: 0),
+      ));
+
+    }
+    else if(data["screen"]=="taskcomment") {
+
+      //di.sl<NavigationService>().navigatorKey.currentState?.pushNamed(TaskDetailPage());
+      di.sl<NavigationService>().navigatorKey.currentState?.popUntil((route) {
+        print ("route.settings.name ${route.settings.name}");
+        if(route.settings.name=='TaskDetailPage')
+          return false;
+        else
+          return true;
+      });
+      //di.sl<NavigationService>().navigatorKey.currentState.name.pushReplacementNamed('TaskDetailPage',arguments: {'id': data["id"]});
+      //di.sl<NavigationService>().navigatorKey.currentState?.pushNamed('TaskDetailPage',arguments: {'id': data["id"]});
+      di.sl<NavigationService>().navigatorKey.currentState?.push(
+       PageRouteBuilder(
+        settings:RouteSettings(name: "TaskDetailPage") ,
+        pageBuilder: (context, animation1, animation2){
+          String externalId = data["id"];//(routeSettings.arguments as Map<String,
+          //dynamic>)["id"] as String;
+          BlocProvider.of<TaskBloc>(context).add(
+            ReloadTaskByExternalID(int.parse(externalId),true),
+          );
+          return TaskDetailPage();
+          },
+        transitionDuration: Duration(seconds: 0),
+      ));
+
+    }
+  }
   Future<void> _register() async{
     await Firebase.initializeApp();
 
@@ -98,17 +165,45 @@ class PushNotificationService {
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      print("click!!!! onMessageOpenedApp: ${message.data.toString()}");
+      if(message.data!=null)
+        goToCurrentScreen(message.data);
+    });
+    /*/FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      print("FirebaseMessaging.getInitialMessage");
+
+    });*/
     var androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     var initSetttings = InitializationSettings(android: androidSettings);
-    flutterLocalNotificationsPlugin.initialize(initSetttings);
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: (String? payload) async {
+          print("click!!!! ${payload.toString()}");
+          var js = payload!=null?json.decode(payload):null;
+          if(js!=null)
+            goToCurrentScreen(js);
 
+        });
+    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+      //Its compulsory to check if RemoteMessage instance is null or not.
+      //if (message != null) {
+      //  goToNextScreen(message.data);
+      //}
+      print("click!!!! data ${message?.data.toString()}");
+      if(message?.data!=null)
+        goToCurrentScreen(message!.data);
+
+    });
 //}
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("message!" );
       print("message! ${message.notification} ${message.notification?.android}" );
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
+
 
       // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
@@ -141,9 +236,24 @@ class PushNotificationService {
                 //icon: androidSettings,
                 // other properties...
               ),
-            ));
+            ),
+            payload:  json.encode(message.data)
+
+        );
       }
     });
+
+
+      /*if (message.data["navigation"] == "/your_route") {
+        int _yourId = int.tryParse(message.data["id"]) ?? 0;
+        Navigator.push(
+            navigatorKey.currentState.context,
+            MaterialPageRoute(
+                builder: (context) => YourScreen(
+                  yourId:_yourId,
+                )));
+      });*/
+    //}
     // Any time the token refreshes, store this in the database too.
     //FirebaseMessaging.instance.onTokenRefresh.listen(saveTokenToDatabase);
 

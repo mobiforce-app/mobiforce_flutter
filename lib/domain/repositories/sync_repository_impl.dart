@@ -34,6 +34,8 @@ import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../data/models/employee_model.dart';
 class QueueToSync{
   final String type;
   final int usn;
@@ -44,7 +46,7 @@ class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["taskstatus","taskfield","tasklifecycle","task","resolution","taskcomment"];
+  final List<String> objectsType=["taskstatus","taskfield","tasklifecycle","task","resolution","taskcomment","employee"];
   final List<int> objectsTypeLastUpdateId=[];
   int syncObjectsTypeId=0;
 
@@ -381,6 +383,10 @@ class SyncRepositoryImpl implements SyncRepository{
       if(objectsType[syncObjectsTypeId]=="taskcomment"){
         print ("type = taskcomment");
         return ((json as List).map((obj) => TaskCommentModel.fromJson(obj)).toList());
+      }
+      if(objectsType[syncObjectsTypeId]=="employee"){
+        print ("type = employee");
+        return ((json as List).map((obj) => EmployeeModel.fromJson(obj)).toList());
       }
 
       return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());

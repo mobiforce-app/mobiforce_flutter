@@ -20,8 +20,10 @@ import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksstatuses_model.dart';
 import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
+import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -30,7 +32,7 @@ class DBProvider {
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=13;
+  final int dbVersion=14;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;
@@ -38,6 +40,7 @@ class DBProvider {
 
   static Database? _database;
   String tasksTable="task";
+  String gpsscheduleTable="gpsschedule";
   String fileTable="file";
   String taskFieldTable="taskfield";
   String resolutionTable="resolution";
@@ -113,6 +116,14 @@ class DBProvider {
             'size INTEGER, '
             'name TEXT, '
             'description TEXT)');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS  $gpsscheduleTable ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            'dirty INTEGER, '
+            'external_id INTEGER UNIQUE, '
+            'dateFrom INTEGER, '
+            'dateTill INTEGER '
+            ')');
     await db.execute(
         'CREATE TABLE IF NOT EXISTS  $taskCommentTable ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -401,6 +412,7 @@ class DBProvider {
     Database db = await this.database;
     print("DROP");
     await db.execute('DROP TABLE IF EXISTS $fileTable');
+    await db.execute('DROP TABLE IF EXISTS $gpsscheduleTable');
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
     await db.execute('DROP TABLE IF EXISTS $taskCommentTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
@@ -1413,6 +1425,52 @@ Future<int> getPersonIdByServerId(int serverId) async {
     }
     employee.id=id;
     return employee;
+  }
+  Future<GPSSchedule> insertGpsddSchedule(GPSSchedule element) async{
+    Database db = await this.database;
+    int id=0;
+    try{
+      final map=Map<String, dynamic>();
+      map['dateFrom'] = element.from;//.millisecondsSinceEpoch;
+      map['dateTill'] = element.till;//.millisecondsSinceEpoch;
+      id=await db.insert(gpsscheduleTable, map);
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    //employee.id=id;
+    return element;
+  }
+  Future<void> deleteAllGpsSchedule() async{
+    Database db = await this.database;
+    //int id=0;
+    try{
+      await db.delete(gpsscheduleTable);
+      //await db.insert(resolutionGroup2ResolutionRelationTable, {"resolution":id,"resolution_group":resolutionGroupId});
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+  }
+  Future<UserSettingEntity> getUserSetting() async{
+    Database db = await this.database;
+    //int id=0;
+    try{
+      //await db.delete(gpsscheduleTable);
+      final List<Map<String,dynamic>> taskStatusMapList = await db.query(gpsscheduleTable, orderBy: "dateFrom asc");
+      final schedule = taskStatusMapList.map((element) => GPSSchedule(
+          //DateTime.fromMillisecondsSinceEpoch(element["dateFrom"]),
+          //DateTime.fromMillisecondsSinceEpoch(element["dateTill"])
+          element["dateFrom"],
+          element["dateTill"]
+      )).toList();
+      return new UserSettingEntity(gpsSchedule: schedule);
+      //await db.insert(resolutionGroup2ResolutionRelationTable, {"resolution":id,"resolution_group":resolutionGroupId});
+    }
+    catch(e){
+      //await db(tasksTable, task.toMap());
+    }
+    return new UserSettingEntity();
   }
   Future<EquipmentModel> insertEquipment(EquipmentModel equipment) async{
     Database db = await this.database;

@@ -1,6 +1,7 @@
 {
     "tasksPageHeader": "Задачи",
     "taskPageHeader": "Задача",
+    "settingPageHeader": "Настройки",
     "editTaskStatus":"Редактировать статус",
     "taskStatusComment":"Комментарий",
     "taskStatusResolution":"Резолюция",

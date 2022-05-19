@@ -410,6 +410,10 @@ class TaskDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
+
+    final arguments = (ModalRoute.of(context)?.settings.arguments ?? <String, dynamic>{}) as Map;
+    print("arguments ${arguments.toString()}");
+
     print("rebiult it ${_keyboardVisible ? "1" : "0"}");
     return BlocBuilder<TaskBloc, TaskState>(
       builder: (context, state) {
@@ -3424,7 +3428,10 @@ class TaskDetailPage extends StatelessWidget {
               keyboardVisible: _keyboardVisible,
               taskNumber: state.task.id==0 ? AppLocalizations.of(context)!.newTask : (state.task.name??""),
               floatButton: floatButtonWidget,
-              buttons: buttons);
+              buttons: buttons,
+              showCommentTab: state.showCommentTab,
+
+          );
           // return DefaultTabController(
           //     //controller: _tabController,
           //     length: _kTabs.length,

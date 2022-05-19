@@ -31,11 +31,13 @@ import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/models/employee_model.dart';
+
 class FullSyncRepositoryImpl implements FullSyncRepository{
   final FullRemoteDataSources fullRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["taskfield","taskstatus","resolution","tasklifecycle","task","comments"];
+  final List<String> objectsType=["taskfield","taskstatus","resolution","tasklifecycle","task","comments","employee"];
   //final AuthorizationDataSource authorizationDataSource;
   //int lastSyncTime=0;
   int fullSyncUpdateId=0;
@@ -170,6 +172,10 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
       if(objectsType[fullSyncObjectsTypeId]=="taskfield"){
         print ("type = taskfield");
         return ((json as List).map((obj) => TaskFieldModel.fromJson(obj)).toList());
+      }
+      if(objectsType[fullSyncObjectsTypeId]=="employee"){
+        print ("type = employee");
+        return ((json as List).map((obj) => EmployeeModel.fromJson(obj)).toList());
       }
 
       return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());

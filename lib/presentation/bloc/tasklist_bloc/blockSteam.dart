@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
@@ -37,7 +38,6 @@ class ModelImpl implements Model{
   Stream<dynamic> get counterUpdates => _streamController.stream;
 
   Future<void> startUpdate() async {
-
     while(true)
     {
       final fOL = await syncToServer(ListSyncToServerParams());
@@ -51,6 +51,7 @@ class ModelImpl implements Model{
           fcmToken: fcmTokenNotSync?fcm.token:null
       ));
       print("serversync");
+
       bool complete=faiureOrLoading.fold((failure) {
         print ("*");
         //failure.

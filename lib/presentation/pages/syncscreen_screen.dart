@@ -42,7 +42,7 @@ class SyncPage extends StatelessWidget {
                 ..add(RefreshListTasks());
               Navigator.pushReplacement(context,
                   PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) => HomePage(),
+                    pageBuilder: (context, animation1, animation2) => TaskListPage(),
                     transitionDuration: Duration(seconds: 0),
                   ));
             });

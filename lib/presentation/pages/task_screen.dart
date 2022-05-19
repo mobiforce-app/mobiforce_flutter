@@ -13,56 +13,60 @@ import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+import '../widgets/menu_widget.dart';
+
+class TaskListPage extends StatelessWidget {
+  const TaskListPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MobiforceMenu(),
+      drawerEdgeDragWidth: 40,
       appBar: AppBar(
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
             children:[
               Expanded(child: Center(child: Text(AppLocalizations.of(context)!.tasksPageHeader))),
               InkWell(
-                onTap: (){
-                  print("click");
-                  showModalBottomSheet(
-                    //isScrollControlled: true,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      context: context,
-                      builder: (BuildContext context) => TaskTemplateSelectionList(
-                          selectCallback:({required TemplateModel template}){
-                            print(template.name);
-                            BlocProvider.of<TaskBloc>(context).add(
-                                 NewTask(template: template),
-                            );
-                            /*BlocProvider.of<TaskBloc>(context)
+                  onTap: (){
+                    print("click");
+                    showModalBottomSheet(
+                      //isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        context: context,
+                        builder: (BuildContext context) => TaskTemplateSelectionList(
+                            selectCallback:({required TemplateModel template}){
+                              print(template.name);
+                              BlocProvider.of<TaskBloc>(context).add(
+                                NewTask(template: template),
+                              );
+                              /*BlocProvider.of<TaskBloc>(context)
                               ..add(SetTaskTemplate(
                                   template: template
                               ));*/
-                            Navigator.pop(context);
+                              Navigator.pop(context);
 
-                          }
-                      )
-                  );
-                  BlocProvider.of<TaskTemplateSelectionBloc>(context)
-                    ..add(ReloadTaskTemplateSelection());
+                            }
+                        )
+                    );
+                    BlocProvider.of<TaskTemplateSelectionBloc>(context)
+                      ..add(ReloadTaskTemplateSelection());
 
-                  // BlocProvider.of<TaskBloc>(context).add(
-                  //   NewTask(),
-                  // );
-                  /*Navigator.push(context,
+                    // BlocProvider.of<TaskBloc>(context).add(
+                    //   NewTask(),
+                    // );
+                    /*Navigator.push(context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) => TaskDetailPage(),
                     transitionDuration: Duration(seconds: 0),
                   ));*/
-                  //MaterialPageRoute(
-                  //builder: (context)=> TaskDetailPage(task: task,)
-                  //));
-                },
+                    //MaterialPageRoute(
+                    //builder: (context)=> TaskDetailPage(task: task,)
+                    //));
+                  },
                   child:Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(Icons.add),

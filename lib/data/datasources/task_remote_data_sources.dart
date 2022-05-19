@@ -19,6 +19,7 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 
@@ -29,7 +30,10 @@ abstract class TaskRemoteDataSources{
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
   Future<TaskModel>getTask(int id);
+  Future<TaskModel>getTaskByExternalId(int eternalId);
   Future<List<TaskLifeCycleNodeEntity>>getTaskStatusGraph(int? id, int? lifecycle);
+  Future<UserSettingEntity>getUserSetting();
+
   Future<FileModel>loadFileFromWeb(int id);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
   Future<TaskModel> setTaskStatus({
@@ -72,6 +76,12 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<List<TaskLifeCycleNodeEntity>> getTaskStatusGraph(int ?id, int? lifecycle) async
   {
     return await db.getNextStatuses(id, lifecycle);
+  }
+
+  @override
+  Future<UserSettingEntity>getUserSetting() async
+  {
+    return await db.getUserSetting();
   }
 
   @override
@@ -171,6 +181,26 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     print("self_id $selfId");
     if(selfId!=0){
       internalSelfId = await db.getEmployeeIdByServerId(selfId);
+    }
+    return await db.getTask(id, internalSelfId);
+  }
+  @override
+  Future<TaskModel> getTaskByExternalId(int externalId) async{
+    final int selfId = sharedPreferences.getInt("self_id")??0;
+    int? internalSelfId = null;
+    print("self_id $selfId");
+    if(selfId!=0){
+      internalSelfId = await db.getEmployeeIdByServerId(selfId);
+    }
+    print("externalId: $externalId");
+    int id = 0, counter=0;
+    while(counter<10){
+      id=await db.getTaskIdByServerId(externalId);
+      print("id: $id");
+      await Future.delayed(Duration(seconds: 1));
+      if(id!=0)
+        break;
+      counter++;
     }
     return await db.getTask(id, internalSelfId);
   }

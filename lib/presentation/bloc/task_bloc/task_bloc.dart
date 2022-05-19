@@ -111,7 +111,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
   @override
   Stream<TaskState> mapEventToState(TaskEvent event) async* {
-    print("tasklist bloc map event " + event.toString()+ " ${state.runtimeType }");
+    print("task bloc map event " + event.toString()+ " ${state.runtimeType }");
     if (event is ShowTaskComment&&(state.runtimeType == TaskLoaded)){
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
@@ -120,26 +120,32 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final comments=(state as TaskLoaded).comments;
       print("(state as TaskLoaded).comments ${(state as TaskLoaded).comments}");
       //yield StartLoadingTaskPage();
-      if(comments.length==0) {
-        final FoL = await getTaskComments(
-            GetTaskCommentsParams
-              (task: task.id, page: 0));
+      //if(comments.length==0) {
+         final FoL = await getTaskComments(
+             GetTaskCommentsParams
+               (task: task.id, page: 0));
         //await await Future.delayed(Duration(seconds: 2));
-        yield FoL.fold((failure) => TaskError(message: "bad"), (comments) {
-          print("TaskLoaded");
+        var y = FoL.fold((failure) => TaskError(message: "bad"), (newComments) {
+          print("TaskLoaded ${newComments.length} ${comments.length}");
 
-          return TaskLoaded(isChanged: isChanged,
-            task: task,
-            needToUpdateTaskList: false,
-            nextTaskStatuses: nextTaskStatuses,
-            appFilesDirectory: dir,
-            comments: comments,
-          );
+          if(newComments.length!=comments.length)
+            return TaskLoaded(isChanged: isChanged,
+              task: task,
+              needToUpdateTaskList: false,
+              nextTaskStatuses: nextTaskStatuses,
+              appFilesDirectory: dir,
+              comments: newComments,
+              showCommentTab:false,
+            );
+          else return null;
+
         });
-      }
-      else
+        if(y!=null)
+          yield y;
+      //}
+      /*else
         {
-          print("TaskLoaded");
+          print("TaskLoaded comments");
 
           yield TaskLoaded(isChanged: isChanged,
               task: task,
@@ -147,8 +153,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
               nextTaskStatuses: nextTaskStatuses,
               appFilesDirectory: dir,
               comments: comments,
+              showCommentTab:false,
             );
-        }
+        }*/
     }
     if (event is SetTaskTemplate) {
       final comments =  (state as TaskLoaded).comments;
@@ -190,6 +197,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
           comments:comments,
+        showCommentTab:false,
         );
 
     }
@@ -256,6 +264,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
           comments:comments,
+          showCommentTab:false,
         );
 
     }
@@ -281,6 +290,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
         comments:comments,
+
+        showCommentTab:false,
       );
 
     }
@@ -301,6 +312,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
         comments:comments,
+        showCommentTab:false,
       );
     }
     if (event is AddPhone) {
@@ -323,6 +335,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
             comments:comments,
+
+          showCommentTab:false,
         );
 
       });
@@ -343,6 +357,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
         comments:comments,
+        showCommentTab:false,
       );
 
     }
@@ -414,6 +429,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
           comments:comments,
+          showCommentTab:false,
         );
 
     }
@@ -431,6 +447,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
         comments:comments,
+        showCommentTab:false,
       );
 
       //getTask.
@@ -525,7 +542,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             task: task,
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
-            comments: []);
+            comments: [],
+          showCommentTab:false,
+        );
 
         Uint8List? data=await pickedFile.readAsBytes();
         final FoL = await getPictureFromCamera(
@@ -576,7 +595,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
                 needToUpdateTaskList: false,
                 nextTaskStatuses: nextTaskStatuses,
                 appFilesDirectory: dir,
-                comments: []);
+                comments: [],
+                showCommentTab:false,
+            );
           });
           //syncToServer(ListSyncToServerParams());
         });
@@ -609,7 +630,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           return TaskLoaded(isChanged:isChanged,
               needToUpdateTaskList: false,
-              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: []);
+              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: [],showCommentTab:false,);
         });
         //syncToServer(ListSyncToServerParams());
     }
@@ -644,7 +665,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           return TaskLoaded(isChanged:isChanged,
               needToUpdateTaskList: false,
-              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: []);
+              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: [], showCommentTab:false,);
         });
         //syncToServer(ListSyncToServerParams());
       });
@@ -776,6 +797,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
           comments:comments,
+          showCommentTab:false,
         );
       });
     }
@@ -804,6 +826,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
         comments:comments,
+        showCommentTab:false,
       );
       print("readFile ${id}");
       final faiureOrLoading = await loadFile(LoadFileParams(id));
@@ -833,6 +856,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
           comments:comments,
+          showCommentTab:false,
         );
       });
     }
@@ -861,6 +885,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
         comments:comments,
+        showCommentTab:false,
       );
       print("readFile ${id}");
       final faiureOrLoading = await loadFile(LoadFileParams(id));
@@ -890,6 +915,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           nextTaskStatuses: nextTaskStatuses,
           appFilesDirectory: dir,
           comments:comments,
+          showCommentTab:false,
         );
       });
     }
@@ -924,6 +950,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             nextTaskStatuses: nextTaskStatuses,
             appFilesDirectory: dir,
             comments:comments,
+            showCommentTab:false,
           );
         });
 
@@ -1014,7 +1041,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
                     return TaskLoaded(isChanged:isChanged,
                         needToUpdateTaskList: false,
-                        task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+                        task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[], showCommentTab:false,);
 
                 });
 
@@ -1093,7 +1120,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
                 template:  event.template,
                 propsList: propsList,
 
-      ), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[]);
+
+      ), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[],showCommentTab:false,);
       //navigatorKey.currentState?.pushNamed('TaskDetailPage');
       di.sl<NavigationService>().navigatorKey.currentState?.pushNamed('TaskDetailPage');
       print("start sync");
@@ -1134,7 +1162,55 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
             return TaskLoaded(isChanged:true,
                 needToUpdateTaskList: false,
-                task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+                task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[], showCommentTab:false,);
+          }
+        });
+        //return TaskLoaded(task: task);
+      });
+    }
+    if (event is ReloadTaskByExternalID) {
+      print("start sync");
+      //TaskModel t=//task.taskRepository()
+      yield StartLoadingTaskPage();
+      Directory dir =  await getApplicationDocumentsDirectory();
+
+      // await Future.delayed(Duration(seconds: 2));
+      print("event.externaId ${event.externaId}");
+      final faiureOrLoading = await taskReader(TaskParams(id:0, externalId: event.externaId));
+
+      //print("start sync1");
+      //yield TaskListEmpty();
+      yield await faiureOrLoading.fold((failure) async =>TaskError(message:"bad"), (task_readed) async {
+        final FoL = await nextTaskStatusesReader(TaskStatusParams(id: task_readed.status?.id, lifecycle: task_readed.lifecycle?.id,));
+        return FoL.fold((failure) =>TaskError(message:"bad"), (List<TaskLifeCycleNodeEntity> nextTaskStatuses_readed) async {
+          //final FoL = await nextTaskStatuses(TaskStatusParams(id: task.status?.id));
+          print("nextTaskStatuses = ${nextTaskStatuses_readed.toString()}");
+          TaskStatusModel? readedStatus = null;
+          readedStatus = nextTaskStatuses_readed.firstWhereOrNull((element) => element.nextStatus.systemStatusId == 3)?.nextStatus;
+          if(task_readed.status?.systemStatusId == 1 && readedStatus != null){
+            var date = new DateTime.now();
+            return await _setNewTaskStatus(ChangeTaskStatus(
+              status: readedStatus.id,
+              comment: "",
+              createdTime: date,
+              manualTime: date,
+              timeChanging: false,
+              dateChanging: false,
+              commentChanging: false,
+              commentRequired: false,
+            ), task_readed);
+          }
+          else{
+            print("TaskLoaded");
+
+            return TaskLoaded(isChanged:true,
+                needToUpdateTaskList: false,
+                task: task_readed,
+                nextTaskStatuses:nextTaskStatuses_readed,
+                appFilesDirectory: dir.path,
+                comments:[],
+                showCommentTab:event.showCommentTab,
+            );
           }
         });
         //return TaskLoaded(task: task);
@@ -1196,7 +1272,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
         return TaskLoaded(isChanged:true,
             needToUpdateTaskList: true,
-            task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[]);
+            task: task_readed, nextTaskStatuses:nextTaskStatuses_readed, appFilesDirectory: dir.path, comments:[],
+          showCommentTab:false,);
 
       });
       //return TaskLoaded(task: task);

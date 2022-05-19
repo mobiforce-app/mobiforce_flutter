@@ -1,6 +1,7 @@
 {
     "tasksPageHeader": "Tasks",
     "taskPageHeader": "Task",
+    "settingPageHeader": "Setting",
     "editTaskStatus":"Edit status",
     "taskStatusComment":"Comment",
     "taskStatusResolution":"Resolution",

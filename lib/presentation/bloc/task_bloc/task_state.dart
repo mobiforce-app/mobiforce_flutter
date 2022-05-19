@@ -39,12 +39,21 @@ class TaskListLoading extends TaskListState{
 class TaskLoaded extends TaskState{
   final TaskEntity task;
   final bool isChanged;
+  final bool showCommentTab;
   final bool needToUpdateTaskList;
   final String appFilesDirectory;
   final List<TaskLifeCycleNodeEntity>? nextTaskStatuses;
   final List<TaskCommentEntity> comments;
 
-  TaskLoaded({required this.task, required this.needToUpdateTaskList, required this.isChanged,this.nextTaskStatuses,required this.appFilesDirectory,required this.comments});
+  TaskLoaded({
+    required this.task,
+    required this.needToUpdateTaskList,
+    required this.isChanged,
+    this.nextTaskStatuses,
+    required this.appFilesDirectory,
+    required this.comments,
+    required this.showCommentTab
+  });
 
   @override
   List<Object> get props => [isChanged];

@@ -10,8 +10,10 @@ import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_equipment_selection_bloc/task_equipment_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_template_selection_bloc/task_template_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
@@ -168,6 +170,8 @@ void main() async {
   BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 
 }
+//final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey =
   new GlobalKey<NavigatorState>();
@@ -179,10 +183,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   //final SharedPreferences sharedPreferences;
   //late SharedPreferences sharedPref;
+
   final AuthorizationManager am = di.sl<AuthorizationManager>();
   @override
   Widget build(BuildContext context) {
     final w=0;
+    //print("appstart");
     //final AuthorizationDataSource a;
     //bool isAuthorizate=sharedPreferences.getBool("isAuthorizate")??false;
     return MultiBlocProvider(
@@ -193,14 +199,39 @@ class MyApp extends StatelessWidget {
         BlocProvider<TaskEquipmentSelectionBloc>(create: (context) => di.sl<TaskEquipmentSelectionBloc>()),
         BlocProvider<ContractorSelectionBloc>(create: (context) => di.sl<ContractorSelectionBloc>()),
         BlocProvider<SyncBloc>(create: (context) => di.sl<SyncBloc>()),
+        BlocProvider<SettingBloc>(create: (context) => di.sl<SettingBloc>()),
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
       ], child: MaterialApp(
             navigatorKey: di.sl<NavigationService>().navigatorKey,
             onGenerateRoute: (routeSettings) {
+              print("generation route! ${routeSettings.name} ${routeSettings.arguments}");
               switch (routeSettings.name) {
                 case 'TaskDetailPage':
-                  return MaterialPageRoute(builder: (context) => TaskDetailPage());
+                  {
+                    /*print("generation route! 1");
+                    if ((routeSettings.arguments as Map<String,
+                        dynamic>)["id"] != null) {
+                      print("generation route! 1.1");
+
+                      BlocProvider.of<TaskBloc>(context).add(
+                        ReloadTask((routeSettings.arguments as Map<String,
+                            dynamic>)["id"]),
+                      );
+                      print("generation route! 2");
+                    }
+                    print("generation route! 3");*/
+                    return MaterialPageRoute(
+                        settings: routeSettings,
+                        builder: (context){
+                          String externalId = (routeSettings.arguments as Map<String,
+                              dynamic>)["id"] as String;
+                          BlocProvider.of<TaskBloc>(context).add(
+                            ReloadTaskByExternalID(int.parse(externalId), false),
+                          );
+                          return TaskDetailPage();
+                        });
+                  }
                 //default:
                   //return MaterialPageRoute(builder: (context) => HomeView());
               }
@@ -219,7 +250,7 @@ class MyApp extends StatelessWidget {
               backgroundColor: AppColors.mainBackground,
               scaffoldBackgroundColor: AppColors.mainBackground
             ),
-            home:  am.check()?HomePage():LoginPage(),
+            home:  am.check()?TaskListPage():LoginPage(),
           ),
 
 
@@ -258,7 +289,20 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    //RemoteMessage initialMessage =
+  //  await FirebaseMessaging.instance.getInitialMessage();
+  }
+  @override
+  void initState() {
+    super.initState();
 
+    // Run code required to handle interacted messages in an async function
+    // as initState() must not be async
+    setupInteractedMessage();
+  }
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done

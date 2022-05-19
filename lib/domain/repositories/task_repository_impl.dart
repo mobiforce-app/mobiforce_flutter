@@ -17,6 +17,8 @@ import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
+import '../entity/user_setting_entity.dart';
+
 class TaskRepositoryImpl implements TaskRepository{
   final TaskRemoteDataSources remoteDataSources;
   final NetworkInfo networkInfo;
@@ -64,6 +66,12 @@ class TaskRepositoryImpl implements TaskRepository{
   @override
   Future<Either<Failure, List<TaskLifeCycleNodeEntity>>>getTaskStatusGraph(int? id, int? lifecycle) async {
     return Right(await remoteDataSources.getTaskStatusGraph(id, lifecycle));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+  @override
+  Future<Either<Failure, UserSettingEntity>>getUserSetting() async {
+    return Right(await remoteDataSources.getUserSetting());
     //return Right(_r);
     //throw UnimplementedError();
   }
@@ -128,6 +136,13 @@ class TaskRepositoryImpl implements TaskRepository{
     //throw UnimplementedError();
   }
 
+  @override
+  Future<Either<Failure, TaskEntity>> getTaskByExternalId(int externalId) async {
+   return Right(await remoteDataSources.getTaskByExternalId(externalId));
+   // return Right(_r);
+    //throw UnimplementedError();
+    //return ;
+  }
   @override
   Future<Either<Failure, TaskEntity>> getTask(int id) async {
    return Right(await remoteDataSources.getTask(id));

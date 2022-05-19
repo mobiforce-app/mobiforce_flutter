@@ -12,6 +12,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TaskTabs extends StatefulWidget {
   //final String name;
+  final bool showCommentTab;
   final bool saveEnabled;
   final List<Widget> tabs;
   final List<Widget> tabsBody;
@@ -24,7 +25,17 @@ class TaskTabs extends StatefulWidget {
   //final bool isText;
   //String val;
 
-  TaskTabs({required this.tabs,required this.tabsBody,required this.keyboardVisible,required this.floatButton, required this.buttons, required this.taskNumber,required this.saveEnabled,required this.floatButtonColor, });
+  TaskTabs({
+    required this.tabs,
+    required this.tabsBody,
+    required this.keyboardVisible,
+    required this.floatButton,
+    required this.buttons,
+    required this.taskNumber,
+    required this.saveEnabled,
+    required this.floatButtonColor,
+    required this.showCommentTab,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -38,16 +49,24 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: widget.tabs.length, vsync: this);
+    _tabController = TabController(length: widget.tabs.length, vsync: this, initialIndex: widget.showCommentTab?2:0);
+    print("widget.showCommentTab ${widget.tabs.length} ${widget.showCommentTab}");
+    if(widget.showCommentTab)
+      BlocProvider.of<TaskBloc>(context).add(
+        ShowTaskComment(),
+      );
     _tabController.addListener(_onTabChanged);
   }
 
   @override
   Widget build(BuildContext context) {
-    print("build tabs");
+    print("build tabs 1");
+    if(widget.showCommentTab)
+      _tabController.index=2;
     return DefaultTabController(
         //controller: _tabController,
         length: widget.tabs.length,
+        //initialIndex:1,
         child: Scaffold(
           appBar: AppBar(
 
