@@ -1,9 +1,12 @@
 import 'dart:developer';
 
+//import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
 import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
 
 class EmployeeModel extends EmployeeEntity
 {
@@ -26,13 +29,14 @@ class EmployeeModel extends EmployeeEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  EmployeeModel({required id,required usn,required serverId,required name,required webAuth,required mobileAuth,}): super(
+  EmployeeModel({required id,required usn,required serverId,required name,required webAuth,required mobileAuth,gpsSchedule}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
       webAuth:webAuth,
-      mobileAuth:mobileAuth
+      mobileAuth:mobileAuth,
+      gpsSchedule:gpsSchedule,
       //client:client,
       //address:address
   );
@@ -62,6 +66,57 @@ class EmployeeModel extends EmployeeEntity
       //print ("db id == ${t.toString()}");
     }
 
+    if(gpsSchedule != null)
+    {
+      await db.deleteAllGpsSchedule();
+      bool isStartNow = false;
+      var date = new DateTime.now();
+
+      int secFromWeekStart=(date.weekday-1)*86400 + date.hour*3600 + date.minute*60;
+      await Future.forEach(gpsSchedule!,(GPSSchedule element) async {
+        if(secFromWeekStart>=element.from&&secFromWeekStart<=element.till)
+          isStartNow=true;
+        //print("employees Id = ${element.serverId}");
+        //element.task = taskId;
+        //int employeeId = await element.insertToDB(db);
+        //if(employeeId>0){
+        await db.insertGpsddSchedule(element);
+        //  await db.addTaskEmployee(taskId,employeeId);
+        //}
+      });
+      print("schedule string ${isStartNow?"yes":"no"}");
+
+      List<String>? sch = gpsSchedule?.map((GPSSchedule element) {
+        final int hf=element.from~/3600%24;
+        final int ht=element.till~/3600%24;
+        final int mf=element.from~/60%60;
+        final int mt=element.till~/60%60;
+        return "${((element.from)~/86400+1)%7+1} ${hf}:${mf<10?"0":""}${mf}-${ht}:${mt<10?"0":""}${mt}";
+
+      }).toList();
+      print("schedule string ${sch.toString()}");
+      if(sch!=null)
+        bg.BackgroundGeolocation.setConfig(bg.Config(
+          // schedule: sch
+            schedule: sch,
+            scheduleUseAlarmManager: true
+
+        )).then((bg.State state) async {
+          print("schedule string accepted $state}");
+          //await bg.BackgroundGeolocation.sync();
+          bg.BackgroundGeolocation.start().then((value) {
+            if(value.enabled)bg.BackgroundGeolocation.stop().then((value) =>
+                bg.BackgroundGeolocation.startSchedule().then((value) => print("schedule string stop - start $value")));
+            else
+              bg.BackgroundGeolocation.startSchedule().then((value) => print("schedule string  start $value"));});
+          /*if(isStartNow)
+            bg.BackgroundGeolocation.start().then((value) => print("schedule string  start"));
+
+          else
+            bg.BackgroundGeolocation.stop().then((value) => print("schedule string stop"));*/
+        });
+    }
+
     //print ("employee db id == ${t.id}");
     Timeline.finishSync();
     return t.id;
@@ -86,13 +141,26 @@ class EmployeeModel extends EmployeeEntity
   {
     //print('employeejsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
+    var date = new DateTime.now();
+    var monday = new DateTime.utc(date.year, date.month, date.day - (date.weekday - 1));
+    print("json[schedule] ${json["schedule"]}");
+    var gpsSchedule = json["schedule"]!=null?(json["schedule"] as List).map((element) => GPSSchedule(
+        int.parse(element["start"]??"0"),
+        int.parse(element["end"]??"0")
+        //new DateTime.utc(monday.year, monday.month, monday.day, monday.hour, monday.minute, monday.second + int.parse(element["start"]??"0")-3*3600),
+        //new DateTime.utc(monday.year, monday.month, monday.day, monday.hour, monday.minute, monday.second + int.parse(element["end"]??"0")-3*3600),
+        )
+    ).toList():null;
+
     return EmployeeModel(
         id: 0,
-        usn: json["usn"]??0,
+        usn: int.parse(json["usn"]??"0"),
         serverId: int.parse(json["id"]??0),
         name: json["name"]??"",
         webAuth: json["webAuth"]??false,
         mobileAuth: json["mobileAuth"]??false,
+        gpsSchedule:gpsSchedule
+
         //client: json["client"]??"",
         //address: json["address"]??""
     );

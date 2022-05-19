@@ -14,6 +14,8 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
+import '../entity/user_setting_entity.dart';
+
 class AuthorizationRepositoryImpl implements AuthorizationRepository{
   final AuthorizationRemoteDataSources remoteDataSources;
   final NetworkInfo networkInfo;
@@ -52,6 +54,14 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
     //throw UnimplementedError();
     //await authorizationDataSource.setString(key: "access_token", value: token);
     return authorizationDataSource.getString("access_token");
+  }
+  @override
+  Future<UserSettingEntity> getUserSettings() async {
+   //return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass));
+    //return Right(_r);
+    //throw UnimplementedError();
+    //await authorizationDataSource.setString(key: "access_token", value: token);
+    return await authorizationDataSource.getUserSettings();
   }
 
 

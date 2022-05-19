@@ -1,3 +1,9 @@
+class GPSSchedule
+{
+  int from;
+  int till;
+  GPSSchedule(this.from, this.till);
+}
 class EmployeeEntity{
   int id;
   int usn;
@@ -5,13 +11,14 @@ class EmployeeEntity{
   String name;
   bool webAuth;
   bool mobileAuth;
+  List<GPSSchedule>? gpsSchedule;
   //String? client;
   //String? address;
  // String address;
  // String client;
  // String subdivision;
   EmployeeEntity({
-      required this.id, required this.serverId, required this.name, required this.usn, required this.webAuth, required this.mobileAuth//, this.address, this.client///, required this.subdivision
+      required this.id, required this.serverId, required this.name, required this.usn, required this.webAuth, required this.mobileAuth, this.gpsSchedule,//, this.address, this.client///, required this.subdivision
   });
   fromMap(Map<String, dynamic> map)
   {
