@@ -116,7 +116,7 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
           ),
           controller: _controller,
           maxLines: null,
-          keyboardType: widget.isText?TextInputType.text:TextInputType.phone,//.numberWithOptions(),
+          keyboardType: widget.isText?TextInputType.multiline:TextInputType.phone,//.numberWithOptions(),
   /*      onChanged: (data)
           {
             setState(()=>{});
