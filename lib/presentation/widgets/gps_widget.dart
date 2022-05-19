@@ -42,10 +42,16 @@ class GpsList extends StatelessWidget {
             List<Widget> days = [Text("пн")
               ,Text("вт"),Text("ср"),Text("чт"),Text("пт"),Text("сб",style: TextStyle(color: Colors.red),),Text("вс",style: TextStyle(color: Colors.red),)];
             state.settings.gpsSchedule?.forEach((GPSSchedule element) {
-              final int hf=element.from~/3600%24;
-              final int ht=element.till~/3600%24;
-              final int mf=element.from~/60%60;
-              final int mt=element.till~/60%60;
+              int hf=element.from~/3600%24;
+              int ht=element.till~/3600%24;
+              int mf=element.from~/60%60;
+              int mt=element.till~/60%60;
+              if(element.from~/3600~/24!=element.till~/3600~/24){
+                ht=24;
+                mt=00;
+              }
+              if(l[(element.from)~/86400%7].length>0)
+                l[(element.from)~/86400%7].add(SizedBox(height: 8,));
               l[(element.from)~/86400%7].add(
                   Container(
                       decoration: BoxDecoration(
@@ -54,7 +60,7 @@ class GpsList extends StatelessWidget {
 
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                      //margin: const EdgeInsets.symmetric(horizontal: 8.0),
                      // color: Colors.grey[100],
                       child: Text("${hf}:${mf<10?"0":""}${mf} - ${ht}:${mt<10?"0":""}${mt}")
                   ));
@@ -65,7 +71,9 @@ class GpsList extends StatelessWidget {
                 child: Row(children: [Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: days[l.indexOf(e)],
-                ),Column(children: e)]),
+                ),Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: e)]),
               )).toList()
             );
             /*List<Widget>? l = state.settings?.gpsSchedule?.map((e) => Text("${e.from}")).toList();

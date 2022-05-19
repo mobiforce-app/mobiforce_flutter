@@ -23,7 +23,7 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text(AppLocalizations.of(context)!.settingPageHeader)),
+        title: Text(AppLocalizations.of(context)!.settingPageHeader),
         centerTitle: true,
         /*actions: [
           IconButton(

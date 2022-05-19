@@ -25,10 +25,14 @@ class AuthorizationManager {
       authRepository.getUserSettings().then((UserSettingEntity us) {
         print("gpsSchedule ${us.gpsSchedule.toString()}");
         List<String>? sch = us.gpsSchedule?.map((GPSSchedule element) {
-          final int hf=element.from~/3600%24;
-          final int ht=element.till~/3600%24;
-          final int mf=element.from~/60%60;
-          final int mt=element.till~/60%60;
+          int hf=element.from~/3600%24;
+          int ht=element.till~/3600%24;
+          int mf=element.from~/60%60;
+          int mt=element.till~/60%60;
+          if(element.from~/3600~/24!=element.till~/3600~/24){
+            ht=23;
+            mt=59;
+          }
           return "${((element.from)~/86400+1)%7+1} ${hf}:${mf<10?"0":""}${mf}-${ht}:${mt<10?"0":""}${mt}";
 
         }).toList();
