@@ -102,14 +102,12 @@ class TaskDetailPage extends StatelessWidget {
           valueRequired: element.valueRequired,
           val: element.stringValue ?? "");
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.number) {
-      return Padding(
-          padding: const EdgeInsets.only(left:16.0, right:8.0),
-          child:TaskFieldTextCard(
-          name: element.taskField?.name ?? "",
-          fieldId: element.id,
-          isText: false,
-              valueRequired: element.valueRequired,
-          val: "${element.doubleValue ?? 0.0}"));
+      return TaskFieldTextCard(
+      name: element.taskField?.name ?? "",
+      fieldId: element.id,
+      isText: false,
+          valueRequired: element.valueRequired,
+      val: "${element.doubleValue ?? 0.0}");
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.checkbox) {
       return Padding(
           padding: const EdgeInsets.only(left:16.0, right:8.0),
@@ -119,12 +117,14 @@ class TaskDetailPage extends StatelessWidget {
             valueRequired: element.valueRequired,
           val: element.boolValue ?? false));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.picture) {
-      return TaskFieldPictureCard(
+      return Padding(
+          padding: const EdgeInsets.only(left:16.0, right:16.0),
+          child:TaskFieldPictureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,
           valueRequired: element.valueRequired,
           files: element.fileValueList,
-          appFilesDirectory: appFilesDirectory);
+          appFilesDirectory: appFilesDirectory));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.signature) {
       return Padding(
         padding: const EdgeInsets.only(left:16.0, right:16.0),
@@ -260,11 +260,14 @@ class TaskDetailPage extends StatelessWidget {
           val: element.boolValue ?? false);*/
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.picture) {
       return [Padding(
-        padding: const EdgeInsets.only(left:16.0),
-        child: Align(
-            alignment: Alignment.topLeft,
-            child: Text(element.taskField?.name ?? "")),
-      )];
+          padding: const EdgeInsets.only(left:16.0, right:16.0),
+          child:TaskFieldPictureCard(
+              name: element.taskField?.name ?? "",
+              fieldId: element.id,
+              valueRequired: element.valueRequired,
+              files: element.fileValueList,
+              appFilesDirectory: appFilesDirectory
+          ))];
      /* return TaskFieldPictureCard(
           name: element.taskField?.name ?? "",
           fieldId: element.id,

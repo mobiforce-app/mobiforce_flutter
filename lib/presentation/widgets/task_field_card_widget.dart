@@ -414,6 +414,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
     ).toList();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [Text(widget.name),Text(widget.valueRequired?" *":"",style: TextStyle(color: Colors.red),),Text("(${widget.files?.length??0})")],),
         //Text("${widget.name} (${widget.files?.length??0})"),
