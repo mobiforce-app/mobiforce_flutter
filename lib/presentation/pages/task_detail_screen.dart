@@ -118,13 +118,15 @@ class TaskDetailPage extends StatelessWidget {
           val: element.boolValue ?? false));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.picture) {
       return Padding(
-          padding: const EdgeInsets.only(left:16.0, right:16.0),
-          child:TaskFieldPictureCard(
-          name: element.taskField?.name ?? "",
-          fieldId: element.id,
-          valueRequired: element.valueRequired,
-          files: element.fileValueList,
-          appFilesDirectory: appFilesDirectory));
+              padding: const EdgeInsets.only(left:16.0, right:16.0),
+              child:TaskFieldPictureCard(
+              name: element.taskField?.name ?? "",
+              fieldId: element.id,
+              valueRequired: element.valueRequired,
+              files: element.fileValueList,
+              appFilesDirectory: appFilesDirectory,
+              editable:true,
+          ));
     } else if (element.taskField?.type.value == TaskFieldTypeEnum.signature) {
       return Padding(
         padding: const EdgeInsets.only(left:16.0, right:16.0),
@@ -266,7 +268,8 @@ class TaskDetailPage extends StatelessWidget {
               fieldId: element.id,
               valueRequired: element.valueRequired,
               files: element.fileValueList,
-              appFilesDirectory: appFilesDirectory
+              appFilesDirectory: appFilesDirectory,
+              editable: false
           ))];
      /* return TaskFieldPictureCard(
           name: element.taskField?.name ?? "",

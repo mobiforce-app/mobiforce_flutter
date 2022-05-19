@@ -351,12 +351,13 @@ class TaskFieldPictureCard extends StatefulWidget {
   final bool valueRequired;
   final String appFilesDirectory;
   final List<FileModel>? files;
+  final bool editable;
 
 
   //final bool isText;
   //String val;
 
-  TaskFieldPictureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory, required this.valueRequired});
+  TaskFieldPictureCard({required this.name, required this.fieldId, this.files, required this.appFilesDirectory, required this.valueRequired, required this.editable});
 
   @override
   State<StatefulWidget> createState() {
@@ -425,6 +426,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
           child: Row(children: photos==null||photos.length==0?[Text(AppLocalizations.of(context)!.pictureWidgetEmpty)]:photos,),
         ),
         SizedBox(height: 8,),
+        widget.editable?
         ElevatedButton(
           onPressed: () async {
             showModalBottomSheet(
@@ -483,7 +485,7 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
             padding: const EdgeInsets.all(16.0),
             child: Text(AppLocalizations.of(context)!.addPhoto),
           )
-      ),
+      ):Container(),
       ]
     );
   }
