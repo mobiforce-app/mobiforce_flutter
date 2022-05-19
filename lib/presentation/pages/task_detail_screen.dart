@@ -1732,7 +1732,7 @@ class TaskDetailPage extends StatelessWidget {
                                                           8.0, 8.0, 8.0, 8.0),
                                                       child: Icon(Icons.phone)),
                                                   Text(
-                                                    "${e.name.replaceAll(exp, '')} ***${e.id}",
+                                                    "${e.name}",
                                                     style: TextStyle(
                                                         fontSize: 16,
                                                         color: Colors.black,
