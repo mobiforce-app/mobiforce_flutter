@@ -393,6 +393,7 @@ class SyncRepositoryImpl implements SyncRepository{
 
       return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
     }
+    print("lastSyncTime: $lastSyncTime");
 
     return await _getUpdates(()=> updatesRemoteDataSources.getDataList(
         domain: domain,

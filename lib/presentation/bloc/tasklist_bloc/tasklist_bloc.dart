@@ -38,7 +38,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       else //if(item)
         this.add(StartFullSync());
     });
-    //m.startUpdate();
+    m.startUpdate();
     print("start");
   }
 

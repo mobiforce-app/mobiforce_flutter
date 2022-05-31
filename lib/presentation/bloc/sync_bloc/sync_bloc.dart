@@ -54,6 +54,8 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
         m.startUpdate();
         print("m.counterUpdates.listen");
       }
+      else
+        m.startUpdate();
       /*else {
         print("m.startUpdate();");
         m.startUpdate();

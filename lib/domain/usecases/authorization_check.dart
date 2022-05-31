@@ -41,7 +41,7 @@ class AuthorizationManager {
         //print(dateTime.timeZoneName);
         //print(dateTime.timeZoneOffset);
         bg.BackgroundGeolocation.ready(bg.Config(
-          schedule: sch??[],
+          schedule: sch,
           scheduleUseAlarmManager: true,
           reset: true,
           debug: false,

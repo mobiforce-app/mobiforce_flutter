@@ -60,7 +60,8 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
     fullSyncObjectsTypeId = sharedPreferences.getInt("full_sync_objects_type_id")??0;
     domain=sharedPreferences.getString("domain")??"";
     accessToken=sharedPreferences.getString("access_token")??"";
-
+print("syncDataLength $syncDataLength, syncDataProgress $syncDataProgress fullSyncUpdateId $fullSyncUpdateId"
+    + "fullSyncObjectsTypeId $fullSyncObjectsTypeId ");
     //fullSync=sharedPreferences.getBool("full_sync")??false;
   }
 
