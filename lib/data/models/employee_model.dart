@@ -5,8 +5,8 @@ import 'package:mobiforce_flutter/core/db/database.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/resolution_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-as bg;
+//import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//as bg;
 
 class EmployeeModel extends EmployeeEntity
 {
@@ -99,7 +99,7 @@ class EmployeeModel extends EmployeeEntity
 
       }).toList();
       print("schedule string ${sch.toString()}");
-      if(sch!=null)
+      /*if(sch!=null)
         bg.BackgroundGeolocation.setConfig(bg.Config(
           // schedule: sch
             schedule: sch,
@@ -113,12 +113,8 @@ class EmployeeModel extends EmployeeEntity
                 bg.BackgroundGeolocation.startSchedule().then((value) => print("schedule string stop - start $value")));
             else
               bg.BackgroundGeolocation.startSchedule().then((value) => print("schedule string  start $value"));});
-          /*if(isStartNow)
-            bg.BackgroundGeolocation.start().then((value) => print("schedule string  start"));
 
-          else
-            bg.BackgroundGeolocation.stop().then((value) => print("schedule string stop"));*/
-        });
+        });*/
     }
 
     //print ("employee db id == ${t.id}");
