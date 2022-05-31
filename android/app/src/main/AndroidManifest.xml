@@ -1,15 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
-    package="com.transistorsoft.flutterbackgroundgeolocationexample">
-    <!--    package="ru.mobiforce.mc">-->
+    package="com.mobile4b.msc">
+    <!--package="ru.mobiforce.msc">-->
+    <!--package="com.transistorsoft.flutterbackgroundgeolocationexample">-->
     <application
         android:label="Mobiforce FSM"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
+            android:name="com.mobile4b.msc.MainActivity"
             android:launchMode="singleTop"
+            android:exported="true"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -45,10 +47,10 @@
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-
+<!--
         <service android:name="com.transistorsoft.locationmanager.service.TrackingService" android:foregroundServiceType="location" />
         <service android:name="com.transistorsoft.locationmanager.service.LocationRequestService" android:foregroundServiceType="location" />
-
+-->
         <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="025736af0c3b480ecc1a6fc8aea17e73cc012049ed117472072b76e5e170953d" />
         <meta-data android:name="com.transistorsoft.locationmanager.ENCRYPTION_PASSWORD" android:value="transistorsoft" />
 
