@@ -8,20 +8,16 @@ import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
-class Authorization extends UseCase<AuthorizationEntity, AuthorizationParams>{
+class UserLogout extends UseCase<int, UserLogoutParams>{
   final AuthorizationRepository authRepository;
   final SyncRepository syncRepository;
 
-  Authorization(this.authRepository, this.syncRepository);
-  Future<Either<Failure, AuthorizationEntity>> call(AuthorizationParams params) async {
-
-    final FoL = await authRepository.firstLogin(fcmToken: params.fcmToken,
-          domain: params.domain,
-          login: params.login,
-          pass: params.pass);
+  UserLogout(this.authRepository, this.syncRepository);
+  Future<Either<Failure, int>> call(UserLogoutParams params) async {
+    final FoL = await authRepository.logout();
     return FoL.fold((l) => Left(l), (r) {
-      syncRepository.reloadUSN();
-      return Right(r);
+      //syncRepository.realoadUSN();
+      return Right(1);
     });
   }
 
@@ -46,13 +42,9 @@ class Authorization extends UseCase<AuthorizationEntity, AuthorizationParams>{
   }*/
 }
 
-class AuthorizationParams extends Equatable{
-  final String login;
-  final String pass;
-  final String domain;
-  final String? fcmToken;
-  AuthorizationParams({required this.login,required this.pass,required this.domain,this.fcmToken});
+class UserLogoutParams extends Equatable{
+  UserLogoutParams();
 
   @override
-  List<Object> get props => [login,pass,domain];
+  List<Object> get props => [];
 }

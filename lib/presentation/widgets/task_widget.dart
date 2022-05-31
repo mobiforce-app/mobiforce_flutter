@@ -12,6 +12,9 @@ import 'package:mobiforce_flutter/presentation/widgets/task_result.dart';
 import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 
+import '../bloc/sync_bloc/sync_bloc.dart';
+import '../bloc/sync_bloc/sync_event.dart';
+
 class Task extends StatelessWidget {
   final scrollController = ScrollController();
   final ModelImpl m = di.sl<ModelImpl>();
@@ -57,6 +60,9 @@ class Task extends StatelessWidget {
                         pageBuilder: (context, animation1, animation2) => SyncPage(),
                         transitionDuration: Duration(seconds: 0),
                       ));
+                  BlocProvider.of<SyncBloc>(context).add(
+                      FullSyncingStart()
+                  );
                 });
                 //return Container();
               }

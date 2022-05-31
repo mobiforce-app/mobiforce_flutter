@@ -32,6 +32,7 @@ import 'package:mobiforce_flutter/domain/usecases/load_file.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_field_value.dart';
 import 'package:mobiforce_flutter/domain/usecases/set_task_status.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
+import 'package:mobiforce_flutter/domain/usecases/user_logout.dart';
 import 'package:mobiforce_flutter/main.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
@@ -83,7 +84,7 @@ Future<void>init() async
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));
   sl.registerFactory(() => ContractorSelectionBloc(contractors: sl(),currentContractor: sl()));
-  sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl()));
+  sl.registerFactory(() => LoginBloc(auth: sl(), fcm: sl(), logout: sl()));
   //sl.registerFactory(() => SignaturePage();
   sl.registerFactory(() => SyncBloc(m:sl()));
   sl.registerFactory(() => TaskBloc(
@@ -134,6 +135,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), syncRepository:sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));
   //sl.registerLazySingleton(() => Model());
+  sl.registerLazySingleton(() => UserLogout(sl(),sl()));
   sl.registerLazySingleton(() => Authorization(sl(),sl()));
   sl.registerLazySingleton(() => AuthorizationManager(sl()));
   //sl.registerLazySingleton(() => Model());

@@ -15,3 +15,9 @@ class TryToLogin extends LoginEvent
   final String pass;
   TryToLogin(this.domain,this.login,this.pass);
 }
+class Logout extends LoginEvent
+{
+  final Function callback;
+
+  Logout(this.callback);
+}

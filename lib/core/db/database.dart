@@ -1511,7 +1511,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
   Future<EmployeeModel?> getEmployeeByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
-    return employeeMapList.first!=null?EmployeeModel.fromMap(employeeMapList.first):null;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+    return employeeMapList.isNotEmpty&&employeeMapList.first!=null?EmployeeModel.fromMap(employeeMapList.first):null;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
   Future<int> getEquipmentIdByServerId(int serverId) async {
     Database db = await this.database;

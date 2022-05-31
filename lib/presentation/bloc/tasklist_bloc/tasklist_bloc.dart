@@ -29,7 +29,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   TaskListBloc({required this.listTask,required this.m}) : super(TaskListEmpty())
   {
     m.counterUpdates.listen((item){
-      //print(item.progress);
+      print("m.counterUpdates item.progress ${item.syncPhase}");
       if(item.syncPhase==SyncPhase.normalSyncComplete)
       {
         print("complete");
@@ -38,7 +38,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       else //if(item)
         this.add(StartFullSync());
     });
-    m.startUpdate();
+    //m.startUpdate();
     print("start");
   }
 

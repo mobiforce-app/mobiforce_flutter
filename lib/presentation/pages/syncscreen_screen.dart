@@ -24,8 +24,8 @@ class SyncPage extends StatelessWidget {
     //final arguments = ModalRoute.of(context)?.settings.arguments as Map;
     //if (arguments != null) {
     //  if(arguments['restart']==true)
-        BlocProvider.of<SyncBloc>(context)
-          ..add(FullSyncingStart());
+        //BlocProvider.of<SyncBloc>(context)
+          //..add(FullSyncingStart());
     //};
 
     return BlocBuilder<SyncBloc, SyncState>(

@@ -17,7 +17,7 @@ abstract class SyncRepository{
   Future<bool> dbSetVersion(int dbVersion);
   Future<bool>setComplete();
   Future<bool>commit();
-  void realoadUSN();
+  void reloadUSN();
   int getLastSyncTime();
 
 }

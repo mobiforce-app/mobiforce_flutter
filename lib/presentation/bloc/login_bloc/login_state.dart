@@ -11,6 +11,8 @@ class LoginReady extends LoginState{}
 
 class LoginOK extends LoginState{}
 
+class LogoutStart extends LoginState{}
+
 class LoginWaitingServerAnswer extends LoginState{
  /* final List<TaskEntity> oldPersonList;
   final bool isFirstFetch;

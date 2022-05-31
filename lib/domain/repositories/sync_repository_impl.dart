@@ -116,7 +116,7 @@ class SyncRepositoryImpl implements SyncRepository{
 
 
   @override
-  void realoadUSN()
+  void reloadUSN()
   {
     print("realoadUSN ${lastSyncTime}");
     localUSN = 0;

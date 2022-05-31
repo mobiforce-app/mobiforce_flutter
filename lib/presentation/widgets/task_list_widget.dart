@@ -65,6 +65,9 @@ class TasksList extends StatelessWidget {
                         transitionDuration: Duration(seconds: 0),
                       )
                   );
+                  BlocProvider.of<SyncBloc>(context).add(
+                      FullSyncingStart()
+                  );
                 });
                 //return Container();
               }

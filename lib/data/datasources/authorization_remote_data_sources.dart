@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/data/models/authorization_model.dart';
 abstract class AuthorizationRemoteDataSources{
   //Future<LoginModel>searchTask(String query);
   Future<AuthorizationModel>firstLogin({required String domain, required String login,required  String pass, String? fcmToken});
+  //Future<int>logout();
 }
 
 class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSources
@@ -21,8 +22,11 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
 
  // @override
  // Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
-
-
+  /*@override
+  Future<int> logout() async {
+    return 1;
+  }*/
+  @override
   Future<AuthorizationModel> firstLogin({required String domain,required  String login,required  String pass, String? fcmToken}) async{
     try{
       print("fcmToken++: $fcmToken");

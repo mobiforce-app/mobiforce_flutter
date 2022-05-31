@@ -34,6 +34,8 @@ import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../bloc/login_bloc/login_bloc.dart';
+import '../bloc/login_bloc/login_event.dart';
 import '../bloc/setting_bloc/setting_state.dart';
 import 'input_field_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -116,6 +118,22 @@ class MobiforceMenu extends StatelessWidget {
                           Widget okButton = FlatButton(
                             child: Text("Выйти"),
                             onPressed: () {
+                              BlocProvider.of<LoginBloc>(context).add(
+                                Logout(
+                                        (){
+                                            Navigator.pushReplacement(context,
+                                              PageRouteBuilder(
+                                                pageBuilder: (context, animation1, animation2) => LoginPage(),
+                                                transitionDuration: Duration(seconds: 0),
+                                              ));
+                                            BlocProvider.of<TaskListBloc>(context).add(
+                                                SetEmptyList()
+                                            );
+
+                                        }
+                                ),
+                              );
+                              Navigator.pop(context);
                               Navigator.pop(context);
                             },
                           );
@@ -129,7 +147,7 @@ class MobiforceMenu extends StatelessWidget {
                           // set up the AlertDialog
                             AlertDialog alert = AlertDialog(
                               title: Text("Предупреждение"),
-                              content: Text("Вы действитеьно хотите выйти из приложения?"),
+                              content: Text("Выйти и удалить все днные приложения на этом устройстве?"),
                               actions: [
                                 cancelButton,
                                 okButton,
@@ -158,7 +176,7 @@ class MobiforceMenu extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        color: Colors.black12,
+                        color: Colors.black12 ,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Center(
@@ -174,7 +192,12 @@ class MobiforceMenu extends StatelessWidget {
       }
       else{
         return Drawer(
-            child:CircularProgressIndicator());
+            child:Padding(padding: const EdgeInsets.all(8.0),
+              child: Center(
+              child: CircularProgressIndicator()
+              ),
+              )
+        );
       }
     });
   }

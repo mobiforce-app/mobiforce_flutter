@@ -72,11 +72,12 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
 
   @override
   Future<bool>setComplete() async {
-    print("complete fullSyncObjectsTypeId = $fullSyncObjectsTypeId");
+    print("complete fullSyncObjectsTypeId = $fullSyncObjectsTypeId objectsType.length = ${objectsType.length}");
     fullSyncObjectsTypeId++;
     fullSyncUpdateId=0;
     await sharedPreferences.setInt("full_sync_objects_type_id", fullSyncObjectsTypeId);
     await sharedPreferences.setInt("full_sync_update_id", fullSyncUpdateId);
+    print("complete fullSyncObjectsTypeId = $fullSyncObjectsTypeId objectsType.length = ${objectsType.length}");
     if(fullSyncObjectsTypeId>=objectsType.length) {
       await sharedPreferences.setBool("full_sync", false);
       await sharedPreferences.setInt("local_usn", 0);

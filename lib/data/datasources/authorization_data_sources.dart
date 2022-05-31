@@ -17,6 +17,7 @@ abstract class AuthorizationDataSource{
   //Future<LoginModel>searchTask(String query);
   //Future<AuthorizationModel>firstLogin({required String domain, required String login,required  String pass});
   Future<void> setString({required String key, required String value});
+  Future<void> clear();
   Future<void> setInt({required String key, required int value});
   Future<List<GPSSchedule>?> getUserSettings();
   String ?getString(String key);
@@ -31,6 +32,13 @@ class AuthorizationDataSourceImpl implements AuthorizationDataSource
   Future<void> setString({required String key, required String value}) async
   {
     await sharedPreferences.setString(key, value);
+  }
+  @override
+  Future<void> clear() async
+  {
+    print("full clear");
+    await db.clear();
+    await sharedPreferences.clear();
   }
   @override
   Future<List<GPSSchedule>?> getUserSettings() async

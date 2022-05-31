@@ -4,6 +4,8 @@ import 'package:mobiforce_flutter/domain/usecases/authorization.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_state.dart';
+
+import '../../../domain/usecases/user_logout.dart';
 //import 'package:mobiforce_flutter/core/error/failure.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 //import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
@@ -14,10 +16,11 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_state.dart'
 // import 'equatabl'
 class LoginBloc extends Bloc<LoginEvent,LoginState>{
   final Authorization auth;
+  final UserLogout logout;
   final PushNotificationService fcm;
   //final GetAllTasks listTask;
   //int page = 1;
-  LoginBloc({required this.auth, required this.fcm}) : super(LoginReady());
+  LoginBloc({required this.auth, required this.fcm, required this.logout}) : super(LoginReady());
 
   //
 
@@ -37,6 +40,19 @@ class LoginBloc extends Bloc<LoginEvent,LoginState>{
       yield faiureOrLoading.fold((failure) => LoginError(message: "ошибка авторизации"), (task) {
         return LoginOK();
       });
+    }
+    if(event is Logout) {
+
+      print("event Logout");
+      yield LogoutStart();
+      event.callback();
+      //await Future.delayed(Duration(seconds: 2));
+      final faiureOrLoading = await logout(UserLogoutParams());
+      //await Future.delayed(Duration(seconds: 2));
+      yield faiureOrLoading.fold((failure) => LoginError(message: "ошибка авторизации"), (task) {
+        return LoginReady();
+      });
+
     }
 
     //yield* _mapRefreshTaskToState();

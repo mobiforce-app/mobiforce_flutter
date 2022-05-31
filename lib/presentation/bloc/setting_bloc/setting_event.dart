@@ -32,10 +32,3 @@ class ReloadMenu extends SettingEvent
 //
   ReloadMenu();
 }
-class Logout extends SettingEvent
-{
-  //final int id;
-  //final int page;
-//
-  Logout();
-}

@@ -32,7 +32,7 @@ class FullSyncFromServer extends UseCase<SyncStatusEntity, FullSyncParams>{
                 print ("empty");
                 //await sharedPreferences.getBool("full_sync")??false;
                 if(await fullSyncRepository.setComplete()) {
-                  syncRepository.realoadUSN();
+                  syncRepository.reloadUSN();
                   return Right(SyncStatusModel(progress: 100,
                       complete: true,
                       objectType: sync.objectType,

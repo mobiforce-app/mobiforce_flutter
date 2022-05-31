@@ -30,6 +30,14 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
     //return Right(_r);
     //throw UnimplementedError();
   }
+  @override
+  Future<Either<Failure, int>> logout() async {
+   //return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass, fcmToken: fcmToken));
+    await authorizationDataSource.clear();
+
+    return Right(1);
+    //throw UnimplementedError();
+  }
 
   @override
   Future <void> saveAuthorization({required String token, required String domain, required int selfId, required String selfName}) async {

@@ -14,6 +14,9 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 as bg;
 import 'package:url_launcher/url_launcher.dart';
 
+import '../bloc/tasklist_bloc/tasklist_bloc.dart';
+import '../bloc/tasklist_bloc/tasklist_event.dart';
+
 class LoginPage extends StatelessWidget {
 
 //  const LoginPage({Key? key}) : super(key: key);
@@ -77,6 +80,28 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
         builder: (context, state) {
+          print("loginpage: ${state}");
+          if(state is LogoutStart){
+              //WidgetsBinding.instance!.addPostFrameCallback((_) {
+              //  print("loginpage  postcallback: ${state}");
+
+              return
+                Scaffold(
+                  appBar: AppBar(
+                  title: Text(AppLocalizations.of(context)!.mobiforce),
+                    centerTitle: true,
+                    ),
+                    body:
+                      Padding(padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                              child: CircularProgressIndicator()
+                              ),
+                            )
+                );
+
+          }
+          else{
+
           _initPlatformState();
           //if(state is LoginOK){
 
@@ -142,11 +167,16 @@ class LoginPage extends StatelessWidget {
                           //await Future.delayed(Duration(seconds: 2));
                           await bloc.stream.firstWhere((e) => e is LoginOK);
                           Navigator.pushReplacement(context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation1,
-                                    animation2) => TaskListPage(),
-                                transitionDuration: Duration(seconds: 0),
-                              ));
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1,
+                                  animation2) => TaskListPage(),
+                              transitionDuration: Duration(seconds: 0),
+                            ));
+                          print("BlocProvider.of<TaskListBloc>");
+                          BlocProvider.of<TaskListBloc>(context).add(
+                              GetTaskUpdatesFromServer()
+                          );
+
                         }
                       },
                         child: Text(AppLocalizations.of(context)!.loginButtonText),)),
@@ -169,6 +199,8 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             );
+          }
         });
+
   }
 }

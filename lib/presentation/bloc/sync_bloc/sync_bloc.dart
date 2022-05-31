@@ -14,7 +14,7 @@ import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_state.dart';
 // import 'equatabl'
 class SyncBloc extends Bloc<SyncEvent,SyncState>{
   final FullSyncImpl m;
-  bool listenerIsInit=false;
+  //bool listenerIsInit=false;
   //final Authorization auth;
   //final GetAllTasks listTask;
   //int page = 1;
@@ -51,12 +51,16 @@ class SyncBloc extends Bloc<SyncEvent,SyncState>{
           else
             this.add(FullSyncingInProgress(progress:item.progress,objectTypeName: item.syncNameStr));
         });
-
+        m.startUpdate();
+        print("m.counterUpdates.listen");
       }
-
+      /*else {
+        print("m.startUpdate();");
+        m.startUpdate();
+      }*/
       print("start full exchange");
 
-      m.startUpdate();
+      //m.startUpdate();
       //yield CloseFullSyncWindow();
     }
     else if(event is FullSyncingReStart){
