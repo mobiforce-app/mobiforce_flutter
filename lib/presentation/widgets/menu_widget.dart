@@ -89,7 +89,7 @@ class MobiforceMenu extends StatelessWidget {
                         ),
                       ),
                       new ListTile(
-                          title: new Text("Расписание GPS"),
+                          title: new Text(AppLocalizations.of(context)!.gpsScheduleMenuItemName),
                           leading: Icon(Icons.settings),
                           minLeadingWidth: 16,
                           onTap: () {
@@ -116,7 +116,7 @@ class MobiforceMenu extends StatelessWidget {
 
                             // set up the button
                           Widget okButton = FlatButton(
-                            child: Text("Выйти"),
+                            child: Text(AppLocalizations.of(context)!.logoutOkBnt),
                             onPressed: () {
                               BlocProvider.of<LoginBloc>(context).add(
                                 Logout(
@@ -138,7 +138,7 @@ class MobiforceMenu extends StatelessWidget {
                             },
                           );
                           Widget cancelButton = FlatButton(
-                            child: Text("Отмена"),
+                            child: Text(AppLocalizations.of(context)!.logoutCancelBnt),
                             onPressed: () {
                               Navigator.pop(context);
                             },
@@ -146,8 +146,8 @@ class MobiforceMenu extends StatelessWidget {
 
                           // set up the AlertDialog
                             AlertDialog alert = AlertDialog(
-                              title: Text("Предупреждение"),
-                              content: Text("Выйти и удалить все днные приложения на этом устройстве?"),
+                              title: Text(AppLocalizations.of(context)!.logoutDialogHeader),
+                              content: Text(AppLocalizations.of(context)!.logoutDialogText),
                               actions: [
                                 cancelButton,
                                 okButton,
@@ -170,7 +170,7 @@ class MobiforceMenu extends StatelessWidget {
                               Icon(Icons.exit_to_app, color: Colors.black45,),
                               SizedBox(width: 16,),
                               Align(alignment: Alignment.topLeft,
-                                  child: Text("Выход", style: TextStyle( fontWeight: FontWeight.w600))),
+                                  child: Text(AppLocalizations.of(context)!.logoutMenuItem, style: TextStyle( fontWeight: FontWeight.w600))),
                             ],
                           ),
                         ),

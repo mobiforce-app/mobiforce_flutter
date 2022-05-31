@@ -87,7 +87,7 @@ class _addressEditorState extends State<AddressEditor> {
             Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  "Адрес",
+                  AppLocalizations.of(context)!.addressStr,
                   style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -194,7 +194,7 @@ class _addressEditorState extends State<AddressEditor> {
                 },
                 child:Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                  child: Text("Сохранить"),
+                  child: Text(AppLocalizations.of(context)!.addressSave),
                 )
             ),
           ),

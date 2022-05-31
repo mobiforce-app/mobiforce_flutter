@@ -92,5 +92,16 @@
     "commentsSyncText":"Комментарии",
     "fullSyncRetryCaption": "Ошибка загрузки данных",
     "fullSyncRetryButton": "Повторить",
-    "newTask": "Новая"
+    "newTask": "Новая",
+    "haveNotAccountQestion": "Еще нет аккаунта? ",
+    "addressStr": "Адрес",
+    "addressSave": "Сохранить",
+    "gpsScheduleMenuItemName": "Расписание GPS",
+    "logoutCancelBnt": "Отмена",
+    "logoutOkBnt": "Выйти",
+    "logoutDialogHeader": "Предупреждение",
+    "logoutDialogText": "Выйти и удалить все данные приложения на этом устройстве?",
+    "loginPageRegistration": "Зарегистрируйтесь",
+    "logoutMenuItem": "Выход"
+
 }

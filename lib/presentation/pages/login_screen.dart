@@ -10,8 +10,8 @@ import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_state.dart'
 import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-as bg;
+//import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//as bg;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../bloc/tasklist_bloc/tasklist_bloc.dart';
@@ -41,7 +41,7 @@ class LoginPage extends StatelessWidget {
     bg.BackgroundGeolocation.onAuthorization(_onAuthorization);
 */
     // 2.  Configure the plugin
-    bg.BackgroundGeolocation.ready(bg.Config(
+    /*bg.BackgroundGeolocation.ready(bg.Config(
         reset: true,
         debug: true,
         logLevel: bg.Config.LOG_LEVEL_VERBOSE,
@@ -69,7 +69,7 @@ class LoginPage extends StatelessWidget {
       print("[ready] ${state.toMap()}");
     }).catchError((error) {
       print('[ready] ERROR: $error');
-    });
+    });*/
   }
   //String _domain="";
   TextEditingController _domainContorller = TextEditingController();
@@ -185,9 +185,9 @@ class LoginPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Row(
                           children: [
-                            Text("Еще нет аккаунта? "),
+                            Text(AppLocalizations.of(context)!.haveNotAccountQestion),
                             InkWell(
-                                child: Text("Зарегистрируйтесь",style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline)),
+                                child: Text(AppLocalizations.of(context)!.loginPageRegistration,style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline)),
                                 onTap: () async {
                                   launchUrl(Uri.parse("https://reg.mobiforce.ru"));
                                 })

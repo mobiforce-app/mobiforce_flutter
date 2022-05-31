@@ -92,5 +92,15 @@
     "commentsSyncText":"Comments",
     "fullSyncRetryCaption": "Data synchronization error",
     "fullSyncRetryButton": "Retry",
-    "newTask": "New"
+    "newTask": "New",
+    "haveNotAccountQestion": "Have not account now? ",
+    "addressStr": "Address",
+    "addressSave": "Save",
+    "gpsScheduleMenuItemName": "GPS schedule",
+    "logoutCancelBnt": "Cancel",
+    "logoutOkBnt": "Logout",
+    "logoutDialogHeader": "Warning",
+    "logoutDialogText": "Exit and delete all user data in this app?",
+    "loginPageRegistration": "Register now",
+    "logoutMenuItem": "Logout"
 }
