@@ -92,7 +92,7 @@ class _StatusEditorState extends State<StatusEditor> {
     super.deactivate();
   }
 
-  int checkTimeBounds(int currentTime,int? prevTime,int? nextTime, BuildContext context){
+  int checkTimeBounds(int currentTime,int? systemStatusId, int? prevTime,int? nextTime, BuildContext context){
     //return 0;
     if(currentTime>DateTime.now().millisecondsSinceEpoch~/1000){
       Fluttertoast.showToast(
@@ -107,8 +107,8 @@ class _StatusEditorState extends State<StatusEditor> {
     }
 
     int error=0;
-    print("prevTime $prevTime, nextTime $nextTime, currentTime $currentTime");
-    if(prevTime!=null&&prevTime>currentTime)
+    print("prevTime $prevTime, nextTime $nextTime, currentTime $currentTime, sysyemStatusId $systemStatusId");
+    if(prevTime!=null&&prevTime>currentTime&&systemStatusId!=3)
       error = -1;
     if(nextTime!=null&&nextTime<currentTime)
       error = 1;
@@ -667,8 +667,8 @@ class _StatusEditorState extends State<StatusEditor> {
                   ),
                   onPressed: (){
 
-                    print("widget.resolution ${re?.id}");
-                    if(checkTimeBounds(manualTime.millisecondsSinceEpoch~/1000, widget.prevStatus?.manualTime,widget.nextStatus?.manualTime, context)!=0)
+                    print("widget.resolution ${re?.id}, ${widget.prevStatus?.status.toMap().toString()}");
+                    if(checkTimeBounds(manualTime.millisecondsSinceEpoch~/1000, widget.prevStatus?.status.systemStatusId, widget.prevStatus?.manualTime,widget.nextStatus?.manualTime, context)!=0)
                       return;
                     //return;
                     return widget.acceptCallback(time:date, manualTime: manualTime, comment:_controller.text, resolution: re);
