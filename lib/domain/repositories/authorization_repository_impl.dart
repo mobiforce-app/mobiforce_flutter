@@ -14,6 +14,7 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
+import '../entity/employee_entity.dart';
 import '../entity/user_setting_entity.dart';
 
 class AuthorizationRepositoryImpl implements AuthorizationRepository{
@@ -56,7 +57,7 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
     return authorizationDataSource.getString("access_token");
   }
   @override
-  Future<UserSettingEntity> getUserSettings() async {
+  Future<List<GPSSchedule>?> getUserSettings() async {
    //return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass));
     //return Right(_r);
     //throw UnimplementedError();

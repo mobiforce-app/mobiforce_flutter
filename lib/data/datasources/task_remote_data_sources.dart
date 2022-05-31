@@ -20,6 +20,7 @@ import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 
@@ -81,7 +82,24 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   @override
   Future<UserSettingEntity>getUserSetting() async
   {
-    return await db.getUserSetting();
+    //return await db.getGPSSetting();
+    final int selfId = sharedPreferences.getInt("self_id")??0;
+    String selfName = "";
+    String selfLogin = "";
+    print("self_id $selfId");
+    if(selfId!=0){
+      EmployeeModel? employee = await db.getEmployeeByServerId(selfId);
+      selfName=employee?.name??"";
+    }
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    String appName = packageInfo.appName;
+    String packageName = packageInfo.packageName;
+    String version = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
+
+    return new UserSettingEntity(gpsSchedule: await db.getGPSSetting(), appVersion: version, selfName: selfName, selfLogin: selfLogin);
+
   }
 
   @override

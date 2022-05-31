@@ -99,6 +99,19 @@ class SettingBloc extends Bloc<SettingEvent,SettingState> {
   @override
   Stream<SettingState> mapEventToState(SettingEvent event) async* {
     print("tasklist bloc map event " + event.toString()+ " ${state.runtimeType }");
+    if (event is ReloadMenu) {
+
+      final faiureOrLoading = await settingsReader(UserSettingParams(id:0));
+      yield faiureOrLoading.fold((failure)=>SettingEmpty(), (settings) {
+        //page++;
+        //final tasks = (state as TaskListLoading).oldPersonList;
+        //tasks.addAll(task);
+        print("settings* "+settings.toString());
+        return MenuLoaded(settings);
+        //return SettingLoaded(settings);
+      });
+
+    }
     if (event is ReloadSetting) {
       print("start sync");
       //TaskModel t=//task.taskRepository()
@@ -111,7 +124,7 @@ class SettingBloc extends Bloc<SettingEvent,SettingState> {
         //page++;
         //final tasks = (state as TaskListLoading).oldPersonList;
         //tasks.addAll(task);
-        print(settings.toString());
+        print("settings* "+settings.toString());
         return SettingLoaded(settings);
       });
       //print("start sync1");

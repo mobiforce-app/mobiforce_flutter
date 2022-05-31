@@ -24,6 +24,7 @@ import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -340,6 +341,7 @@ class DBProvider {
             'usn INTEGER, '
             'external_id INTEGER UNIQUE, '
             'name TEXT, '
+            'login TEXT, '
             'mobile_auth INTEGER, '
             'web_auth INTEGER '
             ')');
@@ -1452,7 +1454,7 @@ Future<int> getPersonIdByServerId(int serverId) async {
       //await db(tasksTable, task.toMap());
     }
   }
-  Future<UserSettingEntity> getUserSetting() async{
+  Future<List<GPSSchedule>?> getGPSSetting() async{
     Database db = await this.database;
     //int id=0;
     try{
@@ -1464,13 +1466,13 @@ Future<int> getPersonIdByServerId(int serverId) async {
           element["dateFrom"],
           element["dateTill"]
       )).toList();
-      return new UserSettingEntity(gpsSchedule: schedule);
+      return schedule;
       //await db.insert(resolutionGroup2ResolutionRelationTable, {"resolution":id,"resolution_group":resolutionGroupId});
     }
     catch(e){
       //await db(tasksTable, task.toMap());
     }
-    return new UserSettingEntity();
+    return null;//new UserSettingEntity(appVersion: version, myName: "");
   }
   Future<EquipmentModel> insertEquipment(EquipmentModel equipment) async{
     Database db = await this.database;
@@ -1505,6 +1507,11 @@ Future<int> getPersonIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
     return employeeMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+  }
+  Future<EmployeeModel?> getEmployeeByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> employeeMapList = await db.query(employeeTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return employeeMapList.first!=null?EmployeeModel.fromMap(employeeMapList.first):null;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
   Future<int> getEquipmentIdByServerId(int serverId) async {
     Database db = await this.database;

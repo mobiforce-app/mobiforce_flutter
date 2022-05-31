@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_event.dart';
@@ -11,6 +12,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatelessWidget {
 
@@ -148,6 +150,19 @@ class LoginPage extends StatelessWidget {
                         }
                       },
                         child: Text(AppLocalizations.of(context)!.loginButtonText),)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Text("Еще нет аккаунта? "),
+                            InkWell(
+                                child: Text("Зарегистрируйтесь",style: TextStyle(color:Colors.blueAccent, decoration: TextDecoration.underline)),
+                                onTap: () async {
+                                  launchUrl(Uri.parse("https://reg.mobiforce.ru"));
+                                })
+                          ],
+                        ),
+                      )
                     ],
                     //),
                   ),

@@ -22,9 +22,9 @@ class AuthorizationManager {
     if(token==null)
       return false;
     else {
-      authRepository.getUserSettings().then((UserSettingEntity us) {
-        print("gpsSchedule ${us.gpsSchedule.toString()}");
-        List<String>? sch = us.gpsSchedule?.map((GPSSchedule element) {
+      authRepository.getUserSettings().then((List<GPSSchedule>? gpsSchedule) {
+        print("gpsSchedule ${gpsSchedule.toString()}");
+        List<String>? sch = gpsSchedule?.map((GPSSchedule element) {
           int hf=element.from~/3600%24;
           int ht=element.till~/3600%24;
           int mf=element.from~/60%60;

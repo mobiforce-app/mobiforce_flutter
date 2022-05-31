@@ -45,3 +45,11 @@ class SettingLoaded extends SettingState{
   List<Object> get props => [settings];
 
 }
+class MenuLoaded extends SettingState{
+  final UserSettingEntity settings;
+  MenuLoaded(this.settings);
+
+  @override
+  List<Object> get props => [settings];
+
+}

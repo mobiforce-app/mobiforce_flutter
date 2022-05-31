@@ -7,16 +7,18 @@ import 'dart:convert';
 
 import 'package:mobiforce_flutter/data/models/authorization_model.dart';
 import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/db/database.dart';
+import '../../domain/entity/employee_entity.dart';
 
 abstract class AuthorizationDataSource{
   //Future<LoginModel>searchTask(String query);
   //Future<AuthorizationModel>firstLogin({required String domain, required String login,required  String pass});
   Future<void> setString({required String key, required String value});
   Future<void> setInt({required String key, required int value});
-  Future<UserSettingEntity> getUserSettings();
+  Future<List<GPSSchedule>?> getUserSettings();
   String ?getString(String key);
 }
 
@@ -31,9 +33,9 @@ class AuthorizationDataSourceImpl implements AuthorizationDataSource
     await sharedPreferences.setString(key, value);
   }
   @override
-  Future<UserSettingEntity> getUserSettings() async
+  Future<List<GPSSchedule>?> getUserSettings() async
   {
-    return await db.getUserSetting();
+    return await db.getGPSSetting();
   }
 
   @override

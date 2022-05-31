@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
@@ -31,45 +32,150 @@ import 'package:mobiforce_flutter/presentation/widgets/task_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_result.dart';
 import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
+import 'package:package_info_plus/package_info_plus.dart';
 
+import '../bloc/setting_bloc/setting_state.dart';
 import 'input_field_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class MobiforceMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
 
-      Drawer(
-        child: new ListView(
-          children: <Widget>[
-            new DrawerHeader(
-              margin: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
-              child: UserAccountsDrawerHeader(
-                decoration: BoxDecoration(color: Colors.green),
-                accountName: Text('Валентин'),
-                accountEmail: null,//Text("home@dartflutter.ru"),
-                currentAccountPicture:  Icon(Icons.portrait,size: 80,),
-              ),
-            ),
-            new ListTile(
-                title: new Text("Настройки"),
-                leading: Icon(Icons.settings),
-                onTap: () {
-                  Navigator.pop(context);
-                  BlocProvider.of<SettingBloc>(context).add(
-                    ReloadSetting(),
-                  );
-                  Navigator.push(context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation1, animation2) => SettingPage(),
-                        transitionDuration: Duration(seconds: 0),
-                      ));
-                }
-            )
-          ],
+    return BlocBuilder<SettingBloc, SettingState>(
+        bloc: BlocProvider.of<SettingBloc>(context)..add(
+          ReloadMenu(),
         ),
-      );
+        builder: (context, state)
+    {
+      /*PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+        String appName = packageInfo.appName;
+        String packageName = packageInfo.packageName;
+        String version = packageInfo.version;
+        String buildNumber = packageInfo.buildNumber;
+      });
+     */
+      /*PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    String appName = packageInfo.appName;
+    String packageName = packageInfo.packageName;
+    String version = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
+    */
+      if(state is MenuLoaded) {
+        ///print("stateSetting: ${state.}")
+        return
+
+          Drawer(
+              child:
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    children: [
+                      new DrawerHeader(
+                        margin: EdgeInsets.zero,
+                        padding: EdgeInsets.zero,
+                        decoration: BoxDecoration(color: Colors.blue),
+                        child: UserAccountsDrawerHeader(
+                          //decoration: BoxDecoration(color: Colors.blue),
+                          accountName: Text(state.settings.selfName),
+                          accountEmail: Text(state.settings.selfLogin),
+                          currentAccountPicture: Icon(
+                            Icons.portrait, size: 80,),
+                        ),
+                      ),
+                      new ListTile(
+                          title: new Text("Расписание GPS"),
+                          leading: Icon(Icons.settings),
+                          minLeadingWidth: 16,
+                          onTap: () {
+                            Navigator.pop(context);
+                            BlocProvider.of<SettingBloc>(context).add(
+                              ReloadSetting(),
+                            );
+                            Navigator.push(context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation1,
+                                      animation2) => SettingPage(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ));
+                          }
+                      ),
+                    ],
+                  ),
+
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap:(){
+
+
+                            // set up the button
+                          Widget okButton = FlatButton(
+                            child: Text("Выйти"),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          );
+                          Widget cancelButton = FlatButton(
+                            child: Text("Отмена"),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          );
+
+                          // set up the AlertDialog
+                            AlertDialog alert = AlertDialog(
+                              title: Text("Предупреждение"),
+                              content: Text("Вы действитеьно хотите выйти из приложения?"),
+                              actions: [
+                                cancelButton,
+                                okButton,
+                              ],
+                            );
+                            print("show!");
+                            // show the dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return alert;
+                              },
+                            );
+
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.exit_to_app, color: Colors.black45,),
+                              SizedBox(width: 16,),
+                              Align(alignment: Alignment.topLeft,
+                                  child: Text("Выход", style: TextStyle( fontWeight: FontWeight.w600))),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        color: Colors.black12,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Center(
+                              child: Text("ver ${state.settings.appVersion}, android")),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              )
+
+          );
+      }
+      else{
+        return Drawer(
+            child:CircularProgressIndicator());
+      }
+    });
   }
 }

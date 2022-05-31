@@ -25,3 +25,17 @@ class ReloadSetting extends SettingEvent
 
   ReloadSetting();
 }
+class ReloadMenu extends SettingEvent
+{
+  //final int id;
+  //final int page;
+//
+  ReloadMenu();
+}
+class Logout extends SettingEvent
+{
+  //final int id;
+  //final int page;
+//
+  Logout();
+}

@@ -6,8 +6,14 @@ import 'employee_entity.dart';
 class UserSettingEntity{
 
   List<GPSSchedule>? gpsSchedule;
+  String selfName;
+  String selfLogin;
+  String appVersion;
   //
   UserSettingEntity({
-      this.gpsSchedule
+      this.gpsSchedule,
+      required this.selfName,
+      required this.selfLogin,
+      required this.appVersion
   });
 }
