@@ -323,6 +323,8 @@ class SyncRepositoryImpl implements SyncRepository{
         sendObjects++;
         print("sendObjects1 $sendObjects");
         localUSN = element.usn;
+        print("localUsn $localUSN");
+
         await sharedPreferences.setInt("local_usn", localUSN);
 
       };
