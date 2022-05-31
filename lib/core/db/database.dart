@@ -33,7 +33,7 @@ class DBProvider {
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=15;
+  final int dbVersion=16;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;

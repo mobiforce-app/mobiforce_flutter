@@ -56,7 +56,7 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
     try{
       final int selfId = sharedPreferences.getInt("self_id")??0;
       //task.equipment=EquipmentModel(id: 0, usn: 0, serverId: 4052, name: "");
-      task.employees=[EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", webAuth: false, mobileAuth: true)].toList();
+      task.employees=[EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", login: "", webAuth: false, mobileAuth: true)].toList();
       //task.author=EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", webAuth: false, mobileAuth: true);
       Map data = (task as TaskModel).toJson();
       print("data ${data.toString()}");

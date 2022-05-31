@@ -9,6 +9,7 @@ class EmployeeEntity{
   int usn;
   int serverId;
   String name;
+  String login;
   bool webAuth;
   bool mobileAuth;
   List<GPSSchedule>? gpsSchedule;
@@ -18,7 +19,7 @@ class EmployeeEntity{
  // String client;
  // String subdivision;
   EmployeeEntity({
-      required this.id, required this.serverId, required this.name, required this.usn, required this.webAuth, required this.mobileAuth, this.gpsSchedule,//, this.address, this.client///, required this.subdivision
+      required this.id, required this.serverId, required this.name, required this.login, required this.usn, required this.webAuth, required this.mobileAuth, this.gpsSchedule,//, this.address, this.client///, required this.subdivision
   });
   fromMap(Map<String, dynamic> map)
   {

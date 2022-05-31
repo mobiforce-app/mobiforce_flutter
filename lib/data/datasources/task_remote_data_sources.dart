@@ -90,6 +90,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
     if(selfId!=0){
       EmployeeModel? employee = await db.getEmployeeByServerId(selfId);
       selfName=employee?.name??"";
+      selfLogin=employee?.login??"";
     }
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 

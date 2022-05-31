@@ -29,11 +29,12 @@ class EmployeeModel extends EmployeeEntity
     return TaskModel(id: int.parse(json["id"]??0), name: json["name"]??"", address: json["address"]??"", client: json["client"]??"", subdivision: json["subdivision"]??"");
   }*/
 
-  EmployeeModel({required id,required usn,required serverId,required name,required webAuth,required mobileAuth,gpsSchedule}): super(
+  EmployeeModel({required id,required usn,required serverId,required name,required login,required webAuth,required mobileAuth,gpsSchedule}): super(
       id:id,
       usn:usn,
       serverId:serverId,
       name:name,
+      login:login,
       webAuth:webAuth,
       mobileAuth:mobileAuth,
       gpsSchedule:gpsSchedule,
@@ -44,6 +45,7 @@ class EmployeeModel extends EmployeeEntity
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
+    map['login'] = login;
     map['external_id'] = serverId;
     map['mobile_auth'] = mobileAuth?1:0;
     map['web_auth'] = webAuth?1:0;
@@ -134,7 +136,8 @@ class EmployeeModel extends EmployeeEntity
         webAuth: map['web_auth']==1?true:false,
         //client: map['client'],
         //address: map['address'],
-        name: map['name']
+        name: map['name'],
+        login: map['login']
     );
   }
   factory EmployeeModel.fromJson(Map<String, dynamic> json)
@@ -157,6 +160,7 @@ class EmployeeModel extends EmployeeEntity
         usn: int.parse(json["usn"]??"0"),
         serverId: int.parse(json["id"]??0),
         name: json["name"]??"",
+        login: json["login"]??"",
         webAuth: json["webAuth"]??false,
         mobileAuth: json["mobileAuth"]??false,
         gpsSchedule:gpsSchedule
