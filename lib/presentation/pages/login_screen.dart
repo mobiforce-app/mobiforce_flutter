@@ -131,6 +131,7 @@ class LoginPage extends StatelessWidget {
                       TextFormField(
                         controller: _domainContorller,
                         validator: (val) => val!.isEmpty ?AppLocalizations.of(context)!.loginPageDomainNeeded: null,
+                        keyboardType: TextInputType.url,
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.loginPageDomainLabel,
                           hintText: "https://demo.mobiforce.ru"),

@@ -72,29 +72,6 @@ class AuthorizationManager {
           .then((bg.State state) {
         print("[ready] ${state.toMap()}");
           //bg.BackgroundGeolocation.
-        /*
-          bg.BackgroundGeolocation.start().then((bg.State state) {
-            print('[start] success $state');
-            bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
-              print('[changePace] success $isMoving');
-            }).catchError((e) {
-              print('[changePace] ERROR: ' + e.code.toString());
-            });
-            /*bg.BackgroundGeolocation.getCurrentPosition(
-                persist: true, // <-- do persist this location
-                desiredAccuracy: 0, // <-- desire best possible accuracy
-                timeout: 30, // <-- wait 30s before giving up.
-                samples: 3 // <-- sample 3 location before selecting best.
-            )
-                .then((bg.Location location) {
-              print('[getCurrentPosition] - $location');
-            }).catchError((error) {
-              print('[getCurrentPosition] ERROR: $error');
-            });*/
-          }).catchError((error) {
-            print('[start] ERROR: $error');
-
-          });*/
         //bg.BackgroundGeolocation.setConfig(bg.Config(
           // schedule: sch
         //    schedule: ['1-7 15:30-15:35'],
