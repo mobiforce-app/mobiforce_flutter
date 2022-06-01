@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:mobiforce_flutter/core/error/exception.dart';
 //import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:http/http.dart' as http;
@@ -36,7 +37,28 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
     String packageName = packageInfo.packageName;
     String version = packageInfo.version;
     String buildNumber = packageInfo.buildNumber;
+    String? deviceId;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
+    String? manufacture;
+    String? model;
+    String? product;
+    String? osVersion;
+
+    if (Platform.isIOS) { // import 'dart:io'
+      IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
+      deviceId = iosDeviceInfo.identifierForVendor; // unique ID on iOS
+      manufacture = "apple";
+      model = iosDeviceInfo.model;
+      osVersion = iosDeviceInfo.systemVersion;
+    } else if(Platform.isAndroid) {
+      AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
+      deviceId = androidDeviceInfo.androidId; // unique ID on Android
+      manufacture = androidDeviceInfo.manufacturer;
+      model = androidDeviceInfo.model;
+      product = androidDeviceInfo.product;
+      osVersion = androidDeviceInfo.version.release;
+    }
     try{
       print("fcmToken++: $fcmToken");
       Map data = {
@@ -48,6 +70,11 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
         'packageName': packageName,
         'version': version,
         'buildNumber': buildNumber,
+        'deviceId': deviceId,
+        'manufacture': manufacture,
+        'model': model,
+        'product': product,
+        'osVersion': osVersion
       };
       final response = await client.post(Uri.parse("https://exchange.mobiforce.ru/api2.0/autorization.php"),headers:{'Content-Type':"application/json"},body: json.encode(data));
       if(response.statusCode == 200){
