@@ -217,11 +217,16 @@ class MyApp extends StatelessWidget {
                     return MaterialPageRoute(
                         settings: routeSettings,
                         builder: (context){
-                          String externalId = (routeSettings.arguments as Map<String,
-                              dynamic>)["id"] as String;
-                          BlocProvider.of<TaskBloc>(context).add(
-                            ReloadTaskByExternalID(int.parse(externalId), false),
-                          );
+                          if(routeSettings.arguments!=null&&(routeSettings.arguments as Map<String,
+                              dynamic>)["id"]!=null) {
+                            String externalId = (routeSettings.arguments as Map<
+                                String,
+                                dynamic>)["id"] as String;
+                            BlocProvider.of<TaskBloc>(context).add(
+                              ReloadTaskByExternalID(
+                                  int.parse(externalId), false),
+                            );
+                          }
                           return TaskDetailPage();
                         });
                   }
