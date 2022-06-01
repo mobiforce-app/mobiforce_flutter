@@ -393,7 +393,7 @@ class TaskModel extends TaskEntity
         usn: taskMap['usn'],
         employee:internalSelfId!=null?EmployeeModel(id: internalSelfId, usn: 0, serverId: 0, name: "", login: "", webAuth: false, mobileAuth: false):null,
         equipment:taskMap['equipment_id']!=null?EquipmentModel(id: taskMap['equipment_id']??0, usn: 0, serverId: 0, name: taskMap['equipment_name']??"",):null,
-        author: taskMap['author']!=null?EmployeeModel(id: taskMap['author'], usn: 0, serverId: 0, name: "", login: "",   webAuth: false, mobileAuth: false):null,
+        author: taskMap['author']!=null?EmployeeModel(id: taskMap['author'], usn: 0, serverId: 0, name: taskMap['author_name']??"", login: "",   webAuth: false, mobileAuth: false):null,
         lat: double.tryParse(taskMap['lat']??"0"),
         lon: double.tryParse(taskMap['lon']??"0"),
         serverId: taskMap['external_id'],

@@ -3425,7 +3425,7 @@ class TaskDetailPage extends StatelessWidget {
                 ),
               )
           );
-
+          print("state.task.author?.name ${state.task.author?.name}");
           return TaskTabs(
               floatButtonColor: HexColor.fromHex("${state.task.statuses?.first.status.color}"),
               saveEnabled: saveEnabled,
@@ -3433,6 +3433,7 @@ class TaskDetailPage extends StatelessWidget {
               tabsBody: _kTabPages1,
               keyboardVisible: _keyboardVisible,
               taskNumber: state.task.id==0 ? AppLocalizations.of(context)!.newTask : (state.task.name??""),
+              authorName: state.task.author?.name!=null?", ${state.task.author?.name}":"",
               floatButton: floatButtonWidget,
               buttons: buttons,
               showCommentTab: state.showCommentTab,

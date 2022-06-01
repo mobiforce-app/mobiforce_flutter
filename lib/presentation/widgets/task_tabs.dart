@@ -17,6 +17,7 @@ class TaskTabs extends StatefulWidget {
   final List<Widget> tabs;
   final List<Widget> tabsBody;
   final String taskNumber;
+  final String authorName;
   final Color floatButtonColor;
   final Widget floatButton;
   final List<Widget> buttons;
@@ -32,6 +33,7 @@ class TaskTabs extends StatefulWidget {
     required this.floatButton,
     required this.buttons,
     required this.taskNumber,
+    required this.authorName,
     required this.saveEnabled,
     required this.floatButtonColor,
     required this.showCommentTab,
@@ -92,7 +94,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
               Text(AppLocalizations.of(context)!.taskPageHeader),
-              Text('${widget.taskNumber}',
+              Text('${widget.taskNumber}${widget.authorName}',
                   style: TextStyle(
                       fontSize: 12,)
               )

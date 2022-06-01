@@ -758,6 +758,7 @@ class DBProvider {
             "t5.required_contractor as template_required_contractor,"
             "t6.id as equipment_id,"
             "t6.name as equipment_name,"
+            "t7.name as author_name,"
             "t3.id as contractor_parent_id,"
             "t3.usn as contractor_parent_usn,"
             "t3.external_id as contractor_parent_external_id"
@@ -772,6 +773,8 @@ class DBProvider {
             " ON t1.template = t5.id "
             " LEFT JOIN $equipmentTable as t6 "
             " ON t1.equipment = t6.id "
+            " LEFT JOIN $employeeTable as t7 "
+            " ON t1.author = t7.id "
             " WHERE t1.id=? AND t1.deleted != 1",[id]);
 //        orderBy: "id desc",limit: 1,where: 'id =? AND deleted != 1', whereArgs: [id]);
 
