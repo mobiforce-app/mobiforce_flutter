@@ -138,7 +138,7 @@ class EmployeeModel extends EmployeeEntity
         //client: map['client'],
         //address: map['address'],
         name: map['name'],
-        login: map['login']
+        login: map['login']??""
     );
   }
   factory EmployeeModel.fromJson(Map<String, dynamic> json)

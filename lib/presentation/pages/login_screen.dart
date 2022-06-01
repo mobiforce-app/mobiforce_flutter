@@ -139,6 +139,7 @@ class LoginPage extends StatelessWidget {
                       TextFormField(
                         validator: (val) => val!.isEmpty ?AppLocalizations.of(context)!.loginPageLoginNeeded: null,
                         controller: _loginContorller,
+                        keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(labelText: AppLocalizations.of(context)!.loginPageLoginLabel),),
                       TextFormField(
                         validator: (val) => val!.isEmpty ?AppLocalizations.of(context)!.loginPagePassLabel: null,
