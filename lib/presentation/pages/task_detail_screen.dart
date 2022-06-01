@@ -2194,7 +2194,7 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                       SizedBox(height: 4,),
                       Text(
-                        "${state.task.equipment?.name}",
+                        "${state.task.equipment?.name??AppLocalizations.of(context)!.taskNoEquipment}",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
