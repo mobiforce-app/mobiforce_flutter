@@ -45,7 +45,8 @@ class EmployeeModel extends EmployeeEntity
   Map<String, dynamic> toMap(){
     final map=Map<String, dynamic>();
     map['name'] = name;
-    map['login'] = login;
+    if(login!=null&&login.trim().length>0)
+      map['login'] = login;
     map['external_id'] = serverId;
     map['mobile_auth'] = mobileAuth?1:0;
     map['web_auth'] = webAuth?1:0;

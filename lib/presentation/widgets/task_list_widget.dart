@@ -95,7 +95,7 @@ class TasksList extends StatelessWidget {
               }
               else {
                 return Center(
-                    child: Icon(Icons.now_wallpaper)
+                    child: Icon(Icons.hourglass_empty)
                 );
               }
               //tasks.add(TaskModel(id: 0, serverId: 0));
