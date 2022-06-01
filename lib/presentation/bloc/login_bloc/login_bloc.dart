@@ -35,6 +35,7 @@ class LoginBloc extends Bloc<LoginEvent,LoginState>{
       final int finish = domain.indexOf(".");
       domain = finish>=0?domain.substring(0,finish):event.domain;
       print("domain: $domain");
+
       final faiureOrLoading = await auth(AuthorizationParams(
           domain: domain.trim(),
           fcmToken: fcm.token,

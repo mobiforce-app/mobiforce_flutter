@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:mobiforce_flutter/data/models/authorization_model.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 abstract class AuthorizationRemoteDataSources{
   //Future<LoginModel>searchTask(String query);
@@ -28,6 +29,14 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
   }*/
   @override
   Future<AuthorizationModel> firstLogin({required String domain,required  String login,required  String pass, String? fcmToken}) async{
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    String appName = packageInfo.appName;
+    String packageName = packageInfo.packageName;
+    String version = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
+
     try{
       print("fcmToken++: $fcmToken");
       Map data = {
@@ -35,6 +44,10 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
         'login': login,
         'pass': pass,
         'fcmToken': fcmToken,
+        'appName': appName,
+        'packageName': packageName,
+        'version': version,
+        'buildNumber': buildNumber,
       };
       final response = await client.post(Uri.parse("https://exchange.mobiforce.ru/api2.0/autorization.php"),headers:{'Content-Type':"application/json"},body: json.encode(data));
       if(response.statusCode == 200){

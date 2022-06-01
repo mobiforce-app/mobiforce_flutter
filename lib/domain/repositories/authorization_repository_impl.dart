@@ -26,7 +26,8 @@ class AuthorizationRepositoryImpl implements AuthorizationRepository{
 
   @override
   Future<Either<Failure, AuthorizationEntity>> firstLogin({String domain = "", String login = "", String pass = "", String? fcmToken}) async {
-   return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass, fcmToken: fcmToken));
+
+    return await _getAuthrisationInfo(()=> remoteDataSources.firstLogin(domain: domain, login:login, pass:pass, fcmToken: fcmToken));
     //return Right(_r);
     //throw UnimplementedError();
   }
