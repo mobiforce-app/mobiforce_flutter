@@ -1,7 +1,7 @@
 {
     "tasksPageHeader": "Задачи",
     "taskPageHeader": "Задача",
-    "settingPageHeader": "Настройки",
+    "gpsSchedulePageHeader": "Расписание GPS",
     "editTaskStatus":"Редактировать статус",
     "taskStatusComment":"Комментарий",
     "taskStatusResolution":"Резолюция",
@@ -102,6 +102,15 @@
     "logoutDialogHeader": "Предупреждение",
     "logoutDialogText": "Выйти и удалить все данные приложения на этом устройстве?",
     "loginPageRegistration": "Зарегистрируйтесь",
-    "logoutMenuItem": "Выход"
+    "logoutMenuItem": "Выход",
+    "gpsDisable":"Расписание GPS трекера не позволяет запись трека на данном устройстве",
+    "day1": "пн",
+    "day2": "вт",
+    "day3": "ср",
+    "day4": "чт",
+    "day5": "пт",
+    "day6": "сб",
+    "day7": "вс"
+
 
 }

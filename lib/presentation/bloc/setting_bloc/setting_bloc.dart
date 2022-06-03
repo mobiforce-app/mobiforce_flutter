@@ -22,6 +22,7 @@ import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
 import 'package:mobiforce_flutter/domain/usecases/add_new_phone.dart';
 import 'package:mobiforce_flutter/domain/usecases/add_picture_to_field.dart';
 //import 'package:mobiforce_flutter/domain/usecases/add_picture_to_task_comment.dart';
@@ -102,10 +103,11 @@ class SettingBloc extends Bloc<SettingEvent,SettingState> {
     if (event is ReloadMenu) {
 
       final faiureOrLoading = await settingsReader(UserSettingParams(id:0));
-      yield faiureOrLoading.fold((failure)=>SettingEmpty(), (settings) {
+      yield faiureOrLoading.fold((failure)=>SettingEmpty(), (UserSettingEntity settings) {
         //page++;
         //final tasks = (state as TaskListLoading).oldPersonList;
         //tasks.addAll(task);
+
         print("settings* "+settings.toString());
         return MenuLoaded(settings);
         //return SettingLoaded(settings);

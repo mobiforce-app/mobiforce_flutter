@@ -1,7 +1,7 @@
 {
     "tasksPageHeader": "Tasks",
     "taskPageHeader": "Task",
-    "settingPageHeader": "Setting",
+    "gpsSchedulePageHeader": "GPS schedule",
     "editTaskStatus":"Edit status",
     "taskStatusComment":"Comment",
     "taskStatusResolution":"Resolution",
@@ -102,5 +102,13 @@
     "logoutDialogHeader": "Warning",
     "logoutDialogText": "Exit and delete all user data in this app?",
     "loginPageRegistration": "Register now",
-    "logoutMenuItem": "Logout"
+    "logoutMenuItem": "Logout",
+    "gpsDisable":"GPS tracker schedule doesn't allow track recording on this device, GPS tracking is disabled",
+    "day1": "mo",
+    "day2": "tu",
+    "day3": "we",
+    "day4": "th",
+    "day5": "fr",
+    "day6": "sa",
+    "day7": "su"
 }
