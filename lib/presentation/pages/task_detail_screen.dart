@@ -285,7 +285,12 @@ class TaskDetailPage extends StatelessWidget {
             height: 160,
             child:
             e.downloaded==true?
-            Image.file(File('$appFilesDirectory/photo_${e.id}.jpg')):(
+            InkWell(
+                child: Image.file(File('$appFilesDirectory/photo_${e.id}.jpg')),
+                onTap: ()  {
+                       print("pictureopenclick");
+                  })
+                :(
                 e.downloading==true||e.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
                     child: Center(child: CircularProgressIndicator(),))
                     :

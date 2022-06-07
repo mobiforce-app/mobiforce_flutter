@@ -58,6 +58,8 @@ dependencies:
   # flutter_background_geolocation: '^4.6.2'
   device_info_plus: ^3.2.3
   background_fetch: ^1.1.0
+  # carousel_slider: ^4.1.1
+  photo_view: ^0.14.0
 
 dev_dependencies:
   flutter_test:

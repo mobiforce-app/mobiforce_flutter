@@ -17,6 +17,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../pages/pictures_screen.dart';
+
 class TaskFieldTextCard extends StatefulWidget {
   final String name;
   final bool valueRequired;
@@ -396,7 +398,20 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
           height: 160,
           child:
           e.downloaded==true?
-          Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')):(
+          InkWell(
+              child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')),
+              onLongPress: () {
+                print('onLongPress');
+              },
+              onTap: ()  {
+                print("pictureopenclick1");
+                Navigator.push(context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) => PicturesGaleryPage(files:widget.files!,header: widget.name,current: e, appFilesDirectory:widget.appFilesDirectory),
+                      transitionDuration: Duration(seconds: 0),
+                    ));
+              })
+          :(
               e.downloading==true||e.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
                   child: Center(child: CircularProgressIndicator(),))
                   :
@@ -547,7 +562,11 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
           height: 160,
           child:
           e.downloaded==true?
-          Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')):(
+          InkWell(
+              child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')),
+              onTap: ()  {
+                print("pictureopenclick2");
+              }):(
               e.downloading==true||e.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
                   child: Center(child: CircularProgressIndicator(),))
                   :
@@ -596,7 +615,12 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
             height: 160,
             child:
               widget.files?.first.downloaded==true?
-              Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg')):(
+              InkWell(
+              child: Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg')),
+              onTap: ()  {
+              print("pictureopenclick3");
+              })
+              :(
               widget.files?.first.downloading==true||widget.files?.first.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
               child: Center(child: CircularProgressIndicator(),))
                   :
