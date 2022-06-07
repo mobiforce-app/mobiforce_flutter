@@ -116,7 +116,7 @@ class ContractorModel extends ContractorEntity
 
   factory ContractorModel.fromJson(Map<String, dynamic> json)
   {
-    //print('Contractor jsonjson ${json} ');
+    print('Contractor jsonjson ${json} ');
     //print ('parent contractor ${json["parent"]} ${json["parent"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?"ok":"!ok"}');
     //return TaskModel(id:0,externalId: 0, name: "");
     return ContractorModel(

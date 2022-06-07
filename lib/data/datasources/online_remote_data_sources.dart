@@ -222,7 +222,7 @@ Future<TemplateModel> getCurrentTemplate(int id) async {
         'nd': 1629978655643,
         'page': 1,
         'rows': 30,
-        'sidx': 'ID',
+        'sidx': 'name',
         'sord': 'asc',
         'tableId': gridName,
         'updateCounter': 0,

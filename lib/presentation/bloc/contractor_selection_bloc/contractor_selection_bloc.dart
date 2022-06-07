@@ -116,7 +116,7 @@ class ContractorSelectionBloc extends Bloc<ContractorSelectionEvent,ContractorSe
       //print("start")
       yield ContractorSelectionStateLoading();
       await Future.delayed(Duration(seconds: 1));
-      final faiureOrLoading = await contractors(ListContractorParams(name: "1"));
+      final faiureOrLoading = await contractors(ListContractorParams(name: ""));
       yield faiureOrLoading.fold(
               (l) => ContractorSelectionStateFailure(),
               (r) => ContractorSelectionStateLoaded(contractors:r, id: 0, query:"", searching: false)
