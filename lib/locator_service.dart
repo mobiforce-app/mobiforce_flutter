@@ -66,6 +66,7 @@ import 'domain/usecases/get_new_task_number.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
 import 'domain/usecases/get_user_setting.dart';
+import 'domain/usecases/save_file_decription.dart';
 import 'domain/usecases/save_new_task.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
@@ -102,11 +103,13 @@ Future<void>init() async
       saveNewTask:sl(),
       createTaskOnServer: sl(),
       addNewPhone: sl(),
+      fileDescriptionSaver: sl(),
 //      navigatorKey: sl()
     ));
 
 
   //usecases
+  sl.registerLazySingleton(() => SaveFileDescription(fileRepository: sl()));
   sl.registerLazySingleton(() => CreateTaskOnServer(sl()));
   sl.registerLazySingleton(() => SaveNewTask(sl()));
   sl.registerLazySingleton(() => AddNewPhone(taskRepository:sl()));

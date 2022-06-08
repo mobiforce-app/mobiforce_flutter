@@ -1644,6 +1644,15 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     return await db.update(tasksTable, task.toMap(), where: 'id =?', whereArgs: [task.id]);
 
   }
+  Future<int> updateFileDescription(int fieldId, int fileId, String description) async{
+    Database db = await this.database;
+    final map=Map<String, dynamic>();
+    await db.update(fileTable, {"description":description}, where: 'id =?', whereArgs: [fileId]);
+    int usn = await getUSN();
+    await db.update(tasksFieldsTable, {"usn":usn}, where: 'id =?', whereArgs: [fieldId]);
+    return 0;
+  }
+
   Future<int> updateFile(FileModel file) async{
     Database db = await this.database;
     return await db.update(fileTable, file.toMap(), where: 'id =?', whereArgs: [file.id]);

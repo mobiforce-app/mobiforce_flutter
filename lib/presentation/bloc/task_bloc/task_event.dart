@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mobiforce_flutter/data/models/contractor_model.dart';
 import 'package:mobiforce_flutter/data/models/equipment_model.dart';
+import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
@@ -163,6 +164,11 @@ class FieldFileDownload extends TaskEvent
 {
   final int? file;
   FieldFileDownload({required this.file});
+}
+class FieldFileUpdateDescription extends TaskEvent
+{
+  final FileModel file;
+  FieldFileUpdateDescription(this.file);
 }
 class AddSignatureToField extends TaskEvent
 {

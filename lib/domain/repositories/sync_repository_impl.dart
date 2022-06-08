@@ -226,7 +226,7 @@ class SyncRepositoryImpl implements SyncRepository{
               //Map<String,dynamic> pictEl={"localId":element.id};
               //if(element.serverId!=null)
               //  pictEl["id"]=element.serverId;
-              picts.add({"id": element.serverId, "localId": element.id, "deleted": element.deleted});
+              picts.add({"id": element.serverId, "localId": element.id, "description": element.description, "deleted": element.deleted});
             });
             //print ("serverId: ${element.object.serverId}, element.selectionValue?.serverId: ${element.object.selectionValue?.serverId}");
             val = picts;
@@ -237,7 +237,7 @@ class SyncRepositoryImpl implements SyncRepository{
             taskFieldElement.fileValueList?.forEach((FileModel element) {
               //Map<String,dynamic> pictEl={"localId":element.id};
               //if(element.serverId!=null)
-              //  pictEl["id"]=element.serverId;
+              //pictEl["id"]=element.serverId;
               picts.add({"id": element.serverId, "localId": element.id, "deleted": element.deleted});
             });
             //print ("serverId: ${element.object.serverId}, element.selectionValue?.serverId: ${element.object.selectionValue?.serverId}");

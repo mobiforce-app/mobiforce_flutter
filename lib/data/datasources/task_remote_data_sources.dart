@@ -36,6 +36,7 @@ abstract class TaskRemoteDataSources{
   Future<UserSettingEntity>getUserSetting();
 
   Future<FileModel>loadFileFromWeb(int id);
+  Future<bool>saveFileDescription(FileModel file);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
   Future<TaskModel> setTaskStatus({
     int? id,
@@ -127,6 +128,34 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
       await db.updateFile(f);
     }
     return f;
+  }
+  @override
+  Future<bool>saveFileDescription(FileModel file) async
+  {
+    //final f = await db.readFile(id);
+
+    /*String domain=sharedPreferences.getString("domain")??"";
+    String accessToken=sharedPreferences.getString("access_token")??"";
+
+    print("remote file: ${f.serverId}");
+    print("domain=$domain, access_token=$accessToken");
+    final response = await http.get(Uri.parse("https://$domain/api2.0/get-file.php?id=${f.serverId}"),headers:{
+      HttpHeaders.authorizationHeader: "key=\"$accessToken\"",
+    });
+    print("readFile load ${response.bodyBytes.toString()}");
+    final directory = await getApplicationDocumentsDirectory();
+    //final path = await _localPath;
+    print('${directory.path}/photo_$id.jpg');
+    final file = File('${directory.path}/photo_$id.jpg');
+    //List<int> bytes = await picture.readAsBytes();
+    if(response.bodyBytes!=null) {
+      file.writeAsBytes(response.bodyBytes);
+      f.downloaded=true;
+      await db.updateFile(f);
+    }*/
+    //final FileModel f = FileModel(id: id, usn: usn, downloaded: downloaded, size: size, deleted: deleted)
+    await db.updateFileDescription(file.parent.id, file.id,file.description??"");
+    return true;
   }
 
   @override

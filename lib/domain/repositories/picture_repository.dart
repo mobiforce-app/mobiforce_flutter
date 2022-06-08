@@ -11,5 +11,6 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 abstract class FileRepository{
   Future<Either<Failure, FileModel>> savePicture({Uint8List? bytes});
   Future<Either<Failure, int>> loadFromWebPicture(int id);
+  Future<Either<Failure, int>> saveFileDescription(FileModel file);
 
 }

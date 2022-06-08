@@ -43,4 +43,10 @@ class FileRepositoryImpl implements FileRepository{
     dynamic res = await remoteDataSources.loadFileFromWeb(id);
     return Right(1);
   }
+  @override
+  Future<Either<Failure, int>> saveFileDescription(FileModel file) async {
+    print("readFile load $id");
+    dynamic res = await remoteDataSources.saveFileDescription(file);
+    return Right(1);
+  }
 }

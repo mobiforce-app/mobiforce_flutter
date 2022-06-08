@@ -49,6 +49,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:collection/collection.dart';//import 'package:dartz/dartz.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 
+import '../../../domain/usecases/save_file_decription.dart';
 import '../../../main.dart';
 // import 'equatabl'
 //enum PictureSourceEnum {camera, gallery}
@@ -56,6 +57,7 @@ import '../../../main.dart';
 class TaskBloc extends Bloc<TaskEvent,TaskState> {
 //  final GlobalKey<NavigatorState> navigatorKey;
   final GetTask taskReader;
+  final SaveFileDescription fileDescriptionSaver;
   final CreateTaskOnServer createTaskOnServer;
   //TaskEntity? task;
   //List<TaskStatusEntity>? nextTaskStatuses;
@@ -97,6 +99,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.deletePictureToTaskField,
     required this.createTaskOnServer,
     required this.addNewPhone,
+    required this.fileDescriptionSaver,
 //    required this.navigatorKey,
    // required this.addCommentWithPictureToTask,
   }) : super(TaskEmpty()) {
@@ -852,6 +855,31 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
         print("TaskLoaded");
 
+        return TaskLoaded(isChanged: isChanged,
+          needToUpdateTaskList: false,
+          task: task,
+          nextTaskStatuses: nextTaskStatuses,
+          appFilesDirectory: dir,
+          comments:comments,
+          showCommentTab:false,
+        );
+      });
+    }
+    if (event is FieldFileUpdateDescription) {
+      final task = (state as TaskLoaded).task;
+      final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final comments = (state as TaskLoaded).comments;
+      final dir = (state as TaskLoaded).appFilesDirectory;
+      final isChanged = !(state as TaskLoaded).isChanged;
+      //final int id = event.file;
+      print("update file ${event.file.description}");
+      final faiureOrLoading = await fileDescriptionSaver(
+          SaveFileDescriptionParams(event.file));
+      //print("readFile+ ${id}");
+      //!!await Future.delayed(Duration(seconds: 3));
+      yield faiureOrLoading.fold((failure) => TaskError(message: "bad"), (
+          comment) {
+        syncToServer(ListSyncToServerParams());
         return TaskLoaded(isChanged: isChanged,
           needToUpdateTaskList: false,
           task: task,
