@@ -1684,6 +1684,12 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     return tasksMapList.isNotEmpty?TaskStatusModel.fromMap(map:tasksMapList.first):null;
   }
 
+  Future<FileModel?> getFileByServerId(int serverId) async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(fileTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
+    return tasksMapList.isNotEmpty?FileModel.fromMap(tasksMapList.first):null;
+  }
+
   Future<int> getTaskIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);

@@ -132,6 +132,12 @@ class ChangeBoolFieldValue extends TaskEvent
   //final int task;
   ChangeBoolFieldValue({required this.fieldId, required this.value});
 }
+/*class RemovePhotoFromField extends TaskEvent
+{
+  final int fieldId;
+  final int photoId;
+  RemovePhotoFromField({required this.fieldId, required this.photoId});
+}*/
 class AddPhotoToField extends TaskEvent
 {
   final int fieldId;

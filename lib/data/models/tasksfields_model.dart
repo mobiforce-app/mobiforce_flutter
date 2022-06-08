@@ -109,7 +109,18 @@ class TasksFieldsModel extends TasksFieldsEntity
           element.parent=TasksFieldsModel(id: t.id, usn: 0, serverId: 0, valueRequired: false);
           //print("file extId ${element.serverId}");
           //element.
-          await element.insertToDB(db);
+          int fmId  = await element.insertToDB(db);
+          if(fmId==0&&(element.serverId??0)>0){
+            print("filedb element.serverId ${element.serverId}");
+            FileModel? f = await db.getFileByServerId(element.serverId!);
+            if(f?.deleted==true)
+              {
+                element.id=f!.id;
+                print("filedb update ${element.serverId}");
+                await db.updateFile(element);
+
+              }
+          }
 
         });
       }

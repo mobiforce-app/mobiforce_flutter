@@ -620,7 +620,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
               //if(element.fileValueList!=null)
               //  element.fileValueList?.add(picture);
               //else
-              element.fileValueList=[];
+              //element.fileValueList=[];
+              element.fileValueList?.removeWhere((pictureElement) => pictureElement.id == picture.id);
+
             }
 
             print("picture + ${event.fieldId} ${element.id}");

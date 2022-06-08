@@ -402,6 +402,40 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
               child: Image.file(File('${widget.appFilesDirectory}/photo_${e.id}.jpg')),
               onLongPress: () {
                 print('onLongPress');
+                Widget okButton = FlatButton(
+                  child: Text("Да"),
+                  onPressed: () {
+                    BlocProvider.of<TaskBloc>(context).add(
+                      RemovePhotoFromField(fieldId:widget.fieldId,fileId:e.id),
+                    );
+                    Navigator.pop(context);
+                  },
+                );
+                Widget cancelButton = FlatButton(
+                  child: Text("Отмена"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                );
+
+                // set up the AlertDialog
+                AlertDialog alert = AlertDialog(
+                  title: Text("Предупреждение"),
+                  content: Text("Вы уверены что хотите удалить фото?"),
+                  actions: [
+                    cancelButton,
+                    okButton,
+                  ],
+                );
+                print("show!");
+                // show the dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return alert;
+                  },
+                );
+
               },
               onTap: ()  {
                 print("pictureopenclick1");

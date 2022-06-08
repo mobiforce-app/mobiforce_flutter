@@ -65,10 +65,10 @@ class FileModel extends FileEntity
 
     dynamic t = await db.insertFileRecord(this);
 
-    /*print ("db id == ${t.id}");
+    /*print ("filedb id == ${t.id}");
     if(t.id==0){
       t.id = await db.updateTaskStatusByServerId(this);
-      print ("updateTaskStatusByServerId db id == ${t.id}");
+      print ("updateTasktaskFileByServerId db id == ${t.id}");
 
     }*/
     return t.id;
@@ -94,7 +94,7 @@ class FileModel extends FileEntity
   }
   factory FileModel.fromJson(Map<String, dynamic> json)
   {
-    //print('jsonjson ${json} ');
+    print('filedb jsonjson ${json} ');
     //return TaskModel(id:0,externalId: 0, name: "");
     return FileModel(
         id: 0,
