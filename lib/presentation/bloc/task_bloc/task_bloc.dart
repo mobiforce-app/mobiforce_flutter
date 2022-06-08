@@ -513,6 +513,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
       final dir = (state as TaskLoaded).appFilesDirectory;
+      final comments=(state as TaskLoaded).comments;
       bool isChanged = !(state as TaskLoaded).isChanged;
       task.propsList?.forEach((element) {
         if(event.fieldId==element.id){
@@ -533,7 +534,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         task: task,
         nextTaskStatuses: nextTaskStatuses,
         appFilesDirectory: dir,
-        comments: [],
+        comments: comments,
         showCommentTab:false,
       );
 
@@ -598,7 +599,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
                 needToUpdateTaskList: false,
                 nextTaskStatuses: nextTaskStatuses,
                 appFilesDirectory: dir,
-                comments: [],
+                comments: comments,
                 showCommentTab:false,
             );
           });
@@ -647,13 +648,15 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           return TaskLoaded(isChanged:isChanged,
               needToUpdateTaskList: false,
-              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: [],showCommentTab:false,);
+              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir, comments: comments,showCommentTab:false,);
         });
         //syncToServer(ListSyncToServerParams());
     }
     if (event is AddSignatureToField) {
       final task = (state as TaskLoaded).task;
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
+      final comments=(state as TaskLoaded).comments;
+
       final FoL = await getPictureFromCamera(
           GetPictureFromCameraParams(data:event.data, src: PictureSourceEnum.bytes));
       final isChanged = !(state as TaskLoaded).isChanged;
@@ -682,7 +685,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
           return TaskLoaded(isChanged:isChanged,
               needToUpdateTaskList: false,
-              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: [], showCommentTab:false,);
+              task: task, nextTaskStatuses:nextTaskStatuses, appFilesDirectory: dir.path, comments: comments, showCommentTab:false,);
         });
         //syncToServer(ListSyncToServerParams());
       });
