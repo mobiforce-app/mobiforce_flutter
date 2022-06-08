@@ -514,6 +514,28 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       final nextTaskStatuses = (state as TaskLoaded).nextTaskStatuses;
       final dir = (state as TaskLoaded).appFilesDirectory;
       bool isChanged = !(state as TaskLoaded).isChanged;
+      task.propsList?.forEach((element) {
+        if(event.fieldId==element.id){
+          final FileModel picture = FileModel(id: 0, usn: 0, downloaded: false, size: 0, deleted: false);
+          picture.waiting=true;
+          if(element.fileValueList!=null)
+            element.fileValueList?.add(picture);
+          else
+            element.fileValueList=[picture];
+
+        }
+        //element.waitingCount=0;
+
+        print("picture + ${event.fieldId} ${element.id}");
+      });
+      yield TaskLoaded(isChanged: isChanged,
+        needToUpdateTaskList: false,
+        task: task,
+        nextTaskStatuses: nextTaskStatuses,
+        appFilesDirectory: dir,
+        comments: [],
+        showCommentTab:false,
+      );
 
       final ImagePicker _picker = ImagePicker();
       final pickedFile = await _picker.pickImage(
@@ -523,31 +545,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         imageQuality: 80,
       );
       if(pickedFile!=null) {
-        task.propsList?.forEach((element) {
-          if(event.fieldId==element.id){
-            final FileModel picture = FileModel(id: 0, usn: 0, downloaded: false, size: 0, deleted: false);
-            picture.waiting=true;
-            if(element.fileValueList!=null)
-              element.fileValueList?.add(picture);
-            else
-              element.fileValueList=[picture];
-
-          }
-          //element.waitingCount=0;
-
-          print("picture + ${event.fieldId} ${element.id}");
-        });
         print("pickedFile ${pickedFile.toString()}");
         print("TaskLoaded");
 
-        yield TaskLoaded(isChanged: isChanged,
-            needToUpdateTaskList: false,
-            task: task,
-            nextTaskStatuses: nextTaskStatuses,
-            appFilesDirectory: dir,
-            comments: [],
-          showCommentTab:false,
-        );
 
         Uint8List? data=await pickedFile.readAsBytes();
         final FoL = await getPictureFromCamera(
@@ -604,6 +604,18 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           });
           //syncToServer(ListSyncToServerParams());
         });
+      }
+      else{
+        task.propsList?.forEach((element) {
+          if(event.fieldId==element.id){
+            final FileModel picture = FileModel(id: 0, usn: 0, downloaded: false, size: 0, deleted: false);
+            element.fileValueList?.removeWhere((pElement) => pElement.id==0);
+          }
+          //element.waitingCount=0;
+
+          print("picture + ${event.fieldId} ${element.id}");
+        });
+
       }
       print("picture OK! 2!");
     }
