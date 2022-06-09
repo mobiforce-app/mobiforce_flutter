@@ -3111,7 +3111,7 @@ class TaskDetailPage extends StatelessWidget {
           );
           //if(state.comments!=null)
           {
-            print("${state.comments}");
+            print("state.comments.length ${state.comments.length} ${state.comments}");
             /*state.comments!.forEach((element) {
                   _kTabPages[2].add(SizedBox(
                     height: 8,
@@ -3134,6 +3134,7 @@ class TaskDetailPage extends StatelessWidget {
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
+                          //return Txt
                           final String formatted = state
                                       .comments[index].createdTime !=
                                   null
@@ -3325,6 +3326,7 @@ class TaskDetailPage extends StatelessWidget {
           ];
           if(state.task.id>0&&state.task.template?.enabledComments==true)
             {
+              print("unreadedComment $unreadedComment ${_kTabPages[2][0]}");
               _kTabPages1.add(_kTabPages[2][0]);
               _kTabs.add(Tab(text: unreadedComment));
             }

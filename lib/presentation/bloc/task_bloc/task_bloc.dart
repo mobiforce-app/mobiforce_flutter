@@ -131,15 +131,19 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         var y = FoL.fold((failure) => TaskError(message: "bad"), (newComments) {
           print("TaskLoaded ${newComments.length} ${comments.length}");
 
-          if(newComments.length!=comments.length)
-            return TaskLoaded(isChanged: isChanged,
+          if(newComments.length!=comments.length) {
+
+            print("reload");
+            return TaskLoaded(
+              isChanged: isChanged,
               task: task,
               needToUpdateTaskList: false,
               nextTaskStatuses: nextTaskStatuses,
               appFilesDirectory: dir,
               comments: newComments,
-              showCommentTab:false,
+              showCommentTab: false,
             );
+          }
           else return null;
 
         });

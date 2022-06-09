@@ -131,22 +131,26 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
   }
 
   void _onTabChanged() {
-    print("_tabController.index: ${_tabController.index}");
-    FocusScope.of(context).requestFocus(new FocusNode());
-    setState(() {
-      
-    });
-    switch (_tabController.index) {
-      case 0:
-      // handle 0 position
-        break;
-      case 2:
-        print("comments page");
-        BlocProvider.of<TaskBloc>(context).add(
-          ShowTaskComment(),
-        );
-      // handle 1 position
-        break;
+    print("_tabController.index: ${_tabController.index} ${_tabController.indexIsChanging}");
+    if (!_tabController.indexIsChanging) {
+      FocusScope.of(context).requestFocus(new FocusNode());
+      setState(() {
+
+      });
+      switch (_tabController.index) {
+        case 0:
+        // handle 0 position
+          break;
+        case 2:
+          print("comments page");
+          //Future.delayed(Duration(seconds: 5),(){
+            BlocProvider.of<TaskBloc>(context).add(
+            ShowTaskComment(),
+          );
+      //});
+          // handle 1 position
+          break;
+      }
     }
   }
 }
