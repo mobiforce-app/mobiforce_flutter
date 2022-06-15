@@ -3135,6 +3135,8 @@ class TaskDetailPage extends StatelessWidget {
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
                           //return Txt
+
+
                           final String formatted = state
                                       .comments[index].createdTime !=
                                   null
@@ -3145,6 +3147,11 @@ class TaskDetailPage extends StatelessWidget {
                           //int i= (100/200).toInt();
                           final size =
                               (state.comments[index].file?.size ?? 0) ~/ 1024;
+                          final bool unread = (state
+                              .comments[index].readedTime==null)&&state.comments[index].mobile!=true;
+                          final bool readOnServer = (state
+                              .comments[index].readedTime!=null)&&state.comments[index].mobile==true;
+
                           Widget element = state.comments[index].file?.id != null
                               ?Container(
                              // width: 160,
@@ -3192,15 +3199,24 @@ class TaskDetailPage extends StatelessWidget {
                                                   .file
                                                   ?.id));
                                   })))
-                              : Linkify(
-                              text: "${state.comments[index].message}",
-                              onOpen: (link) async {
-                                if (await canLaunch(link.url)) {
-                                  await launch(link.url);
-                                } else {
-                                  throw 'Could not launch $link';
-                                }
-                              });
+                              : Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Linkify(
+                                    text: "${state.comments[index].message}",
+                                    onOpen: (link) async {
+                                      if (await canLaunch(link.url)) {
+                                        await launch(link.url);
+                                      } else {
+                                        throw 'Could not launch $link';
+                                      }
+                                    }),
+                                  ),
+                                  readOnServer?Icon(Icons.done_all, size: 12,):Container()
+                                ],
+                              );
+                          print("state.comments[index] ${state.comments[index].mobile}");
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -3232,8 +3248,8 @@ class TaskDetailPage extends StatelessWidget {
                                     children: [
 
                                       Container(
-                                        decoration: const BoxDecoration(
-                                          color: Color.fromRGBO(238, 238, 238, 1),
+                                        decoration: BoxDecoration(
+                                          color: unread?Color.fromRGBO(255, 255, 228, 1):Color.fromRGBO(238, 238, 238, 1),
                                           //border: Border.all(color: Colors.blue, width: 2),
                                           borderRadius: BorderRadius.all(
                                             Radius.circular(16.0),

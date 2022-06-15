@@ -265,11 +265,13 @@ class SyncRepositoryImpl implements SyncRepository{
         }
         else if (element.type == "comment") {
           final Map<String, dynamic> send = {
-            "id": element.object.task.id,
+            //"id": element.object.task.id,
+            "id": element.object.serverId,
             "task": element.object.task.serverId,
             "message": element.object.message,
             "file": element.object.file?.id,
-            "createdTime": element.object.createdTime
+            "createdTime": element.object.createdTime,
+            "readedTime": element.object.readedTime
           };
           print("send: $send");
           int serverId = await updatesRemoteDataSources.sendUpdate(
@@ -279,7 +281,7 @@ class SyncRepositoryImpl implements SyncRepository{
               mapObjects: send
           );
           if (serverId > 0)
-            db.setTasksStatusServerID(element.object.id, serverId);
+            db.setTasksCommentsServerID(element.object.id, serverId);
           else{
             error=2;
             break;

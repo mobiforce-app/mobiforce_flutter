@@ -71,6 +71,7 @@ import 'domain/usecases/save_new_task.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
+import 'domain/usecases/set_tasks_comments_read.dart';
 import 'domain/usecases/sync_to_server.dart';
 import 'domain/usecases/wait.dart';
 
@@ -104,6 +105,7 @@ Future<void>init() async
       createTaskOnServer: sl(),
       addNewPhone: sl(),
       fileDescriptionSaver: sl(),
+      setTaskCommentsRead: sl(),
 //      navigatorKey: sl()
     ));
 
@@ -130,6 +132,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetTask(sl()));
   sl.registerLazySingleton(() => LoadFile(fileRepository:sl()));
   sl.registerLazySingleton(() => GetTaskComments(sl()));
+  sl.registerLazySingleton(() => SetTaskCommentsRead(sl()));
   sl.registerLazySingleton(() => SetTaskStatus(sl()));
   sl.registerLazySingleton(() => SetTaskFieldSelectionValue(sl()));
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));

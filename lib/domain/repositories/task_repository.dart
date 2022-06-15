@@ -18,6 +18,7 @@ abstract class TaskRepository{
   Future<Either<Failure, TaskEntity>>saveNewTask({required TaskEntity task});
   Future<Either<Failure, List<TaskEntity>>>getAllTasks(int page);
   Future<Either<Failure, List<TaskCommentEntity>>>getAllTaskComments(int task, int page);
+  Future<Either<Failure, void>>setTaskCommentsRead(List<TaskCommentEntity?> comments);
   Future<Either<Failure, TaskCommentEntity>>addTaskComment( {required TaskCommentModel comment});
   Future<Either<Failure, TaskEntity>>getTask(int id);
   Future<Either<Failure, TaskEntity>>getTaskByExternalId(int externalId);

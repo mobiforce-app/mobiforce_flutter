@@ -18,6 +18,7 @@ import 'package:mobiforce_flutter/data/models/taskstatus_model.dart';
 import 'package:mobiforce_flutter/domain/entity/employee_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/phone_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
+import 'package:mobiforce_flutter/domain/entity/task_comment_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskfield_entity.dart';
@@ -50,6 +51,7 @@ import 'package:collection/collection.dart';//import 'package:dartz/dartz.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 
 import '../../../domain/usecases/save_file_decription.dart';
+import '../../../domain/usecases/set_tasks_comments_read.dart';
 import '../../../main.dart';
 // import 'equatabl'
 //enum PictureSourceEnum {camera, gallery}
@@ -74,6 +76,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   final AddTaskComment addTaskComment;
   final SaveNewTask saveNewTask;
   final AddNewPhone addNewPhone;
+  final SetTaskCommentsRead setTaskCommentsRead;
   //final ModelImpl m;
   //final WaitDealys10 wait10;
 
@@ -100,6 +103,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.createTaskOnServer,
     required this.addNewPhone,
     required this.fileDescriptionSaver,
+    required this.setTaskCommentsRead,
 //    required this.navigatorKey,
    // required this.addCommentWithPictureToTask,
   }) : super(TaskEmpty()) {
@@ -149,6 +153,36 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         });
         if(y!=null)
           yield y;
+        FoL.fold((failure) => TaskError(message: "bad"), (newComments) async {
+          print("set read");
+          List<TaskCommentEntity?> unreaderComments = newComments.map((e) {
+            if(e.readedTime==null) {
+                TaskCommentEntity out= new TaskCommentEntity(
+                    id: e.id,
+                    localUsn: e.localUsn,
+                    mobile: e.mobile,
+                    usn: e.usn,
+                    task: e.task,
+                    createdTime: e.createdTime,
+                    dirty: e.dirty,
+                    serverId: e.serverId,
+                    readedTime:
+                        (DateTime.now().toUtc().millisecondsSinceEpoch / 1000).toInt());
+
+                return out;
+              }
+                else
+                  return null;
+            }).toList();
+            final FoL1 = await setTaskCommentsRead(
+                SetTaskCommentsReadParams
+                  (comments:unreaderComments));
+            FoL1.fold((failure) => TaskError(message: "bad"), (newComments) {
+              syncToServer(ListSyncToServerParams());
+            });
+        });
+
+
       //}
       /*else
         {
@@ -802,7 +836,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       var date = new DateTime.now();
       int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
 
-      TaskCommentModel comment = TaskCommentModel(id: 0, localUsn: 0, usn: 0, message:event.value, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
+      TaskCommentModel comment = TaskCommentModel(id: 0, mobile:true, localUsn: 0, usn: 0, message:event.value, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
       final faiureOrLoading = await addTaskComment(AddTaskCommentParams(comment));
 
       final comments =  (state as TaskLoaded).comments;
@@ -984,7 +1018,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         var date = new DateTime.now();
         int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
 
-        TaskCommentModel comment = TaskCommentModel(id: 0, localUsn: 0, usn: 0, message:"", file: picture, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
+        TaskCommentModel comment = TaskCommentModel(id: 0, mobile: true, localUsn: 0, usn: 0, message:"", file: picture, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
         final faiureOrLoading = await addTaskComment(AddTaskCommentParams(comment));
 
         //yield StartLoadingTaskPage();

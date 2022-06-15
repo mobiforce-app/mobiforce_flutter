@@ -26,6 +26,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../domain/entity/task_comment_entity.dart';
+
 abstract class TaskRemoteDataSources{
   Future<int> newTaskPicture();
   Future<List<TaskModel>>searchTask(String query);
@@ -38,6 +40,7 @@ abstract class TaskRemoteDataSources{
   Future<FileModel>loadFileFromWeb(int id);
   Future<bool>saveFileDescription(FileModel file);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
+  Future<void> setTaskCommentsRead({required List<TaskCommentEntity?> comments});
   Future<TaskModel> setTaskStatus({
     int? id,
     required int status,
@@ -181,6 +184,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async
   {
     return await db.getCommentList(task:task,page:page);
+    //return
+      ;//FileModel(id: id, usn:0);
+  }
+  @override
+  Future<void> setTaskCommentsRead({required List<TaskCommentEntity?> comments}) async
+  {
+    return await db.setTaskCommentsRead(comments:comments);
     //return
       ;//FileModel(id: id, usn:0);
   }

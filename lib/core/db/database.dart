@@ -28,12 +28,14 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../domain/entity/task_comment_entity.dart';
+
 class DBProvider {
   //DBProvider._();
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=16;
+  final int dbVersion=20;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;
@@ -132,6 +134,7 @@ class DBProvider {
             'external_id INTEGER UNIQUE, '
             'task INTEGER, '
             'author INTEGER, '
+            'mobile INTEGER, '
             'deleted INTEGER, '
             'usn INTEGER, '
             'file INTEGER, '
@@ -914,6 +917,18 @@ class DBProvider {
     //final List<Map<String,dynamic>> taskStatusMapList = await db.query(taskStatusesTable, orderBy: "id desc",limit: 1,where: 'id =?', whereArgs: [tasksMapList.first['status']]);
     return taskStatusesList;//TaskModel.fromMap(tasksMapList.first,taskStatusMapList.first);
   }
+  Future<void> setTaskCommentsRead({required List<TaskCommentEntity?> comments}) async {
+    Database db = await this.database;
+    await Future.forEach(comments, (TaskCommentEntity? comment) async {
+      print("set read comment ${comment?.id} ${comment?.readedTime}");
+      if(comment!=null) {
+        comment.localUsn = await getUSN();
+        await db.update(
+            taskCommentTable, {"readed_at": comment.readedTime, "usn":comment.localUsn}, where: 'id =?',
+            whereArgs: [comment.id]);
+      }
+    });
+  }
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page}) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> taskCommentMapList = await db.rawQuery("SELECT "
@@ -923,6 +938,7 @@ class DBProvider {
         "t1.created_at, "
         "t1.readed_at, "
         "t1.message, "
+        "t1.mobile, "
         "t4.id as file_id, "
         "t4.downloaded as file_downloaded, "
         "t2.id as author_id, "
@@ -1374,6 +1390,11 @@ class DBProvider {
   Future<bool> setTasksStatusServerID(int id, int serverId) async{
     Database db = await this.database;
     await db.update(tasksStatusesTable, {"external_id":serverId}, where: 'id =?', whereArgs: [id]);
+    return true;
+  }
+  Future<bool> setTasksCommentsServerID(int id, int serverId) async{
+    Database db = await this.database;
+    await db.update(taskCommentTable, {"external_id":serverId}, where: 'id =?', whereArgs: [id]);
     return true;
   }
   Future<bool> setFileServerID(int id, int serverId) async{

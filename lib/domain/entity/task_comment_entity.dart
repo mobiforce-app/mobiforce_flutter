@@ -17,6 +17,7 @@ class TaskCommentEntity{
   int localUsn;
   int usn;
   bool dirty;
+  bool mobile;
   EmployeeModel? author;
   FileModel? file;
 
@@ -25,6 +26,7 @@ class TaskCommentEntity{
     required this.localUsn,
     required this.usn,
     required this.task,
+    required this.mobile,
     required this.createdTime,
     this.lat,
     this.lon,

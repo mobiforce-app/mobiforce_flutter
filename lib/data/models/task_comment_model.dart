@@ -22,6 +22,7 @@ class TaskCommentModel extends TaskCommentEntity
     lon,
     required dirty,
     serverId,
+    required mobile,
     message,
     readedTime,
     author,
@@ -29,6 +30,7 @@ class TaskCommentModel extends TaskCommentEntity
   }): super(
       id:id,
       localUsn:localUsn,
+      mobile:mobile,
       usn:usn,
       serverId:serverId,
       task:task,
@@ -49,7 +51,9 @@ class TaskCommentModel extends TaskCommentEntity
     if(serverId!=null)
       map['external_id'] = serverId;
     map['created_at'] = createdTime;
+    map['readed_at'] = readedTime;
     map['message'] = message;
+    map['mobile'] = mobile?1:0;
     if(author!=null)
       map["author"] = author?.id;
     if(file!=null)
@@ -96,6 +100,7 @@ class TaskCommentModel extends TaskCommentEntity
       id: map['id'],
       usn:0,
       localUsn: map['usn']??0,
+      mobile: map['mobile']==1?true:false,
       serverId: map['external_id'],
       createdTime: map['created_at'],
       readedTime: map['readed_at'],
@@ -143,6 +148,7 @@ class TaskCommentModel extends TaskCommentEntity
       usn: json['usn']??0,
       localUsn: 0,
       //updateByToken: int.parse(json["id"]??"0"),
+      mobile: json['mobile']==true?true:false,
       serverId: int.parse(json["id"]??"0"),
       createdTime: int.parse(json['createdTime']??"0"),
       readedTime: int.parse(json['readedTime']??"0"),
