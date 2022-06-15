@@ -294,7 +294,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
         dateChanging: dateChanging,
         resolution:resolution!=null?ResolutionModel(id: resolution, usn: 0, serverId: 0, name: "", resolutionGroup: <ResolutionGroupModel>[]):null,
         status:TaskStatusModel(serverId: 0,id:status, color:"", name:"", usn: 0),
-        task:TaskModel(serverId:0,id:task),
+        task:TaskModel(serverId:0,id:task,unreadedCommentCount:0),
         createdTime: createdTime.millisecondsSinceEpoch~/1000,
         manualTime: manualTime.millisecondsSinceEpoch~/1000,
         lat: 0.0, lon:0.0, dirty:true);

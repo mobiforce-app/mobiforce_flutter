@@ -212,8 +212,9 @@ class DeletePhone extends TaskEvent
 class ShowTaskComment extends TaskEvent
 {
   //final int page;
+  final Function callback;
 
-  ShowTaskComment();
+  ShowTaskComment(this.callback);
 }
 /*
 class SetEmptyList extends TaskListEvent

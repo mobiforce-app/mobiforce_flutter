@@ -177,7 +177,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
             final FoL1 = await setTaskCommentsRead(
                 SetTaskCommentsReadParams
                   (comments:unreaderComments));
+
             FoL1.fold((failure) => TaskError(message: "bad"), (newComments) {
+              event.callback(task);
               syncToServer(ListSyncToServerParams());
             });
         });
@@ -836,7 +838,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       var date = new DateTime.now();
       int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
 
-      TaskCommentModel comment = TaskCommentModel(id: 0, mobile:true, localUsn: 0, usn: 0, message:event.value, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
+      TaskCommentModel comment = TaskCommentModel(id: 0, mobile:true, localUsn: 0, usn: 0, message:event.value, task: TaskModel(id: task.id, serverId: task.serverId, unreadedCommentCount: 0), createdTime: d, dirty: true);
       final faiureOrLoading = await addTaskComment(AddTaskCommentParams(comment));
 
       final comments =  (state as TaskLoaded).comments;
@@ -1018,7 +1020,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
         var date = new DateTime.now();
         int d = (date.toUtc().millisecondsSinceEpoch/1000).toInt();
 
-        TaskCommentModel comment = TaskCommentModel(id: 0, mobile: true, localUsn: 0, usn: 0, message:"", file: picture, task: TaskModel(id: task.id, serverId: task.serverId), createdTime: d, dirty: true);
+        TaskCommentModel comment = TaskCommentModel(id: 0, mobile: true, localUsn: 0, usn: 0, message:"", file: picture, task: TaskModel(id: task.id, serverId: task.serverId, unreadedCommentCount: 0), createdTime: d, dirty: true);
         final faiureOrLoading = await addTaskComment(AddTaskCommentParams(comment));
 
         //yield StartLoadingTaskPage();
@@ -1202,9 +1204,10 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
                 lon: null,
                 template:  event.template,
                 propsList: propsList,
+                unreadedCommentCount:0,
 
 
-      ), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[],showCommentTab:false,);
+            ), nextTaskStatuses:[], appFilesDirectory: dir.path, comments:[],showCommentTab:false,);
       //navigatorKey.currentState?.pushNamed('TaskDetailPage');
       di.sl<NavigationService>().navigatorKey.currentState?.pushNamed('TaskDetailPage');
       print("start sync");

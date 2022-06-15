@@ -1002,7 +1002,8 @@ class DBProvider {
             "t6.id as equipment_id,"
             "t6.name as equipment_name,"
             "t5.id as template_id,"
-            "t5.name as template_name"
+            "t5.name as template_name,"
+            "t7.unreaded_comment_count as unreaded_comment_count"
             " FROM $tasksTable as t1 "
             " LEFT JOIN $contractorTable as t2"
             " ON t1.contractor = t2.id "
@@ -1014,6 +1015,8 @@ class DBProvider {
             " ON t1.template = t5.id "
             " LEFT JOIN $equipmentTable as t6 "
             " ON t1.equipment = t6.id "
+            " LEFT JOIN (SELECT count(*) as unreaded_comment_count, task FROM $taskCommentTable WHERE readed_at IS NULL GROUP BY task) as t7 "
+            " ON t1.id = t7.task "
             " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.planned_visit_time DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
 
     final List<TaskModel> tasksList = [];

@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
+import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/pages/task_detail_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../bloc/tasklist_bloc/tasklist_bloc.dart';
+import '../bloc/tasklist_bloc/tasklist_event.dart';
 
 class TaskTabs extends StatefulWidget {
   //final String name;
@@ -55,7 +59,14 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
     print("widget.showCommentTab ${widget.tabs.length} ${widget.showCommentTab}");
     if(widget.showCommentTab)
       BlocProvider.of<TaskBloc>(context).add(
-        ShowTaskComment(),
+        ShowTaskComment(
+            (TaskModel task){
+                task.unreadedCommentCount=0;
+                BuildContext bc = context;
+                BlocProvider.of<TaskListBloc>(bc)
+                  ..add(RefreshCurrenTaskInListTasks(task: task));
+            }
+        ),
       );
     _tabController.addListener(_onTabChanged);
   }
@@ -145,7 +156,12 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
           print("comments page");
           //Future.delayed(Duration(seconds: 5),(){
             BlocProvider.of<TaskBloc>(context).add(
-            ShowTaskComment(),
+            ShowTaskComment((TaskModel task){
+              task.unreadedCommentCount=0;
+              BuildContext bc = context;
+              BlocProvider.of<TaskListBloc>(bc)
+                ..add(RefreshCurrenTaskInListTasks(task: task));
+            }),
           );
       //});
           // handle 1 position

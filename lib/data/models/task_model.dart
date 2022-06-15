@@ -23,7 +23,7 @@ import 'equipment_model.dart';
 class TaskModel extends TaskEntity
 {
 
-  TaskModel({isChanged,required id,usn,required serverId,name, status, contractor, address, statuses, checkList, propsList,
+  TaskModel({isChanged,required id,usn,required serverId,required unreadedCommentCount,name, status, contractor, address, statuses, checkList, propsList,
               author, employees,employee,equipment,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
               externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,
   }): super(
@@ -59,6 +59,7 @@ class TaskModel extends TaskEntity
       plannedEndVisitTime:plannedEndVisitTime,
       unreadedComments:unreadedComments,
       lifecycle:lifecycle,
+      unreadedCommentCount:unreadedCommentCount
   );
 
   Map<String, dynamic> toJson(){
@@ -247,12 +248,12 @@ class TaskModel extends TaskEntity
     {
       await Future.forEach(checkList!,(TasksFieldsModel element) async {
         //print("TasksFieldsModel checkList Id = ${element.serverId}");
-        element.task = TaskModel(id:taskId,serverId: 0);
+        element.task = TaskModel(id:taskId,serverId: 0,unreadedCommentCount: 0);
         await element.insertToDB(db);
         if (element.childrens!=null&&element.childrens!.length>0){
           await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
             //print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
-            elementChildren.task = TaskModel(id:taskId,serverId: 0);
+            elementChildren.task = TaskModel(id:taskId,serverId: 0,unreadedCommentCount: 0);
             await elementChildren.insertToDB(db);
           });
         }
@@ -266,12 +267,12 @@ class TaskModel extends TaskEntity
     {
       await Future.forEach(propsList!,(TasksFieldsModel element) async {
         //print("TasksFieldsModel checkList Id = ${element.serverId}");
-        element.task = TaskModel(id:taskId,serverId: 0);
+        element.task = TaskModel(id:taskId,serverId: 0,unreadedCommentCount: 0);
         await element.insertToDB(db);
         if (element.childrens!=null&&element.childrens!.length>0){
           await Future.forEach(element.childrens!,(TasksFieldsModel elementChildren) async {
             //print("TasksFieldsModel checkList elementChildren Id = ${elementChildren.serverId}");
-            elementChildren.task = TaskModel(id:taskId,serverId: 0);
+            elementChildren.task = TaskModel(id:taskId,serverId: 0,unreadedCommentCount: 0);
             await elementChildren.insertToDB(db);
           });
         }
@@ -409,6 +410,7 @@ class TaskModel extends TaskEntity
         plannedVisitTime: taskMap['planned_visit_time'],
         name: taskMap['name'],
         contractor: contractor,
+        unreadedCommentCount: taskMap['unreaded_comment_count']??0,
         template: TemplateModel(
             id: taskMap['template_id']??0,
             usn: 0,
@@ -451,6 +453,7 @@ class TaskModel extends TaskEntity
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         deleted: json["deleted"]==1?true:false,
+        unreadedCommentCount:0,
         contractor: json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?ContractorModel.fromJson(json["contractor"]):null,
         equipment: json["equipment"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EquipmentModel.fromJson(json["equipment"]):null,
         address: json["address"]??"",

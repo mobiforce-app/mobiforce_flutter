@@ -117,12 +117,23 @@ class TaskCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
 
                   children:[
+                    Text('${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))}', style: TextStyle(
+                      color: Colors.black,
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 18,
+                    ),),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    task.unreadedCommentCount>0?Icon(Icons.mark_chat_unread_rounded,
+                      color: Colors.red,
+                      size: 16,
+                    ):Icon(Icons.chat_bubble,
+                      color: Colors.black26,
+                      size: 16,
+                    ),
                     Expanded(
-                      child: Text('${plannedVisitTimeString.replaceAll(' ', String.fromCharCode(0x00A0))}', style: TextStyle(
-                          color: Colors.black,
-                          overflow: TextOverflow.ellipsis,
-                          fontSize: 18,
-                          ),),
+                      child: Container(),
                     ),
                     SizedBox(
                       width: 5,
@@ -157,6 +168,7 @@ class TaskCard extends StatelessWidget {
                 ((task.address?.length??0)>0)?
                   Text('${task.address}',overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.black),)
                   :Text(AppLocalizations.of(context)!.taskNoAddress,overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey),),
+
 
               ]
           ),

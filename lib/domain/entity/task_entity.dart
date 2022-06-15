@@ -29,6 +29,7 @@ class TaskEntity extends Equatable{
   double? lon;
   String? externalLink;
   String? externalLinkName;
+  int unreadedCommentCount;
   int? createdAt;
   int? plannedVisitTime;
   int? plannedEndVisitTime;
@@ -64,6 +65,7 @@ class TaskEntity extends Equatable{
       required this.id,
       this.usn,
       required this.serverId,
+      required this.unreadedCommentCount,
       this.name,
       this.address,
       this.contractor,

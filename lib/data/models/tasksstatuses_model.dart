@@ -155,7 +155,7 @@ class TasksStatusesModel extends TasksStatusesEntity
        // manualTime: int.parse(json["time"]??"0"),
         lat: double.tryParse(json["lat"]??"0.0")??0.0,
         lon: double.tryParse(json["lon"]??"0.0")??0.0,
-        task: TaskModel(id:0,serverId: 0),
+        task: TaskModel(id:0,serverId: 0, unreadedCommentCount: 0),
         manualTime: json["manualTime"]!=null?int.parse(json["manualTime"]??"0"):int.parse(json["time"]??"0"),
         //lat: double.tryParse(map['lat']),
         //lon: double.tryParse(map['lon']),
