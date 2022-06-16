@@ -7,8 +7,8 @@ import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/authirization_repository.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
-//import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-//as bg;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
 
 import '../entity/employee_entity.dart';
 
@@ -40,7 +40,7 @@ class AuthorizationManager {
         DateTime dateTime = DateTime.now();
         //print(dateTime.timeZoneName);
         //print(dateTime.timeZoneOffset);
-        /*bg.BackgroundGeolocation.ready(bg.Config(
+        bg.BackgroundGeolocation.ready(bg.Config(
           schedule: sch,
           scheduleUseAlarmManager: true,
           reset: true,
@@ -95,7 +95,7 @@ class AuthorizationManager {
 
       }).catchError((error) {
         print('[ready] ERROR: $error');
-      });*/
+      });
       });
 
       return true;

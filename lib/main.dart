@@ -28,8 +28,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 //import 'package:flutter_';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-//import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-//as bg;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
 
 
 
@@ -42,7 +42,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 }
 
-/*void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
+void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   print('📬 --> $headlessEvent');
 
   switch (headlessEvent.name) {
@@ -110,7 +110,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       break;
   }
 }
-*/
+
 /// Receive events from BackgroundFetch in Headless state.
 void backgroundFetchHeadlessTask(HeadlessTask task) async {
   String taskId = task.taskId;
@@ -157,8 +157,8 @@ void main() async {
 
   //TransistorAuth.registerErrorHandler();
   /// Register BackgroundGeolocation headless-task.
-  /*bg.BackgroundGeolocation.registerHeadlessTask(
-      backgroundGeolocationHeadlessTask);*/
+  bg.BackgroundGeolocation.registerHeadlessTask(
+      backgroundGeolocationHeadlessTask);
   /// Register BackgroundFetch headless-task.
   BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 
