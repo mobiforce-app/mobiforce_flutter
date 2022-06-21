@@ -43,14 +43,13 @@ class GpsList extends StatelessWidget {
             {
               List<List<Widget>> l = [[], [], [], [], [], [], []];
             List<Widget> days = [
-              Text(AppLocalizations.of(context)!.day1)
-              ,
               Text(AppLocalizations.of(context)!.day1),
-              Text(AppLocalizations.of(context)!.day1),
-              Text(AppLocalizations.of(context)!.day1),
-              Text(AppLocalizations.of(context)!.day1),
-              Text(AppLocalizations.of(context)!.day1, style: TextStyle(color: Colors.red),),
-              Text(AppLocalizations.of(context)!.day1, style: TextStyle(color: Colors.red),)
+              Text(AppLocalizations.of(context)!.day2),
+              Text(AppLocalizations.of(context)!.day3),
+              Text(AppLocalizations.of(context)!.day4),
+              Text(AppLocalizations.of(context)!.day5),
+              Text(AppLocalizations.of(context)!.day6, style: TextStyle(color: Colors.red),),
+              Text(AppLocalizations.of(context)!.day7, style: TextStyle(color: Colors.red),)
             ];
             state.settings.gpsSchedule?.forEach((GPSSchedule element) {
               int hf = element.from ~/ 3600 % 24;

@@ -35,7 +35,7 @@ class DBProvider {
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=23;
+  final int dbVersion=35;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;
@@ -65,7 +65,7 @@ class DBProvider {
   String employee2TaskRelationTable="employee2taskrelationtable";
   String tasksPersonTable="taskpersontable";
   String tasksPhoneTable="taskphonetable";
-  String tasksTemplateTable="tasktamplatetable";
+  String tasksTemplateTable="tasktemplatetable";
   String contractorTable="contractortable";
   String usnCountersTable="usncounterstable";
   String usnCountersFileTable="usnfiletable";
@@ -400,6 +400,7 @@ class DBProvider {
             'external_id INTEGER UNIQUE, '
             'name TEXT, '
             'contractor_required INTEGER, '
+            'add_from_mobile INTEGER, '
             'enabled_address INTEGER, '
             'enabled_comments INTEGER, '
             'enabled_equipment INTEGER, '
@@ -955,6 +956,19 @@ class DBProvider {
         ""
         "WHERE t1.task=? ORDER BY t1.id DESC",[task]);
     return taskCommentMapList.map((map) => TaskCommentModel.fromMap(map)).toList();
+
+
+
+//    task:TaskModel.fromMap(taskMap: {"external_id":map['task_external_id']??0,"id":map['task_id']}, statusMap: null),
+
+  }
+  Future<List<TemplateModel>> getTemplatesListForMobile() async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> taskTemplateMapList = await db.rawQuery("SELECT "
+        "t1.*, 0 as usn "
+        "FROM $tasksTemplateTable as t1 "
+        "WHERE t1.add_from_mobile=? ORDER BY t1.id DESC",[1]);
+    return taskTemplateMapList.map((map) => TemplateModel.fromMap(map)).toList();
 
 
 

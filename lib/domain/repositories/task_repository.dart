@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/domain/entity/task_life_cycle_node_entity.dart
 import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 
+import '../entity/template_entity.dart';
 import '../entity/user_setting_entity.dart';
 
 abstract class TaskRepository{
@@ -17,6 +18,7 @@ abstract class TaskRepository{
 
   Future<Either<Failure, TaskEntity>>saveNewTask({required TaskEntity task});
   Future<Either<Failure, List<TaskEntity>>>getAllTasks(int page);
+  Future<Either<Failure, List<TemplateEntity>>>getAllTemplates(int page);
   Future<Either<Failure, List<TaskCommentEntity>>>getAllTaskComments(int task, int page);
   Future<Either<Failure, void>>setTaskCommentsRead(List<TaskCommentEntity?> comments);
   Future<Either<Failure, TaskCommentEntity>>addTaskComment( {required TaskCommentModel comment});

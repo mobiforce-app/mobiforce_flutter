@@ -17,6 +17,7 @@ import 'package:mobiforce_flutter/domain/entity/tasksstatuses_entity.dart';
 import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
+import '../entity/template_entity.dart';
 import '../entity/user_setting_entity.dart';
 
 class TaskRepositoryImpl implements TaskRepository{
@@ -105,6 +106,13 @@ class TaskRepositoryImpl implements TaskRepository{
   @override
   Future<Either<Failure, List<TaskEntity>>> getAllTasks(int page) async {
    return await _getTasks(()=> remoteDataSources.getAllTask(page));
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, List<TemplateEntity>>> getAllTemplates(int page) async {
+   return  Right(await remoteDataSources.getAllTemplates(page));
     //return Right(_r);
     //throw UnimplementedError();
   }

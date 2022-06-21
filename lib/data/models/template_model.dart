@@ -33,6 +33,7 @@ class TemplateModel extends TemplateEntity
     required usn,
     required serverId,
     required name,
+    addFromMobile,
     color,
     propsList,
     enabledComments,
@@ -50,6 +51,7 @@ class TemplateModel extends TemplateEntity
       name:name,
       color:color,
       propsList:propsList,
+      addFromMobile:addFromMobile,
       enabledAddress: enabledAddress,
       enabledComments: enabledComments,
       enabledEquipment: enabledEquipment,
@@ -70,13 +72,15 @@ class TemplateModel extends TemplateEntity
     final map=Map<String, dynamic>();
     map['name'] = name;
     map['external_id'] = serverId;
-    map['enabled_address'] = enabledAddress==true?1:0;;
-    map['enabled_comments'] = enabledComments==true?1:0;;
-    map['enabled_equipment'] = enabledEquipment==true?1:0;;
-    map['enabled_adding_new_person'] = enabledAddingNewPerson==true?1:0;;
-    map['enabled_adding_multiple_person'] = enabledAddingMultiplePerson==true?1:0;;
-    map['required_equipment'] = requiredEquipment==true?1:0;;
-    map['required_contractor'] = requiredContractor==true?1:0;;
+    if(addFromMobile!=null)
+      map['add_from_mobile'] = addFromMobile==true?1:0;
+    map['enabled_address'] = enabledAddress==true?1:0;
+    map['enabled_comments'] = enabledComments==true?1:0;
+    map['enabled_equipment'] = enabledEquipment==true?1:0;
+    map['enabled_adding_new_person'] = enabledAddingNewPerson==true?1:0;
+    map['enabled_adding_multiple_person'] = enabledAddingMultiplePerson==true?1:0;
+    map['required_equipment'] = requiredEquipment==true?1:0;
+    map['required_contractor'] = requiredContractor==true?1:0;
 
 
     return map;
@@ -106,6 +110,7 @@ class TemplateModel extends TemplateEntity
         name: map['name'],
         enabledAddress: map['enabled_address'] == 1?true:false,
         enabledComments: map['enabled_comments'] == 1?true:false,
+        addFromMobile: map['add_from_mobile'] == 1?true:false,
         enabledEquipment: map['enabled_equipment'] == 1?true:false,
         enabledAddingNewPerson: map['enabled_adding_new_person'] == 1?true:false,
         enabledAddingMultiplePerson:map['enabled_adding_multiple_person'] == 1?true:false,
@@ -130,6 +135,7 @@ class TemplateModel extends TemplateEntity
         name: json["name"]??"",
         color: json["color"],
         propsList:propsList,
+        addFromMobile: json["addFromMobile"]==null?null:(json["addFromMobile"]==true?true:false),
         enabledAddress: json["enabledAddress"]==true?true:false,
         enabledComments: json["enabledComments"]==true?true:false,
         enabledEquipment: json["enabledEquipment"]==true?true:false,

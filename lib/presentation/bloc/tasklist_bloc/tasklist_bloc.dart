@@ -13,10 +13,13 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dar
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
 import 'package:collection/collection.dart';
+
+import '../../../domain/usecases/get_task_templates.dart';
 //import 'package:dartz/dartz.dart';
 // import 'equatabl'
 class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   final GetAllTasks listTask;
+  final GetTaskTemplates taskTemplatesList;
   final ModelImpl m;
   //final WaitDealys10 wait10;
 
@@ -26,7 +29,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
 //  Stream<int> get stream_counter => _counterStreamController.stream;
 
   int page = 0;
-  TaskListBloc({required this.listTask,required this.m}) : super(TaskListEmpty())
+  TaskListBloc({required this.listTask,required this.m,required this.taskTemplatesList}) : super(TaskListEmpty())
   {
     m.counterUpdates.listen((item){
       print("m.counterUpdates item.progress ${item.syncPhase}");
@@ -84,6 +87,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       if(currentState is TaskListLoaded)
       {
         oldTasks = currentState.tasksList;
+        int addFromMobileTemplates = currentState.addFromMobileTemplates;
         TaskEntity? neededTask;
         neededTask = oldTasks.firstWhereOrNull((element) => element.id == event.task.id);
         print("try to find task id ${event.task.id}");
@@ -93,7 +97,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
           print("task found! $ind");
 
           oldTasks[ind] = event.task;
-          yield TaskListLoaded(tasksList: oldTasks, changed: !currentState.changed);
+          yield TaskListLoaded(tasksList: oldTasks, changed: !currentState.changed, addFromMobileTemplates: addFromMobileTemplates);
         }
       }
 
@@ -105,13 +109,18 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     final currentState = state;
     page = 0;
     var oldTasks = <TaskEntity>[];
+    //int addFromMobileTemplates = currentState.addFromMobileTemplates;
     //m.incrementCounter();
     /*if(currentState is TaskListLoaded)
     {
       oldTasks = currentState.tasksList;
     }
 */
-
+    final fOl = await taskTemplatesList(ListTemplateParams(page:0));
+    int addFromMobileTemplates = fOl.fold((failure)=>0, (task) {
+      print("templates: ${task.length}");
+      return task.length;
+    });
     yield TaskListLoading(oldTasks,isFirstFetch: page==0);
     final faiureOrLoading = await listTask(ListTaskParams(page: page));
 
@@ -119,7 +128,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       page++;
       //final tasks = (state as TaskListLoading).oldPersonList;
       //tasks.addAll(task);
-      return TaskListLoaded(tasksList: task, changed: true);
+      return TaskListLoaded(tasksList: task, changed: true, addFromMobileTemplates: addFromMobileTemplates);
     });//TaskListLoaded(tasksList: task));
 
 
@@ -130,9 +139,11 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     //SyncReady();
     //yield Stream.fromFutures([wait10()]).listen(listener);
     var oldTasks = <TaskEntity>[];
+    int addFromMobileTemplates = 0;
     if(currentState is TaskListLoaded)
     {
       oldTasks = currentState.tasksList;
+      addFromMobileTemplates = currentState.addFromMobileTemplates;
     }
 
     yield TaskListLoading(oldTasks,isFirstFetch: page==0);
@@ -145,7 +156,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
               page++;
               final tasks = (state as TaskListLoading).oldPersonList;
               tasks.addAll(task);
-              return TaskListLoaded(tasksList: tasks, changed: true);
+              return TaskListLoaded(tasksList: tasks, changed: true, addFromMobileTemplates: addFromMobileTemplates);
             });//TaskListLoaded(tasksList: task));
 
 

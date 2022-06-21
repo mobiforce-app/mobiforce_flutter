@@ -46,7 +46,7 @@ class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["taskstatus","taskfield","tasklifecycle","task","resolution","taskcomment","employee"];
+  final List<String> objectsType=["taskstatus","tasktemplate","taskfield","tasklifecycle","task","resolution","taskcomment","employee"];
   final List<int> objectsTypeLastUpdateId=[];
   int syncObjectsTypeId=0;
 

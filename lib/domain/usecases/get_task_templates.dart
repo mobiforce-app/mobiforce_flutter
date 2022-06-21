@@ -8,9 +8,9 @@ import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/template_repository.dart';
 
 class GetTaskTemplates extends UseCase<List<TemplateEntity>, ListTemplateParams>{
-  final TemplateRepository templateRepository;
-  GetTaskTemplates(this.templateRepository);
-  Future<Either<Failure, List<TemplateEntity>>> call(ListTemplateParams params) async => await templateRepository.getAllTemplates(params.page);
+  final TaskRepository taskRepository;
+  GetTaskTemplates(this.taskRepository);
+  Future<Either<Failure, List<TemplateEntity>>> call(ListTemplateParams params) async => await taskRepository.getAllTemplates(params.page);
 }
 
 class ListTemplateParams extends Equatable{

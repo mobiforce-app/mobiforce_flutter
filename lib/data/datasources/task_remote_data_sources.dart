@@ -27,11 +27,13 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entity/task_comment_entity.dart';
+import '../models/template_model.dart';
 
 abstract class TaskRemoteDataSources{
   Future<int> newTaskPicture();
   Future<List<TaskModel>>searchTask(String query);
   Future<List<TaskModel>>getAllTask(int page);
+  Future<List<TemplateModel>>getAllTemplates(int page);
   Future<TaskModel>getTask(int id);
   Future<TaskModel>getTaskByExternalId(int eternalId);
   Future<List<TaskLifeCycleNodeEntity>>getTaskStatusGraph(int? id, int? lifecycle);
@@ -77,6 +79,10 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   @override
   Future<List<TaskModel>> getAllTask(int page) => _getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-tasks.php", page:page);
 
+  @override
+  Future<List<TemplateModel>>getAllTemplates(int page) async {
+    return await db.getTemplatesListForMobile();
+  }
   @override
   Future<List<TaskLifeCycleNodeEntity>> getTaskStatusGraph(int ?id, int? lifecycle) async
   {

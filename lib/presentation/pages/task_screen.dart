@@ -13,6 +13,7 @@ import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
 
+import '../bloc/tasklist_bloc/tasklist_state.dart';
 import '../widgets/menu_widget.dart';
 
 class TaskListPage extends StatelessWidget {
@@ -20,70 +21,46 @@ class TaskListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocBuilder<TaskListBloc, TaskListState>(
+        builder: (context, state)
+        {
+          return Scaffold(
+      floatingActionButton:
+
+      ((state is TaskListLoaded)&&(state as TaskListLoaded).addFromMobileTemplates > 0) ?
+          FloatingActionButton(
+            onPressed: () {
+              print("click");
+              showModalBottomSheet(
+                //isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  context: context,
+                  builder: (BuildContext context) =>
+                      TaskTemplateSelectionList(
+                          selectCallback: ({required TemplateModel template}) {
+                            print(template.name);
+                            BlocProvider.of<TaskBloc>(context).add(
+                              NewTask(template: template),
+                            );
+                            Navigator.pop(context);
+                          }
+                      )
+              );
+              BlocProvider.of<TaskTemplateSelectionBloc>(context)
+                ..add(ReloadTaskTemplateSelection());
+            },
+            tooltip: 'Increment',
+            child: Icon(Icons.add),
+          ):null      ,
       drawer: MobiforceMenu(),
       drawerEdgeDragWidth: 40,
       appBar: AppBar(
-        title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children:[
-              Expanded(child: Center(child: Text(AppLocalizations.of(context)!.tasksPageHeader))),
-              InkWell(
-                  onTap: (){
-                    print("click");
-                    showModalBottomSheet(
-                      //isScrollControlled: true,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        context: context,
-                        builder: (BuildContext context) => TaskTemplateSelectionList(
-                            selectCallback:({required TemplateModel template}){
-                              print(template.name);
-                              BlocProvider.of<TaskBloc>(context).add(
-                                NewTask(template: template),
-                              );
-                              /*BlocProvider.of<TaskBloc>(context)
-                              ..add(SetTaskTemplate(
-                                  template: template
-                              ));*/
-                              Navigator.pop(context);
-
-                            }
-                        )
-                    );
-                    BlocProvider.of<TaskTemplateSelectionBloc>(context)
-                      ..add(ReloadTaskTemplateSelection());
-
-                    // BlocProvider.of<TaskBloc>(context).add(
-                    //   NewTask(),
-                    // );
-                    /*Navigator.push(context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) => TaskDetailPage(),
-                    transitionDuration: Duration(seconds: 0),
-                  ));*/
-                    //MaterialPageRoute(
-                    //builder: (context)=> TaskDetailPage(task: task,)
-                    //));
-                  },
-                  child:Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.add),
-                  ))
-            ]),
+        title: Text(AppLocalizations.of(context)!.tasksPageHeader),
         centerTitle: true,
-        /*actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            color:Colors.white,
-            onPressed: (){
-              showSearch(context: context, delegate: CustomSearchDelegate());
-            },
-          )
-        ],*/
       ),
       body: TasksList(),
-    );
+    );});
   }
 }

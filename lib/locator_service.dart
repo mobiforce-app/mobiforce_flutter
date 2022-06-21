@@ -81,7 +81,7 @@ Future<void>init() async
 {
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
-  sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl()));
+  sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl()));
   sl.registerFactory(() => SettingBloc(settingsReader: sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));

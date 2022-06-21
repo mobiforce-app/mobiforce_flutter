@@ -6,6 +6,7 @@ class TemplateEntity{
   int serverId;
   String name;
   String? color;
+  bool? addFromMobile;
   bool? enabledAddress;
   bool? enabledEquipment;
   bool? enabledAddingNewPerson;
@@ -20,6 +21,7 @@ class TemplateEntity{
     required this.id,
     required this.serverId,
     required this.name,
+    this.addFromMobile,
     required this.usn,
     this.color,
     this.propsList,
