@@ -643,41 +643,37 @@ class _taskFieldSignatureCard extends State<TaskFieldSignatureCard> {
             padding: const EdgeInsets.all(16.0),
             child: Text(AppLocalizations.of(context)!.signatureWidgetEnterButton),
           )
-      ):InkWell(
-        child: Container(
-            width: 160,
-            height: 160,
-            child:
-              widget.files?.first.downloaded==true?
-              InkWell(
-              child: Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg')),
-              onTap: ()  {
-              print("pictureopenclick3");
-              })
-              :(
-              widget.files?.first.downloading==true||widget.files?.first.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
-              child: Center(child: CircularProgressIndicator(),))
-                  :
-              InkWell(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      ):Container(
+          width: 160,
+          height: 160,
+          child:
+            widget.files?.first.downloaded==true?
+            InkWell(
+            child: Image.file(File('${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg')),
+            onTap: ()  {
+            //print("pictureopenclick3");
+              Navigator.push(context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) => SignatureViewPage(fieldId:widget.fieldId,fileId:widget.files?.first.id??0,picturePath:'${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg'),
+                    transitionDuration: Duration(seconds: 0),
+                  ));
+            })
+            :(
+            widget.files?.first.downloading==true||widget.files?.first.waiting==true?Padding(padding: const EdgeInsets.all(8.0),
+            child: Center(child: CircularProgressIndicator(),))
+                :
+            InkWell(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
 
-                  children: [Icon(Icons.now_wallpaper),Text("${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",textAlign:TextAlign.center),Text(AppLocalizations.of(context)!.downloadQuestion)],),
-                  onTap: ()  {
-                    BlocProvider.of<TaskBloc>(context)
-                      ..add(FieldFileDownload(file:widget.files?.first.id));
-                  }
-              ))
+                children: [Icon(Icons.now_wallpaper),Text("${AppLocalizations.of(context)!.pictureNotDownloaded} ($size ${AppLocalizations.of(context)!.fileSizeKB})",textAlign:TextAlign.center),Text(AppLocalizations.of(context)!.downloadQuestion)],),
+                onTap: ()  {
+                  BlocProvider.of<TaskBloc>(context)
+                    ..add(FieldFileDownload(file:widget.files?.first.id));
+                }
+            ))
     //
-        ),
-          onTap: (){
-            Navigator.push(context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) => SignatureViewPage(fieldId:widget.fieldId,fileId:widget.files?.first.id??0,picturePath:'${widget.appFilesDirectory}/photo_${widget.files?.first.id}.jpg'),
-                  transitionDuration: Duration(seconds: 0),
-                ));
-          },
-        )
+      )
       ]
     );
   }
