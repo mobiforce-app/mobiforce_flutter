@@ -74,6 +74,8 @@ class TemplateModel extends TemplateEntity
     map['external_id'] = serverId;
     if(addFromMobile!=null)
       map['add_from_mobile'] = addFromMobile==true?1:0;
+    if(color!=null)
+      map['color'] = color;
     map['enabled_address'] = enabledAddress==true?1:0;
     map['enabled_comments'] = enabledComments==true?1:0;
     map['enabled_equipment'] = enabledEquipment==true?1:0;
@@ -108,6 +110,7 @@ class TemplateModel extends TemplateEntity
         usn: map['usn'],
         serverId: map['external_id'],
         name: map['name'],
+        color: map['color'],
         enabledAddress: map['enabled_address'] == 1?true:false,
         enabledComments: map['enabled_comments'] == 1?true:false,
         addFromMobile: map['add_from_mobile'] == 1?true:false,

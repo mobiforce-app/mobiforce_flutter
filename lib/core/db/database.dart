@@ -35,7 +35,7 @@ class DBProvider {
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=35;
+  final int dbVersion=37;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;
@@ -399,6 +399,7 @@ class DBProvider {
             'usn INTEGER, '
             'external_id INTEGER UNIQUE, '
             'name TEXT, '
+            'color TEXT, '
             'contractor_required INTEGER, '
             'add_from_mobile INTEGER, '
             'enabled_address INTEGER, '
