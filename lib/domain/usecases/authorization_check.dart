@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
 import 'package:mobiforce_flutter/core/error/failure.dart';
 import 'package:mobiforce_flutter/core/usecases/usecase.dart';
 import 'package:mobiforce_flutter/domain/entity/authorization_entity.dart';
@@ -41,6 +42,11 @@ class AuthorizationManager {
         //print(dateTime.timeZoneName);
         //print(dateTime.timeZoneOffset);
         bg.BackgroundGeolocation.ready(bg.Config(
+          notification: Notification(
+              title: "The Title",
+              //sticky:true,
+              text: "The Text"
+          ),
           schedule: sch,
           scheduleUseAlarmManager: true,
           reset: true,

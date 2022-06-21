@@ -171,8 +171,8 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
 
                 return out;
               }
-                else
-                  return null;
+              else
+               return null;
             }).toList();
             final FoL1 = await setTaskCommentsRead(
                 SetTaskCommentsReadParams

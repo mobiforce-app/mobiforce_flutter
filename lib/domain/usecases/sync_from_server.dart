@@ -43,7 +43,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
 
         await db.clear();
         //print("sync.lastSyncTime ${sync.lastSyncTime}");
-        await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime);//sync.lastSyncTime);
+        await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime>0?sync.lastSyncTime:syncRepository.getLastSyncTime());//sync.lastSyncTime);
         await syncRepository.dbSetVersion(db.dbVersion);
         return Right(SyncStatusModel(
             syncPhase: SyncPhase.fullSyncResume,
