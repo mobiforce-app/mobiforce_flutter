@@ -5,7 +5,7 @@
     <!--package="ru.mobiforce.msc">-->
     <!--package="com.transistorsoft.flutterbackgroundgeolocationexample">-->
     <application
-        android:label="Mobiforce FSM"
+        android:label="@string/app_name"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher">
         <activity
