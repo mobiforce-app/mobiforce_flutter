@@ -70,6 +70,7 @@
     "dataWidgetEdit":"Редактировать",
     "pictureWidgetEmpty":"Нет изображений",
     "signatureWidgetEmpty":"Подпись не добавлена",
+    "signatureScreenHeader": "Подпись",
     "signatureWidgetEnterButton":"Ввести подпись",
     "mobiforce":"Мобифорс",
     "taskStatusHistory":"История",

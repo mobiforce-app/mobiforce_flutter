@@ -9,6 +9,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event
 import 'package:mobiforce_flutter/presentation/widgets/custom_search_delegate.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:signature/signature.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SignaturePage extends StatelessWidget {
   final int fieldId;
@@ -20,7 +21,7 @@ class SignaturePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Signature'),
+        title: Text(AppLocalizations.of(context)!.signatureScreenHeader),
         centerTitle: true,
       ),
       body: SignatureInput(fieldId:fieldId,oldFileId:oldFileId),

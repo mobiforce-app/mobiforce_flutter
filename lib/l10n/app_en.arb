@@ -71,6 +71,7 @@
     "pictureWidgetEmpty":"No images",
     "signatureWidgetEmpty":"No signature",
     "signatureWidgetEnterButton":"Add signature",
+    "signatureScreenHeader": "Signature",
     "mobiforce":"Mobiforce",
     "taskStatusHistory":"Statuses history",
     "requiredFielsIsNeeded":"Required fields are not set",
