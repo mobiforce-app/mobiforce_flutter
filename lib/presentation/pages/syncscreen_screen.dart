@@ -104,8 +104,9 @@ class SyncPage extends StatelessWidget {
               case "taskfield":
                 syncText=AppLocalizations.of(context)!.taskfieldSyncText;
                 print ("state.objectTypeName $syncText");
-
                 break;
+              case "tasktemplate": syncText=AppLocalizations.of(context)!.tasktemplateSyncText;break;
+              case "employee": syncText=AppLocalizations.of(context)!.employeeSyncText;break;
               case "taskstatus": syncText=AppLocalizations.of(context)!.taskstatusSyncText;break;
               case "resolution": syncText=AppLocalizations.of(context)!.resolutionSyncText;break;
               case "tasklifecycle": syncText=AppLocalizations.of(context)!.tasklifecycleSyncText;break;

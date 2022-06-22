@@ -88,6 +88,8 @@
     "taskfieldSyncText":"Task Fileds",
     "taskstatusSyncText":"Statuses",
     "resolutionSyncText":"Resolutions",
+    "tasktemplateSyncText": "Templates",
+    "employeeSyncText": "Employees",
     "tasklifecycleSyncText":"Workflows",
     "taskSyncText":"Tasks",
     "commentsSyncText":"Comments",

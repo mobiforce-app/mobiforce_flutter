@@ -89,6 +89,8 @@
     "taskstatusSyncText":"Статусы",
     "resolutionSyncText":"Резолюции",
     "tasklifecycleSyncText":"Рабочие процессы",
+    "tasktemplateSyncText": "Шаблоны",
+    "employeeSyncText": "Сотрудники",
     "taskSyncText":"Задачи",
     "commentsSyncText":"Комментарии",
     "fullSyncRetryCaption": "Ошибка загрузки данных",
