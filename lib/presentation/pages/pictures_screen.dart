@@ -13,6 +13,7 @@ import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:signature/signature.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../data/models/file_model.dart';
 
@@ -71,7 +72,7 @@ class _picuresGaleryState extends State<PicuresGalleryInput> {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 1000), () {
       // do something with query
-      print("EDIT $query ${widget.files[widget.pageId].parent.id}");
+      //print("EDIT $query ${widget.files[widget.pageId].parent.id}");
       setState((){
         _oldValue=query;
         //widget.val=query;
@@ -207,6 +208,7 @@ class _picuresGaleryState extends State<PicuresGalleryInput> {
           ),
           //  Container(child: Text('23232'),)
           Container(
+            //color: Colors.red,
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black12, width: 1),
             ),
@@ -214,7 +216,7 @@ class _picuresGaleryState extends State<PicuresGalleryInput> {
 
             child: TextField(
               decoration: InputDecoration(
-                hintText: "AppLocalizations.of(context)!.commentInputHint",
+                hintText: AppLocalizations.of(context)!.commentInputHint,
                 //border: OutlineInputBorder(),
                 border: InputBorder.none,
                 suffixIcon: _controller.text.length>0?IconButton(
@@ -228,7 +230,7 @@ class _picuresGaleryState extends State<PicuresGalleryInput> {
                       _controller.clear();
                     });
                   },
-                ):Container(),
+                ):null,
               ),
               //expands: true,
               maxLines: null,

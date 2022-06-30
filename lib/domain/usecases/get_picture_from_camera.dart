@@ -14,7 +14,7 @@ import 'package:mobiforce_flutter/domain/repositories/picture_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:path_provider/path_provider.dart';
 
-enum PictureSourceEnum {camera,bytes,gallery}
+enum PictureSourceEnum {camera,bytes,gallery,multipleImages}
 
 
 class GetPictureFromCamera extends UseCase<FileModel, GetPictureFromCameraParams>{

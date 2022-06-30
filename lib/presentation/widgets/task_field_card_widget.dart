@@ -525,6 +525,21 @@ class _taskFieldPictureState extends State<TaskFieldPictureCard> {
                           child: Text(AppLocalizations.of(context)!.galery, style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
                         ),
                       )
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        BlocProvider.of<TaskBloc>(context).add(
+                          AddPhotoToField(fieldId:widget.fieldId,src: PictureSourceEnum.multipleImages),
+                        );
+                      }, // Handle your callback
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(AppLocalizations.of(context)!.galeryMultiple, style: TextStyle(fontSize:18,fontWeight: FontWeight.w900, color: Colors.black)),
+                        ),
+                      )
                   ),
                   ]
                   ),);
