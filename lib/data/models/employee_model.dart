@@ -102,7 +102,7 @@ class EmployeeModel extends EmployeeEntity
 
       }).toList();
       print("schedule string ${sch.toString()}");
-      if(sch!=null)
+      if ((sch?.length ?? 0) > 0)
         bg.BackgroundGeolocation.setConfig(bg.Config(
           // schedule: sch
             schedule: sch,

@@ -26,83 +26,93 @@ class AuthorizationManager {
       authRepository.getUserSettings().then((List<GPSSchedule>? gpsSchedule) {
         print("gpsSchedule ${gpsSchedule.toString()}");
         List<String>? sch = gpsSchedule?.map((GPSSchedule element) {
-          int hf=element.from~/3600%24;
-          int ht=element.till~/3600%24;
-          int mf=element.from~/60%60;
-          int mt=element.till~/60%60;
-          if(element.from~/3600~/24!=element.till~/3600~/24){
-            ht=23;
-            mt=59;
+          int hf = element.from ~/ 3600 % 24;
+          int ht = element.till ~/ 3600 % 24;
+          int mf = element.from ~/ 60 % 60;
+          int mt = element.till ~/ 60 % 60;
+          if (element.from ~/ 3600 ~/ 24 != element.till ~/ 3600 ~/ 24) {
+            ht = 23;
+            mt = 59;
           }
-          return "${((element.from)~/86400+1)%7+1} ${hf}:${mf<10?"0":""}${mf}-${ht}:${mt<10?"0":""}${mt}";
-
+          return "${((element.from) ~/ 86400 + 1) % 7 + 1} ${hf}:${mf < 10
+              ? "0"
+              : ""}${mf}-${ht}:${mt < 10 ? "0" : ""}${mt}";
         }).toList();
         print("gpsSchedule ${sch}");
         DateTime dateTime = DateTime.now();
         //print(dateTime.timeZoneName);
         //print(dateTime.timeZoneOffset);
-        bg.BackgroundGeolocation.ready(bg.Config(
-          notification: Notification(
-              title: "The Title",
-              //sticky:true,
-              text: "The Text"
-          ),
-          schedule: sch,
-          scheduleUseAlarmManager: true,
-          reset: true,
-          debug: false,
-          //logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-          desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-          distanceFilter: 10.0,
-          extras: {"timezone":"${dateTime.timeZoneOffset}"},
-          batchSync:true,
-          maxBatchSize:100,
-          backgroundPermissionRationale: bg.PermissionRationale(
-              title:
-              "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
-              message:
-              "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
-              positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
-              negativeAction: 'Cancel'),
-          url: "https://mobifors111.mobiforce.ru/api/locations.php",
-          authorization: bg.Authorization(
-            // <-- demo server authenticates with JWT
-              strategy: bg.Authorization.STRATEGY_JWT,
-              accessToken: token,
-              //refreshToken: token.refreshToken,
-              refreshUrl: "https://mobifors111.mobiforce.ru/api/refresh_token.php",
-              refreshPayload: {'refresh_token': '{refreshToken}'}),
-          stopOnTerminate: false,
-          startOnBoot: true,
-          enableHeadless: true))
-          .then((bg.State state) {
-        print("[ready] ${state.toMap()}");
-          //bg.BackgroundGeolocation.
-        //bg.BackgroundGeolocation.setConfig(bg.Config(
-          // schedule: sch
-        //    schedule: ['1-7 15:30-15:35'],
-        //    scheduleUseAlarmManager: true
+          bg.BackgroundGeolocation.ready(bg.Config(
+              notification: Notification(
+                  title: "The Title",
+                  //sticky:true,
+                  text: "The Text"
+              ),
+              schedule: sch,
+              scheduleUseAlarmManager: true,
+              reset: true,
+              debug: false,
+              //logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+              desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+              distanceFilter: 10.0,
+              extras: {"timezone": "${dateTime.timeZoneOffset}"},
+              batchSync: true,
+              maxBatchSize: 100,
+              backgroundPermissionRationale: bg.PermissionRationale(
+                  title:
+                  "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
+                  message:
+                  "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
+                  positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
+                  negativeAction: 'Cancel'),
+              url: "https://mobifors111.mobiforce.ru/api/locations.php",
+              authorization: bg.Authorization(
+                // <-- demo server authenticates with JWT
+                  strategy: bg.Authorization.STRATEGY_JWT,
+                  accessToken: token,
+                  //refreshToken: token.refreshToken,
+                  refreshUrl: "https://mobifors111.mobiforce.ru/api/refresh_token.php",
+                  refreshPayload: {'refresh_token': '{refreshToken}'}),
+              stopOnTerminate: false,
+              startOnBoot: true,
+              enableHeadless: true))
+              .then((bg.State state) {
+            print("[ready] ${state.toMap()}");
+            //bg.BackgroundGeolocation.
+            //bg.BackgroundGeolocation.setConfig(bg.Config(
+            // schedule: sch
+            //    schedule: ['1-7 15:30-15:35'],
+            //    scheduleUseAlarmManager: true
 
-        //)).then((bg.State state) async {
-        //  print("schedule string accepted $state}");
-          //await bg.BackgroundGeolocation.sync();
-          bg.BackgroundGeolocation.start().then((value) {
-            print("schedule string start $value");
-          if(value.enabled)bg.BackgroundGeolocation.stop().then((value) =>
-              bg.BackgroundGeolocation.startSchedule().then((value) => print("schedule string stop - start schedule $value")));
-          else
-            bg.BackgroundGeolocation.startSchedule().then((value) => print("schedule string  start schedule $value"));});
-          /*if(isStartNow)
+            //)).then((bg.State state) async {
+            //  print("schedule string accepted $state}");
+            //await bg.BackgroundGeolocation.sync();
+            if ((sch?.length ?? 0) > 0) {
+              bg.BackgroundGeolocation.start().then((value) {
+                print("schedule string start $value");
+                if (value.enabled)
+                  bg.BackgroundGeolocation.stop().then((value) =>
+                      bg.BackgroundGeolocation.startSchedule().then((value) =>
+                          print(
+                              "schedule string stop - start schedule $value")));
+                else
+                  bg.BackgroundGeolocation.startSchedule().then((value) =>
+                      print("schedule string  start schedule $value"));
+              });
+            }
+            /*if(isStartNow)
             bg.BackgroundGeolocation.start().then((value) => print("schedule string  start"));
 
           else
             bg.BackgroundGeolocation.stop().then((value) => print("schedule string stop"));*/
-        //});
+            //});
 
-      }).catchError((error) {
-        print('[ready] ERROR: $error');
+          }).catchError((error) {
+            print('[ready] ERROR: $error');
+          });
+
       });
-      });
+
 
       return true;
     }
