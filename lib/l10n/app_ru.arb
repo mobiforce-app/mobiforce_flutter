@@ -115,7 +115,10 @@
     "day4": "чт",
     "day5": "пт",
     "day6": "сб",
-    "day7": "вс"
+    "day7": "вс",
+    "geoNotificationText":"Запись включена",
+    "geoNotificationTitle":"Служба геолокации"
+
 
 
 }

@@ -115,5 +115,7 @@
     "day4": "th",
     "day5": "fr",
     "day6": "sa",
-    "day7": "su"
+    "day7": "su",
+    "geoNotificationText":"Recording ON",
+    "geoNotificationTitle":"Geolocation service"
 }

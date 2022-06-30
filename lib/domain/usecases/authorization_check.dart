@@ -16,7 +16,7 @@ import '../entity/employee_entity.dart';
 class AuthorizationManager {
   final AuthorizationRepository authRepository;
   AuthorizationManager(this.authRepository);
-  bool check(){
+  bool check({required String geoNotificationTitle, required String geoNotificationText}){
     //return false;
     //print("appstart 1");
     String? token=authRepository.getAuthorization();
@@ -44,9 +44,9 @@ class AuthorizationManager {
         //print(dateTime.timeZoneOffset);
           bg.BackgroundGeolocation.ready(bg.Config(
               notification: Notification(
-                  title: "The Title",
-                  //sticky:true,
-                  text: "The Text"
+                  title: geoNotificationTitle,
+                  sticky:true,
+                  text: geoNotificationText
               ),
               schedule: sch,
               scheduleUseAlarmManager: true,
