@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
@@ -14,6 +14,7 @@ import 'package:mobiforce_flutter/locator_service.dart' as di;
 
 import '../bloc/sync_bloc/sync_bloc.dart';
 import '../bloc/sync_bloc/sync_event.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Task extends StatelessWidget {
   final scrollController = ScrollController();
@@ -30,9 +31,7 @@ class Task extends StatelessWidget {
       }
     });
   }
-  /*Future<void> _refreshTaskList(BuildContext context) async{
 
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +50,7 @@ class Task extends StatelessWidget {
             builder: (context, state) {
               if(state is SetEmptyList)
                 return Container();
-              print("task list state = $state");
+              print("task state = $state");
               if (state is GoToFullSync) {
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
                   // Navigation
@@ -86,6 +85,17 @@ class Task extends StatelessWidget {
                 return _showErrorText(state.message);
               }
               else {
+                print("startGeolocationService 1");
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  print("startGeolocationService 2");
+
+                  BlocProvider.of<TaskListBloc>(context).add(
+                      CheckGeo(
+                          geoNotificationText: AppLocalizations.of(context)!.geoNotificationText,
+                          geoNotificationTitle: AppLocalizations.of(context)!.geoNotificationTitle
+                      )
+                  );
+                });
                 return Center(
                     child: Icon(Icons.now_wallpaper)
                 );
@@ -164,3 +174,4 @@ Widget _showErrorText(String errorMessage) {
 }
 }
 
+*/

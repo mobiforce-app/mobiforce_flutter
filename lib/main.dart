@@ -248,10 +248,7 @@ class MyApp extends StatelessWidget {
               backgroundColor: AppColors.mainBackground,
               scaffoldBackgroundColor: AppColors.mainBackground
             ),
-            home:  am.check(
-              geoNotificationText: AppLocalizations.of(context)!.geoNotificationText,
-              geoNotificationTitle: AppLocalizations.of(context)!.geoNotificationTitle
-            )?TaskListPage():LoginPage(),
+            home:  am.check()?TaskListPage():LoginPage(),
           ),
 
 

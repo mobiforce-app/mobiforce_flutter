@@ -16,6 +16,9 @@ import 'package:mobiforce_flutter/presentation/widgets/task_card_widget.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_result.dart';
 import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../domain/usecases/start_geolocation_service.dart';
 
 class TasksList extends StatelessWidget {
   final scrollController = ScrollController();
@@ -54,9 +57,10 @@ class TasksList extends StatelessWidget {
 
           return BlocBuilder<TaskListBloc, TaskListState>(
             builder: (context, state) {
-              if(state is SetEmptyList)
+              print("task list state == $state");
+              if(state is SetEmptyList) {
                 return Container();
-              print("task list state = $state");
+              }
               if (state is GoToFullSync) {
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
                   // Navigation
@@ -75,7 +79,7 @@ class TasksList extends StatelessWidget {
               }
               List<TaskEntity> tasks = [];
               bool isLoading = false;
-              print('rebuild');
+              print('rebuild $state');
               if (state is TaskListLoading && state.isFirstFetch) {
                 //_refreshIndicatorKey.currentState?.show();
                 return _loadingIndicator();
@@ -96,6 +100,18 @@ class TasksList extends StatelessWidget {
                 return _showErrorText(state.message);
               }
               else {
+                print("startGeolocationService 1");
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  print("startGeolocationService 2");
+
+                  BlocProvider.of<TaskListBloc>(context).add(
+                      CheckGeo(
+                          geoNotificationText: AppLocalizations.of(context)!.geoNotificationText,
+                          geoNotificationTitle: AppLocalizations.of(context)!.geoNotificationTitle
+                      )
+                  );
+                });
+
                 return Center(
                     child: Icon(Icons.hourglass_empty)
                 );

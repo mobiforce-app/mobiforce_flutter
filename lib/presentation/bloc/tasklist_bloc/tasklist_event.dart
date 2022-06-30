@@ -16,6 +16,14 @@ class ListTasks extends TaskListEvent
 
   ListTasks();
 }
+class CheckGeo extends TaskListEvent
+{
+  //final int page;
+  final String geoNotificationTitle;
+  final String geoNotificationText;
+
+  CheckGeo({required this.geoNotificationTitle, required this.geoNotificationText});
+}
 
 class Wait10Sec extends TaskListEvent
 {

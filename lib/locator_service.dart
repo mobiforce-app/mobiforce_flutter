@@ -74,6 +74,7 @@ import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
 import 'domain/usecases/set_tasks_comments_read.dart';
+import 'domain/usecases/start_geolocation_service.dart';
 import 'domain/usecases/sync_to_server.dart';
 import 'domain/usecases/wait.dart';
 
@@ -83,7 +84,7 @@ Future<void>init() async
 {
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
-  sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl()));
+  sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl(),startGeolocationService:sl()));
   sl.registerFactory(() => SettingBloc(settingsReader: sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));
@@ -149,6 +150,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => UserLogout(sl(),sl()));
   sl.registerLazySingleton(() => Authorization(sl(),sl()));
   sl.registerLazySingleton(() => AuthorizationManager(sl()));
+  sl.registerLazySingleton(() => StartGeolocationService(sl()));
   //sl.registerLazySingleton(() => Model());
   //sl.registerLazySingleton(() => LoginTasks(sl()));
   //repository

@@ -15,12 +15,15 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state
 import 'package:collection/collection.dart';
 
 import '../../../domain/usecases/get_task_templates.dart';
+import '../../../domain/usecases/start_geolocation_service.dart';
 //import 'package:dartz/dartz.dart';
 // import 'equatabl'
 class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   final GetAllTasks listTask;
   final GetTaskTemplates taskTemplatesList;
   final ModelImpl m;
+  final StartGeolocationService startGeolocationService;
+
   //final WaitDealys10 wait10;
 
   //final _counterStreamController = StreamController<int>();
@@ -32,7 +35,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
 
 
   int page = 0;
-  TaskListBloc({required this.listTask,required this.m,required this.taskTemplatesList}) : super(TaskListEmpty())
+  TaskListBloc({required this.listTask,required this.m,required this.taskTemplatesList,required this.startGeolocationService}) : super(TaskListEmpty())
   {
     m.counterUpdates.listen((item){
       print("m.counterUpdates item.progress ${item.syncPhase}");
@@ -62,6 +65,10 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       yield GoToFullSync();
       //print("start sync1");
       //yield TaskListEmpty();
+    }
+    if(event is CheckGeo){
+      print("startGeolocationService");
+      startGeolocationService(geoNotificationTitle: event.geoNotificationTitle, geoNotificationText: event.geoNotificationText);
     }
     if(event is GetTaskUpdatesFromServer){
       m.startUpdate();
