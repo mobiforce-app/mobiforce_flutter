@@ -21,12 +21,13 @@ class TaskListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TaskListBloc, TaskListState>(
-        builder: (context, state)
-        {
+
           return Scaffold(
       floatingActionButton:
-
+      BlocBuilder<TaskListBloc, TaskListState>(
+      builder: (context, state)
+      {
+        return
       ((state is TaskListLoaded)&&(state as TaskListLoaded).addFromMobileTemplates > 0) ?
           FloatingActionButton(
             onPressed: () {
@@ -53,7 +54,7 @@ class TaskListPage extends StatelessWidget {
             },
             tooltip: 'Increment',
             child: Icon(Icons.add),
-          ):null      ,
+          ):Container();}),
       drawer: MobiforceMenu(),
       drawerEdgeDragWidth: 40,
       appBar: AppBar(
@@ -61,6 +62,6 @@ class TaskListPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: TasksList(),
-    );});
+    );
   }
 }

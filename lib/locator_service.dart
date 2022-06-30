@@ -66,6 +66,8 @@ import 'domain/usecases/get_new_task_number.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
 import 'domain/usecases/get_user_setting.dart';
+import 'domain/usecases/lazysync_from_server.dart';
+import 'domain/usecases/load_task.dart';
 import 'domain/usecases/save_file_decription.dart';
 import 'domain/usecases/save_new_task.dart';
 import 'domain/usecases/search_task.dart';
@@ -92,6 +94,7 @@ Future<void>init() async
   sl.registerFactory(() => TaskBloc(
       taskReader:sl(),
       loadFile:sl(),
+      loadTask:sl(),
       nextTaskStatusesReader: sl(),
       setTaskStatus: sl(),
       getTaskComments: sl(),
@@ -130,6 +133,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetUserSetting(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
+  sl.registerLazySingleton(() => LoadTask(sl(), sl()));
   sl.registerLazySingleton(() => LoadFile(fileRepository:sl()));
   sl.registerLazySingleton(() => GetTaskComments(sl()));
   sl.registerLazySingleton(() => SetTaskCommentsRead(sl()));
@@ -138,6 +142,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
   sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => SyncToServer(sl(),sl()));
+  sl.registerLazySingleton(() => LazySyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), syncRepository:sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));
   //sl.registerLazySingleton(() => Model());
@@ -156,7 +161,8 @@ Future<void>init() async
   sl.registerLazySingleton<TemplateRepository>(
       () => TemplateRepositoryImpl(
           remoteDataSources: sl(),
-          networkInfo: sl()
+
+          networkInfo: sl(),
       )
   );
   sl.registerLazySingleton<FileRepository>(
@@ -169,7 +175,8 @@ Future<void>init() async
       () => SyncRepositoryImpl(
           updatesRemoteDataSources: sl(),
           networkInfo: sl(),
-          sharedPreferences: sl()
+          sharedPreferences: sl(),
+          onlineRemoteDataSources: sl()
       )
   );
   sl.registerLazySingleton<FullSyncRepository>(
@@ -182,6 +189,7 @@ Future<void>init() async
   sl.registerLazySingleton<ModelImpl>(
       () => ModelImpl(syncFromServer:sl(),syncToServer:sl(),
           fcm: sl(),
+          lazySyncFromServer: sl()
           //remoteDataSources: sl(),
           //networkInfo: sl()
       )

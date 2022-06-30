@@ -22,6 +22,7 @@ class TasksList extends StatelessWidget {
   final ModelImpl m = di.sl<ModelImpl>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
+
   void setupScrollController(BuildContext context) {
     scrollController.addListener(() {
       print("scroll");
@@ -49,8 +50,9 @@ class TasksList extends StatelessWidget {
         //if(snappShot.data>=1)
         //  BlocProvider.of<TaskListBloc>(context)
         //    ..add(BadListTasks());
+          //final Stream<TaskEntity> updateItemsSteram = BlocProvider.of<TaskListBloc>(context).stream_counter;
 
-        return BlocBuilder<TaskListBloc, TaskListState>(
+          return BlocBuilder<TaskListBloc, TaskListState>(
             builder: (context, state) {
               if(state is SetEmptyList)
                 return Container();
@@ -132,9 +134,22 @@ class TasksList extends StatelessWidget {
                             physics: AlwaysScrollableScrollPhysics(),
                             controller: scrollController,
                             itemBuilder: (context, index) {
-                              print("list bbuilder");
+                              /*print("list bbuilder");
                               if (index < tasks.length)
                                 return TaskCard(task: tasks[index]);
+                              else
+                                return _loadingIndicator();*/
+                              if(index < tasks.length) {
+                                // return StreamBuilder<TaskEntity>(
+                                //     initialData: tasks[index],
+                                //     stream: updateItemsSteram.where((item) => item.id == tasks[index].id),//updateItemsSteram.where((item) =>
+                                //     //item.id == initialList[idx].id),
+                                //     builder: (ctx, snapshot) {
+                                //       print("list bbuilder");
+                                      return TaskCard1(tasks[index]);
+                                //    }
+                                //);
+                              }
                               else
                                 return _loadingIndicator();
                             },

@@ -6,6 +6,8 @@ import 'package:mobiforce_flutter/domain/entity/sync_status_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/sync_to_server.dart';
+
+import '../../../domain/usecases/lazysync_from_server.dart';
 class SyncStatus
 {
   //int progress;
@@ -25,11 +27,12 @@ abstract class Model{
 class ModelImpl implements Model{
   int _counter = 0;
   final SyncFromServer syncFromServer;
+  final LazySyncFromServer lazySyncFromServer;
   final SyncToServer syncToServer;
   final PushNotificationService fcm;
   bool fcmTokenNotSync = true;
 
-  ModelImpl({required this.syncFromServer,required this.syncToServer,required this.fcm});
+  ModelImpl({required this.syncFromServer,required this.syncToServer,required this.fcm, required this.lazySyncFromServer});
 
   SyncStatus s = SyncStatus(syncPhase:SyncPhase.normal);
   //var controller = new StreamController<String>();
@@ -80,7 +83,7 @@ class ModelImpl implements Model{
       if(complete)
         break;
     }
-
+    lazySyncFromServer(LazySyncParams());
 
     /*Future.delayed(Duration(seconds: 10),() {
         _counter++;

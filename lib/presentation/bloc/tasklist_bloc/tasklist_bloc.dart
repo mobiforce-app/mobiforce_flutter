@@ -27,6 +27,9 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   //StreamSink<int> get counter_sink => _counterStreamController.sink;
 // expose data from stream
 //  Stream<int> get stream_counter => _counterStreamController.stream;
+  final _counterStreamController = StreamController<TaskEntity>();
+  Stream<TaskEntity> get stream_counter => _counterStreamController.stream;
+
 
   int page = 0;
   TaskListBloc({required this.listTask,required this.m,required this.taskTemplatesList}) : super(TaskListEmpty())
@@ -77,6 +80,9 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     else if(event is RefreshListTasks){
       print("map event!");
       yield* _mapRefreshTaskToState();
+      /*Future.delayed(Duration(seconds: 10),() {
+        _counterStreamController.add(TaskEntity(id: 0, serverId: 0, unreadedCommentCount: 0));
+      });*/
     }
     else if(event is RefreshCurrenTaskInListTasks){
       print("RefreshCurrenTaskInListTasks!");

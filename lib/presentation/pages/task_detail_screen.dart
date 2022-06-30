@@ -448,11 +448,11 @@ class TaskDetailPage extends StatelessWidget {
             // Navigation
             BuildContext bc = context;
             //Future.delayed(Duration(seconds: 10),() {
-            if (state.needToUpdateTaskList) {
+            //if (state.needToUpdateTaskList) {
               print("reload main page");
               BlocProvider.of<TaskListBloc>(bc)
                 ..add(RefreshCurrenTaskInListTasks(task: state.task));
-            }
+            //}
             //});
 
             //print("task_current status: ${state.task.status?.systemStatusId} ${state.nextTaskStatuses?.first?.id??0}");

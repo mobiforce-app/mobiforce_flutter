@@ -62,25 +62,26 @@ class TasksFieldsModel extends TasksFieldsEntity
   Future<int> insertToDB(DBProvider db) async {
 
     //print("taskField: $taskField");
-    Timeline.startSync("insert taskfield");
+    //Timeline.startSync("insert taskfield");
     int? fieldId = await taskField?.insertToDB(db);
-    Timeline.finishSync();
+    //Timeline.finishSync();
+
     taskFieldId = fieldId;
     //print("$tabServerId");
-    Timeline.startSync("get by taskfield");
+//    Timeline.startSync("get by taskfield");
     tab = await db.getTasksFieldsTabIdByServerId(tabServerId);
-    Timeline.finishSync();
+//    Timeline.finishSync();
 
-    Timeline.startSync("inserttaskfields");
+//    Timeline.startSync("inserttaskfields");
     TasksFieldsModel t = await db.insertTasksFields(this);
-    Timeline.finishSync();
+//    Timeline.finishSync();
 //print ("db id == ${t.id}");
-    Timeline.startSync("updatetaskfields");
+//    Timeline.startSync("updatetaskfields");
     if(t.id==0){
       t.id = await db.updateTasksFieldsByServerId(this);
       //print ("db id == ${t.toString()}");
     }
-    Timeline.finishSync();
+//    Timeline.finishSync();
     //print("putTaskField2taskSelectionValueRelation try to insert");
 
     if(t.selectionValue?.id==0)

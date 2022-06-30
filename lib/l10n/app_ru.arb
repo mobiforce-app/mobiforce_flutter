@@ -92,6 +92,7 @@
     "tasktemplateSyncText": "Шаблоны",
     "employeeSyncText": "Сотрудники",
     "taskSyncText":"Задачи",
+    "shortTaskSyncText":"Список задач",
     "commentsSyncText":"Комментарии",
     "fullSyncRetryCaption": "Ошибка загрузки данных",
     "fullSyncRetryButton": "Повторить",

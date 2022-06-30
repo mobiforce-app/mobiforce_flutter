@@ -25,13 +25,15 @@ class TaskModel extends TaskEntity
 
   TaskModel({isChanged,required id,usn,required serverId,required unreadedCommentCount,name, status, contractor, address, statuses, checkList, propsList,
               author, employees,employee,equipment,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
-              externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,
+              externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,notLoaded,loading
   }): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
       serverId:serverId,
       deleted:deleted,
+      notLoaded:notLoaded,
+      loading:loading,
       name:name,
       contractor:contractor,
       address:address,
@@ -114,6 +116,7 @@ class TaskModel extends TaskEntity
     final map=Map<String, dynamic>();
     map['name'] = name;
     map['usn'] = usn;
+    map['not_loaded'] = notLoaded==true?1:0;
     map['deleted'] = deleted==true?1:0;
     map['external_id'] = serverId;
     map['contractor'] = contractor?.id;
@@ -243,7 +246,7 @@ class TaskModel extends TaskEntity
     Timeline.finishSync();
     Timeline.startSync('Task checklist');
     //await db.deleteAllFieldsByTaskId(taskId);
-
+    print("start check list");
     if(checkList != null)
     {
       await Future.forEach(checkList!,(TasksFieldsModel element) async {
@@ -263,6 +266,8 @@ class TaskModel extends TaskEntity
       id=0;
     Timeline.finishSync();
     Timeline.startSync('Task props');
+
+    print("start prop list");
     if(propsList != null)
     {
       await Future.forEach(propsList!,(TasksFieldsModel element) async {
@@ -280,6 +285,7 @@ class TaskModel extends TaskEntity
     }
     else
       id=0;
+    print("end prop list");
     Timeline.finishSync();
     /*if(propsList != null)
     {
@@ -408,6 +414,7 @@ class TaskModel extends TaskEntity
         createdAt: taskMap['created_at'],
         plannedEndVisitTime: taskMap['planned_end_visit_time'],
         plannedVisitTime: taskMap['planned_visit_time'],
+        notLoaded: taskMap['not_loaded']==1?true:false,
         name: taskMap['name'],
         contractor: contractor,
         unreadedCommentCount: taskMap['unreaded_comment_count']??0,
@@ -463,6 +470,7 @@ class TaskModel extends TaskEntity
         author:json["author"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EmployeeModel.fromJson(json["author"]):null,
         employees:json["employee"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?[EmployeeModel.fromJson(json["employee"])]:null,
         template:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?TemplateModel.fromJson(json["tasktemplate"]):null,
+        notLoaded:json["tasktemplate"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?false:true,
         phones:json["phone"]!=null?(json["phone"] as List).map((phone) => PhoneModel.fromJson(phone)).toList():<PhoneModel>[],
         persons:json["person"]!=null?(json["person"] as List).map((person) => PersonModel.fromJson(person)).toList():<PersonModel>[],
         addressFloor:json["addressFloor"]??"",

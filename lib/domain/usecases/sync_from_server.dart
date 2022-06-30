@@ -11,6 +11,8 @@ import 'package:mobiforce_flutter/domain/repositories/full_sync_repository.dart'
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 
+import '../repositories/template_repository.dart';
+
 class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
   final DBProvider db;
   final SyncRepository syncRepository;
@@ -30,10 +32,15 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
     //if(params.fcmToken!=null) {
     final bool sendToken = await syncRepository.sendToken(params.fcmToken);
     //}
-
+    syncRepository.setExchangeIntent();
+    while(syncRepository.lock)
+      await Future.delayed(Duration(seconds: 1));
+    syncRepository.incLockSemaphore();
+    syncRepository.cancelExchangeIntent();
     final faiureOrLoading = await syncRepository.getUpdates();
     return await faiureOrLoading.fold((failure){
       print (failure);
+      syncRepository.decLockSemaphore();
       return Left(failure);
     }, (sync) async{
       if (syncRepository.dbCheckVersion(db.dbVersion))
@@ -45,6 +52,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
         //print("sync.lastSyncTime ${sync.lastSyncTime}");
         await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime>0?sync.lastSyncTime:syncRepository.getLastSyncTime());//sync.lastSyncTime);
         await syncRepository.dbSetVersion(db.dbVersion);
+        syncRepository.decLockSemaphore();
         return Right(SyncStatusModel(
             syncPhase: SyncPhase.fullSyncResume,
             objectType: "",
@@ -59,6 +67,7 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
         await syncRepository.dbSetVersion(db.dbVersion);
         print("sync.lastSyncTime ${sync.lastSyncTime} FULL SYNC BY SERVER");
         await fullSyncRepository.restartFullSync(lastSyncTime:sync.lastSyncTime);
+        syncRepository.decLockSemaphore();
         return Right(SyncStatusModel(
             syncPhase: SyncPhase.fullSyncResume,
             objectType: sync.objectType,
@@ -73,21 +82,28 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
         if(sync.dataList.isEmpty) {
           print ("empty");
           //await sharedPreferences.getBool("full_sync")??false;
-          if(await syncRepository.setComplete())
-            return Right(SyncStatusModel(progress: 0,
-                complete: true,
-                dataLength: 0,
-                syncPhase: SyncPhase.normal,
-                objectType: sync.objectType,
-                sendToken:sendToken));
+          if(syncRepository.setComplete()){
+              syncRepository.decLockSemaphore();
+              return Right(SyncStatusModel(
+                  progress: 0,
+                  complete: true,
+                  dataLength: 0,
+                  syncPhase: SyncPhase.normal,
+                  objectType: sync.objectType,
+                  sendToken: sendToken));
+
+          }
           else
-            return Right(SyncStatusModel(progress: 0,
+          {
+            syncRepository.decLockSemaphore();
+            return Right(SyncStatusModel(
+                progress: 0,
                 complete: false,
                 dataLength: 0,
                 objectType: sync.objectType,
                 syncPhase: SyncPhase.normal,
-                sendToken:sendToken
-            ));
+                sendToken: sendToken));
+          }
         }
         else {
           int id=0;
@@ -103,9 +119,14 @@ class SyncFromServer extends UseCase<SyncStatusEntity, ListSyncParams>{
             //}
             //else
               //object.usn=0;
-              await object.insertToDB(db);
+            //while(syncRepository.lock)
+            //  await Future.delayed(Duration(seconds: 1));
+            //syncRepository.incLockSemaphore();
+            await object.insertToDB(db);
+            //syncRepository.decLockSemaphore();
           }
           await syncRepository.commit();
+          syncRepository.decLockSemaphore();
           return Right(SyncStatusModel(progress: 0,
               complete: false,
               dataLength: 0,

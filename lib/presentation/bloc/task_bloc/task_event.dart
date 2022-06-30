@@ -26,6 +26,16 @@ class ReloadTask extends TaskEvent
 
   ReloadTask(this.id);
 }
+class GetTaskFromServer extends TaskEvent
+{
+  final TaskEntity task;
+
+  final Function callback;
+  final Function callback1;
+  //final int page;
+
+  GetTaskFromServer(this.task, this.callback, this.callback1);
+}
 class ReloadTaskByExternalID extends TaskEvent
 {
   final int externaId;

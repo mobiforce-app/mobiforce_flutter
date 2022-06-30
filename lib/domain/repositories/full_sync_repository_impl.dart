@@ -38,7 +38,7 @@ class FullSyncRepositoryImpl implements FullSyncRepository{
   final FullRemoteDataSources fullRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
-  final List<String> objectsType=["taskfield","tasktemplate", "taskstatus","resolution","tasklifecycle","task","comments","employee"];
+  final List<String> objectsType=["taskfield","tasktemplate", "taskstatus","resolution","tasklifecycle","shorttask","task","comments","employee"];
   //final AuthorizationDataSource authorizationDataSource;
   //int lastSyncTime=0;
   int fullSyncUpdateId=0;
@@ -154,6 +154,10 @@ print("syncDataLength $syncDataLength, syncDataProgress $syncDataProgress fullSy
       //dynamic t=TaskModel;
       if(objectsType[fullSyncObjectsTypeId]=="task") {
         print ("type = task");
+        return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
+      }
+      if(objectsType[fullSyncObjectsTypeId]=="shorttask") {
+        print ("type = shorttask");
         return ((json as List).map((obj) => TaskModel.fromJson(obj)).toList());
       }
       if(objectsType[fullSyncObjectsTypeId]=="tasklifecycle") {

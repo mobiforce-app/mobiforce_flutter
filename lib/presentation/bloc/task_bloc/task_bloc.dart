@@ -11,6 +11,7 @@ import 'package:mobiforce_flutter/data/models/employee_model.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/person_model.dart';
 import 'package:mobiforce_flutter/data/models/phone_model.dart';
+import 'package:mobiforce_flutter/data/models/task.dart';
 import 'package:mobiforce_flutter/data/models/task_comment_model.dart';
 import 'package:mobiforce_flutter/data/models/task_model.dart';
 import 'package:mobiforce_flutter/data/models/tasksfields_model.dart';
@@ -46,10 +47,12 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dar
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/task_bloc/task_state.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
+import 'package:mobiforce_flutter/presentation/widgets/task_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:collection/collection.dart';//import 'package:dartz/dartz.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 
+import '../../../domain/usecases/load_task.dart';
 import '../../../domain/usecases/save_file_decription.dart';
 import '../../../domain/usecases/set_tasks_comments_read.dart';
 import '../../../main.dart';
@@ -65,6 +68,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
   //List<TaskStatusEntity>? nextTaskStatuses;
   final GetPictureFromCamera getPictureFromCamera;
   final LoadFile loadFile;
+  final LoadTask loadTask;
   final AddPictureToTaskField addPictureToTaskField;
   final DeletePictureToTaskField deletePictureToTaskField;
   //final AddCommentWithPictureToTask addCommentWithPictureToTask;
@@ -91,6 +95,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     required this.taskReader,
     required this.saveNewTask,
     required this.loadFile,
+    required this.loadTask,
     required this.nextTaskStatusesReader,
     required this.getPictureFromCamera,
     required this.setTaskStatus,
@@ -943,6 +948,15 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           comments:comments,
           showCommentTab:false,
         );
+      });
+    }
+    if (event is GetTaskFromServer) {
+      event.task.loading = true;
+      //event.callback(event.task);
+      final faiureOrLoading = await loadTask(LoadTaskParams(event.task.id,event.task.serverId));
+      faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (task) {
+        print("${task.id}");
+        event.callback1(task);
       });
     }
     if (event is FieldFileDownload) {

@@ -92,6 +92,7 @@
     "employeeSyncText": "Employees",
     "tasklifecycleSyncText":"Workflows",
     "taskSyncText":"Tasks",
+    "shortTaskSyncText":"Tasl list",
     "commentsSyncText":"Comments",
     "fullSyncRetryCaption": "Data synchronization error",
     "fullSyncRetryButton": "Retry",

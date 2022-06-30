@@ -11,4 +11,5 @@ abstract class FullSyncRepository{
   Future<bool>setComplete();
   Future<bool>commit();
   Future<bool>restartFullSync({int lastSyncTime});
+
 }

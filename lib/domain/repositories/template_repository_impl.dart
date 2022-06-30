@@ -21,11 +21,19 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:mobiforce_flutter/domain/repositories/template_repository.dart';
 
+import '../../data/datasources/updates_remote_data_sources.dart';
+
 class TemplateRepositoryImpl implements TemplateRepository{
   final OnlineRemoteDataSources remoteDataSources;
+  //final UpdatesRemoteDataSources updatesRemoteDataSources;
   final NetworkInfo networkInfo;
 
+
+
   TemplateRepositoryImpl({required this.remoteDataSources,required this.networkInfo});//{required this.remoteDataSources,required this.networkInfo});
+
+
+
   @override
   Future<Either<Failure, List<TemplateModel>>> getAllTemplates(int page) async {
     return
@@ -94,6 +102,26 @@ class TemplateRepositoryImpl implements TemplateRepository{
     if(await networkInfo.isConnected){
       try{
           final remoteTemplate = await remoteDataSources.getCurrentTemplate(id);//remoteDataSources.searchTask(query);
+        return Right(remoteTemplate);
+      }
+      on ServerException{
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else
+      return Left(ServerFailure());
+
+    //return Right(_r);
+    //throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, TaskEntity>> getCurrentTask(int id) async {
+    if(await networkInfo.isConnected){
+      try{
+        final remoteTemplate = await remoteDataSources.getCurrentTask(id);//remoteDataSources.searchTask(query);
+        print("=== ${remoteTemplate.toMap().toString()}");
         return Right(remoteTemplate);
       }
       on ServerException{

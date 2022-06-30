@@ -47,7 +47,7 @@ class TaskStatusModel extends TaskStatusEntity
     return map;
   }
   Future<int> insertToDB(DBProvider db) async {
-    Timeline.startSync('Status Insert To DB');
+    //Timeline.startSync('Status Insert To DB');
 
     dynamic t = await db.insertTaskStatus(this);
 
@@ -57,7 +57,7 @@ class TaskStatusModel extends TaskStatusEntity
 //      print ("updateTaskStatusByServerId db id == ${t.id}");
 
     }
-    Timeline.finishSync();
+    //Timeline.finishSync();
     return t.id;
   }
   factory TaskStatusModel.fromMap({required Map<String, dynamic> map, List<Map<String, dynamic>> mapResolutions = const[]})

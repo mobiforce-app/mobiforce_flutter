@@ -35,7 +35,7 @@ class DBProvider {
   final int limitToSend=30;
   final int limit=30;
   final String dbName="mf.db";
-  final int dbVersion=38;
+  final int dbVersion=50;
   static final DBProvider _instance = new DBProvider.internal();
 
   factory DBProvider() => _instance;
@@ -70,7 +70,11 @@ class DBProvider {
   String usnCountersTable="usncounterstable";
   String usnCountersFileTable="usnfiletable";
 
-
+  int taskStatusInsertCounter = 0;
+  int taskFieldInsertCounter = 0;
+  Map<int, int> TaskFieldCache = {};
+  Map<int, int> tasksFieldsTabCache = {};
+  Map<int, int> taskStatusCache = {};
   DBProvider.internal();
 
 //  static Database _db;
@@ -227,6 +231,7 @@ class DBProvider {
             'status INTEGER, '
             'contractor int, '
             'deleted int, '
+            'not_loaded int, '
             'author int, '
             'resolution INTEGER, '
             'lifecycle INTEGER, '
@@ -726,6 +731,7 @@ class DBProvider {
             "t3.name as contractor_parent_name,"
             "t4.id as lifecycle_id,"
             "t4.usn as lifecycle_usn,"
+            "t4.usn as lifecycle_usn,"
             "t4.name as lifecycle_name,"
             "t4.external_id as lifecycle_external_id,"
             "t1.dirty, "
@@ -976,6 +982,12 @@ class DBProvider {
 //    task:TaskModel.fromMap(taskMap: {"external_id":map['task_external_id']??0,"id":map['task_id']}, statusMap: null),
 
   }
+  Future<List<int>> getUnloadedTaskList() async {
+    Database db = await this.database;
+    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: 1,where: 'not_loaded =?', whereArgs: [1]);
+    print("$tasksMapList");
+    return tasksMapList.map((e) => e["external_id"] as int).toList();
+  }
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
     //print("limit $limit, offset $page");
@@ -988,6 +1000,7 @@ class DBProvider {
             "t1.status, "
             "t1.contractor, "
             "t1.deleted, "
+            "t1.not_loaded, "
             "t1.author, "
             "t1.template, "
             "t1.address, "
@@ -1032,7 +1045,7 @@ class DBProvider {
             " ON t1.equipment = t6.id "
             " LEFT JOIN (SELECT count(*) as unreaded_comment_count, task FROM $taskCommentTable WHERE readed_at IS NULL GROUP BY task) as t7 "
             " ON t1.id = t7.task "
-            " WHERE t1.deleted != 1 AND t1.status is not null ORDER BY t1.planned_visit_time DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
+            " WHERE t1.deleted != 1 ORDER BY t1.planned_visit_time DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
 
     final List<TaskModel> tasksList = [];
     //await Future.forEach(tasksMapList,(taskMap) async {
@@ -1052,8 +1065,10 @@ class DBProvider {
         //taskMap['unreadedComments']=unreadedComments.length;
         tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first, unreadedComments:unreadedComments.length));
       }
+      else
+        tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: null, unreadedComments:0));
     }
-    //print("tasksMapList ${tasksList.toString()}");
+    print("tasksMapListLen ${tasksList.length}");
 
     return tasksList;
   }
@@ -1259,6 +1274,8 @@ class DBProvider {
       //await db(tasksTable, task.toMap());
     }
     tasksStatuses.id=id;
+    taskStatusInsertCounter++;
+    print("taskStatusInsertCounter: $taskStatusInsertCounter");
     return tasksStatuses;
   }
   Future<TaskCommentModel> insertTaskComment(TaskCommentModel tasksComment) async{
@@ -1747,9 +1764,23 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
   }
 
   Future<int> getTasksFieldsTabIdByServerId(int? serverId) async {
-    Database db = await this.database;
-    final List<Map<String,dynamic>> tasksMapList = await db.query(tasksFieldsTabTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
-    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+    if(tasksFieldsTabCache[serverId]==null) {
+      Database db = await this.database;
+      final List<Map<String, dynamic>> tasksMapList = await db.query(
+          tasksFieldsTabTable,
+          orderBy: "id desc",
+          limit: 1,
+          where: 'external_id =?',
+          whereArgs: [serverId]);
+      final int id = tasksMapList.first["id"] ??
+          0;
+      if(serverId!=null)
+        tasksFieldsTabCache[serverId]=id;
+      return id; //tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+    }
+    else
+      return tasksFieldsTabCache[serverId]!;
+
   }
   Future<int> getTaskSelectionValueIdByServerId(int serverId) async {
     Database db = await this.database;
@@ -1778,16 +1809,23 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
 
 
   Future<TaskStatusModel> insertTaskStatus(TaskStatusModel taskStatus) async {
-    Database db = await this.database;
-    int id=0;
-    try{
-      id=await db.insert(taskStatusTable, taskStatus.toMap());
+
+    if(taskStatusCache[taskStatus.serverId]==null) {
+      Database db = await this.database;
+      int id = 0;
+      try {
+        id = await db.insert(taskStatusTable, taskStatus.toMap());
+        taskStatusCache[taskStatus.serverId] = id;
+      } catch (e) {
+        //print("$e");
+        //await db(tasksTable, task.toMap());
+      }
+      taskStatus.id = id;
     }
-    catch(e){
-      //print("$e");
-      //await db(tasksTable, task.toMap());
+    else{
+      taskStatus.id = taskStatusCache[taskStatus.serverId]!;
     }
-    taskStatus.id=id;
+
     return taskStatus;
   }
 
@@ -1813,8 +1851,11 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
 
     TaskStatusModel? ts = await getTaskStatusByServerId(taskStatus.serverId);
     //print("TaskStatusModel: serverId: ${taskStatus.serverId}, id: ${ts?.id}");
-    if(ts?.serverId!=null)
-      await db.update(taskStatusTable, taskStatus.toMap(), where: 'id =?', whereArgs: [ts?.id]);
+    if(ts?.serverId!=null) {
+      await db.update(taskStatusTable, taskStatus.toMap(), where: 'id =?',
+          whereArgs: [ts?.id]);
+      taskStatusCache[ts!.serverId] = ts.id;
+    }
     return ts?.id;
   }
 
@@ -1871,15 +1912,25 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
   }
 
   Future<TaskFieldModel> insertTaskField(TaskFieldModel taskFieldModel) async {
-    Database db = await this.database;
     int id=0;
-    try{
-      id=await db.insert(taskFieldTable, taskFieldModel.toMap());
+    if(TaskFieldCache[taskFieldModel.serverId]!=null){
+      id=TaskFieldCache[taskFieldModel.serverId]!;
+      //print("cache");
     }
-    catch(e){
-      //await db(tasksTable, task.toMap());
+    else {
+      Database db = await this.database;
+      try {
+        id = await db.insert(taskFieldTable, taskFieldModel.toMap());
+        TaskFieldCache[taskFieldModel.serverId]=taskFieldModel.id;
+      } catch (e) {
+        //await db(tasksTable, task.toMap());
+      }
+      //print("new ${taskFieldModel.serverId}");
     }
     taskFieldModel.id=id;
+    taskFieldInsertCounter++;
+    //print("taskFieldInsertCounter: $taskFieldInsertCounter");
+
     return taskFieldModel;
 
   }
@@ -1888,8 +1939,11 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     Database db = await this.database;
 
     int taskId = await getTaskFieldIdByServerId(taskFieldModel.serverId);
-    if(taskId!=0)
-      await db.update(taskFieldTable, taskFieldModel.toMap(), where: 'id =?', whereArgs: [taskId]);
+    if(taskId!=0) {
+      await db.update(taskFieldTable, taskFieldModel.toMap(), where: 'id =?',
+          whereArgs: [taskId]);
+      TaskFieldCache[taskFieldModel.serverId]=taskId;
+    }
     //task.id=taskId;
     return taskId;
   }
@@ -1911,6 +1965,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
       //await db(tasksTable, task.toMap());
     }
     taskFieldModel.id=id;
+
     return taskFieldModel;
 
   }

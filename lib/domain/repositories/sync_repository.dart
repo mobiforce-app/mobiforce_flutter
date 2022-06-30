@@ -12,12 +12,21 @@ abstract class SyncRepository{
   Future<Either<Failure, SyncEntity>>getUpdates();
   Future<bool> sendToken(String? fcmToken);
   Future<Either<Failure, int>>sendUpdates(DBProvider db);
+  Future<Either<Failure, bool>> getUnloadedTasks(List<int> tl);
   bool isFullSyncStarted();
   bool dbCheckVersion(int dbVersion);
   Future<bool> dbSetVersion(int dbVersion);
-  Future<bool>setComplete();
+  bool setComplete();
+
+//  bool restartExchangeCycle();
   Future<bool>commit();
   void reloadUSN();
   int getLastSyncTime();
+  void incLockSemaphore();
+  void decLockSemaphore();
+  void setExchangeIntent();
+  void cancelExchangeIntent();
+  bool get lock;
+  bool get exchangeIntent;
 
 }

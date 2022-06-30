@@ -15,6 +15,7 @@ abstract class UpdatesRemoteDataSources{
   Future<SyncModel>getDataList({required String domain, required String accessToken, required int lastSyncTime, required int lastUpdateCount,required String objectType,required List<dynamic> Function(dynamic) mapObjects });
   Future<int> sendUpdate({required String domain, required String accessToken, required String objectType, Map<String,dynamic> mapObjects });
   Future<int> sendFile({required String domain, required String accessToken, required String filename, required int localId });
+
 }
 
 class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources

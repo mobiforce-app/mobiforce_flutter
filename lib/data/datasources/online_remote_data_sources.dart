@@ -35,6 +35,7 @@ abstract class OnlineRemoteDataSources{
   Future<TaskEntity>createTaskOnServer(TaskEntity task);
   Future<ContractorModel> getCurrentContractor(int id);
   Future<TemplateModel> getCurrentTemplate(int id);
+  Future<TaskModel> getCurrentTask(int id);
   Future<EquipmentModel> getCurrentEquipment(int id);
 }
 
@@ -183,6 +184,40 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
     contractor.persons=persons;
     */
     return equipment;
+  }
+  Future<TaskModel> getCurrentTask(int id) async {
+
+    var results = await _getObjectFromUrl(
+        url: "https://agfa.mobiforce.ru/api2.0/get-task.php?id=$id",
+    );
+    print("results $results");
+    TaskModel task = TaskModel.fromJson(results);
+    //task.insertToDB(db);
+    int taskInsertId = await task.insertToDB(db);
+    task = await db.getTask(taskInsertId, null);
+    //List<PhoneModel> phones=[];
+    /*if(contractor.phones!=null)
+      await Future.forEach(contractor.phones!, (PhoneModel element) async {
+        element.temp=true;
+        element.serverId=null;
+        int id = await element.insertToDB(db);
+        element.id = id;
+        //phones.add(element);
+      });
+    //contractor.phones=phones;
+    List<PersonModel> persons=[];
+    if(contractor.persons!=null)
+      await Future.forEach(contractor.persons!, (PersonModel person) async {
+        person.temp=true;
+        person.serverId=null;
+        person.phones?.forEach((element) {element.temp=true;});
+        int id = await person.insertToDB(db);
+        person.id = id;
+        persons.add(person);
+      });
+    contractor.persons=persons;
+    */
+    return task;
   }
 
 Future<TemplateModel> getCurrentTemplate(int id) async {

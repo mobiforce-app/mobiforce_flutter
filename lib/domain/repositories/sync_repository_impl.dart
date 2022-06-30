@@ -35,6 +35,7 @@ import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/datasources/online_remote_data_sources.dart';
 import '../../data/models/employee_model.dart';
 class QueueToSync{
   final String type;
@@ -44,11 +45,16 @@ class QueueToSync{
 }
 class SyncRepositoryImpl implements SyncRepository{
   final UpdatesRemoteDataSources updatesRemoteDataSources;
+  final OnlineRemoteDataSources onlineRemoteDataSources;
   final NetworkInfo networkInfo;
   final SharedPreferences sharedPreferences;
   final List<String> objectsType=["taskstatus","tasktemplate","taskfield","tasklifecycle","task","resolution","taskcomment","employee"];
   final List<int> objectsTypeLastUpdateId=[];
   int syncObjectsTypeId=0;
+
+  int _exchangeSemaphoreLock=0;
+  bool _exchangeIntent=false;
+
 
   //final AuthorizationDataSource authorizationDataSource;
   int lastSyncTime=0;
@@ -59,7 +65,13 @@ class SyncRepositoryImpl implements SyncRepository{
   String accessToken="";
   bool fullSync=false;
 
-  SyncRepositoryImpl({required this.networkInfo, required this.updatesRemoteDataSources, required this.sharedPreferences})
+  @override
+  bool get lock => _exchangeSemaphoreLock>0;
+
+  @override
+  bool get exchangeIntent => _exchangeIntent;
+
+  SyncRepositoryImpl({required this.networkInfo, required this.updatesRemoteDataSources, required this.sharedPreferences, required this.onlineRemoteDataSources})
   {
     localUSN = sharedPreferences.getInt("local_usn")??0;
     localFileUSN = sharedPreferences.getInt("local_file_usn")??0;
@@ -71,6 +83,35 @@ class SyncRepositoryImpl implements SyncRepository{
     accessToken=sharedPreferences.getString("access_token")??"";
     fullSync=sharedPreferences.getBool("full_sync")??false;
   }
+
+  @override
+  void incLockSemaphore(){
+    _exchangeSemaphoreLock++;
+    print("inc exchangeSemaphoreLock: $_exchangeSemaphoreLock");
+  }
+
+  @override
+  void setExchangeIntent()
+  {
+    _exchangeIntent=true;
+    print("set _exchangeIntent: $_exchangeIntent");
+  }
+
+  @override
+  void cancelExchangeIntent()
+  {
+    _exchangeIntent=false;
+    print("cancel _exchangeIntent: $_exchangeIntent");
+  }
+
+  @override
+  void decLockSemaphore(){
+    if(_exchangeSemaphoreLock>0)
+      _exchangeSemaphoreLock--;
+    print("dec exchangeSemaphoreLock: $_exchangeSemaphoreLock");
+  }
+
+
   @override
   Future<bool>commit() async {
     await sharedPreferences.setInt("last_update_count_${objectsType[syncObjectsTypeId]}", objectsTypeLastUpdateId[syncObjectsTypeId]);
@@ -82,7 +123,7 @@ class SyncRepositoryImpl implements SyncRepository{
     return lastSyncTime;
   }
   @override
-  Future<bool>setComplete() async {
+  bool setComplete() {
     print("complete fullSyncObjectsTypeId = $syncObjectsTypeId");
     syncObjectsTypeId++;
     //fullSyncUpdateId=0;
@@ -96,7 +137,22 @@ class SyncRepositoryImpl implements SyncRepository{
       return false;
 
   }
+/*  @override
+  bool restartExchangeCycle() {
+    print("restart fullSyncObjectsTypeId = $syncObjectsTypeId");
+    syncObjectsTypeId++;
+    //fullSyncUpdateId=0;
+    //await sharedPreferences.setInt("full_sync_objects_type_id", fullSyncObjectsTypeId);
+    //await sharedPreferences.setInt("full_sync_update_id", fullSyncUpdateId);
+    if(syncObjectsTypeId>=objectsType.length) {
+      syncObjectsTypeId=0;
+      return true;
+    }
+    else
+      return false;
 
+  }
+*/
   @override
   bool isFullSyncStarted()
   {
@@ -355,6 +411,14 @@ class SyncRepositoryImpl implements SyncRepository{
     }
     return false;
   }
+  @override
+  Future<Either<Failure, bool>> getUnloadedTasks(List<int> tl) async {
+    //return ;
+    await Future.forEach(tl, (int element) async => await onlineRemoteDataSources.getCurrentTask(element));
+    print("dalayedloading ${tl.length} $tl");
+    return Right(tl.length>0);
+  }
+
   @override
   Future<Either<Failure, SyncModel>> getUpdates() async {
 

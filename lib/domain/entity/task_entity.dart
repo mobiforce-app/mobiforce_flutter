@@ -16,6 +16,8 @@ class TaskEntity extends Equatable{
   int id;
   int serverId;
   bool? deleted;
+  bool? notLoaded;
+  bool? loading;
   String? name;
   int? usn;
   ContractorModel? contractor;
@@ -81,6 +83,8 @@ class TaskEntity extends Equatable{
       this.phones,
       this.persons,
       this.deleted,
+      this.notLoaded,
+    this.loading,
     this.addressFloor,
     this.addressInfo,
     this.addressPorch,
