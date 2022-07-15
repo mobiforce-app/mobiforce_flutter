@@ -8,10 +8,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/blockSteam.dart';
+import 'package:mobiforce_flutter/presentation/pages/task_screen.dart';
 
 import '../../main.dart';
+import '../../presentation/bloc/setting_bloc/setting_bloc.dart';
+import '../../presentation/bloc/setting_bloc/setting_event.dart';
 import '../../presentation/bloc/task_bloc/task_bloc.dart';
 import '../../presentation/bloc/task_bloc/task_event.dart';
+import '../../presentation/bloc/tasklist_bloc/tasklist_bloc.dart';
+import '../../presentation/bloc/tasklist_bloc/tasklist_event.dart';
 import '../../presentation/pages/task_detail_screen.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -64,6 +69,22 @@ class PushNotificationService {
           },
         transitionDuration: Duration(seconds: 0),
       ));
+
+    }
+    else if(data["screen"]=="geolog") {
+      di.sl<NavigationService>().navigatorKey.currentState?.push(
+          PageRouteBuilder(
+            settings:RouteSettings(name: "TaskListPage") ,
+            pageBuilder: (context, animation1, animation2){
+              //String externalId = data["id"];//(routeSettings.arguments as Map<String,
+              //dynamic>)["id"] as String;
+              BlocProvider.of<TaskListBloc>(context).add(
+                SendSystemGeoLog(data["fromTime"],data["tillTime"]),
+              );
+              return TaskListPage();
+            },
+            transitionDuration: Duration(seconds: 0),
+          ));
 
     }
     else if(data["screen"]=="taskcomment") {
@@ -177,8 +198,9 @@ class PushNotificationService {
 
     });*/
     var androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initiallizationSettingsIOS = IOSInitializationSettings();
 
-    var initSetttings = InitializationSettings(android: androidSettings);
+    var initSetttings = InitializationSettings(android: androidSettings, iOS: initiallizationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onSelectNotification: (String? payload) async {
           print("click!!!! ${payload.toString()}");
@@ -200,9 +222,10 @@ class PushNotificationService {
 //}
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("message!" );
-      print("message! ${message.notification} ${message.notification?.android}" );
+      print("message! ${message.notification} ${message.notification?.android} ${message.notification?.apple}" );
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
+      AppleNotification? apple = message.notification?.apple;
 
 
       // If `onMessage` is triggered with a notification, construct our own
@@ -241,7 +264,41 @@ class PushNotificationService {
 
         );
       }
-    });
+    if (notification != null && apple != null) {
+      var m=di.sl<ModelImpl>();
+      m.startUpdate();
+      print("message recieve! ${notification.title.toString()} ${notification.hashCode.toString()} ${notification.body.toString()}");
+
+      BigTextStyleInformation bigTextStyleInformation =
+      BigTextStyleInformation(
+        (notification.body??""),//.replaceAll("\n", "<br>"),
+        //htmlFormatBigText: true,
+        contentTitle: notification.title,
+        htmlFormatContentTitle: true,
+        summaryText: notification.title,
+        htmlFormatSummaryText: true,
+      );
+      //const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails('channel_id', 'Channel Name', 'Channel Description', styleInformation: bigTextStyleInformation);
+
+      flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                styleInformation: bigTextStyleInformation
+              //icon: androidSettings,
+              // other properties...
+            ),
+          ),
+          payload:  json.encode(message.data)
+
+      );
+    }
+  });
 
 
       /*if (message.data["navigation"] == "/your_route") {

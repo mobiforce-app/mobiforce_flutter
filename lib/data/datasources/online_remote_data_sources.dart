@@ -37,6 +37,8 @@ abstract class OnlineRemoteDataSources{
   Future<TemplateModel> getCurrentTemplate(int id);
   Future<TaskModel> getCurrentTask(int id);
   Future<EquipmentModel> getCurrentEquipment(int id);
+  Future<void> sendGeoLog({required String log});
+
 }
 
 class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
@@ -84,7 +86,48 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
       throw ServerException();
     }
 
-  }//_getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php", page:page);
+  }
+
+  @override
+  Future<void> sendGeoLog({required String log}) async
+  {
+    final String url = "https://agfa.mobiforce.ru/api2.0/send-geolog.php";
+    final token=sharedPreferences.getString("access_token");
+
+    print(token);
+    try{
+      final int selfId = sharedPreferences.getInt("self_id")??0;
+      //task.equipment=EquipmentModel(id: 0, usn: 0, serverId: 4052, name: "");
+      //task.employees=[EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", login: "", webAuth: false, mobileAuth: true)].toList();
+      //task.author=EmployeeModel(id: 0, usn: 0, serverId: selfId, name: "", webAuth: false, mobileAuth: true);
+      //Map data = (task as TaskModel).toJson();
+      //print("data ${data.toString()}");
+      final data = {"log":log};
+      final response = await client.post(Uri.parse(url),headers:{'Content-Type':"application/json","AUTHORIZATION":"key=$token"},body: json.encode(data));
+      if(response.statusCode == 200){
+        //final taskJson = json.decode(response.body);
+        print("ok!"+response.body);
+        //task = TaskModel.fromJson(taskJson);
+        //print("taskJson ${taskJson.toString()}");
+        //print("task ${task.toMap()}");
+       // int taskInsertId = await task.insertToDB(db);
+        //print("taskInsertId $taskInsertId");
+        //final t = await db.getTask(taskInsertId, null);
+        //print("task_readed[$taskInsertId] ${(t as TaskModel).toMap()}");
+        //return t;
+      }
+      else{
+        print("My exception");
+        throw ServerException();
+      }
+    }
+    catch (error) {
+      print("error!!!+3 $error");
+      throw ServerException();
+    }
+
+  }
+  //_getTaskFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php", page:page);
 
 
   @override

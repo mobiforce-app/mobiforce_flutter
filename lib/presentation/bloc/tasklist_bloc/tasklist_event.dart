@@ -16,6 +16,14 @@ class ListTasks extends TaskListEvent
 
   ListTasks();
 }
+class SendSystemGeoLog extends TaskListEvent
+{
+  final String from;
+  final String till;
+  //final int page;
+
+  SendSystemGeoLog(this.from, this.till);
+}
 class CheckGeo extends TaskListEvent
 {
   //final int page;

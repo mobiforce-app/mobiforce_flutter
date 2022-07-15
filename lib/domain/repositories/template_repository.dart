@@ -22,4 +22,5 @@ abstract class TemplateRepository{
   Future<Either<Failure, TemplateModel>> getCurrentTemplate(int id);
   Future<Either<Failure, TaskEntity>> getCurrentTask(int id);
   Future<Either<Failure, TaskEntity>>createTaskOnServer(TaskEntity task);
+  Future<Either<Failure, void>>sendGeoLog({required String log});
 }

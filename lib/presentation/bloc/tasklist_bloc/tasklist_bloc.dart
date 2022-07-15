@@ -14,6 +14,7 @@ import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_event
 import 'package:mobiforce_flutter/presentation/bloc/tasklist_bloc/tasklist_state.dart';
 import 'package:collection/collection.dart';
 
+import '../../../domain/usecases/SendGeoLog.dart';
 import '../../../domain/usecases/get_task_templates.dart';
 import '../../../domain/usecases/start_geolocation_service.dart';
 //import 'package:dartz/dartz.dart';
@@ -23,7 +24,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
   final GetTaskTemplates taskTemplatesList;
   final ModelImpl m;
   final StartGeolocationService startGeolocationService;
-
+  final SendGeoLog geoLogSender;
   //final WaitDealys10 wait10;
 
   //final _counterStreamController = StreamController<int>();
@@ -35,7 +36,7 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
 
 
   int page = 0;
-  TaskListBloc({required this.listTask,required this.m,required this.taskTemplatesList,required this.startGeolocationService}) : super(TaskListEmpty())
+  TaskListBloc({required this.listTask,required this.m,required this.taskTemplatesList,required this.startGeolocationService,required this.geoLogSender}) : super(TaskListEmpty())
   {
     m.counterUpdates.listen((item){
       print("m.counterUpdates item.progress ${item.syncPhase}");
@@ -65,6 +66,12 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
       yield GoToFullSync();
       //print("start sync1");
       //yield TaskListEmpty();
+    }
+    if (event is SendSystemGeoLog) {
+      //sendGeo
+      print("SendSystemGeoLog");
+      final faiureOrLoading = await geoLogSender(event.from, event.till);
+
     }
     if(event is CheckGeo){
       print("startGeolocationService");
@@ -162,12 +169,13 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     yield TaskListLoading(oldTasks,isFirstFetch: page==0);
     print("page: $page");
     final faiureOrLoading = await listTask(ListTaskParams(page: page));
+    //yield TaskListLoaded(tasksList: oldTasks, changed: true, addFromMobileTemplates: addFromMobileTemplates);
 
     yield faiureOrLoading.fold(
             (failure) => TaskListError(message:_mapFailureToMessage(failure)),
             (task) {
               page++;
-              final tasks = (state as TaskListLoading).oldPersonList;
+              final tasks = oldTasks;//(state as TaskListLoading).oldPersonList;
               tasks.addAll(task);
               return TaskListLoaded(tasksList: tasks, changed: true, addFromMobileTemplates: addFromMobileTemplates);
             });//TaskListLoaded(tasksList: task));

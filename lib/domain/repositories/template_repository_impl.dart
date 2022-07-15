@@ -42,6 +42,10 @@ class TemplateRepositoryImpl implements TemplateRepository{
     //throw UnimplementedError();
   }
   @override
+  Future<Either<Failure, void>>sendGeoLog({required String log}) async {
+    return Right(await remoteDataSources.sendGeoLog(log:log));
+  }
+  @override
   Future<Either<Failure, List<ContractorModel>>> getAllContractors(String name) async {
     if(await networkInfo.isConnected){
       try{
