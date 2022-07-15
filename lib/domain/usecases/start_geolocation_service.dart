@@ -19,6 +19,7 @@ class StartGeolocationService {
   bool call({required String geoNotificationTitle, required String geoNotificationText}){
     //return false;
     //print("appstart 1");
+
     String? token=authRepository.getAuthorization();
     if(token==null)
       return false;
@@ -52,12 +53,14 @@ class StartGeolocationService {
               scheduleUseAlarmManager: true,
               reset: true,
               debug: false,
-              //logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+              foregroundService: true,
+              logLevel: bg.Config.LOG_LEVEL_VERBOSE,
               desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
               distanceFilter: 10.0,
               extras: {"timezone": "${dateTime.timeZoneOffset}"},
               batchSync: true,
               maxBatchSize: 100,
+              showsBackgroundLocationIndicator: true,
               backgroundPermissionRationale: bg.PermissionRationale(
                   title:
                   "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
@@ -75,8 +78,15 @@ class StartGeolocationService {
                   refreshPayload: {'refresh_token': '{refreshToken}'}),
               stopOnTerminate: false,
               startOnBoot: true,
-              enableHeadless: true))
+              enableHeadless: true,
+            forceReloadOnBoot: true,
+            forceReloadOnMotionChange: true,
+            forceReloadOnGeofence: true,
+            forceReloadOnLocationChange: true
+
+          ))
               .then((bg.State state) {
+
             print("[ready] ${state.toMap()}");
             //bg.BackgroundGeolocation.
             //bg.BackgroundGeolocation.setConfig(bg.Config(
@@ -88,9 +98,10 @@ class StartGeolocationService {
             //  print("schedule string accepted $state}");
             //await bg.BackgroundGeolocation.sync();
             if ((sch?.length ?? 0) > 0) {
+
               bg.BackgroundGeolocation.start().then((value) {
                 print("schedule string start $value");
-                if (value.enabled)
+                /*if (value.enabled)
                   bg.BackgroundGeolocation.stop().then((value) =>
                       bg.BackgroundGeolocation.startSchedule().then((value) =>
                           print(
@@ -98,13 +109,10 @@ class StartGeolocationService {
                 else
                   bg.BackgroundGeolocation.startSchedule().then((value) =>
                       print("schedule string  start schedule $value"));
+                 */
               });
             }
-            /*if(isStartNow)
-            bg.BackgroundGeolocation.start().then((value) => print("schedule string  start"));
 
-          else
-            bg.BackgroundGeolocation.stop().then((value) => print("schedule string stop"));*/
             //});
 
           }).catchError((error) {

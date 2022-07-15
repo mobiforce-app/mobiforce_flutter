@@ -1515,12 +1515,71 @@ class TaskDetailPage extends StatelessWidget {
                 if(mapButtonType==2){
                   //final String encodedURl =
                   //    "geo:${state.task.lat},${state.task.lon}";
-                  await MapsLauncher.launchQuery(adressStr);
+                  //await MapsLauncher.launchQuery(adressStr);
                 }
                 else {
-                      final String encodedURl =
-                          "geo:${state.task.lat},${state.task.lon}";
-                      await launch(encodedURl);
+                      //final String encodedURl =
+                      //    "geo:${state.task.lat},${state.task.lon}";
+                      //await launch(encodedURl);
+                      //await MapsLauncher.launchCoordinates(state.task.lat!, state.task.lon!);
+                      //final availableMaps = await MapLauncher.installedMaps;
+                     // print(availableMaps); // [AvailableMap { mapName: Google Maps, mapType: google }, ...]
+
+                      //await availableMaps.first.showMarker(
+                      //  coords: Coords(state.task.lat!, state.task.lon!),
+                      //  title: "test",
+                      //);
+                      /*try {
+                                        final coords = Coords(state.task.lat!, state.task.lon!);
+                                        final title = "$adressStr";
+                                        final availableMaps = await MapLauncher.installedMaps;
+
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return SafeArea(
+                                              child: SingleChildScrollView(
+                                                child: Container(
+                                                  child: Wrap(
+                                                    children: <Widget>[
+                                                      for (var map in availableMaps)
+                                                        ListTile(
+                                                          onTap: () => map.showMarker(
+                                                            coords: coords,
+                                                            title: title,
+                                                          ),
+                                                          title: Text(map.mapName),
+                                                          leading: SvgPicture.asset(
+                                                            map.icon,
+                                                            height: 30.0,
+                                                            width: 30.0,
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      } catch (e) {
+                                        print(e);
+                                      }
+*/
+                                          final Uri phoneUrl = Uri(
+                                            scheme: 'maps',
+                                            path: "q=Title&ll=${state.task.lat},${state.task.lat}",
+                                          );
+                                          //if (await canLaunchUrl(Uri.parse("tel://89055227434"))) {
+                                          //      await launchUrl(Uri.parse("tel://89055227434"), mode: LaunchMode.externalNonBrowserApplication);
+                                          //    } else {
+                                          //      throw "Error occured trying to call that number.";
+                                          //    }
+                                          if (await canLaunch(phoneUrl.toString())) {
+                                            await launch(phoneUrl.toString());
+                                          } else {
+                                            throw "Can't phone that number.";
+                                          }
                     }
                   },
               child: mapBottonWidget,
@@ -1657,9 +1716,24 @@ class TaskDetailPage extends StatelessWidget {
                                           alignment: Alignment.centerRight,
                                           child: const Icon(Icons.delete)),
                                       child: InkWell(
-                                        onTap: () {
-                                          launch(
-                                              "tel:${e.name.replaceAll(exp, '')}");
+                                        onTap: () async {
+                                            print("launch tel");
+                                          //launch(
+                                          //    "tel:${e.name.replaceAll(exp, '')}");
+                                          final Uri phoneUrl = Uri(
+                                            scheme: 'tel',
+                                            path: "${e.name.replaceAll(exp, '')}",
+                                          );
+                                          //if (await canLaunchUrl(Uri.parse("tel://89055227434"))) {
+                                          //      await launchUrl(Uri.parse("tel://89055227434"), mode: LaunchMode.externalNonBrowserApplication);
+                                          //    } else {
+                                          //      throw "Error occured trying to call that number.";
+                                          //    }
+                                          if (await canLaunch(phoneUrl.toString())) {
+                                            await launch(phoneUrl.toString());
+                                          } else {
+                                            throw "Can't phone that number.";
+                                          }
                                         },
                                         child: Align(
                                           alignment: Alignment.topLeft, //(
@@ -1724,10 +1798,25 @@ class TaskDetailPage extends StatelessWidget {
                                               .length >
                                           0) {
                                         phones.add(InkWell(
-                                          onTap: () {
+                                          onTap: () async {
                                             //${e.name.replaceAll(exp, '')
-                                            launch(
-                                                "tel:${e.name.replaceAll(exp, '')}");
+                                            //print("launch tel1");
+                                            //launch(
+                                            //    "tel:${e.name.replaceAll(exp, '')}");
+                                            final Uri phoneUrl = Uri(
+                                                scheme: 'tel',
+                                                path: "${e.name.replaceAll(exp, '')}",
+                                              );
+                                              //if (await canLaunchUrl(Uri.parse("tel://89055227434"))) {
+                                              //      await launchUrl(Uri.parse("tel://89055227434"), mode: LaunchMode.externalNonBrowserApplication);
+                                              //    } else {
+                                              //      throw "Error occured trying to call that number.";
+                                              //    }
+                                              if (await canLaunch(phoneUrl.toString())) {
+                                                await launch(phoneUrl.toString());
+                                              } else {
+                                                throw "Can't phone that number.";
+                                              }
                                           },
                                           child: Align(
                                             alignment: Alignment.topLeft,

@@ -55,6 +55,7 @@ import 'domain/repositories/firebase.dart';
 import 'domain/repositories/picture_repository.dart';
 import 'domain/repositories/task_repository_impl.dart';
 import 'domain/repositories/template_repository_impl.dart';
+import 'domain/usecases/SendGeoLog.dart';
 import 'domain/usecases/add_new_phone.dart';
 import 'domain/usecases/add_picture_to_field.dart';
 //import 'domain/usecases/add_picture_to_task_comment.dart';
@@ -84,7 +85,7 @@ Future<void>init() async
 {
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
-  sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl(),startGeolocationService:sl()));
+  sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl(),startGeolocationService:sl(), geoLogSender: sl()));
   sl.registerFactory(() => SettingBloc(settingsReader: sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));
@@ -130,6 +131,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => DeletePictureToTaskField(taskRepository: sl()));
   //sl.registerLazySingleton(() => AddCommentWithPictureToTask(taskRepository: sl()));
   sl.registerLazySingleton(() => SearchTask(sl()));
+  sl.registerLazySingleton(() => SendGeoLog(sl()));
   sl.registerLazySingleton(() => AddTaskComment(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
   sl.registerLazySingleton(() => GetUserSetting(sl()));

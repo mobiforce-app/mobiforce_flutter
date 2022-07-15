@@ -39,6 +39,9 @@ import '../bloc/login_bloc/login_event.dart';
 import '../bloc/setting_bloc/setting_state.dart';
 import 'input_field_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
+
 class MobiforceMenu extends StatelessWidget {
 
   @override
@@ -103,6 +106,19 @@ class MobiforceMenu extends StatelessWidget {
                                       animation2) => SettingPage(),
                                   transitionDuration: Duration(seconds: 0),
                                 ));
+                          }
+                      ),
+                      new ListTile(
+                          title: new Text("LOG"),
+                          leading: Icon(Icons.settings),
+                          minLeadingWidth: 16,
+                          onTap: () async{
+                            debugPrint(await bg.Logger.getLog(
+                                bg.SQLQuery(
+                                    start: DateTime.parse('2022-07-13 01:00'),  // -- optional HH:mm:ss
+                                    end: DateTime.parse('2022-07-13 02:00')
+                                )
+                            ));
                           }
                       ),
                     ],

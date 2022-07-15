@@ -23,7 +23,7 @@ class TaskListPage extends StatelessWidget {
   Widget build(BuildContext context) {
 
           return Scaffold(
-      floatingActionButton:
+      /*floatingActionButton:
       BlocBuilder<TaskListBloc, TaskListState>(
       builder: (context, state)
       {
@@ -54,7 +54,7 @@ class TaskListPage extends StatelessWidget {
             },
             tooltip: 'Increment',
             child: Icon(Icons.add),
-          ):Container();}),
+          ):Container();}),*/
       drawer: MobiforceMenu(),
       drawerEdgeDragWidth: 40,
       appBar: AppBar(
