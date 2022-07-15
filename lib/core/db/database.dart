@@ -27,6 +27,7 @@ import 'package:mobiforce_flutter/domain/entity/user_setting_entity.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 import '../../domain/entity/task_comment_entity.dart';
 
@@ -80,9 +81,10 @@ class DBProvider {
 //  static Database _db;
 
   Future<Database> _initDB() async {
-    Directory dir = await getApplicationDocumentsDirectory();
-    String path = dir.path + dbName;
-    return await openDatabase(path, version: dbVersion, onCreate: await _createDB);
+    //Directory dir = await getApplicationDocumentsDirectory();
+    //String path = dir.path + dbName;
+    //return await openDatabase(path, version: dbVersion, onCreate: await _createDB);
+    return await openDatabase(join(await getDatabasesPath(), dbName), version: dbVersion, onCreate: await _createDB);
   }
 
 
@@ -1063,7 +1065,8 @@ class DBProvider {
 
         List<Map<String,dynamic>> unreadedComments = await db.query(taskCommentTable, orderBy: "id desc",where: 'task =? AND readed_at IS NULL', whereArgs: [taskMap['id']]);
         //taskMap['unreadedComments']=unreadedComments.length;
-        tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first, unreadedComments:unreadedComments.length));
+        if(taskStatusMapList.isNotEmpty)
+          tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: taskStatusMapList.first, unreadedComments:unreadedComments.length));
       }
       else
         tasksList.add(TaskModel.fromMap(taskMap: taskMap,statusMap: null, unreadedComments:0));
@@ -1835,7 +1838,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
     int rid=0;
     try{
       await db.delete(taskSelectionValuesRelationTable, where: 'tasks_fields =?', whereArgs: [fieldId]);
-      rid=await db.insert(taskSelectionValuesRelationTable, {"tasks_fields": fieldId,"tasks_selection_values":id});
+      rid = await db.insert(taskSelectionValuesRelationTable, {"tasks_fields": fieldId,"tasks_selection_values":id});
     }
     catch(e){
       //print("$e");
@@ -1921,7 +1924,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
       Database db = await this.database;
       try {
         id = await db.insert(taskFieldTable, taskFieldModel.toMap());
-        TaskFieldCache[taskFieldModel.serverId]=taskFieldModel.id;
+        TaskFieldCache[taskFieldModel.serverId]=id;
       } catch (e) {
         //await db(tasksTable, task.toMap());
       }
@@ -1951,7 +1954,7 @@ Future<int> getResolutionGroupIdByServerId(int serverId) async {
   Future<int> getTaskFieldIdByServerId(int serverId) async {
     Database db = await this.database;
     final List<Map<String,dynamic>> tasksMapList = await db.query(taskFieldTable, orderBy: "id desc",limit: 1,where: 'external_id =?', whereArgs: [serverId]);
-    return tasksMapList.first["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
+    return tasksMapList.first?["id"]??0;//tasksMapList.isNotEmpty?TaskModel.fromMap(tasksMapList.first):null;
   }
 
 
