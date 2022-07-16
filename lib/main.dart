@@ -8,6 +8,7 @@ import 'package:mobiforce_flutter/common/app_colors.dart';
 import 'package:mobiforce_flutter/domain/repositories/firebase.dart';
 import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
+import 'package:mobiforce_flutter/presentation/bloc/calendar_bloc/calendar_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_bloc.dart';
@@ -192,6 +193,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<TaskEquipmentSelectionBloc>(create: (context) => di.sl<TaskEquipmentSelectionBloc>()),
         BlocProvider<ContractorSelectionBloc>(create: (context) => di.sl<ContractorSelectionBloc>()),
         BlocProvider<SyncBloc>(create: (context) => di.sl<SyncBloc>()),
+        BlocProvider<CalendarBloc>(create: (context) => di.sl<CalendarBloc>()),
         BlocProvider<SettingBloc>(create: (context) => di.sl<SettingBloc>()),
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))

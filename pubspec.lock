@@ -350,6 +350,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.0"
+  infinite_listview:
+    dependency: "direct main"
+    description:
+      name: infinite_listview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   internet_connection_checker:
     dependency: "direct main"
     description:
@@ -649,6 +656,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sliver_tools:
+    dependency: "direct main"
+    description:
+      name: sliver_tools
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.7"
   source_span:
     dependency: transitive
     description:
@@ -677,6 +691,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
+  sticky_headers:
+    dependency: "direct main"
+    description:
+      name: sticky_headers
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0+2"
+  sticky_infinite_list:
+    dependency: "direct main"
+    description:
+      name: sticky_infinite_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.1"
   stream_channel:
     dependency: transitive
     description:

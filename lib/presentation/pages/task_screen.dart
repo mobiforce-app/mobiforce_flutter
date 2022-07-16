@@ -1,3 +1,4 @@
+//import 'package:calendar_strip/calendar_strip.dart' as cs;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobiforce_flutter/data/models/template_model.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
 
 import '../bloc/tasklist_bloc/tasklist_state.dart';
+import '../widgets/calendar_widget.dart';
 import '../widgets/menu_widget.dart';
 
 class TaskListPage extends StatelessWidget {
@@ -59,6 +61,22 @@ class TaskListPage extends StatelessWidget {
       drawerEdgeDragWidth: 40,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.tasksPageHeader),
+        // bottom: PreferredSize(preferredSize: Size.fromHeight(30),
+        //   child: CalendarStrip(
+        //     startDate: DateTime.now(),
+        //     endDate: DateTime.now(),
+        //     //onDateSelected: onSelect,
+        //     //onWeekSelected: onWeekSelect,
+        //     //dateTileBuilder: dateTileBuilder,
+        //     iconColor: Colors.black87,
+        //     //monthNameWidget: _monthNameWidget,
+        //     //markedDates: markedDates,
+        //     containerDecoration: BoxDecoration(color: Colors.black12),
+        //   )!
+        // ),
+        bottom: PreferredSize(preferredSize: Size.fromHeight(60),
+           child: CalendarStripe()
+        ),
         centerTitle: true,
       ),
       body: TasksList(),
