@@ -88,7 +88,11 @@ class TaskListPage extends StatelessWidget {
                  final FoL = await gmtc(TaskCounterParams(from: start, till: finish));
                  return FoL.fold((l) => [], (List<int> l) => l);
                },
-             selectDate: (){},
+             selectDate: (){
+                //print("select day!!!");
+               BlocProvider.of<TaskListBloc>(context)
+                 ..add(ReloadTasks());
+             },
            )
         ),
         centerTitle: true,

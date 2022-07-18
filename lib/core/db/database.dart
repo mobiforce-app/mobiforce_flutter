@@ -996,13 +996,25 @@ class DBProvider {
     final List<Map<String,dynamic>> tasksMapList = await db.query(
         tasksTable,
         orderBy: "planned_visit_time asc",
-        where: 'planned_visit_time > ? AND planned_visit_time < ?',
+        where: 'deleted = 0 AND planned_visit_time > ? AND planned_visit_time < ?',
         whereArgs: [(from.millisecondsSinceEpoch/1000).toInt(), (till.millisecondsSinceEpoch/1000).toInt()]);
     print("tasksMapList: $tasksMapList");
     return tasksMapList.map((e) => e["planned_visit_time"] as int).toList();
   }
-  Future<List<TaskModel>> getTasks(int page) async {
+  Future<List<TaskModel>> getTasks(int page, int? fromSec, int? tillSec) async {
     Database db = await this.database;
+    String additionFilter = "";
+    List<dynamic> queryParams=[];
+    if(fromSec!=null) {
+      additionFilter += " AND planned_visit_time>=?";
+      queryParams.add(fromSec);
+    }
+    if(tillSec!=null){
+      additionFilter += " AND planned_visit_time<?";
+      queryParams.add(tillSec);
+    }
+    queryParams.addAll([limit, limit*page]);
+    print("additionFilter $additionFilter");
     //print("limit $limit, offset $page");
     //final List<Map<String,dynamic>> tasksMapList = await db.query(tasksTable, orderBy: "id desc",limit: limit,offset: limit*page, where: "deleted != 1");
     final List<Map<String,dynamic>> tasksMapList = await db.rawQuery(
@@ -1058,7 +1070,7 @@ class DBProvider {
             " ON t1.equipment = t6.id "
             " LEFT JOIN (SELECT count(*) as unreaded_comment_count, task FROM $taskCommentTable WHERE readed_at IS NULL GROUP BY task) as t7 "
             " ON t1.id = t7.task "
-            " WHERE t1.deleted != 1 ORDER BY t1.planned_visit_time DESC LIMIT ? OFFSET ? ",[limit, limit*page]);
+            " WHERE t1.deleted != 1 $additionFilter ORDER BY t1.planned_visit_time DESC LIMIT ? OFFSET ? ",queryParams);
 
     final List<TaskModel> tasksList = [];
     //await Future.forEach(tasksMapList,(taskMap) async {

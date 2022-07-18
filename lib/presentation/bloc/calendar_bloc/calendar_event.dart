@@ -65,8 +65,10 @@ class Wait10Sec extends CalendarEvent
 class SelectDay extends CalendarEvent
 {
   final int id;
+  final DateTime selectedDate;
+  final void Function() callback;
 
-  SelectDay(this.id);
+  SelectDay(this.id, this.selectedDate, this.callback);
 }
 
 class RefreshListTasks extends CalendarEvent

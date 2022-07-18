@@ -83,7 +83,7 @@ class AuthorizationRemoteDataSourcesImpl implements AuthorizationRemoteDataSourc
         return AuthorizationModel.fromJson(auth);
       }
       else{
-        print("My exception");
+        print("My exception ${response.statusCode}");
         throw ServerException();
       }
     }

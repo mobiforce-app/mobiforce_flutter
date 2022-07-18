@@ -210,7 +210,14 @@ class CalendarStripe extends StatelessWidget {
                                     child: InkWell(
                                       onTap: (){
                                         BlocProvider.of<CalendarBloc>(context)
-                                          ..add(SelectDay(e.id));
+                                          ..add(SelectDay(
+                                              e.id,
+                                              e.date,
+                                              (){
+                                                if(selectDate!=null)
+                                                  selectDate!();
+                                              }
+                                          ));
                                       },
                                         child:Container(
                                           padding: const EdgeInsets.all(3.0),

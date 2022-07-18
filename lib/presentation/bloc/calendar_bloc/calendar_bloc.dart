@@ -17,6 +17,7 @@ import 'package:collection/collection.dart';
 import '../../../domain/entity/calendar_date_entity.dart';
 import '../../../domain/usecases/SendGeoLog.dart';
 import '../../../domain/usecases/get_task_templates.dart';
+import '../../../domain/usecases/set_task_list_filter.dart';
 import '../../../domain/usecases/start_geolocation_service.dart';
 import 'calendar_event.dart';
 import 'calendar_state.dart';
@@ -26,6 +27,7 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
   DateTime leftDay = DateTime.now();
   DateTime rightDay = DateTime.now();
   DateTime first = DateTime.now();
+  SetTaskListFilter setTaskListFilter;
   //final WaitDealys10 wait10;
 
   //final _counterStreamController = StreamController<int>();
@@ -37,7 +39,7 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
 
 
   int page = 0;
-  CalendarBloc() : super(CalendarListEmpty())
+  CalendarBloc(this.setTaskListFilter) : super(CalendarListEmpty())
   {
    /* m.counterUpdates.listen((item){
       print("m.counterUpdates item.progress ${item.syncPhase}");
@@ -100,11 +102,20 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
       final currentState = state as CalendarDatesLoaded;
 
       final dayId = event.id==currentState.selectedDay?0:event.id;
-
+      if(dayId!=0)
+        setTaskListFilter(dateFrom: event.selectedDate,dateTill: event.selectedDate.add(Duration(days: 1)));
+      else
+        setTaskListFilter(dateFrom: null,dateTill: null);
+      event.callback();
       print("event.id: ${event.id}");
       yield CalendarListEmpty();
 
-      yield CalendarDatesLoaded(mounthList:currentState.mounthList,mounthCount:currentState.mounthList.length, position: 0, selectedDay: dayId);
+      yield CalendarDatesLoaded(
+          mounthList:currentState.mounthList,
+          mounthCount:currentState.mounthList.length,
+          position: 0,
+          selectedDay: dayId
+      );
     }
     else if(event is AddLeft) {
       final currentState = state as CalendarDatesLoaded;

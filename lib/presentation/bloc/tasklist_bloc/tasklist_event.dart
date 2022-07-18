@@ -53,6 +53,12 @@ class RefreshListTasks extends TaskListEvent
 
   RefreshListTasks();
 }
+class ReloadTasks extends TaskListEvent
+{
+  //final int page;
+
+  ReloadTasks();
+}
 class RefreshCurrenTaskInListTasks extends TaskListEvent
 {
   TaskEntity task;

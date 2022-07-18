@@ -84,6 +84,26 @@ class TaskListBloc extends Bloc<TaskListEvent,TaskListState>{
     //   print("start sync");
       yield TaskListEmpty();
     }
+    if(event is ReloadTasks){
+      page = 0;
+      final currentState = state;
+      int addFromMobileTemplates = 0;
+      if(currentState is TaskListLoaded)
+      {
+        addFromMobileTemplates = currentState.addFromMobileTemplates;
+      }
+
+      yield TaskListLoading([],isFirstFetch: page==0);
+      final faiureOrLoading = await listTask(ListTaskParams(page: page));
+
+      yield faiureOrLoading.fold((failure)=>TaskListError(message:_mapFailureToMessage(failure)), (task) {
+        page++;
+        //final tasks = (state as TaskListLoading).oldPersonList;
+        //tasks.addAll(task);
+        return TaskListLoaded(tasksList: task, changed: true, addFromMobileTemplates: addFromMobileTemplates);
+      });//TaskListLoaded(tasksList: task));
+
+    }
     if(event is ListTasks){
       yield* _mapFetchTaskToState();
     }

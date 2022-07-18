@@ -99,6 +99,15 @@ class TaskRepositoryImpl implements TaskRepository{
   }
 
   @override
+  void setFilter({DateTime? dateFrom, DateTime? dateTill})
+  {
+    print("filter");
+    remoteDataSources.setFilter(dateFrom:dateFrom,dateTill:dateTill);
+    //print("additional ****");
+    ///return  Right(await remoteDataSources.getTasksMounthCounter(from,till));
+  }
+
+  @override
   Future<Either<Failure, FileModel>>deleteTaskFieldPicture({required int taskFieldId, required int pictureId}) async {
     print("picture id= $pictureId");
     return Right(await remoteDataSources.deletePictureTaskField(taskFieldId:taskFieldId,pictureId:pictureId));

@@ -38,6 +38,7 @@ abstract class TaskRemoteDataSources{
   Future<TaskModel>getTaskByExternalId(int eternalId);
   Future<List<TaskLifeCycleNodeEntity>>getTaskStatusGraph(int? id, int? lifecycle);
   Future<UserSettingEntity>getUserSetting();
+  void setFilter({DateTime? dateFrom, DateTime? dateTill});
 
   Future<FileModel>loadFileFromWeb(int id);
   Future<List<int>> getTasksMounthCounter(DateTime from, DateTime till);
@@ -71,6 +72,8 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   final http.Client client;
   final SharedPreferences sharedPreferences;
   final DBProvider db;
+  DateTime? from;
+  DateTime? till;
   TaskRemoteDataSourcesImpl({required this.client,required this.sharedPreferences, required this.db});
 
 
@@ -83,6 +86,13 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   @override
   Future<List<TemplateModel>>getAllTemplates(int page) async {
     return await db.getTemplatesListForMobile();
+  }
+  @override
+  void setFilter({DateTime? dateFrom, DateTime? dateTill}) {
+    //return await db.getTemplatesListForMobile();
+    //void setFilter({DateTime? dateFrom, DateTime? dateTill})
+    from = dateFrom;
+    till = dateTill;
   }
   @override
   Future<List<int>> getTasksMounthCounter(DateTime from, DateTime till) async {
@@ -344,7 +354,10 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
 
 
   Future<List<TaskModel>> _getTaskFromUrl({required String url,required int page}) async{
-    return await db.getTasks(page);
+    int? fromSec=from!=null?from!.millisecondsSinceEpoch~/1000:null;
+    int? tillSec=till!=null?till!.millisecondsSinceEpoch~/1000:null;
+    print("fromSec $fromSec, tillSec $tillSec");
+    return await db.getTasks(page, fromSec, tillSec);
     /*final token=sharedPreferences.getString("access_token");
     print(token);
     try{

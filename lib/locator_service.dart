@@ -76,6 +76,7 @@ import 'domain/usecases/save_new_task.dart';
 import 'domain/usecases/search_task.dart';
 import 'package:http/http.dart' as http;
 
+import 'domain/usecases/set_task_list_filter.dart';
 import 'domain/usecases/set_tasks_comments_read.dart';
 import 'domain/usecases/start_geolocation_service.dart';
 import 'domain/usecases/sync_to_server.dart';
@@ -88,7 +89,7 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl(),startGeolocationService:sl(), geoLogSender: sl()));
-  sl.registerFactory(() => CalendarBloc());
+  sl.registerFactory(() => CalendarBloc(sl()));
   sl.registerFactory(() => SettingBloc(settingsReader: sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
   sl.registerFactory(() => TaskEquipmentSelectionBloc(equipment: sl(),currentEquipment: sl(),currentContractor: sl()));
@@ -148,6 +149,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => GetTaskStatusesGraph(sl()));
   sl.registerLazySingleton(() => SyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => SyncToServer(sl(),sl()));
+  sl.registerLazySingleton(() => SetTaskListFilter(sl()));
   sl.registerLazySingleton(() => LazySyncFromServer(sl(),sl(),sl()));
   sl.registerLazySingleton(() => FullSyncFromServer(fullSyncRepository: sl(), syncRepository:sl(), db:sl()));
   //sl.registerLazySingleton(() => WaitDealys10(model: sl()));

@@ -27,7 +27,7 @@ abstract class TaskRepository{
   Future<Either<Failure, PhoneEntity>>addNewPhone({required String name});
   Future<Either<Failure, UserSettingEntity>>getUserSetting();
   Future<Either<Failure, List<int>>> getTasksMounthCounter({required DateTime from, required DateTime till});
-
+  void setFilter({DateTime? dateFrom, DateTime? dateTill});
   Future<Either<Failure, TaskEntity>>setTaskStatus({
     int id,
     required int status,
