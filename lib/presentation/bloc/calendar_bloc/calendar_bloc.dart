@@ -58,17 +58,23 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
   //_counter = newVal;
   //}));
   //
-  List<CalendarDateEntity> getMonthDays(DateTime date)
+  Future<List<CalendarDateEntity>> getMonthDays(DateTime date, Future<List<int>> Function(DateTime start, DateTime finish)? additionInfo) async
   {
     //final int daysFromBegin = date.day;
     final DateTime firstDayInMonth = DateTime(date.year, date.month, 1);
     final DateTime firstDayInNextMonth = DateTime(date.year, date.month+1, 1);
     int dayInMounth=firstDayInNextMonth.difference(firstDayInMonth).inDays;
     List<CalendarDateEntity> days=[];
+    List<int>? tasks = null;
+    if(additionInfo!=null)
+      tasks = await additionInfo(firstDayInMonth,firstDayInNextMonth);
+    else
+      print("additional info = null");
+    print("tasks $tasks");
     for(int i=0;i<dayInMounth;i++){
       DateTime current = firstDayInMonth
           .add(Duration(days: i));
-      days.add(CalendarDateEntity(id: current.year*10000+current.month*100+current.day, date: current, name: "${current
+      days.add(CalendarDateEntity(id: current.year*10000+current.month*100+current.day, tasks:(tasks?[i])??0, date: current, name: "${current
           .day}", weekDay: current.weekday));
 
     }
@@ -81,12 +87,13 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
     if(event is AddRight) {
       final currentState = state as CalendarDatesLoaded;
       var mounthList = currentState.mounthList;
-      yield CalendarListEmpty();
-      final days = getMonthDays(rightDay.add(Duration(days: 1)));
+      //yield CalendarListEmpty();
+      final days = await getMonthDays(rightDay.add(Duration(days: 1)), event.additionInfo);
       rightDay = days.last.date;
       String year = first.year!=days.last.date.year?"${days.last.date.year}":"";
+      print("additional info ${days.first.date}");
       mounthList.add(CalendarMounthEntity(id: days.first.date.month-1, yearString: year, name: "${days.first.date.month}", days: days));
-      yield CalendarDatesLoaded(mounthList:mounthList, position: 0, selectedDay: currentState.selectedDay);
+      yield CalendarDatesLoaded(mounthList:mounthList,mounthCount:mounthList.length, position: 0, selectedDay: currentState.selectedDay);
     }
     else if(event is SelectDay) {
 
@@ -97,17 +104,18 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
       print("event.id: ${event.id}");
       yield CalendarListEmpty();
 
-      yield CalendarDatesLoaded(mounthList:currentState.mounthList, position: 0, selectedDay: dayId);
+      yield CalendarDatesLoaded(mounthList:currentState.mounthList,mounthCount:currentState.mounthList.length, position: 0, selectedDay: dayId);
     }
     else if(event is AddLeft) {
       final currentState = state as CalendarDatesLoaded;
       var mounthList = currentState.mounthList;
-      yield CalendarListEmpty();
-      final days = getMonthDays(leftDay.subtract(Duration(days: 1)));
+      //yield CalendarListEmpty();
+      final days = await getMonthDays(leftDay.subtract(Duration(days: 1)), event.additionInfo);
       leftDay = days.first.date;
       String year = first.year!=days.last.date.year?"${days.last.date.year}":"";
+      print("additional info ${days.first.date}");
       mounthList.insert(0, CalendarMounthEntity(id: days.first.date.month-1, yearString: year, name: "${days.first.date.month}", days: days));
-      yield CalendarDatesLoaded(mounthList:mounthList, position: days.length, selectedDay: currentState.selectedDay);
+      yield CalendarDatesLoaded(mounthList:mounthList,mounthCount:mounthList.length, position: days.length, selectedDay: currentState.selectedDay);
     }
     else if(event is SetCurrentDate){
       print("SetCurrentDate");
@@ -115,13 +123,14 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
 
       final DateTime current=DateTime.now();
       List<CalendarMounthEntity> mounthList=[];
-      final days = getMonthDays(current);
+      final days = await getMonthDays(current, event.additionInfo);
       leftDay = days.first.date;
       rightDay = days.last.date;
       String year = first.year!=days.last.date.year?"${days.last.date.year}":"";
+      print("additional info ${days.first.date}");
       mounthList.add(CalendarMounthEntity(id: days.first.date.month-1, yearString: year, name: "${days.first.date.month}", days: days));
 
-      yield CalendarDatesLoaded(mounthList:mounthList, position: current.day-1, selectedDay: 0);
+      yield CalendarDatesLoaded(mounthList:mounthList,mounthCount:mounthList.length, position: current.day-1, selectedDay: 0);
       //print("start sync1");
       //yield TaskListEmpty();
     }

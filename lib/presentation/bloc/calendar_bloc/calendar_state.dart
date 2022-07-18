@@ -31,11 +31,12 @@ class TaskListLoading extends CalendarState{
 class CalendarDatesLoaded extends CalendarState{
   final List<CalendarMounthEntity> mounthList;
   final int position;
+  final int mounthCount;
   final int selectedDay;
-  CalendarDatesLoaded({required this.mounthList, required this.position, required this.selectedDay});
+  CalendarDatesLoaded({required this.mounthList, required this.mounthCount, required this.position, required this.selectedDay});
 
   @override
-  List<Object> get props => [mounthList, selectedDay];
+  List<Object> get props => [mounthCount, selectedDay];
 
 }
 

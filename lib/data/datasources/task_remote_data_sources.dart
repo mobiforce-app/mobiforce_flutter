@@ -40,6 +40,7 @@ abstract class TaskRemoteDataSources{
   Future<UserSettingEntity>getUserSetting();
 
   Future<FileModel>loadFileFromWeb(int id);
+  Future<List<int>> getTasksMounthCounter(DateTime from, DateTime till);
   Future<bool>saveFileDescription(FileModel file);
   Future<List<TaskCommentModel>> getCommentList({required int task,required int page});
   Future<void> setTaskCommentsRead({required List<TaskCommentEntity?> comments});
@@ -82,6 +83,23 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   @override
   Future<List<TemplateModel>>getAllTemplates(int page) async {
     return await db.getTemplatesListForMobile();
+  }
+  @override
+  Future<List<int>> getTasksMounthCounter(DateTime from, DateTime till) async {
+    int daysInSet=(till.millisecondsSinceEpoch-from.millisecondsSinceEpoch)~/86400000;
+    int firstDayInSec=from.millisecondsSinceEpoch~/1000;
+    List<int> counts = new List<int>.generate(daysInSet+1, (i) => 0);
+    print("additional from ${from.millisecondsSinceEpoch} till ${till.millisecondsSinceEpoch}");
+    final list = await db.getTasksMounthCounter(from, till);
+    list.forEach((element) {
+      int currentDay=(element-firstDayInSec)~/86400;
+      if(currentDay>=0&&currentDay<=daysInSet)
+        counts[currentDay]++;
+    });
+
+    print("daysInSet $daysInSet dates $list counts $counts");
+
+    return counts;
   }
   @override
   Future<List<TaskLifeCycleNodeEntity>> getTaskStatusGraph(int ?id, int? lifecycle) async

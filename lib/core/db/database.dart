@@ -990,6 +990,17 @@ class DBProvider {
     print("$tasksMapList");
     return tasksMapList.map((e) => e["external_id"] as int).toList();
   }
+  Future<List<int>> getTasksMounthCounter(DateTime from, DateTime till) async {
+    Database db = await this.database;
+
+    final List<Map<String,dynamic>> tasksMapList = await db.query(
+        tasksTable,
+        orderBy: "planned_visit_time asc",
+        where: 'planned_visit_time > ? AND planned_visit_time < ?',
+        whereArgs: [(from.millisecondsSinceEpoch/1000).toInt(), (till.millisecondsSinceEpoch/1000).toInt()]);
+    print("tasksMapList: $tasksMapList");
+    return tasksMapList.map((e) => e["planned_visit_time"] as int).toList();
+  }
   Future<List<TaskModel>> getTasks(int page) async {
     Database db = await this.database;
     //print("limit $limit, offset $page");

@@ -13,7 +13,9 @@ import 'package:mobiforce_flutter/presentation/widgets/custom_search_delegate.da
 import 'package:mobiforce_flutter/presentation/widgets/task_list_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobiforce_flutter/presentation/widgets/task_template_selection_list_widget.dart';
+import 'package:mobiforce_flutter/locator_service.dart' as di;
 
+import '../../domain/usecases/get_month_task_counter_list.dart';
 import '../bloc/tasklist_bloc/tasklist_state.dart';
 import '../widgets/calendar_widget.dart';
 import '../widgets/menu_widget.dart';
@@ -74,8 +76,20 @@ class TaskListPage extends StatelessWidget {
         //     containerDecoration: BoxDecoration(color: Colors.black12),
         //   )!
         // ),
-        bottom: PreferredSize(preferredSize: Size.fromHeight(60),
-           child: CalendarStripe()
+        bottom: PreferredSize(preferredSize: Size.fromHeight(80),
+           child: CalendarStripe(
+               additionInfo:(DateTime start, DateTime finish) async {
+                 //GetMounthTaskCount gmtc - new GetMounthTaskCount(;
+                 //final fol=gmtc();
+                 print("get additional info");
+                 print("additional from ${start.millisecondsSinceEpoch} till ${finish.millisecondsSinceEpoch}");
+
+                 final GetMounthTaskCount gmtc = di.sl<GetMounthTaskCount>();
+                 final FoL = await gmtc(TaskCounterParams(from: start, till: finish));
+                 return FoL.fold((l) => [], (List<int> l) => l);
+               },
+             selectDate: (){},
+           )
         ),
         centerTitle: true,
       ),

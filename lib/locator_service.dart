@@ -25,6 +25,7 @@ import 'package:mobiforce_flutter/domain/usecases/full_sync_from_server.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_all_tasks.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_current_equipment.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_equipment.dart';
+import 'package:mobiforce_flutter/domain/usecases/get_month_task_counter_list.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_picture_from_camera.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_detailes.dart';
 import 'package:mobiforce_flutter/domain/usecases/get_task_templates.dart';
@@ -154,6 +155,8 @@ Future<void>init() async
   sl.registerLazySingleton(() => UserLogout(sl(),sl()));
   sl.registerLazySingleton(() => Authorization(sl(),sl()));
   sl.registerLazySingleton(() => AuthorizationManager(sl()));
+  sl.registerLazySingleton(() => GetMounthTaskCount(sl()));
+
   sl.registerLazySingleton(() => StartGeolocationService(sl()));
   //sl.registerLazySingleton(() => Model());
   //sl.registerLazySingleton(() => LoginTasks(sl()));

@@ -51,8 +51,12 @@ as bg;
 
 class CalendarStripe extends StatelessWidget {
   final scrollController = ScrollController();
+  final Future<List<int>> Function(DateTime start, DateTime finish)? additionInfo;
+  final void Function()? selectDate;
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  CalendarStripe({this.additionInfo,this.selectDate});
+
   void setupScrollController(BuildContext context) {
 
     scrollController.addListener(() {
@@ -61,12 +65,12 @@ class CalendarStripe extends StatelessWidget {
       if (scrollController.position.atEdge) {
         if (scrollController.position.pixels != 0) {
           BlocProvider.of<CalendarBloc>(context)
-            ..add(AddRight());
+            ..add(AddRight(additionInfo));
           print("right");
         }
         else {
           BlocProvider.of<CalendarBloc>(context)
-            ..add(AddLeft());
+            ..add(AddLeft(additionInfo));
           print("left");
         }
       }
@@ -78,7 +82,7 @@ class CalendarStripe extends StatelessWidget {
     setupScrollController(context);
     return BlocBuilder<CalendarBloc, CalendarState>(
         bloc: BlocProvider.of<CalendarBloc>(context)..add(
-          SetCurrentDate(),
+          SetCurrentDate(additionInfo),
         ),
         builder: (context, state)
     {
@@ -138,7 +142,7 @@ class CalendarStripe extends StatelessWidget {
               //color: Colors.red,
           //    child:
       SizedBox(
-        height: 60,
+        height: 80,
         child: /*ListView.separated(
 
                   //physics: BouncingScrollPhysics (),
@@ -214,8 +218,21 @@ class CalendarStripe extends StatelessWidget {
 
                                           child: Center(child: Column(
                                       children: [
+                                          SizedBox(height: 10,),
                                           Text(e.name, style: TextStyle(color: Colors.white),),
                                           days[(e.weekDay-1)%7],
+                                          e.tasks>0?Center(
+                                            child: Container(
+                                              height: 6,
+                                              width: 6,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(16),
+
+                                              ),
+                                              margin: const EdgeInsets.only(top: 3.0),
+                                            ),
+                                          ):Container(),
                                       ],
                                     )),
                                         ))

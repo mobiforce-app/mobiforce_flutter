@@ -6,9 +6,9 @@ class CalendarDateEntity{
   String name;
   DateTime date;
   int weekDay;
-
+  int tasks;
   CalendarDateEntity({
-      required this.id,  required this.name,  required this.date,  required this.weekDay
+      required this.id,  required this.name,  required this.date,  required this.weekDay, required this.tasks
   });
 }
 

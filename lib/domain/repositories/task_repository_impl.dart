@@ -90,6 +90,14 @@ class TaskRepositoryImpl implements TaskRepository{
     //return Right(_r);
     //throw UnimplementedError();
   }
+
+  @override
+  Future<Either<Failure, List<int>>> getTasksMounthCounter({required DateTime from, required DateTime till}) async
+  {
+    print("additional ****");
+    return  Right(await remoteDataSources.getTasksMounthCounter(from,till));
+  }
+
   @override
   Future<Either<Failure, FileModel>>deleteTaskFieldPicture({required int taskFieldId, required int pictureId}) async {
     print("picture id= $pictureId");

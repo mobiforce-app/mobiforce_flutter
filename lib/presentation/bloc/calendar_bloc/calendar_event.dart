@@ -18,21 +18,25 @@ class ListTasks extends CalendarEvent
 }
 class SetCurrentDate extends CalendarEvent
 {
+  final Future<List<int>> Function(DateTime start, DateTime finish)? additionInfo;
+
   //final int page;
 
-  SetCurrentDate();
+  SetCurrentDate(this.additionInfo);
 }
 class AddRight extends CalendarEvent
 {
+  final Future<List<int>> Function(DateTime start, DateTime finish)? additionInfo;
   //final int page;
 
-  AddRight();
+  AddRight(this.additionInfo);
 }
 class AddLeft extends CalendarEvent
 {
+  final Future<List<int>> Function(DateTime start, DateTime finish)? additionInfo;
   //final int page;
 
-  AddLeft();
+  AddLeft(this.additionInfo);
 }
 class SendSystemGeoLog extends CalendarEvent
 {
