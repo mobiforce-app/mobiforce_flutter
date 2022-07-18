@@ -595,7 +595,9 @@ class _StatusEditorState extends State<StatusEditor> {
     }
 
       if((widget.resolutions?.length??0)>0) {
-
+        int? value = null;
+        if(widget.resolutions?.length==1)
+          value=widget.resolutions?.first?.id;
         List<DropdownMenuItem<int>> ddmi = (widget.resolutions?.map((element)=>
             DropdownMenuItem(
               child:
@@ -642,7 +644,7 @@ class _StatusEditorState extends State<StatusEditor> {
                     //(id: int.parse("$data"), serverId: 0, name: "");
 
                 },
-                //value: ,
+                value: value,
               ),
             )
         );
