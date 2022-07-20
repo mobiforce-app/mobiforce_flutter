@@ -132,7 +132,7 @@ class CalendarStripe extends StatelessWidget {
           if (scrollController.hasClients)
               scrollController.jumpTo(width * state.position);
           else
-            WidgetsBinding.instance.addPostFrameCallback((_) => scrollController.jumpTo(width * state.position));
+            WidgetsBinding.instance?.addPostFrameCallback((_) => scrollController.jumpTo(width * state.position));
             }
 
             return  //Scrollbar(

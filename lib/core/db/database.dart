@@ -425,33 +425,35 @@ class DBProvider {
   Future<void> clear() async{
     Database db = await this.database;
     print("DROP");
-    await db.execute('DROP TABLE IF EXISTS $fileTable');
-    await db.execute('DROP TABLE IF EXISTS $gpsscheduleTable');
     await db.execute('DROP TABLE IF EXISTS $tasksTable');
-    await db.execute('DROP TABLE IF EXISTS $taskCommentTable');
+    await db.execute('DROP TABLE IF EXISTS $gpsscheduleTable');
+    await db.execute('DROP TABLE IF EXISTS $fileTable');
+    await db.execute('DROP TABLE IF EXISTS $taskFieldTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionTable');
-    await db.execute('DROP TABLE IF EXISTS $resolutionGroup2ResolutionRelationTable');
     await db.execute('DROP TABLE IF EXISTS $resolutionGroupTable');
+    await db.execute('DROP TABLE IF EXISTS $resolutionGroup2ResolutionRelationTable');
     await db.execute('DROP TABLE IF EXISTS $taskSelectionValuesTable');
     await db.execute('DROP TABLE IF EXISTS $taskSelectionValuesRelationTable');
     await db.execute('DROP TABLE IF EXISTS $taskStatusTable');
+    await db.execute('DROP TABLE IF EXISTS $taskCommentTable');
     await db.execute('DROP TABLE IF EXISTS $tasksStatusesTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleTable');
     await db.execute('DROP TABLE IF EXISTS $taskLifeCycleNodeTable');
     await db.execute('DROP TABLE IF EXISTS $tasksFieldsTable');
     await db.execute('DROP TABLE IF EXISTS $tasksFieldsTabTable');
-    await db.execute('DROP TABLE IF EXISTS $taskFieldTable');
     await db.execute('DROP TABLE IF EXISTS $taskValuesTable');
     await db.execute('DROP TABLE IF EXISTS $employeeTable');
     await db.execute('DROP TABLE IF EXISTS $equipmentTable');
+    await db.execute('DROP TABLE IF EXISTS $employee2TaskRelationTable');
     await db.execute('DROP TABLE IF EXISTS $tasksPersonTable');
     await db.execute('DROP TABLE IF EXISTS $tasksPhoneTable');
     await db.execute('DROP TABLE IF EXISTS $tasksTemplateTable');
     await db.execute('DROP TABLE IF EXISTS $contractorTable');
-    await db.execute('DROP TABLE IF EXISTS $employee2TaskRelationTable');
     await db.execute('DROP TABLE IF EXISTS $usnCountersTable');
     await db.execute('DROP TABLE IF EXISTS $usnCountersFileTable');
     await _createDB(db, 1);
+
+
   }
 //READ
   Future<List<TasksFieldsModel>> readTasksFieldsUpdates(int localUSN) async{
