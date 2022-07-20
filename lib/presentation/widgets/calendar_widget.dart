@@ -210,9 +210,7 @@ class CalendarStripe extends StatelessWidget {
                                     child: Padding(
                                       padding: e.currenDay?const EdgeInsets.all(2.0):const EdgeInsets.all(3.0),
                                       child: Container(
-                                        //padding: const EdgeInsets.all(3.0),
-
-                                          decoration: BoxDecoration(
+                                           decoration: BoxDecoration(
                                             border: e.currenDay?Border.all(color: Colors.white, width: 1):null,
                                         color: (e.id==state.selectedDay?Colors.lightBlueAccent:Colors.blue),
                                         borderRadius: BorderRadius.circular(40),
