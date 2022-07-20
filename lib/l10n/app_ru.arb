@@ -53,6 +53,7 @@
     "taskNoClient": "Клиент не указан",
     "taskNoAddress": "Адрес не указан",
     "taskRoute":"Маршрут",
+    "taskShowOnMap":"Показать на карте",
     "taskPerson":"Контакты",
     "taskPersonEmpty":"Не заданы",
     "taskTemplate":"Шаблон задачи",

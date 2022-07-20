@@ -1709,8 +1709,14 @@ O/hYc6yKjFU5byZkpPVMToGrbDVwYyDncXuhzxg=
             final Widget mapBottonWidget=Padding(
                 padding: const EdgeInsets.all(16.0),
                 child:Column(
-              children: [
-                mapButtonType==2?Icon(Icons.map):Icon(Icons.directions),
+              children: mapButtonType==2?[
+                Icon(Icons.map),
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text(AppLocalizations.of(context)!.taskShowOnMap),
+                )
+              ]:[
+                Icon(Icons.directions),
                 Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Text(AppLocalizations.of(context)!.taskRoute),

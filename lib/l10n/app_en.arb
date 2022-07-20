@@ -53,6 +53,7 @@
     "taskNoEquipment": "No equipment",
     "taskNoAddress": "No address",
     "taskRoute":"Route",
+    "taskShowOnMap":"Show on map",
     "taskPerson":"Contacts",
     "taskPersonEmpty":"No contacts",
     "taskTemplate":"Template",
