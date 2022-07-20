@@ -76,7 +76,8 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
     for(int i=0;i<dayInMounth;i++){
       DateTime current = firstDayInMonth
           .add(Duration(days: i));
-      days.add(CalendarDateEntity(id: current.year*10000+current.month*100+current.day, tasks:(tasks?[i])??0, date: current, name: "${current
+      //bool currentda
+      days.add(CalendarDateEntity(id: current.year*10000+current.month*100+current.day, currenDay: false, tasks:(tasks?[i])??0, date: current, name: "${current
           .day}", weekDay: current.weekday));
 
     }
@@ -137,6 +138,7 @@ class CalendarBloc extends Bloc<CalendarEvent,CalendarState>{
       final days = await getMonthDays(current, event.additionInfo);
       leftDay = days.first.date;
       rightDay = days.last.date;
+      days[current.day-1].currenDay=true;
       String year = first.year!=days.last.date.year?"${days.last.date.year}":"";
       print("additional info ${days.first.date}");
       mounthList.add(CalendarMounthEntity(id: days.first.date.month-1, yearString: year, name: "${days.first.date.month}", days: days));
