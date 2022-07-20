@@ -33,8 +33,8 @@ import 'package:mobiforce_flutter/presentation/widgets/task_result.dart';
 import 'dart:core';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sliver_tools/sliver_tools.dart';
-import 'package:sticky_headers/sticky_headers/widget.dart';
+//import 'package:sliver_tools/sliver_tools.dart';
+//import 'package:sticky_headers/sticky_headers/widget.dart';
 import 'package:sticky_infinite_list/models/alignments.dart';
 import 'package:sticky_infinite_list/widget.dart';
 
@@ -207,42 +207,57 @@ class CalendarStripe extends StatelessWidget {
                               contentBuilder: (BuildContext context) {
                                 List<Widget> d = state.mounthList[index].days.map((e) => SizedBox(
                                     width: width,
-                                    child: InkWell(
-                                      onTap: (){
-                                        BlocProvider.of<CalendarBloc>(context)
-                                          ..add(SelectDay(
-                                              e.id,
-                                              e.date,
-                                              (){
-                                                if(selectDate!=null)
-                                                  selectDate!();
-                                              }
-                                          ));
-                                      },
-                                        child:Container(
-                                          padding: const EdgeInsets.all(3.0),
-                                          decoration: BoxDecoration(color: (e.id==state.selectedDay?Colors.lightBlueAccent:Colors.blue)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Container(
+                                        //padding: const EdgeInsets.all(3.0),
 
-                                          child: Center(child: Column(
-                                      children: [
-                                          SizedBox(height: 10,),
-                                          Text(e.name, style: TextStyle(color: Colors.white),),
-                                          days[(e.weekDay-1)%7],
-                                          e.tasks>0?Center(
-                                            child: Container(
-                                              height: 6,
-                                              width: 6,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(16),
+                                          decoration: BoxDecoration(
+                                        color: (e.id==state.selectedDay?Colors.lightBlueAccent:Colors.blue),
+                                        borderRadius: BorderRadius.circular(40),
+                                          ),
 
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius:BorderRadius.circular(40),
+                                        onTap: (){
+                                            BlocProvider.of<CalendarBloc>(context)
+                                              ..add(SelectDay(
+                                                  e.id,
+                                                  e.date,
+                                                  (){
+                                                    if(selectDate!=null)
+                                                      selectDate!();
+                                                  }
+                                              ));
+                                        },
+                                            child:Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                              SizedBox(height: 8,),
+                                              Text(e.name, style: TextStyle(color: Colors.white),),
+                                              days[(e.weekDay-1)%7],
+                                              e.tasks>0?Container(
+                                                height: 6,
+                                                width: 6,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius: BorderRadius.circular(16),
+
+                                                ),
+                                                margin: const EdgeInsets.only(top: 3.0),
+                                              ):Container(
+                                                height: 9,
+                                                width: 6,
                                               ),
-                                              margin: const EdgeInsets.only(top: 3.0),
+                                              SizedBox(height: 5,),
+
+                                        ],
+                                      ),
                                             ),
-                                          ):Container(),
-                                      ],
-                                    )),
-                                        ))
+                                          )),
+                                    )
                                 )).toList();
                                 return Row(children: d,);
                               },

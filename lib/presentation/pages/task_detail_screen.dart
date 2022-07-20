@@ -1,6 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+//import 'package:crypto/crypto.dart';
+import 'package:asn1lib/asn1lib.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
+import 'package:encrypt/encrypt.dart' as enc;
+import 'dart:io';
+import 'package:pointycastle/asymmetric/api.dart';
+import 'package:encrypt/encrypt_io.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,6 +60,9 @@ import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:convert' show utf8, base64;
+//import 'package:encrypt/encrypt.dart';
+//import 'package:fast_rsa/fast_rsa.dart';
 
 extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
@@ -82,7 +93,247 @@ class TaskDetailPage extends StatelessWidget {
 
 //  final id;
   TaskDetailPage({Key? key}) : super(key: key);
+  void openExternalMapByCoords(BuildContext context, Coords coords) async {
+    final availableMaps = await MapLauncher.installedMaps;
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              child: Wrap(
+                children: <Widget>[
+                  for (var map in availableMaps)
+                    ListTile(
+                      onTap: () async {
 
+                        if(map.mapType == MapType.yandexNavi)
+                        {
+                          openYandexNavigator(coords);
+                          //openYandexNavigatorSearch(adressStr);
+                        }
+                        else{
+                          map.showMarker(
+                            coords: coords,
+                            title: "",
+                          );
+                        }
+
+
+
+                      },
+                      title: Text(map.mapName),
+                      leading: SvgPicture.asset(
+                        map.icon,
+                        height: 30.0,
+                        width: 30.0,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+  }
+  void openExternalMapByAddress(BuildContext context, String address) async{
+    final availableMaps = await MapLauncher.installedMaps;
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        Set<MapType> availible = {MapType.yandexNavi, MapType.apple, MapType.yandexMaps};
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              child: Wrap(
+                children: <Widget>[
+                  for (var map in availableMaps)
+                    if(availible.contains(map.mapType))
+                    ListTile(
+                      onTap: () async {
+                        if(map.mapType == MapType.yandexNavi)
+                        {
+                          openYandexNavigatorSearch(address);
+                          //openYandexNavigatorSearch(adressStr);
+                        }
+                        if(map.mapType == MapType.yandexMaps)
+                        {
+                          final Uri naviUrl = Uri(
+                              scheme: 'yandexmaps',
+                              host: 'maps.yandex.com',
+                              queryParameters:{
+                                'text':'$address'
+                              }
+                          );
+                          if (await canLaunchUrl(naviUrl)) {
+                            await launchUrl(naviUrl);
+                          } else {
+                            throw "Can't phone that number.";
+                          }
+
+                        }
+                        if(map.mapType == MapType.apple)
+                        {
+                          final Uri naviUrl = Uri(
+                              scheme: 'https',
+                              host: 'maps.apple.com',
+                              queryParameters:{
+                                'q':'$address'
+                              }
+                          );
+                          if (await canLaunchUrl(naviUrl)) {
+                            await launchUrl(naviUrl);
+                          } else {
+                            throw "Can't phone that number.";
+                          }
+                        }
+
+
+
+
+                      },
+                      title: Text(map.mapName),
+                      leading: SvgPicture.asset(
+                        map.icon,
+                        height: 30.0,
+                        width: 30.0,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    /*if(map.mapType == MapType.yandexNavi)
+    {
+      //openYandexNavigator(coords);
+      openYandexNavigatorSearch(adressStr);
+    }
+    else{
+      map.showMarker(
+        coords: coords,
+        title: "",
+      );
+    }*/
+  }
+  void openYandexNavigator(Coords coords) async
+  {
+
+  String trimmedKey = '''-----BEGIN RSA PRIVATE KEY-----
+MIIBOQIBAAJBAMf9L2FXkBoHACjj9JtdQ7PdXx5w5VdTDAiuh9q3hhEpVS7J8osF
+ANrKqeDT87lM8x1A+xt6fpa/ieIBYhWcYv0CAwEAAQJAJYvTKWNXGovV69dgRQrt
+ewdEpGJtrEdbKwYZW2a5NN9IjrpHjFYVno5y8fo8DCVHP3qXCtZr8QcsPBjs8Mto
+AQIhAPDJi4B5avbfVSGpzrohiEfzWlXUHTVoPhkdFjvP8BsdAiEA1J/GeJbPmF3p
+rtKLF4EafHVuVUUWPLWZIiMFl+vzAWECIE/e2upb3DJVtJx9AjjVpKoRO/babHHp
+ySd1cYmXmRK1AiBgDhpUihUYyXxzfSxXHvz/MvH4VbC5FnUqxdWWD4MFoQIgYt/0
+O/hYc6yKjFU5byZkpPVMToGrbDVwYyDncXuhzxg=
+-----END RSA PRIVATE KEY-----''';//Uint8List result = base64.decode(trimmedKey);
+  final Uri naviUrl = Uri(
+
+      scheme: 'yandexnavi',
+      host: 'build_route_on_map',
+      queryParameters:{
+        'lat_to':'${coords.latitude}',
+        'lon_to':'${coords.longitude}',
+        'client':'172'
+      }
+  );
+  String initUrl = 'yandexnavi://build_route_on_map?lat_to=${coords.latitude}&lon_to=${coords.longitude}&client=172';
+
+  final parser = enc.RSAKeyParser();
+
+  dynamic privateKey = parser.parse(trimmedKey);
+
+  final signer = enc.Signer(enc.RSASigner(enc.RSASignDigest.SHA256, privateKey:
+  privateKey ));
+  //var r = await enc.RSA.signPKCS1v15(uri.toString(), Hash.SHA256, trimmedKey);
+  //var result1 = await RSA.hash(uri.toString(), Hash.SHA256);
+  var bytes = utf8.encode(naviUrl.toString());
+  Digest sha256Result = sha256.convert(bytes);
+
+  var signature = signer.sign(naviUrl.toString()).base64;
+  print("signature $signature");
+  //initUrl+="&signature=$signature";
+  print("initUrl $initUrl");
+  final Uri naviUrlOut = Uri(
+
+      scheme: 'yandexnavi',
+      host: 'build_route_on_map',
+      queryParameters:{
+        'lat_to':'${coords.latitude}',
+        'lon_to':'${coords.longitude}',
+        'client':'172',
+        'signature':'$signature'
+      }
+  );
+  //initUrl=initUrl.replaceAll(".", "%2E");
+  print("initUrl ${naviUrl.toString()}");
+  if (await canLaunchUrl(naviUrlOut)) {
+  await launchUrl(naviUrlOut);
+  } else {
+  throw "Can't phone that number.";
+  }
+}
+  void openYandexNavigatorSearch(String address) async
+  {
+
+  String trimmedKey = '''-----BEGIN RSA PRIVATE KEY-----
+MIIBOQIBAAJBAMf9L2FXkBoHACjj9JtdQ7PdXx5w5VdTDAiuh9q3hhEpVS7J8osF
+ANrKqeDT87lM8x1A+xt6fpa/ieIBYhWcYv0CAwEAAQJAJYvTKWNXGovV69dgRQrt
+ewdEpGJtrEdbKwYZW2a5NN9IjrpHjFYVno5y8fo8DCVHP3qXCtZr8QcsPBjs8Mto
+AQIhAPDJi4B5avbfVSGpzrohiEfzWlXUHTVoPhkdFjvP8BsdAiEA1J/GeJbPmF3p
+rtKLF4EafHVuVUUWPLWZIiMFl+vzAWECIE/e2upb3DJVtJx9AjjVpKoRO/babHHp
+ySd1cYmXmRK1AiBgDhpUihUYyXxzfSxXHvz/MvH4VbC5FnUqxdWWD4MFoQIgYt/0
+O/hYc6yKjFU5byZkpPVMToGrbDVwYyDncXuhzxg=
+-----END RSA PRIVATE KEY-----''';//Uint8List result = base64.decode(trimmedKey);
+  final Uri naviUrl = Uri(
+
+      scheme: 'yandexnavi',
+      host: 'map_search',
+      queryParameters:{
+        'text':'$address',
+        'client':'172'
+      }
+  );
+  //String initUrl = 'yandexnavi://map_search?lat_to=${coords.latitude}&lon_to=${coords.longitude}&client=172';
+
+  final parser = enc.RSAKeyParser();
+
+  dynamic privateKey = parser.parse(trimmedKey);
+
+  final signer = enc.Signer(enc.RSASigner(enc.RSASignDigest.SHA256, privateKey:
+  privateKey ));
+  //var r = await enc.RSA.signPKCS1v15(uri.toString(), Hash.SHA256, trimmedKey);
+  //var result1 = await RSA.hash(uri.toString(), Hash.SHA256);
+  var bytes = utf8.encode(naviUrl.toString());
+  Digest sha256Result = sha256.convert(bytes);
+
+  var signature = signer.sign(naviUrl.toString()).base64;
+  print("signature $signature");
+  //initUrl+="&signature=$signature";
+  //print("initUrl $initUrl");
+  final Uri naviUrlOut = Uri(
+
+      scheme: 'yandexnavi',
+      host: 'map_search',
+      queryParameters:{
+        'text':'$address',
+        'client':'172',
+        'signature':'$signature'
+      }
+  );
+  //initUrl=initUrl.replaceAll(".", "%2E");
+  print("initUrl ${naviUrlOut.toString()}");
+  if (await canLaunchUrl(naviUrlOut)) {
+    await launchUrl(naviUrlOut);
+  } else {
+  throw "Can't phone that number.";
+  }
+}
   Widget getTaskFieldElement(
       TasksFieldsEntity element, String appFilesDirectory) {
     if (element.taskField?.type.value == TaskFieldTypeEnum.optionlist) {
@@ -1459,7 +1710,7 @@ class TaskDetailPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child:Column(
               children: [
-                Icon(Icons.directions),
+                mapButtonType==2?Icon(Icons.map):Icon(Icons.directions),
                 Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Text(AppLocalizations.of(context)!.taskRoute),
@@ -1468,120 +1719,24 @@ class TaskDetailPage extends StatelessWidget {
             ));
             print("mapButtonType $mapButtonType");
             final Widget mapWidget= (mapButtonType>0&&state.task.template?.enabledAddress==true)?
-          //   SizedBox(
-          //     height: 8,
-          //   ),
             InkWell(
               onTap: () async {
-                /* try {
-                  final coords = Coords(37.759392, -122.5107336);
-                  final title = "Ocean Beach";
-                  final availableMaps = await MapLauncher.installedMaps;
-
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return SafeArea(
-                        child: SingleChildScrollView(
-                          child: Container(
-                            child: Wrap(
-                              children: <Widget>[
-                                for (var map in availableMaps)
-                                  ListTile(
-                                    onTap: () => map.showMarker(
-                                      coords: coords,
-                                      title: title,
-                                    ),
-                                    title: Text(map.mapName),
-                                    leading: SvgPicture.asset(
-                                      map.icon,
-                                      height: 30.0,
-                                      width: 30.0,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                 try {
+                  final title = "${state.task.name}";
+                  if(mapButtonType==2)
+                    openExternalMapByAddress(context, adressStr);
+                  else {
+                    final coords = Coords(state.task.lat!, state.task.lon!);
+                    //openExternalMapByAddress(context, adressStr);
+                    openExternalMapByCoords(context, coords);
+                  }
                 } catch (e) {
                   print(e);
-                }*/
-                //final String googleMapslocationUrl = "https://www.google.com/maps/search/?api=1&query=37.759392,-122.5107336}";
-
-                //final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
-                if(mapButtonType==2){
-                  //final String encodedURl =
-                  //    "geo:${state.task.lat},${state.task.lon}";
-                  //await MapsLauncher.launchQuery(adressStr);
                 }
-                else {
-                      //final String encodedURl =
-                      //    "geo:${state.task.lat},${state.task.lon}";
-                      //await launch(encodedURl);
-                      //await MapsLauncher.launchCoordinates(state.task.lat!, state.task.lon!);
-                      //final availableMaps = await MapLauncher.installedMaps;
-                     // print(availableMaps); // [AvailableMap { mapName: Google Maps, mapType: google }, ...]
-
-                      //await availableMaps.first.showMarker(
-                      //  coords: Coords(state.task.lat!, state.task.lon!),
-                      //  title: "test",
-                      //);
-                      /*try {
-                                        final coords = Coords(state.task.lat!, state.task.lon!);
-                                        final title = "$adressStr";
-                                        final availableMaps = await MapLauncher.installedMaps;
-
-                                        showModalBottomSheet(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return SafeArea(
-                                              child: SingleChildScrollView(
-                                                child: Container(
-                                                  child: Wrap(
-                                                    children: <Widget>[
-                                                      for (var map in availableMaps)
-                                                        ListTile(
-                                                          onTap: () => map.showMarker(
-                                                            coords: coords,
-                                                            title: title,
-                                                          ),
-                                                          title: Text(map.mapName),
-                                                          leading: SvgPicture.asset(
-                                                            map.icon,
-                                                            height: 30.0,
-                                                            width: 30.0,
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      } catch (e) {
-                                        print(e);
-                                      }
-*/
-                                          final Uri phoneUrl = Uri(
-                                            scheme: 'maps',
-                                            path: "q=Title&ll=${state.task.lat},${state.task.lat}",
-                                          );
-                                          //if (await canLaunchUrl(Uri.parse("tel://89055227434"))) {
-                                          //      await launchUrl(Uri.parse("tel://89055227434"), mode: LaunchMode.externalNonBrowserApplication);
-                                          //    } else {
-                                          //      throw "Error occured trying to call that number.";
-                                          //    }
-                                          if (await canLaunch(phoneUrl.toString())) {
-                                            await launch(phoneUrl.toString());
-                                          } else {
-                                            throw "Can't phone that number.";
-                                          }
-                    }
-                  },
+                //final String googleMapslocationUrl = "https://www.google.com/maps/search/?api=1&query=37.759392,-122.5107336}";
+                return;
+                //final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
+              },
               child: mapBottonWidget,
             ):
             Opacity(opacity: 0.5,

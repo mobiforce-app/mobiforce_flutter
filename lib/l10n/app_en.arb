@@ -108,6 +108,7 @@
     "logoutDialogText": "Exit and delete all user data in this app?",
     "loginPageRegistration": "Register now",
     "logoutMenuItem": "Logout",
+    "liveMenuHeader": "Live tasks",
     "gpsDisable":"GPS tracker schedule doesn't allow track recording on this device, GPS tracking is disabled",
     "month1": "jan",
     "month2": "feb",
