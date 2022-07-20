@@ -82,13 +82,15 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
         //initialIndex:1,
         child: Scaffold(
           appBar: AppBar(
-
+            centerTitle: false,
+            titleSpacing: 0.0,
             title: widget.saveEnabled?//Row(
               //children: [
               //  Expanded(
             //      child:
             Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                     Text(AppLocalizations.of(context)!.taskPageHeader),
                     Text('${widget.taskNumber}',
@@ -102,6 +104,7 @@ class _taskTabsState extends State<TaskTabs>   with SingleTickerProviderStateMix
               //],
             //)
                 :Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
               Text(AppLocalizations.of(context)!.taskPageHeader),
