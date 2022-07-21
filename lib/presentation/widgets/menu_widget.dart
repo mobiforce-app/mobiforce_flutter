@@ -91,7 +91,7 @@ class MobiforceMenu extends StatelessWidget {
                             Icons.portrait, size: 80,),
                         ),
                       ),
-                      new ListTile(
+                      /*new ListTile(
                           title: new Text(AppLocalizations.of(context)!.liveMenuHeader),
                           leading: Icon(Icons.radio_button_checked),
                           minLeadingWidth: 16,
@@ -107,7 +107,7 @@ class MobiforceMenu extends StatelessWidget {
                                   transitionDuration: Duration(seconds: 0),
                                 ));
                           }
-                      ),
+                      ),*/
                       new ListTile(
                           title: new Text(AppLocalizations.of(context)!.gpsScheduleMenuItemName),
                           leading: Icon(Icons.settings),
@@ -125,7 +125,7 @@ class MobiforceMenu extends StatelessWidget {
                                 ));
                           }
                       ),
-                      new ListTile(
+                      /*new ListTile(
                           title: new Text("LOG"),
                           leading: Icon(Icons.settings),
                           minLeadingWidth: 16,
@@ -137,7 +137,7 @@ class MobiforceMenu extends StatelessWidget {
                                 )
                             ));
                           }
-                      ),
+                      ),*/
                     ],
                   ),
 
