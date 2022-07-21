@@ -47,6 +47,8 @@ class ModelImpl implements Model{
     updateInProgress=true;
     while(true)
     {
+      print("startUpdate() recycle");
+
       final fOL = await syncToServer(ListSyncToServerParams());
       bool completeWithErr=fOL.fold((failure) {return true;},(sync) {return false;});
       if(completeWithErr)
@@ -89,7 +91,7 @@ class ModelImpl implements Model{
         break;
     }
     lazySyncFromServer(LazySyncParams());
-    updateInProgress=true;
+    updateInProgress=false;
     /*Future.delayed(Duration(seconds: 10),() {
         _counter++;
         s.progress++;
