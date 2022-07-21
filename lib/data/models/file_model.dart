@@ -99,7 +99,7 @@ class FileModel extends FileEntity
     return FileModel(
         id: 0,
         usn: json["usn"]??0,
-        size: int.parse(json["size"]??"0"),
+        size: int.tryParse("${json["size"]}")??0,
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         downloaded:false,

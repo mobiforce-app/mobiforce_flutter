@@ -241,17 +241,22 @@ class TasksFieldsModel extends TasksFieldsEntity
     List<FileModel>? fileVL=[];
     //print("TasksFieldsModel = ${json.toString()})");
     //print("${taskField}");
+    print("process picture 1 ${taskField.type.value} ${TaskFieldTypeEnum.picture}");
     if(taskField.type.value==TaskFieldTypeEnum.picture) {
       //print('json["value"] ${json["value"]}');
-      try {
+      //try {
+        print("process picture 2 ${json["value"]}");
+
         fileVL =
         (json["value"] as List).map((e) {
           //print('map file ${e.toString()}');
+          print("process picture 3 ${e}");
+
           return FileModel.fromJson({"id":e["pictureId"],"size":e["size"],"name":e["name"],"decription":e["decription"]});
         }).toList();
         //SelectionValueModel.fromJson(json["value"]);
-      }
-      catch (e) {}
+      //}
+      //catch (e) {}
     }
     if(taskField.type.value==TaskFieldTypeEnum.signature) {
       //print('json["value"] ${json["value"]}');

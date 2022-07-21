@@ -7,6 +7,9 @@ import 'package:mobiforce_flutter/domain/repositories/authirization_repository.d
 import 'package:mobiforce_flutter/domain/repositories/sync_repository.dart';
 //import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
 //import 'package:mobiforce_flutter/domain/repositories/task_repository.dart';
+import 'package:mobiforce_flutter/locator_service.dart' as di;
+
+import '../../presentation/bloc/tasklist_bloc/blockSteam.dart';
 
 class UserLogout extends UseCase<int, UserLogoutParams>{
   final AuthorizationRepository authRepository;
@@ -14,6 +17,8 @@ class UserLogout extends UseCase<int, UserLogoutParams>{
 
   UserLogout(this.authRepository, this.syncRepository);
   Future<Either<Failure, int>> call(UserLogoutParams params) async {
+    var m=di.sl<ModelImpl>();
+    await m.stopUpdate();
     final FoL = await authRepository.logout();
     return FoL.fold((l) => Left(l), (r) {
       //syncRepository.realoadUSN();

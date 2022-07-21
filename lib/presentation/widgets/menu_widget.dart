@@ -107,8 +107,8 @@ class MobiforceMenu extends StatelessWidget {
                                   transitionDuration: Duration(seconds: 0),
                                 ));
                           }
-                      ),*/
-                      new ListTile(
+                      ),
+                      */new ListTile(
                           title: new Text(AppLocalizations.of(context)!.gpsScheduleMenuItemName),
                           leading: Icon(Icons.settings),
                           minLeadingWidth: 16,

@@ -32,6 +32,7 @@ class ModelImpl implements Model{
   final PushNotificationService fcm;
   bool fcmTokenNotSync = true;
   bool updateInProgress=false;
+  bool abort=false;
   ModelImpl({required this.syncFromServer,required this.syncToServer,required this.fcm, required this.lazySyncFromServer});
 
   SyncStatus s = SyncStatus(syncPhase:SyncPhase.normal);
@@ -39,28 +40,43 @@ class ModelImpl implements Model{
   StreamController _streamController = new StreamController<SyncStatus>();
 
   Stream<dynamic> get counterUpdates => _streamController.stream;
+  Future<void> stopUpdate() async{
+    abort=true;
+    print("wait to stop complete");
 
+    while(updateInProgress)
+    {
+      print("wait to complete");
+      await Future.delayed(Duration(milliseconds:500));
+    }
+    abort=false;
+  }
   Future<void> startUpdate() async {
-    print("startUpdate()");
+    print("startUpdate() $updateInProgress");
     if(updateInProgress)
       return;
     updateInProgress=true;
     while(true)
     {
       print("startUpdate() recycle");
-
+      if(abort)
+        break;
       final fOL = await syncToServer(ListSyncToServerParams());
       bool completeWithErr=fOL.fold((failure) {return true;},(sync) {return false;});
       if(completeWithErr)
         break;
         //syncFromServer
       print("startUpdate() syncFromServer");
+      if(abort)
+        break;
       final faiureOrLoading = await syncFromServer(ListSyncParams(
         lastSyncTime: 0,
         lastUpdateCount: 0,
           fcmToken: fcmTokenNotSync?fcm.token:null
       ));
       print("serversync");
+      if(abort)
+        break;
 
       bool complete=faiureOrLoading.fold((failure) {
         print ("*");
@@ -90,7 +106,8 @@ class ModelImpl implements Model{
       if(complete)
         break;
     }
-    lazySyncFromServer(LazySyncParams());
+    if(!abort)
+      lazySyncFromServer(LazySyncParams());
     updateInProgress=false;
     /*Future.delayed(Duration(seconds: 10),() {
         _counter++;
