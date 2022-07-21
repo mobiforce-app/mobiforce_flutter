@@ -31,7 +31,7 @@ class ModelImpl implements Model{
   final SyncToServer syncToServer;
   final PushNotificationService fcm;
   bool fcmTokenNotSync = true;
-
+  bool updateInProgress=false;
   ModelImpl({required this.syncFromServer,required this.syncToServer,required this.fcm, required this.lazySyncFromServer});
 
   SyncStatus s = SyncStatus(syncPhase:SyncPhase.normal);
@@ -41,6 +41,10 @@ class ModelImpl implements Model{
   Stream<dynamic> get counterUpdates => _streamController.stream;
 
   Future<void> startUpdate() async {
+    print("startUpdate()");
+    if(updateInProgress)
+      return;
+    updateInProgress=true;
     while(true)
     {
       final fOL = await syncToServer(ListSyncToServerParams());
@@ -48,6 +52,7 @@ class ModelImpl implements Model{
       if(completeWithErr)
         break;
         //syncFromServer
+      print("startUpdate() syncFromServer");
       final faiureOrLoading = await syncFromServer(ListSyncParams(
         lastSyncTime: 0,
         lastUpdateCount: 0,
@@ -84,7 +89,7 @@ class ModelImpl implements Model{
         break;
     }
     lazySyncFromServer(LazySyncParams());
-
+    updateInProgress=true;
     /*Future.delayed(Duration(seconds: 10),() {
         _counter++;
         s.progress++;
