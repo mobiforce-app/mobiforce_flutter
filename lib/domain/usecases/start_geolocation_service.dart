@@ -99,7 +99,7 @@ class StartGeolocationService {
             //await bg.BackgroundGeolocation.sync();
             if ((sch?.length ?? 0) > 0) {
 
-              bg.BackgroundGeolocation.start().then((value) {
+              bg.BackgroundGeolocation.startSchedule().then((value) {
                 print("schedule string start $value");
                 /*if (value.enabled)
                   bg.BackgroundGeolocation.stop().then((value) =>
