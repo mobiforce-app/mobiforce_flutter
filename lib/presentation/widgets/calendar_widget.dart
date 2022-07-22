@@ -51,6 +51,7 @@ as bg;
 
 class CalendarStripe extends StatelessWidget {
   final scrollController = ScrollController();
+  int isScrolling=0;
   final Future<List<int>> Function(DateTime start, DateTime finish)? additionInfo;
   final void Function()? selectDate;
 
@@ -166,29 +167,37 @@ class CalendarStripe extends StatelessWidget {
                           NotificationListener<ScrollNotification>(
                               onNotification: (scrollNotification) {
                                 //do your logic
+                                if (scrollNotification is ScrollStartNotification) {
+                                  isScrolling++;
+                                }
                                 if (scrollNotification is ScrollEndNotification) {
+                                  isScrolling--;
                                   //scrollController.jumpTo(0);
                                   print("note ${scrollController.position.pixels}");
                                   final int delta = ((scrollController.position.pixels)%width).toInt();
                                   if(delta<3||delta>width-3)
                                     print("note ${delta}");
                                   else {
-                                    Future.delayed(Duration(milliseconds: 2),
+                                    print("stop ${scrollNotification}");
+                                    Future.delayed(Duration(milliseconds: 200),
                                         () {
-                                          scrollController.animateTo((scrollController.position
+                                          if(isScrolling==0)
+                                            scrollController.animateTo((scrollController.position
                                               .pixels / width + 0.5).toInt() *
                                               width,
                                             duration:
                                               Duration(milliseconds: 500),
                                               curve: Curves.ease,
                                               );
-                                        });
+                                          print("isScrolling $isScrolling");
+                                         });
                                     print("note1 ${delta}");
                                   }
                         }
                         return true;
                               },
                               child: InfiniteList(
+                                  //physics: BouncingScrollPhysics (),
                                   posChildCount: state.mounthList.length + (isLoading ? 1 : 0),
                                   controller: scrollController,
                                   scrollDirection: Axis.horizontal,
