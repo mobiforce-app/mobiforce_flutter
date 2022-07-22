@@ -191,6 +191,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
       await db.updateFile(f);
     }*/
     //final FileModel f = FileModel(id: id, usn: usn, downloaded: downloaded, size: size, deleted: deleted)
+    print("fieldId: ${file.parent?.id} fileId: ${file.id} desc:${file.description}");
     await db.updateFileDescription(file.parent.id, file.id,file.description??"");
     return true;
   }
@@ -199,7 +200,7 @@ class TaskRemoteDataSourcesImpl implements TaskRemoteDataSources
   Future<FileModel> addPictureTaskField({required int taskFieldId,required int pictureId}) async
   {
     int id = await db.addPictureToTaskField(taskFieldId:taskFieldId,pictureId:pictureId);
-    return FileModel(id: id, usn:0,downloaded: true, size:0, deleted: false);
+    return FileModel(id: id, usn:0,downloaded: true, size:0, deleted: false, parent: TasksFieldsModel(id: taskFieldId, usn: 0, serverId: 0, valueRequired: false));
   }
   @override
   Future<FileModel> deletePictureTaskField({required int taskFieldId,required int pictureId}) async

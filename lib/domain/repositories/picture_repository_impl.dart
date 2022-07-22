@@ -45,7 +45,7 @@ class FileRepositoryImpl implements FileRepository{
   }
   @override
   Future<Either<Failure, int>> saveFileDescription(FileModel file) async {
-    print("readFile load $id");
+    //print("readFile load $id");
     dynamic res = await remoteDataSources.saveFileDescription(file);
     return Right(1);
   }

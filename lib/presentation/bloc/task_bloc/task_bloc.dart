@@ -562,7 +562,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       bool isChanged = !(state as TaskLoaded).isChanged;
       task.propsList?.forEach((element) {
         if(event.fieldId==element.id){
-          final FileModel picture = FileModel(id: 0, usn: 0, downloaded: false, size: 0, deleted: false);
+          final FileModel picture = FileModel(id: 0, parent: TasksFieldsModel(id: event.fieldId, usn: 0, serverId: 0, valueRequired: false), usn: 0, downloaded: false, size: 0, deleted: false);
           picture.waiting=true;
           if(element.fileValueList!=null)
             element.fileValueList?.add(picture);
@@ -737,7 +737,9 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
           task.propsList?.forEach((element) {
             if (event.fieldId == element.id) {
               final FileModel picture = FileModel(
-                  id: 0, usn: 0, downloaded: false, size: 0, deleted: false);
+                  id: 0,
+                  parent: TasksFieldsModel(id: event.fieldId, usn: 0, serverId: 0, valueRequired: false),
+                  usn: 0, downloaded: false, size: 0, deleted: false);
               element.fileValueList
                   ?.removeWhere((pElement) => pElement.id == 0);
             }
@@ -842,7 +844,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
       if(fieldElement?.taskField?.type.value==TaskFieldTypeEnum.text)
         fieldElement?.stringValue=event.value;
       else if(fieldElement?.taskField?.type.value==TaskFieldTypeEnum.number)
-        fieldElement?.doubleValue =double.tryParse(event.value);
+        fieldElement?.doubleValue =double.tryParse(event.value.replaceAll(",", "."));
       //else if(fieldElement?.taskField?.type.value==TaskFieldTypeEnum.checkbox)
       //  return await db.updateTaskFieldValue(taskFieldId:taskField.id,taskFieldValue:taskField.boolValue==true?"1":"0");
 

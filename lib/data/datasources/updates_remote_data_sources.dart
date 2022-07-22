@@ -33,6 +33,7 @@ class UpdatesRemoteDataSourcesImpl implements UpdatesRemoteDataSources
   Future<int> sendFile({required String domain, required String accessToken, required String filename, required int localId })
   async {
     var request = http.MultipartRequest('POST', Uri.parse("https://$domain/api2.0/send-file.php"));
+    print("File(filename).lengthSync() ${File(filename).lengthSync()}");
     request.files.add(
         http.MultipartFile(
             'file',
