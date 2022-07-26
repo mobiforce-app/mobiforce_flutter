@@ -3574,11 +3574,16 @@ O/hYc6yKjFU5byZkpPVMToGrbDVwYyDncXuhzxg=
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: _kTabPages[0]),
             ),
-            SingleChildScrollView(
+            GestureDetector(
+                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                child:
+                SingleChildScrollView(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _kTabPages[1]),
+                    children: _kTabPages[1],
            ),
+                )
+            ),
             // SingleChildScrollView(
             //   child: Padding(
             //   padding: EdgeInsets.all(8.0),
