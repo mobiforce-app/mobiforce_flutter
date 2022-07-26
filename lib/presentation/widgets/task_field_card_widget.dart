@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobiforce_flutter/data/models/file_model.dart';
 import 'package:mobiforce_flutter/data/models/selection_value_model.dart';
 import 'package:mobiforce_flutter/domain/entity/task_entity.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:math' as math;
 
 import '../pages/pictures_screen.dart';
 
@@ -118,7 +120,10 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
           ),
           controller: _controller,
           maxLines: null,
-          keyboardType: widget.isText?TextInputType.multiline:TextInputType.numberWithOptions(decimal: true),//.numberWithOptions(),
+          keyboardType: widget.isText?TextInputType.multiline:TextInputType.numberWithOptions(decimal: true, signed: true),//.numberWithOptions(),
+           inputFormatters: widget.isText?null:[
+             DecimalTextInputFormatter(decimalRange: 2)
+           ],
   /*      onChanged: (data)
           {
             setState(()=>{});
@@ -130,6 +135,61 @@ class _taskFieldTextState extends State<TaskFieldTextCard> {
          //onEditingComplete: ()=>print("editing complete"),
         ),
      );
+  }
+}
+class DecimalTextInputFormatter extends TextInputFormatter {
+  DecimalTextInputFormatter({required this.decimalRange})
+      : assert(decimalRange == null || decimalRange > 0);
+  final int decimalRange;
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, // unused.
+      TextEditingValue newValue,
+      ) {
+    //final pattern = RegExp(r'[+-]?(?:[0-9]*[.])?[0-9]+');
+    String old = newValue.text.replaceAll(",", ".");
+    print("double.tryParse(newValue.text)??false ${newValue.text} ${double.tryParse(newValue.text)}");
+    if(old=="-"||old.length==0||(double.tryParse(old))!=null) {
+      //return newValue;
+      return TextEditingValue(
+        text: old,
+        selection: newValue.selection,
+        composing: TextRange.empty,
+      );
+    }
+    else
+    {
+
+      return TextEditingValue(
+        text: oldValue.text,
+        selection: oldValue.selection,
+        composing: TextRange.empty,
+      );
+    }
+      //return oldValue;
+
+    /*TextSelection newSelection = newValue.selection;
+    String truncated = newValue.text;
+    if (decimalRange != null) {
+      String value = newValue.text;
+      if (value.contains(".") &&
+          value.substring(value.indexOf(".") + 1).length > decimalRange) {
+        truncated = oldValue.text;
+        newSelection = oldValue.selection;
+      } else if (value == ".") {
+        truncated = "0.";
+        newSelection = newValue.selection.copyWith(
+          baseOffset: math.min(truncated.length, truncated.length + 1),
+          extentOffset: math.min(truncated.length, truncated.length + 1),
+        );
+      }
+      return TextEditingValue(
+        text: truncated,
+        selection: newSelection,
+        composing: TextRange.empty,
+      );
+    }*/
+    //return newValue;
   }
 }
 
