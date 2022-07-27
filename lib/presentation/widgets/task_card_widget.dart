@@ -25,7 +25,7 @@ class _CardyState extends State<TaskCard1> {
   Widget build(BuildContext context) {
     TaskEntity task = widget.task;
     //final items = Provider.of<Item>(context);
-    final String addressStr='${task.contractor?.parent?.name}${(task.contractor?.parent?.name??"").length>0?",":""} ${task.contractor?.name}'.trim();
+    final String addressStr='${task.contractor?.parent?.name??""}${(task.contractor?.parent?.name??"").length>0?", ":""}${task.contractor?.name}'.trim();
     final Widget address=(addressStr.length>0)?Text(addressStr):Text(AppLocalizations.of(context)!.taskNoClient, style: TextStyle(
       //fontSize: 18,
       color: Colors.grey,
@@ -96,6 +96,42 @@ class _CardyState extends State<TaskCard1> {
 
     return InkWell(
       onTap: () {
+        if(task.live==true){
+          BlocProvider.of<TaskBloc>(context).add(
+            GetTaskFromServer(task, (TaskModel task1)
+            {
+              /*BlocProvider.of<TaskListBloc>(context)
+                ..add(RefreshCurrenTaskInListTasks(task: task1));*/
+
+            },
+                    (TaskModel task2)
+                {
+                  /*setState(() {
+                    //widget.task = task2 as TaskEntity;
+                    //widget.task.loading=false;
+                    BlocProvider.of<TaskListBloc>(context)
+                      ..add(RefreshCurrenTaskInListTasks(task: task2));
+                  });
+                  BlocProvider.of<TaskBloc>(context).add(
+                    ReloadTask(task2.id),
+                  );
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        settings: RouteSettings(name: "TaskDetailPage"),
+                        pageBuilder: (context, animation1, animation2) =>
+                            TaskDetailPage(),
+                        transitionDuration: Duration(seconds: 0),
+                      ));
+                  */
+                  //BlocProvider.of<TaskListBloc>(context)
+                  //..add(RefreshCurrenTaskInListTasks(task: task2));
+                },
+                saveToDB:true
+            ),
+          );
+        }
+        //  return;
         if(task.notLoaded==true&&task.loading!=true){
           setState(() {
             widget.task.loading=true;
@@ -128,7 +164,7 @@ class _CardyState extends State<TaskCard1> {
                       ));
                   //BlocProvider.of<TaskListBloc>(context)
                   //..add(RefreshCurrenTaskInListTasks(task: task2));
-                }
+                }, saveToDB:true
             ),
           );
 
@@ -239,7 +275,7 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String addressStr='${task.contractor?.parent?.name}${(task.contractor?.parent?.name??"").length>0?",":""} ${task.contractor?.name}'.trim();
+    final String addressStr='${task.contractor?.parent?.name??""}${(task.contractor?.parent?.name??"").length>0?", ":""}${task.contractor?.name}'.trim();
     final Widget address=(addressStr.length>0)?Text(addressStr):Text(AppLocalizations.of(context)!.taskNoClient, style: TextStyle(
         //fontSize: 18,
         color: Colors.grey,
@@ -332,7 +368,8 @@ class TaskCard extends StatelessWidget {
                       ));
                   //BlocProvider.of<TaskListBloc>(context)
                   //..add(RefreshCurrenTaskInListTasks(task: task2));
-                }
+                },
+                saveToDB:true
             ),
           );
 

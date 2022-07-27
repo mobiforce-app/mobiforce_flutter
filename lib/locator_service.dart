@@ -37,6 +37,7 @@ import 'package:mobiforce_flutter/domain/usecases/user_logout.dart';
 import 'package:mobiforce_flutter/main.dart';
 import 'package:mobiforce_flutter/presentation/bloc/calendar_bloc/calendar_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/live_tasklist_bloc/live_tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/fullSyncSteam.dart';
@@ -65,6 +66,7 @@ import 'domain/usecases/add_task_comment.dart';
 import 'domain/usecases/get_contractors.dart';
 import 'domain/usecases/get_current_contractor.dart';
 import 'domain/usecases/get_current_template.dart';
+import 'domain/usecases/get_live_tasks.dart';
 import 'domain/usecases/get_new_task_number.dart';
 import 'domain/usecases/get_task_status_graph.dart';
 import 'domain/usecases/get_tasks_comments.dart';
@@ -89,6 +91,7 @@ Future<void>init() async
   //bloc
   sl.registerFactory(() => TaskSearchBloc(searchTask: sl()));
   sl.registerFactory(() => TaskListBloc(listTask: sl(),m:sl(),taskTemplatesList: sl(),startGeolocationService:sl(), geoLogSender: sl()));
+  sl.registerFactory(() => LiveTaskListBloc(listLiveTask: sl(),taskTemplatesList: sl(),startGeolocationService:sl(), geoLogSender: sl()));
   sl.registerFactory(() => CalendarBloc(sl()));
   sl.registerFactory(() => SettingBloc(settingsReader: sl()));
   sl.registerFactory(() => TaskTemplateSelectionBloc(taskTemplates: sl(),currentTemplate: sl()));
@@ -138,6 +141,7 @@ Future<void>init() async
   sl.registerLazySingleton(() => SendGeoLog(sl()));
   sl.registerLazySingleton(() => AddTaskComment(sl()));
   sl.registerLazySingleton(() => GetAllTasks(sl()));
+  sl.registerLazySingleton(() => GetLiveTasks(sl()));
   sl.registerLazySingleton(() => GetUserSetting(sl()));
   sl.registerLazySingleton(() => GetTask(sl()));
   sl.registerLazySingleton(() => LoadTask(sl(), sl()));

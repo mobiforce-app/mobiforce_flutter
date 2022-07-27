@@ -42,6 +42,25 @@ class TemplateRepositoryImpl implements TemplateRepository{
     //throw UnimplementedError();
   }
   @override
+  Future<Either<Failure, List<TaskModel>>> getLiveTasks(int page) async {
+    if(await networkInfo.isConnected){
+      try{
+        final remoteTask = await remoteDataSources.getLiveTasks(page);//remoteDataSources.searchTask(query);
+        return Right(remoteTask);
+      }
+      on ServerException{
+        print("error load live tasks");
+        //!!await Future.delayed(const Duration(seconds: 2), (){});
+        return Left(ServerFailure());
+      }
+    }
+    else{
+      print("error load live tasks1");
+      return Left(ServerFailure());
+    }
+
+  }
+  @override
   Future<Either<Failure, void>>sendGeoLog({required String log}) async {
     return Right(await remoteDataSources.sendGeoLog(log:log));
   }
@@ -121,10 +140,10 @@ class TemplateRepositoryImpl implements TemplateRepository{
   }
 
   @override
-  Future<Either<Failure, TaskEntity>> getCurrentTask(int id) async {
+  Future<Either<Failure, TaskEntity>> getCurrentTask(int id, bool saveToDB) async {
     if(await networkInfo.isConnected){
       try{
-        final remoteTemplate = await remoteDataSources.getCurrentTask(id);//remoteDataSources.searchTask(query);
+        final remoteTemplate = await remoteDataSources.getCurrentTask(id, saveToDB);//remoteDataSources.searchTask(query);
         print("=== ${remoteTemplate.toMap().toString()}");
         return Right(remoteTemplate);
       }

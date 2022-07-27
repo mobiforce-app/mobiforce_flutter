@@ -25,13 +25,14 @@ class TaskModel extends TaskEntity
 
   TaskModel({isChanged,required id,usn,required serverId,required unreadedCommentCount,name, status, contractor, address, statuses, checkList, propsList,
               author, employees,employee,equipment,phones,persons, template, deleted, addressFloor, addressInfo, addressPorch, addressRoom, lat, lon, externalLink,
-              externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,notLoaded,loading
+              externalLinkName, createdAt, plannedVisitTime, plannedEndVisitTime,unreadedComments,lifecycle,live, notLoaded,loading
   }): super(
       isChanged:isChanged,
       id:id,
       usn:usn,
       serverId:serverId,
       deleted:deleted,
+      live: live,
       notLoaded:notLoaded,
       loading:loading,
       name:name,
@@ -460,6 +461,7 @@ class TaskModel extends TaskEntity
         serverId: int.parse(json["id"]??"0"),
         name: json["name"]??"",
         deleted: json["deleted"]==1?true:false,
+        live: json["live"]==1?true:false,
         unreadedCommentCount:0,
         contractor: json["contractor"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?ContractorModel.fromJson(json["contractor"]):null,
         equipment: json["equipment"].runtimeType.toString()=='_InternalLinkedHashMap<String, dynamic>'?EquipmentModel.fromJson(json["equipment"]):null,

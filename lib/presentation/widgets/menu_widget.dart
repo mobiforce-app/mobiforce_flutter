@@ -11,6 +11,8 @@ import 'package:mobiforce_flutter/domain/entity/template_entity.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_state.dart';
+import 'package:mobiforce_flutter/presentation/bloc/live_tasklist_bloc/live_tasklist_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/live_tasklist_bloc/live_tasklist_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_event.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
@@ -37,6 +39,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../bloc/login_bloc/login_bloc.dart';
 import '../bloc/login_bloc/login_event.dart';
 import '../bloc/setting_bloc/setting_state.dart';
+import '../pages/live_task_screen.dart';
 import 'input_field_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
@@ -91,24 +94,24 @@ class MobiforceMenu extends StatelessWidget {
                             Icons.portrait, size: 80,),
                         ),
                       ),
-                      /*new ListTile(
+                      new ListTile(
                           title: new Text(AppLocalizations.of(context)!.liveMenuHeader),
                           leading: Icon(Icons.radio_button_checked),
                           minLeadingWidth: 16,
                           onTap: () {
                             Navigator.pop(context);
-                            BlocProvider.of<SettingBloc>(context).add(
-                              ReloadSetting(),
+                            BlocProvider.of<LiveTaskListBloc>(context).add(
+                              ReloadLiveTasksList(),
                             );
                             Navigator.push(context,
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation1,
-                                      animation2) => SettingPage(),
+                                      animation2) => LiveTaskListPage(),
                                   transitionDuration: Duration(seconds: 0),
                                 ));
                           }
                       ),
-                      */new ListTile(
+                      new ListTile(
                           title: new Text(AppLocalizations.of(context)!.gpsScheduleMenuItemName),
                           leading: Icon(Icons.settings),
                           minLeadingWidth: 16,

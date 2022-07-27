@@ -414,7 +414,7 @@ class SyncRepositoryImpl implements SyncRepository{
   @override
   Future<Either<Failure, bool>> getUnloadedTasks(List<int> tl) async {
     //return ;
-    await Future.forEach(tl, (int element) async => await onlineRemoteDataSources.getCurrentTask(element));
+    await Future.forEach(tl, (int element) async => await onlineRemoteDataSources.getCurrentTask(element,true));
     print("dalayedloading ${tl.length} $tl");
     return Right(tl.length>0);
   }

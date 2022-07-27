@@ -35,9 +35,10 @@ abstract class OnlineRemoteDataSources{
   Future<TaskEntity>createTaskOnServer(TaskEntity task);
   Future<ContractorModel> getCurrentContractor(int id);
   Future<TemplateModel> getCurrentTemplate(int id);
-  Future<TaskModel> getCurrentTask(int id);
+  Future<TaskModel> getCurrentTask(int id, bool saveToDB);
   Future<EquipmentModel> getCurrentEquipment(int id);
   Future<void> sendGeoLog({required String log});
+  Future<List<TaskModel>> getLiveTasks(int page);
 
 }
 
@@ -141,6 +142,17 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
     return (results as List).map((task)=> TemplateModel.fromJson(task)).toList();
   }
   @override
+  Future<List<TaskModel>> getLiveTasks(int page) async {
+    print("get live!!!");
+    var results = await _getTableFromUrl(
+        url: "https://agfa.mobiforce.ru/api2.0/get-live-tasks.php",
+        page: 0,
+        gridName: "clients_grid",
+        rules: '{"groupOp":"AND","rules":[]}'
+    );
+    return (results as List).map((task)=> TaskModel.fromJson(task)).toList();
+  }
+  @override
   //Future<List<TemplateModel>> getAllContractors(String name) => _getTableFromUrl(url: "https://mobifors111.mobiforce.ru/api2.0/get-templates.php", page:0,gridName:"tasktemplate_grid");
   Future<List<ContractorModel>> getAllContractors(String name) async {
     var results = await _getTableFromUrl(
@@ -228,7 +240,7 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
     */
     return equipment;
   }
-  Future<TaskModel> getCurrentTask(int id) async {
+  Future<TaskModel> getCurrentTask(int id, bool saveToDB) async {
 
     var results = await _getObjectFromUrl(
         url: "https://agfa.mobiforce.ru/api2.0/get-task.php?id=$id",
@@ -236,8 +248,11 @@ class OnlineRemoteDataSourcesImpl implements OnlineRemoteDataSources
     print("results $results");
     TaskModel task = TaskModel.fromJson(results);
     //task.insertToDB(db);
-    int taskInsertId = await task.insertToDB(db);
-    task = await db.getTask(taskInsertId, null);
+    if(saveToDB) {
+      int taskInsertId = await task.insertToDB(db);
+      task = await db.getTask(taskInsertId, null);
+    }
+
     //List<PhoneModel> phones=[];
     /*if(contractor.phones!=null)
       await Future.forEach(contractor.phones!, (PhoneModel element) async {

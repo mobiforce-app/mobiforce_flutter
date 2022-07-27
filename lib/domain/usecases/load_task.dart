@@ -33,7 +33,7 @@ class LoadTask extends UseCase<TaskEntity, LoadTaskParams>{
     //while(syncRepository.lock)
     //  await Future.delayed(Duration(seconds: 1));
     //syncRepository.incLockSemaphore();
-    var t = await remoteRepository.getCurrentTask(params.serverId);
+    var t = await remoteRepository.getCurrentTask(params.serverId, params.saveToDB);
     //syncRepository.decLockSemaphore();
     syncRepository.decLockSemaphore();
 
@@ -53,7 +53,8 @@ class LoadTaskParams extends Equatable{
   //final int taskFieldSelectionValue;
   final int id;
   final int serverId;
-  LoadTaskParams(this.id, this.serverId);
+  final bool saveToDB;
+  LoadTaskParams(this.id, this.serverId, this.saveToDB);
 
   @override
   List<Object> get props => [];

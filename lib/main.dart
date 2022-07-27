@@ -10,6 +10,7 @@ import 'package:mobiforce_flutter/domain/usecases/authorization_check.dart';
 import 'package:mobiforce_flutter/locator_service.dart' as di;
 import 'package:mobiforce_flutter/presentation/bloc/calendar_bloc/calendar_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/contractor_selection_bloc/contractor_selection_bloc.dart';
+import 'package:mobiforce_flutter/presentation/bloc/live_tasklist_bloc/live_tasklist_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/login_bloc/login_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/setting_bloc/setting_bloc.dart';
 import 'package:mobiforce_flutter/presentation/bloc/sync_bloc/sync_bloc.dart';
@@ -196,6 +197,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<CalendarBloc>(create: (context) => di.sl<CalendarBloc>()),
         BlocProvider<SettingBloc>(create: (context) => di.sl<SettingBloc>()),
         BlocProvider<TaskBloc>(create: (context) => di.sl<TaskBloc>()),
+        BlocProvider<LiveTaskListBloc>(create: (context) => di.sl<LiveTaskListBloc>()),
         BlocProvider<TaskListBloc>(create: (context) => di.sl<TaskListBloc>()..add(ListTasks()))
       ], child: MaterialApp(
             navigatorKey: di.sl<NavigationService>().navigatorKey,

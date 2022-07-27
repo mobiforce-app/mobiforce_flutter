@@ -1039,7 +1039,7 @@ class TaskBloc extends Bloc<TaskEvent,TaskState> {
     if (event is GetTaskFromServer) {
       event.task.loading = true;
       //event.callback(event.task);
-      final faiureOrLoading = await loadTask(LoadTaskParams(event.task.id,event.task.serverId));
+      final faiureOrLoading = await loadTask(LoadTaskParams(event.task.id,event.task.serverId, event.saveToDB));
       faiureOrLoading.fold((failure) =>TaskError(message:"bad"), (task) {
         print("${task.id}");
         event.callback1(task);

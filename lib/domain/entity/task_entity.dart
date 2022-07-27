@@ -17,6 +17,7 @@ class TaskEntity extends Equatable{
   int serverId;
   bool? deleted;
   bool? notLoaded;
+  bool? live;
   bool? loading;
   String? name;
   int? usn;
@@ -85,6 +86,7 @@ class TaskEntity extends Equatable{
       this.deleted,
       this.notLoaded,
     this.loading,
+    this.live,
     this.addressFloor,
     this.addressInfo,
     this.addressPorch,

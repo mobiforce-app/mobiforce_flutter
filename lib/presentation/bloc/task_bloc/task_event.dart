@@ -32,9 +32,10 @@ class GetTaskFromServer extends TaskEvent
 
   final Function callback;
   final Function callback1;
+  final bool saveToDB;
   //final int page;
 
-  GetTaskFromServer(this.task, this.callback, this.callback1);
+  GetTaskFromServer(this.task, this.callback, this.callback1, {required this.saveToDB});
 }
 class ReloadTaskByExternalID extends TaskEvent
 {

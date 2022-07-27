@@ -15,12 +15,13 @@ import 'package:mobiforce_flutter/domain/entity/taskstatus_entity.dart';
 
 abstract class TemplateRepository{
   Future<Either<Failure, List<TemplateModel>>>getAllTemplates(int page);
+  Future<Either<Failure, List<TaskModel>>>getLiveTasks(int page);
   Future<Either<Failure, List<ContractorModel>>>getAllContractors(String name);
   Future<Either<Failure, List<EquipmentModel>>>getAllEquipments({String? query, int? contractor});
   Future<Either<Failure, ContractorModel>> getCurrentContractor(int id);
   Future<Either<Failure, EquipmentModel>> getCurrentEquipment(int id);
   Future<Either<Failure, TemplateModel>> getCurrentTemplate(int id);
-  Future<Either<Failure, TaskEntity>> getCurrentTask(int id);
+  Future<Either<Failure, TaskEntity>> getCurrentTask(int id, bool saveToDB);
   Future<Either<Failure, TaskEntity>>createTaskOnServer(TaskEntity task);
   Future<Either<Failure, void>>sendGeoLog({required String log});
 }
